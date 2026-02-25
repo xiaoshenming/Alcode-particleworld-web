@@ -247,6 +247,11 @@ import './materials/MoltenSilver';
 import './materials/NitrousOxide';
 import './materials/Granite';
 import './materials/Superconductor';
+import './materials/Platinum';
+import './materials/MoltenPlatinum';
+import './materials/Phosgene';
+import './materials/Flint';
+import './materials/Nanobot';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
