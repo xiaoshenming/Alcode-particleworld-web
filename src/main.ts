@@ -217,6 +217,11 @@ import './materials/MoltenNickel';
 import './materials/Formaldehyde';
 import './materials/Drywall';
 import './materials/ThermalPaste';
+import './materials/Zinc';
+import './materials/MoltenZinc';
+import './materials/Ammonia';
+import './materials/DiatomMud';
+import './materials/GlowMoss';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
