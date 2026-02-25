@@ -88,6 +88,7 @@ import './materials/Gear';
 import './materials/Slime';
 import './materials/Ceramic';
 import './materials/Fiber';
+import './materials/MoltenGlass';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
