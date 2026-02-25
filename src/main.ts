@@ -92,6 +92,11 @@ import './materials/MoltenGlass';
 import './materials/Spore';
 import './materials/Thermite';
 import './materials/Methane';
+import './materials/Ferrofluid';
+import './materials/DistilledWater';
+import './materials/Quartz';
+import './materials/Soda';
+import './materials/Mushroom';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
