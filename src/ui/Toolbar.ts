@@ -10,6 +10,7 @@ export interface ToolbarCallbacks {
   onUndo: () => void;
   onRedo: () => void;
   onToggleTempOverlay: () => void;
+  onToggleGrid: () => void;
   getParticleCount: () => number;
   isPaused: () => boolean;
   getSpeed: () => number;
@@ -32,6 +33,7 @@ export class Toolbar {
   private speedLabel!: HTMLSpanElement;
   private speedSlider!: HTMLInputElement;
   private tempOverlayBtn!: HTMLButtonElement;
+  private gridBtn!: HTMLButtonElement;
   /** 记录每个分类的折叠状态 */
   private collapsedCategories = new Set<string>();
 
@@ -81,6 +83,12 @@ export class Toolbar {
   refreshTempOverlay(active: boolean): void {
     this.tempOverlayBtn.classList.toggle('active', active);
     this.tempOverlayBtn.textContent = active ? '温度: 开' : '温度: 关';
+  }
+
+  /** 刷新网格线按钮状态 */
+  refreshGrid(active: boolean): void {
+    this.gridBtn.classList.toggle('active', active);
+    this.gridBtn.textContent = active ? '网格: 开' : '网格: 关';
   }
 
   /** 创建材质按钮 */
@@ -331,6 +339,19 @@ export class Toolbar {
     });
     tempRow.appendChild(this.tempOverlayBtn);
     controlPanel.appendChild(tempRow);
+
+    // 网格线按钮
+    const gridRow = document.createElement('div');
+    gridRow.className = 'control-row';
+    this.gridBtn = document.createElement('button');
+    this.gridBtn.className = 'ctrl-btn';
+    this.gridBtn.textContent = '网格: 关';
+    this.gridBtn.title = '切换网格线 (G)';
+    this.gridBtn.addEventListener('click', () => {
+      this.callbacks.onToggleGrid();
+    });
+    gridRow.appendChild(this.gridBtn);
+    controlPanel.appendChild(gridRow);
 
     // 模拟速度
     const speedDiv = document.createElement('div');

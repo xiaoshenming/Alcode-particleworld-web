@@ -323,6 +323,10 @@ const toolbar = new Toolbar(input, {
     renderer.showTempOverlay = !renderer.showTempOverlay;
     toolbar.refreshTempOverlay(renderer.showTempOverlay);
   },
+  onToggleGrid: () => {
+    renderer.showGrid = !renderer.showGrid;
+    toolbar.refreshGrid(renderer.showGrid);
+  },
   getParticleCount: () => world.getParticleCount(),
   isPaused: () => paused,
   getSpeed: () => simSpeed,
@@ -399,6 +403,13 @@ document.addEventListener('keydown', (e) => {
   if (e.code === 'KeyT') {
     renderer.showTempOverlay = !renderer.showTempOverlay;
     toolbar.refreshTempOverlay(renderer.showTempOverlay);
+    return;
+  }
+
+  // G 键切换网格线
+  if (e.code === 'KeyG') {
+    renderer.showGrid = !renderer.showGrid;
+    toolbar.refreshGrid(renderer.showGrid);
     return;
   }
 });

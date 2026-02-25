@@ -16,6 +16,8 @@ export class Renderer {
   private tempCtx: CanvasRenderingContext2D;
   /** 温度叠加层开关 */
   showTempOverlay = false;
+  /** 网格线开关 */
+  showGrid = false;
 
   constructor(canvas: HTMLCanvasElement, gridWidth: number, gridHeight: number, scale: number) {
     const ctx = canvas.getContext('2d');
@@ -58,6 +60,11 @@ export class Renderer {
       this.tempCanvas.width * this.scale,
       this.tempCanvas.height * this.scale,
     );
+
+    // 网格线
+    if (this.showGrid && this.scale >= 3) {
+      this.drawGrid();
+    }
   }
 
   /** 将温度数据叠加到像素缓冲区（蓝=冷，红=热） */
@@ -100,6 +107,27 @@ export class Renderer {
         this.pixels[i] = (pa << 24) | (pb << 16) | (pg << 8) | pr;
       }
     }
+  }
+
+  /** 绘制网格线 */
+  private drawGrid(): void {
+    const s = this.scale;
+    const w = this.gridWidth * s;
+    const h = this.gridHeight * s;
+    this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+    this.ctx.lineWidth = 0.5;
+    this.ctx.beginPath();
+    for (let x = 0; x <= this.gridWidth; x++) {
+      const px = x * s;
+      this.ctx.moveTo(px, 0);
+      this.ctx.lineTo(px, h);
+    }
+    for (let y = 0; y <= this.gridHeight; y++) {
+      const py = y * s;
+      this.ctx.moveTo(0, py);
+      this.ctx.lineTo(w, py);
+    }
+    this.ctx.stroke();
   }
 
   /** 绘制笔刷预览圆圈 */
