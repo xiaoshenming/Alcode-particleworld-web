@@ -32,6 +32,7 @@ import './materials/Putty';
 import './materials/Philosopher';
 import './materials/Gold';
 import './materials/Diamond';
+import './materials/Rubber';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
