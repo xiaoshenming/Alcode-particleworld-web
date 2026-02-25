@@ -337,6 +337,12 @@ const toolbar = new Toolbar(input, {
     renderer.showGrid = !renderer.showGrid;
     toolbar.refreshGrid(renderer.showGrid);
   },
+  onScreenshot: () => {
+    const link = document.createElement('a');
+    link.download = `particleworld-${Date.now()}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  },
   getParticleCount: () => world.getParticleCount(),
   isPaused: () => paused,
   getSpeed: () => simSpeed,
@@ -442,6 +448,15 @@ document.addEventListener('keydown', (e) => {
       input.setMaterial(0);
     }
     toolbar.refreshMaterialSelection();
+    return;
+  }
+
+  // P 键截图
+  if (e.code === 'KeyP') {
+    const link = document.createElement('a');
+    link.download = `particleworld-${Date.now()}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
     return;
   }
 });

@@ -11,6 +11,7 @@ export interface ToolbarCallbacks {
   onRedo: () => void;
   onToggleTempOverlay: () => void;
   onToggleGrid: () => void;
+  onScreenshot: () => void;
   getParticleCount: () => number;
   isPaused: () => boolean;
   getSpeed: () => number;
@@ -391,6 +392,17 @@ export class Toolbar {
     });
     eraserRow.appendChild(this.eraserBtn);
     controlPanel.appendChild(eraserRow);
+
+    // 截图按钮
+    const screenshotRow = document.createElement('div');
+    screenshotRow.className = 'control-row';
+    const screenshotBtn = document.createElement('button');
+    screenshotBtn.className = 'ctrl-btn';
+    screenshotBtn.textContent = '截图';
+    screenshotBtn.title = '导出画布为 PNG (P)';
+    screenshotBtn.addEventListener('click', () => this.callbacks.onScreenshot());
+    screenshotRow.appendChild(screenshotBtn);
+    controlPanel.appendChild(screenshotRow);
 
     // 温度叠加层按钮
     const tempRow = document.createElement('div');
