@@ -23,4 +23,6 @@ export interface WorldAPI {
   markUpdated(x: number, y: number): void;
   /** 获取指定位置材质的密度 */
   getDensity(x: number, y: number): number;
+  /** 唤醒指定位置及其邻居（下一帧参与模拟） */
+  wakeArea(cx: number, cy: number): void;
 }

@@ -2,8 +2,9 @@ import { World } from './World';
 import { getMaterial } from '../materials/registry';
 
 /**
- * 模拟引擎 —— 每帧更新所有粒子
+ * 模拟引擎 —— 每帧更新活跃粒子
  * 从底部向上扫描，确保重力方向的粒子先被处理
+ * 使用活跃标记跳过静止粒子，提升性能
  */
 export class Simulation {
   private world: World;
@@ -28,6 +29,9 @@ export class Simulation {
         const cellId = this.world.get(x, y);
         if (cellId === 0) continue;
         if (this.world.isUpdated(x, y)) continue;
+
+        // 跳过非活跃粒子（静止的沙堆、石头等）
+        if (!this.world.isAwake(x, y)) continue;
 
         const mat = getMaterial(cellId);
         if (mat) {
