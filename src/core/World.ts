@@ -237,6 +237,21 @@ export class World implements WorldAPI {
     return JSON.stringify({ v: 2, w: this.width, h: this.height, rle: runs });
   }
 
+  /** 从 cells 快照恢复世界状态（用于撤销/重做） */
+  restoreFromSnapshot(snapshot: Uint16Array): void {
+    this.cells.set(snapshot);
+    // 重建颜色并唤醒所有非空粒子
+    for (let i = 0; i < this.cells.length; i++) {
+      const mat = getMaterial(this.cells[i]);
+      this.colors[i] = mat ? mat.color() : 0xFF3E2116;
+      if (this.cells[i] !== 0) {
+        const x = i % this.width;
+        const y = Math.floor(i / this.width);
+        this.wakeArea(x, y);
+      }
+    }
+  }
+
   /** 从 JSON 字符串恢复世界状态（兼容 v1/v2 存档） */
   load(data: string): boolean {
     try {

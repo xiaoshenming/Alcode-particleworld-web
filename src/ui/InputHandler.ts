@@ -11,6 +11,8 @@ export class InputHandler {
   private painting = false;
   private selectedMaterial = 1; // 默认沙子
   private brushSize = 3;
+  /** 绘制开始时的回调（用于保存撤销快照） */
+  onPaintStart?: () => void;
 
   /** 当前光标在网格中的位置（-1 表示不在画布上） */
   cursorX = -1;
@@ -50,6 +52,7 @@ export class InputHandler {
 
   private bindEvents(): void {
     this.canvas.addEventListener('mousedown', (e) => {
+      this.onPaintStart?.();
       this.painting = true;
       this.paint(e);
     });
@@ -77,6 +80,7 @@ export class InputHandler {
     // 触摸支持
     this.canvas.addEventListener('touchstart', (e) => {
       e.preventDefault();
+      this.onPaintStart?.();
       this.painting = true;
       this.paintTouch(e);
     });

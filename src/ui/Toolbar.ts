@@ -7,6 +7,8 @@ export interface ToolbarCallbacks {
   onClear: () => void;
   onSave: () => void;
   onLoad: () => void;
+  onUndo: () => void;
+  onRedo: () => void;
   onToggleTempOverlay: () => void;
   getParticleCount: () => number;
   isPaused: () => boolean;
@@ -297,6 +299,26 @@ export class Toolbar {
     saveRow.appendChild(loadBtn);
     controlPanel.appendChild(saveRow);
 
+    // 撤销/重做按钮行
+    const undoRow = document.createElement('div');
+    undoRow.className = 'control-row';
+
+    const undoBtn = document.createElement('button');
+    undoBtn.className = 'ctrl-btn';
+    undoBtn.textContent = '撤销';
+    undoBtn.title = 'Ctrl+Z';
+    undoBtn.addEventListener('click', () => this.callbacks.onUndo());
+
+    const redoBtn = document.createElement('button');
+    redoBtn.className = 'ctrl-btn';
+    redoBtn.textContent = '重做';
+    redoBtn.title = 'Ctrl+Y';
+    redoBtn.addEventListener('click', () => this.callbacks.onRedo());
+
+    undoRow.appendChild(undoBtn);
+    undoRow.appendChild(redoBtn);
+    controlPanel.appendChild(undoRow);
+
     // 温度叠加层按钮
     const tempRow = document.createElement('div');
     tempRow.className = 'control-row';
@@ -381,7 +403,7 @@ export class Toolbar {
     this.container.appendChild(helpDiv);
     const keysDiv = document.createElement('div');
     keysDiv.className = 'control-row stats';
-    keysDiv.textContent = 'Space 暂停 · 1~0 材质 · [] 笔刷 · -/= 速度';
+    keysDiv.textContent = 'Space 暂停 · 1~0 材质 · [] 笔刷 · -/= 速度 · Ctrl+Z/Y 撤销';
     this.container.appendChild(keysDiv);
 
     // 监听滚轮笔刷变化同步滑块

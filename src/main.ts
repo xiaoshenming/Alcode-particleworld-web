@@ -263,6 +263,7 @@ import { Simulation } from './core/Simulation';
 import { Renderer } from './core/Renderer';
 import { InputHandler } from './ui/InputHandler';
 import { Toolbar } from './ui/Toolbar';
+import { History } from './core/History';
 
 const GRID_WIDTH = 200;
 const GRID_HEIGHT = 150;
@@ -276,21 +277,35 @@ const world = new World(GRID_WIDTH, GRID_HEIGHT);
 const simulation = new Simulation(world);
 const renderer = new Renderer(canvas, GRID_WIDTH, GRID_HEIGHT, PIXEL_SCALE);
 const input = new InputHandler(canvas, world, PIXEL_SCALE);
+const history = new History();
 
 let paused = false;
 let simSpeed = 1; // 模拟速度倍率 1~5
 
 const SAVE_KEY = 'particleworld-save';
 
+// 绘制前保存快照（用于撤销）
+input.onPaintStart = () => {
+  history.pushSnapshot(world.cells);
+};
+
 const toolbar = new Toolbar(input, {
   onPause: () => { paused = !paused; },
-  onClear: () => { world.clear(); },
+  onClear: () => { world.clear(); history.clear(); },
   onSave: () => {
     localStorage.setItem(SAVE_KEY, world.save());
   },
   onLoad: () => {
     const data = localStorage.getItem(SAVE_KEY);
     if (data) world.load(data);
+  },
+  onUndo: () => {
+    const snapshot = history.undo();
+    if (snapshot) world.restoreFromSnapshot(snapshot);
+  },
+  onRedo: () => {
+    const snapshot = history.redo();
+    if (snapshot) world.restoreFromSnapshot(snapshot);
   },
   onToggleTempOverlay: () => {
     renderer.showTempOverlay = !renderer.showTempOverlay;
@@ -308,6 +323,20 @@ const HOTKEY_MATERIALS = [1, 2, 3, 4, 6, 11, 22, 20, 5, 0]; // 沙水石木火�
 
 // 快捷键
 document.addEventListener('keydown', (e) => {
+  // Ctrl+Z 撤销 / Ctrl+Y 或 Ctrl+Shift+Z 重做
+  if ((e.ctrlKey || e.metaKey) && e.code === 'KeyZ' && !e.shiftKey) {
+    e.preventDefault();
+    const snapshot = history.undo();
+    if (snapshot) world.restoreFromSnapshot(snapshot);
+    return;
+  }
+  if ((e.ctrlKey || e.metaKey) && (e.code === 'KeyY' || (e.code === 'KeyZ' && e.shiftKey))) {
+    e.preventDefault();
+    const snapshot = history.redo();
+    if (snapshot) world.restoreFromSnapshot(snapshot);
+    return;
+  }
+
   // Space 暂停
   if (e.code === 'Space') {
     e.preventDefault();
