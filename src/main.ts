@@ -40,12 +40,23 @@ const renderer = new Renderer(canvas, GRID_WIDTH, GRID_HEIGHT, PIXEL_SCALE);
 const input = new InputHandler(canvas, world, PIXEL_SCALE);
 
 let paused = false;
+let simSpeed = 1; // 模拟速度倍率 1~5
 
 const toolbar = new Toolbar(input, {
   onPause: () => { paused = !paused; },
   onClear: () => { world.clear(); },
   getParticleCount: () => world.getParticleCount(),
   isPaused: () => paused,
+  getSpeed: () => simSpeed,
+  setSpeed: (s: number) => { simSpeed = Math.max(1, Math.min(5, s)); },
+});
+
+// 快捷键
+document.addEventListener('keydown', (e) => {
+  if (e.code === 'Space') {
+    e.preventDefault();
+    paused = !paused;
+  }
 });
 
 // FPS 显示
@@ -57,9 +68,17 @@ let frames = 0;
 
 function loop() {
   if (!paused) {
-    simulation.update();
+    for (let i = 0; i < simSpeed; i++) {
+      simulation.update();
+    }
   }
   renderer.render(world);
+
+  // 笔刷预览
+  if (input.cursorVisible) {
+    renderer.renderBrushPreview(input.cursorX, input.cursorY, input.getBrushSize());
+  }
+
   toolbar.updateStats();
 
   // FPS 计算

@@ -16,6 +16,8 @@ export interface ToolbarCallbacks {
   onClear: () => void;
   getParticleCount: () => number;
   isPaused: () => boolean;
+  getSpeed: () => number;
+  setSpeed: (speed: number) => void;
 }
 
 /**
@@ -148,6 +150,27 @@ export class Toolbar {
     btnRow.appendChild(clearBtn);
     controlPanel.appendChild(btnRow);
 
+    // 模拟速度
+    const speedDiv = document.createElement('div');
+    speedDiv.className = 'control-row';
+    const speedLabel = document.createElement('span');
+    speedLabel.className = 'control-label';
+    speedLabel.textContent = `速度: ${this.callbacks.getSpeed()}x`;
+    const speedSlider = document.createElement('input');
+    speedSlider.type = 'range';
+    speedSlider.min = '1';
+    speedSlider.max = '5';
+    speedSlider.value = String(this.callbacks.getSpeed());
+    speedSlider.setAttribute('aria-label', '模拟速度');
+    speedSlider.addEventListener('input', () => {
+      const speed = parseInt(speedSlider.value);
+      this.callbacks.setSpeed(speed);
+      speedLabel.textContent = `速度: ${speed}x`;
+    });
+    speedDiv.appendChild(speedLabel);
+    speedDiv.appendChild(speedSlider);
+    controlPanel.appendChild(speedDiv);
+
     // 粒子计数
     const statsDiv = document.createElement('div');
     statsDiv.className = 'control-row stats';
@@ -160,5 +183,23 @@ export class Toolbar {
     controlPanel.appendChild(statsDiv);
 
     this.container.appendChild(controlPanel);
+
+    // 快捷键提示
+    const helpDiv = document.createElement('div');
+    helpDiv.className = 'toolbar-sep';
+    this.container.appendChild(helpDiv);
+    const keysDiv = document.createElement('div');
+    keysDiv.className = 'control-row stats';
+    keysDiv.textContent = 'Space 暂停 \u00B7 滚轮 笔刷';
+    this.container.appendChild(keysDiv);
+
+    // 监听滚轮笔刷变化同步滑块
+    const canvasEl = document.querySelector('#canvas');
+    if (canvasEl) {
+      canvasEl.addEventListener('brushchange', ((e: CustomEvent) => {
+        slider.value = String(e.detail);
+        brushLabel.textContent = `笔刷: ${e.detail}`;
+      }) as EventListener);
+    }
   }
 }

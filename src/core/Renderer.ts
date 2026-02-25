@@ -47,4 +47,20 @@ export class Renderer {
       this.tempCanvas.height * this.scale,
     );
   }
+
+  /** 绘制笔刷预览圆圈 */
+  renderBrushPreview(cx: number, cy: number, brushSize: number): void {
+    const r = Math.floor(brushSize / 2);
+    const s = this.scale;
+    this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+    this.ctx.lineWidth = 1;
+    this.ctx.beginPath();
+    this.ctx.arc(
+      (cx + 0.5) * s,
+      (cy + 0.5) * s,
+      (r + 0.5) * s,
+      0, Math.PI * 2,
+    );
+    this.ctx.stroke();
+  }
 }

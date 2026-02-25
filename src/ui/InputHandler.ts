@@ -2,7 +2,7 @@ import { World } from '../core/World';
 
 /**
  * 鼠标/触摸输入处理器
- * 将屏幕坐标转换为网格坐标，支持拖拽绘制
+ * 将屏幕坐标转换为网格坐标，支持拖拽绘制和笔刷预览
  */
 export class InputHandler {
   private world: World;
@@ -11,6 +11,11 @@ export class InputHandler {
   private painting = false;
   private selectedMaterial = 1; // 默认沙子
   private brushSize = 3;
+
+  /** 当前光标在网格中的位置（-1 表示不在画布上） */
+  cursorX = -1;
+  cursorY = -1;
+  cursorVisible = false;
 
   constructor(canvas: HTMLCanvasElement, world: World, scale: number) {
     this.canvas = canvas;
@@ -35,16 +40,39 @@ export class InputHandler {
     return this.brushSize;
   }
 
+  private toGrid(clientX: number, clientY: number): [number, number] {
+    const rect = this.canvas.getBoundingClientRect();
+    return [
+      Math.floor((clientX - rect.left) / this.scale),
+      Math.floor((clientY - rect.top) / this.scale),
+    ];
+  }
+
   private bindEvents(): void {
     this.canvas.addEventListener('mousedown', (e) => {
       this.painting = true;
       this.paint(e);
     });
     this.canvas.addEventListener('mousemove', (e) => {
-      if (this.painting) this.paint(e);
+      const [gx, gy] = this.toGrid(e.clientX, e.clientY);
+      this.cursorX = gx;
+      this.cursorY = gy;
+      this.cursorVisible = true;
+      if (this.painting) this.drawAt(gx, gy);
     });
     this.canvas.addEventListener('mouseup', () => { this.painting = false; });
-    this.canvas.addEventListener('mouseleave', () => { this.painting = false; });
+    this.canvas.addEventListener('mouseleave', () => {
+      this.painting = false;
+      this.cursorVisible = false;
+    });
+
+    // 滚轮调整笔刷大小
+    this.canvas.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      this.setBrushSize(this.brushSize + (e.deltaY < 0 ? 1 : -1));
+      // 触发自定义事件通知 Toolbar 更新
+      this.canvas.dispatchEvent(new CustomEvent('brushchange', { detail: this.brushSize }));
+    }, { passive: false });
 
     // 触摸支持
     this.canvas.addEventListener('touchstart', (e) => {
@@ -60,17 +88,13 @@ export class InputHandler {
   }
 
   private paint(e: MouseEvent): void {
-    const rect = this.canvas.getBoundingClientRect();
-    const gx = Math.floor((e.clientX - rect.left) / this.scale);
-    const gy = Math.floor((e.clientY - rect.top) / this.scale);
+    const [gx, gy] = this.toGrid(e.clientX, e.clientY);
     this.drawAt(gx, gy);
   }
 
   private paintTouch(e: TouchEvent): void {
     const touch = e.touches[0];
-    const rect = this.canvas.getBoundingClientRect();
-    const gx = Math.floor((touch.clientX - rect.left) / this.scale);
-    const gy = Math.floor((touch.clientY - rect.top) / this.scale);
+    const [gx, gy] = this.toGrid(touch.clientX, touch.clientY);
     this.drawAt(gx, gy);
   }
 
