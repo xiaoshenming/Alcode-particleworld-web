@@ -29,6 +29,9 @@ import './materials/MoltenWax';
 import './materials/Firework';
 import './materials/Spark';
 import './materials/Putty';
+import './materials/Philosopher';
+import './materials/Gold';
+import './materials/Diamond';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
