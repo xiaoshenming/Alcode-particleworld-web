@@ -202,6 +202,11 @@ import './materials/ElectroPlasma';
 import './materials/PeatMoss';
 import './materials/LavaRock';
 import './materials/Jellyfish';
+import './materials/Chromium';
+import './materials/MoltenChromium';
+import './materials/HydrogenFluoride';
+import './materials/Graphene';
+import './materials/GlassBead';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
