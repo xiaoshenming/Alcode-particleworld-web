@@ -87,6 +87,7 @@ import './materials/Blood';
 import './materials/Gear';
 import './materials/Slime';
 import './materials/Ceramic';
+import './materials/Fiber';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
