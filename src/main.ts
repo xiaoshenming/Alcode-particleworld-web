@@ -91,6 +91,7 @@ import './materials/Fiber';
 import './materials/MoltenGlass';
 import './materials/Spore';
 import './materials/Thermite';
+import './materials/Methane';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
