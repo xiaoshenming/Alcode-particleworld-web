@@ -7,7 +7,7 @@ import { registerMaterial } from './registry';
  */
 
 /** 不可被酸溶解的材质 */
-const ACID_IMMUNE = new Set([0, 9]); // 空气、酸液自身
+const ACID_IMMUNE = new Set([0, 9, 10]); // 空气、酸液自身、金属
 
 export const Acid: MaterialDef = {
   id: 9,

@@ -9,6 +9,8 @@ import './materials/Fire';
 import './materials/Smoke';
 import './materials/Steam';
 import './materials/Acid';
+import './materials/Metal';
+import './materials/Lava';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
