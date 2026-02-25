@@ -112,6 +112,11 @@ import './materials/RockSalt';
 import './materials/MoltenMetal';
 import './materials/Pollen';
 import './materials/Pumice';
+import './materials/Zeolite';
+import './materials/LiquidCrystal';
+import './materials/Dolomite';
+import './materials/Rocket';
+import './materials/DesertRose';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
