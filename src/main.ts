@@ -79,6 +79,8 @@ import './materials/Sodium';
 import './materials/GlowLiquid';
 import './materials/Termite';
 import './materials/Gel';
+import './materials/MoltenSalt';
+import './materials/Sandstorm';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';

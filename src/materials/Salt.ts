@@ -37,11 +37,21 @@ export const Salt: MaterialDef = {
         return;
       }
 
-      // 盐 + 熔岩 → 盐熔化
+      // 盐 + 熔岩 → 熔盐
       if (nid === 11 && Math.random() < 0.2) {
-        world.set(x, y, 0);
+        world.set(x, y, 83); // 熔盐
+        world.setTemp(x, y, 350);
+        world.wakeArea(x, y);
         return;
       }
+    }
+
+    // 高温融化为熔盐
+    const temp = world.getTemp(x, y);
+    if (temp > 300 && Math.random() < 0.1) {
+      world.set(x, y, 83); // 熔盐
+      world.wakeArea(x, y);
+      return;
     }
 
     if (y >= world.height - 1) return;
