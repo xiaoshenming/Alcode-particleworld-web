@@ -32,7 +32,15 @@ const world = new World(GRID_WIDTH, GRID_HEIGHT);
 const simulation = new Simulation(world);
 const renderer = new Renderer(canvas, GRID_WIDTH, GRID_HEIGHT, PIXEL_SCALE);
 const input = new InputHandler(canvas, world, PIXEL_SCALE);
-new Toolbar(input);
+
+let paused = false;
+
+const toolbar = new Toolbar(input, {
+  onPause: () => { paused = !paused; },
+  onClear: () => { world.clear(); },
+  getParticleCount: () => world.getParticleCount(),
+  isPaused: () => paused,
+});
 
 // FPS 显示
 const fpsEl = document.createElement('div');
@@ -42,8 +50,11 @@ let lastTime = performance.now();
 let frames = 0;
 
 function loop() {
-  simulation.update();
+  if (!paused) {
+    simulation.update();
+  }
   renderer.render(world);
+  toolbar.updateStats();
 
   // FPS 计算
   frames++;

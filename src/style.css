@@ -27,34 +27,56 @@ html, body {
   cursor: crosshair;
 }
 
-/* 工具栏 */
+/* 工具栏 - 左侧面板 */
 #toolbar {
   position: fixed;
   top: 12px;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 12px;
   display: flex;
-  gap: 16px;
-  align-items: center;
-  background: rgba(20, 20, 40, 0.9);
-  padding: 8px 16px;
+  flex-direction: column;
+  gap: 8px;
+  background: rgba(20, 20, 40, 0.92);
+  padding: 10px;
   border-radius: 8px;
   border: 1px solid #333;
   z-index: 10;
+  max-height: calc(100vh - 24px);
+  overflow-y: auto;
+  width: 180px;
 }
 
-.toolbar-section {
+/* 材质面板 */
+.materials-panel {
   display: flex;
+  flex-direction: column;
   gap: 6px;
-  align-items: center;
+}
+
+.category {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.category-label {
+  font-size: 11px;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.category-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
 }
 
 .material-btn {
-  padding: 4px 10px;
+  padding: 3px 8px;
   border: 2px solid transparent;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   transition: border-color 0.15s;
 }
@@ -67,14 +89,69 @@ html, body {
   border-color: #fff;
 }
 
-.brush-label {
-  font-size: 13px;
+/* 分隔线 */
+.toolbar-sep {
+  height: 1px;
+  background: #444;
+  margin: 2px 0;
+}
+
+/* 控制面板 */
+.control-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.control-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.control-label {
+  font-size: 12px;
   white-space: nowrap;
 }
 
 input[type="range"] {
-  width: 80px;
+  flex: 1;
   accent-color: #c2b280;
+}
+
+.ctrl-btn {
+  flex: 1;
+  padding: 4px 0;
+  border: 1px solid #555;
+  border-radius: 4px;
+  background: rgba(60, 60, 80, 0.8);
+  color: #e0e0e0;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background 0.15s;
+}
+
+.ctrl-btn:hover {
+  background: rgba(80, 80, 110, 0.9);
+}
+
+.ctrl-btn.active {
+  background: rgba(200, 160, 50, 0.6);
+  border-color: #c2b280;
+}
+
+.ctrl-btn-danger {
+  border-color: #833;
+}
+
+.ctrl-btn-danger:hover {
+  background: rgba(150, 40, 40, 0.7);
+}
+
+.stats {
+  font-size: 11px;
+  color: #999;
+  font-family: monospace;
 }
 
 /* FPS 显示 */

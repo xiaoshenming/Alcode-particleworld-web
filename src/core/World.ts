@@ -83,4 +83,21 @@ export class World implements WorldAPI {
     const mat = getMaterial(this.cells[this.idx(x, y)]);
     return mat ? mat.density : 0;
   }
+
+  /** 统计非空粒子数量 */
+  getParticleCount(): number {
+    let count = 0;
+    for (let i = 0; i < this.cells.length; i++) {
+      if (this.cells[i] !== 0) count++;
+    }
+    return count;
+  }
+
+  /** 清空所有粒子 */
+  clear(): void {
+    this.cells.fill(0);
+    const emptyMat = getMaterial(0);
+    const bgColor = emptyMat ? emptyMat.color() : 0xFF3E2116;
+    this.colors.fill(bgColor);
+  }
 }
