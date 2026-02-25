@@ -17,6 +17,8 @@ import './materials/Ice';
 import './materials/Snow';
 import './materials/Lightning';
 import './materials/Glass';
+import './materials/Poison';
+import './materials/Hydrogen';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
