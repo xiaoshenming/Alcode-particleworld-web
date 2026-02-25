@@ -105,13 +105,46 @@ export class Toolbar {
   private build(): void {
     const categorized = getMaterialsByCategory();
 
+    // 搜索框
+    const searchDiv = document.createElement('div');
+    searchDiv.className = 'search-box';
+    const searchInput = document.createElement('input');
+    searchInput.type = 'text';
+    searchInput.placeholder = '搜索材质...';
+    searchInput.className = 'search-input';
+    searchInput.setAttribute('aria-label', '搜索材质');
+    searchDiv.appendChild(searchInput);
+    this.container.appendChild(searchDiv);
+
     // 分类材质区
     const matsPanel = document.createElement('div');
     matsPanel.className = 'materials-panel';
 
+    // 搜索结果区（默认隐藏）
+    const searchResults = document.createElement('div');
+    searchResults.className = 'category search-results';
+    searchResults.style.display = 'none';
+    const searchLabel = document.createElement('div');
+    searchLabel.className = 'category-header';
+    const searchLabelText = document.createElement('span');
+    searchLabelText.className = 'category-label';
+    searchLabelText.textContent = '搜索结果';
+    searchLabel.appendChild(searchLabelText);
+    searchResults.appendChild(searchLabel);
+    const searchBtns = document.createElement('div');
+    searchBtns.className = 'category-btns';
+    searchResults.appendChild(searchBtns);
+    matsPanel.appendChild(searchResults);
+
+    // 收集所有材质用于搜索
+    const allMats: MaterialDef[] = [];
+    const categoryDivs: HTMLElement[] = [];
+
     for (const [catName, mats] of categorized) {
+      allMats.push(...mats);
       const catDiv = document.createElement('div');
       catDiv.className = 'category';
+      categoryDivs.push(catDiv);
 
       // 可折叠的分类标题
       const catHeader = document.createElement('div');
@@ -154,6 +187,39 @@ export class Toolbar {
       matsPanel.appendChild(catDiv);
     }
     this.container.appendChild(matsPanel);
+
+    // 搜索逻辑
+    searchInput.addEventListener('input', () => {
+      const query = searchInput.value.trim().toLowerCase();
+      if (!query) {
+        // 清空搜索：显示分类，隐藏搜索结果
+        searchResults.style.display = 'none';
+        searchBtns.innerHTML = '';
+        for (const div of categoryDivs) div.style.display = '';
+        return;
+      }
+      // 有搜索词：隐藏分类，显示搜索结果
+      for (const div of categoryDivs) div.style.display = 'none';
+      searchBtns.innerHTML = '';
+      const matched = allMats.filter(m =>
+        m.name.toLowerCase().includes(query) ||
+        String(m.id) === query
+      );
+      searchLabelText.textContent = `搜索结果 (${matched.length})`;
+      for (const mat of matched) {
+        searchBtns.appendChild(this.createMaterialBtn(mat));
+      }
+      searchResults.style.display = matched.length > 0 ? '' : 'none';
+    });
+
+    // Esc 清空搜索
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        searchInput.value = '';
+        searchInput.dispatchEvent(new Event('input'));
+        searchInput.blur();
+      }
+    });
 
     // 分隔线
     const sep = document.createElement('div');

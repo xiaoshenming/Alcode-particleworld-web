@@ -45,6 +45,35 @@ html, body {
   width: 180px;
 }
 
+/* 材质搜索框 */
+.search-box {
+  margin-bottom: 4px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 4px 8px;
+  border: 1px solid #444;
+  border-radius: 4px;
+  background: rgba(40, 40, 60, 0.8);
+  color: #e0e0e0;
+  font-size: 12px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.search-input:focus {
+  border-color: #c2b280;
+}
+
+.search-input::placeholder {
+  color: #666;
+}
+
+.search-results .category-label {
+  color: #c2b280;
+}
+
 /* 材质面板 */
 .materials-panel {
   display: flex;
