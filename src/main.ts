@@ -74,6 +74,7 @@ import './materials/OilSand';
 import './materials/Frost';
 import './materials/Cloud';
 import './materials/Basalt';
+import './materials/Tundra';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
