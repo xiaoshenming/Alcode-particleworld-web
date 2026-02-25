@@ -1,0 +1,27 @@
+{
+  "name": "particleworld-web",
+  "version": "1.0.0",
+  "description": "基于物理引擎的粉末沙盒模拟游戏，纯浏览器运行。",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xiaoshenming/Alcode-particleworld-web.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/xiaoshenming/Alcode-particleworld-web/issues"
+  },
+  "homepage": "https://github.com/xiaoshenming/Alcode-particleworld-web#readme",
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1"
+  }
+}
