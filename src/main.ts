@@ -242,6 +242,11 @@ import './materials/MoltenVanadium';
 import './materials/SulfurDioxide';
 import './materials/Sandstone';
 import './materials/CarbonNanotube';
+import './materials/Silver';
+import './materials/MoltenSilver';
+import './materials/NitrousOxide';
+import './materials/Granite';
+import './materials/Superconductor';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
