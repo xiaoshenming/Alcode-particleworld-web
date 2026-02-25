@@ -272,6 +272,11 @@ import './materials/MoltenRhodium';
 import './materials/Radon';
 import './materials/Diabase';
 import './materials/ShapeMemoryCeramic';
+import './materials/Niobium';
+import './materials/MoltenNiobium';
+import './materials/Fluorine';
+import './materials/Amphibolite';
+import './materials/ConductivePolymer';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
