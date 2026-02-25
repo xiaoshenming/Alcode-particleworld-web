@@ -44,6 +44,7 @@ import './materials/Virus';
 import './materials/Wire';
 import './materials/Honey';
 import './materials/Charcoal';
+import './materials/Laser';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
