@@ -17,7 +17,7 @@
 
 ### 核心数据结构
 - `World`: 200x150 网格，TypedArray 存储
-  - `cells: Uint8Array` — 材质 ID
+  - `cells: Uint16Array` — 材质 ID（支持 65535 种）
   - `colors: Uint32Array` — ABGR 颜色（直接写入 ImageData）
   - `_updated: Uint8Array` — 帧内更新标记
   - `_awake / _awakeNext: Uint8Array` — 双缓冲活跃标记
@@ -40,6 +40,7 @@
 - 241=钒, 242=液态钒, 243=二氧化硫, 244=砂岩, 245=碳纳米管
 - 246=银, 247=液态银, 248=笑气, 249=花岗岩, 250=超导体
 - 251=铂, 252=液态铂, 253=光气, 254=燧石, 255=纳米机器人
+- 256=钼, 257=液态钼, 258=氩气, 259=页岩, 260=记忆合金
 - 新材质只需：创建文件 → 实现 MaterialDef → registerMaterial() → main.ts 导入
 
 ### 性能优化
