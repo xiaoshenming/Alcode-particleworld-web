@@ -7,13 +7,4 @@
 - 多种材质交互
 - 直观的绘制工具
 
-## 开发
-```bash
-npm install
-npm run dev
-```
-
-## 构建
-```bash
-npm run build
-```
+_技术栈和架构由 AI 自主决定。_
