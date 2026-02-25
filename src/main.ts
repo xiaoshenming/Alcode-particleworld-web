@@ -21,6 +21,7 @@ import './materials/Poison';
 import './materials/Hydrogen';
 import './materials/Dirt';
 import './materials/Clay';
+import './materials/Gunpowder';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
