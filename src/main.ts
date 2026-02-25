@@ -50,6 +50,7 @@ import './materials/Tornado';
 import './materials/Foam';
 import './materials/Firefly';
 import './materials/Crystal';
+import './materials/Swamp';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
