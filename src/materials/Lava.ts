@@ -3,7 +3,7 @@ import { registerMaterial } from './registry';
 
 /**
  * 熔岩 —— 高温液体，缓慢流动
- * - 接触水 → 水变蒸汽，熔岩变石头
+ * - 接触水 → 水变蒸汽，熔岩变黑曜石
  * - 点燃可燃物（木头、油）
  * - 缓慢冷却（小概率自然变成石头）
  */
@@ -38,9 +38,9 @@ export const Lava: MaterialDef = {
       if (!world.inBounds(nx, ny)) continue;
       const nid = world.get(nx, ny);
 
-      // 熔岩 + 水 → 石头 + 蒸汽
+      // 熔岩 + 水 → 黑曜石 + 蒸汽
       if (nid === 2) {
-        world.set(x, y, 3);  // 熔岩冷却为石头
+        world.set(x, y, 60);  // 熔岩急冷为黑曜石
         world.set(nx, ny, 8); // 水变蒸汽
         return;
       }

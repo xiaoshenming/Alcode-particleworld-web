@@ -56,6 +56,7 @@ import './materials/Mercury';
 import './materials/Vine';
 import './materials/Meteor';
 import './materials/Cobweb';
+import './materials/Obsidian';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
