@@ -117,6 +117,11 @@ import './materials/LiquidCrystal';
 import './materials/Dolomite';
 import './materials/Rocket';
 import './materials/DesertRose';
+import './materials/Static';
+import './materials/OilShale';
+import './materials/SteamCloud';
+import './materials/Quicklime';
+import './materials/Foxfire';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
