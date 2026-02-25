@@ -257,6 +257,11 @@ import './materials/MoltenMolybdenum';
 import './materials/Argon';
 import './materials/Shale';
 import './materials/ShapeMemoryAlloy';
+import './materials/Hafnium';
+import './materials/MoltenHafnium';
+import './materials/Xenon';
+import './materials/Gneiss';
+import './materials/ShapeMemoryPolymer';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
