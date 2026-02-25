@@ -212,6 +212,11 @@ import './materials/MoltenManganese';
 import './materials/SodiumCyanide';
 import './materials/Calcite';
 import './materials/Thermoplastic';
+import './materials/Nickel';
+import './materials/MoltenNickel';
+import './materials/Formaldehyde';
+import './materials/Drywall';
+import './materials/ThermalPaste';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
