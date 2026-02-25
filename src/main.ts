@@ -252,6 +252,11 @@ import './materials/MoltenPlatinum';
 import './materials/Phosgene';
 import './materials/Flint';
 import './materials/Nanobot';
+import './materials/Molybdenum';
+import './materials/MoltenMolybdenum';
+import './materials/Argon';
+import './materials/Shale';
+import './materials/ShapeMemoryAlloy';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
