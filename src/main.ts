@@ -19,6 +19,8 @@ import './materials/Lightning';
 import './materials/Glass';
 import './materials/Poison';
 import './materials/Hydrogen';
+import './materials/Dirt';
+import './materials/Clay';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
