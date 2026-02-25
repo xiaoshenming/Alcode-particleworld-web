@@ -45,6 +45,7 @@ import './materials/Wire';
 import './materials/Honey';
 import './materials/Charcoal';
 import './materials/Laser';
+import './materials/Moss';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
