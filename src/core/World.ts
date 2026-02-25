@@ -136,4 +136,51 @@ export class World implements WorldAPI {
     this._awake.fill(0);
     this._awakeNext.fill(0);
   }
+
+  /** 序列化世界状态为 JSON 字符串（只保存 cells） */
+  save(): string {
+    // 用 RLE 压缩 cells 数组
+    const runs: [number, number][] = [];
+    let current = this.cells[0];
+    let count = 1;
+    for (let i = 1; i < this.cells.length; i++) {
+      if (this.cells[i] === current) {
+        count++;
+      } else {
+        runs.push([current, count]);
+        current = this.cells[i];
+        count = 1;
+      }
+    }
+    runs.push([current, count]);
+    return JSON.stringify({ w: this.width, h: this.height, rle: runs });
+  }
+
+  /** 从 JSON 字符串恢复世界状态 */
+  load(data: string): boolean {
+    try {
+      const obj = JSON.parse(data);
+      if (obj.w !== this.width || obj.h !== this.height) return false;
+      // 解压 RLE
+      let idx = 0;
+      for (const [val, count] of obj.rle as [number, number][]) {
+        for (let i = 0; i < count; i++) {
+          this.cells[idx++] = val;
+        }
+      }
+      // 重建颜色并唤醒所有非空粒子
+      for (let i = 0; i < this.cells.length; i++) {
+        const mat = getMaterial(this.cells[i]);
+        this.colors[i] = mat ? mat.color() : 0xFF3E2116;
+        if (this.cells[i] !== 0) {
+          const x = i % this.width;
+          const y = Math.floor(i / this.width);
+          this.wakeArea(x, y);
+        }
+      }
+      return true;
+    } catch {
+      return false;
+    }
+  }
 }

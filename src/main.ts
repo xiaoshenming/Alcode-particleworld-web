@@ -42,9 +42,18 @@ const input = new InputHandler(canvas, world, PIXEL_SCALE);
 let paused = false;
 let simSpeed = 1; // 模拟速度倍率 1~5
 
+const SAVE_KEY = 'particleworld-save';
+
 const toolbar = new Toolbar(input, {
   onPause: () => { paused = !paused; },
   onClear: () => { world.clear(); },
+  onSave: () => {
+    localStorage.setItem(SAVE_KEY, world.save());
+  },
+  onLoad: () => {
+    const data = localStorage.getItem(SAVE_KEY);
+    if (data) world.load(data);
+  },
   getParticleCount: () => world.getParticleCount(),
   isPaused: () => paused,
   getSpeed: () => simSpeed,

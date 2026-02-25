@@ -14,6 +14,8 @@ const CATEGORIES: Record<string, number[]> = {
 export interface ToolbarCallbacks {
   onPause: () => void;
   onClear: () => void;
+  onSave: () => void;
+  onLoad: () => void;
   getParticleCount: () => number;
   isPaused: () => boolean;
   getSpeed: () => number;
@@ -149,6 +151,24 @@ export class Toolbar {
     btnRow.appendChild(this.pauseBtn);
     btnRow.appendChild(clearBtn);
     controlPanel.appendChild(btnRow);
+
+    // 存档按钮行
+    const saveRow = document.createElement('div');
+    saveRow.className = 'control-row';
+
+    const saveBtn = document.createElement('button');
+    saveBtn.className = 'ctrl-btn';
+    saveBtn.textContent = '保存';
+    saveBtn.addEventListener('click', () => this.callbacks.onSave());
+
+    const loadBtn = document.createElement('button');
+    loadBtn.className = 'ctrl-btn';
+    loadBtn.textContent = '加载';
+    loadBtn.addEventListener('click', () => this.callbacks.onLoad());
+
+    saveRow.appendChild(saveBtn);
+    saveRow.appendChild(loadBtn);
+    controlPanel.appendChild(saveRow);
 
     // 模拟速度
     const speedDiv = document.createElement('div');
