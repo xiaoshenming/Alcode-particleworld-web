@@ -28,6 +28,7 @@ import './materials/Wax';
 import './materials/MoltenWax';
 import './materials/Firework';
 import './materials/Spark';
+import './materials/Putty';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
