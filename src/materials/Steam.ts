@@ -78,9 +78,17 @@ export const Steam: MaterialDef = {
       }
     }
 
-    // 水平漂移（蒸汽扩散更快）
-    if (Math.random() < 0.5) {
-      const dir = Math.random() < 0.5 ? -1 : 1;
+    // 水平漂移（受风力影响，蒸汽扩散更快）
+    const windDir = world.getWind();
+    const windStr = world.getWindStrength();
+    const driftChance = 0.5 + windStr * 0.4;
+    if (Math.random() < driftChance) {
+      let dir: number;
+      if (windDir !== 0 && Math.random() < windStr) {
+        dir = windDir;
+      } else {
+        dir = Math.random() < 0.5 ? -1 : 1;
+      }
       const nx = x + dir;
       if (world.inBounds(nx, y) && world.isEmpty(nx, y)) {
         world.swap(x, y, nx, y);

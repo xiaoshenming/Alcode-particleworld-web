@@ -20,6 +20,7 @@ export interface ToolbarCallbacks {
   isPaused: () => boolean;
   getSpeed: () => number;
   setSpeed: (speed: number) => void;
+  setWind: (dir: number, strength: number) => void;
 }
 
 /**
@@ -190,6 +191,35 @@ export class Toolbar {
     speedDiv.appendChild(speedLabel);
     speedDiv.appendChild(speedSlider);
     controlPanel.appendChild(speedDiv);
+
+    // 风力控制
+    const windDiv = document.createElement('div');
+    windDiv.className = 'control-row';
+    const windLabel = document.createElement('span');
+    windLabel.className = 'control-label';
+    windLabel.textContent = '风力: 无';
+    const windSlider = document.createElement('input');
+    windSlider.type = 'range';
+    windSlider.min = '-5';
+    windSlider.max = '5';
+    windSlider.value = '0';
+    windSlider.setAttribute('aria-label', '风力方向与强度');
+    windSlider.addEventListener('input', () => {
+      const val = parseInt(windSlider.value);
+      if (val === 0) {
+        windLabel.textContent = '风力: 无';
+        this.callbacks.setWind(0, 0);
+      } else {
+        const dir = val > 0 ? 1 : -1;
+        const strength = Math.abs(val) / 5;
+        const arrow = dir > 0 ? '→' : '←';
+        windLabel.textContent = `风力: ${arrow} ${Math.abs(val)}`;
+        this.callbacks.setWind(dir, strength);
+      }
+    });
+    windDiv.appendChild(windLabel);
+    windDiv.appendChild(windSlider);
+    controlPanel.appendChild(windDiv);
 
     // 粒子计数
     const statsDiv = document.createElement('div');

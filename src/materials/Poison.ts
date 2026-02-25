@@ -87,9 +87,17 @@ export const Poison: MaterialDef = {
       return;
     }
 
-    // 随机水平扩散
-    if (Math.random() < 0.3) {
-      const dir = Math.random() < 0.5 ? -1 : 1;
+    // 随机水平扩散（受风力影响）
+    const windDir = world.getWind();
+    const windStr = world.getWindStrength();
+    const driftChance = 0.3 + windStr * 0.4;
+    if (Math.random() < driftChance) {
+      let dir: number;
+      if (windDir !== 0 && Math.random() < windStr) {
+        dir = windDir;
+      } else {
+        dir = Math.random() < 0.5 ? -1 : 1;
+      }
       const nx = x + dir;
       if (world.inBounds(nx, y) && world.isEmpty(nx, y)) {
         world.swap(x, y, nx, y);

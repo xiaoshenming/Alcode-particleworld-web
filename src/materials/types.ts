@@ -31,4 +31,8 @@ export interface WorldAPI {
   setTemp(x: number, y: number, temp: number): void;
   /** 在指定位置增加温度 */
   addTemp(x: number, y: number, delta: number): void;
+  /** 获取当前风力方向（-1=左, 0=无, 1=右） */
+  getWind(): number;
+  /** 获取当前风力强度（0~1） */
+  getWindStrength(): number;
 }

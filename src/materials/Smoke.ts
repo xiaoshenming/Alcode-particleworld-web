@@ -68,9 +68,18 @@ export const Smoke: MaterialDef = {
       }
     }
 
-    // 3. 水平漂移
-    if (Math.random() < 0.3) {
-      const dir = Math.random() < 0.5 ? -1 : 1;
+    // 3. 水平漂移（受风力影响）
+    const windDir = world.getWind();
+    const windStr = world.getWindStrength();
+    const driftChance = 0.3 + windStr * 0.5;
+    if (Math.random() < driftChance) {
+      // 风力偏移：有风时偏向风向
+      let dir: number;
+      if (windDir !== 0 && Math.random() < windStr) {
+        dir = windDir;
+      } else {
+        dir = Math.random() < 0.5 ? -1 : 1;
+      }
       const nx = x + dir;
       if (world.inBounds(nx, y) && world.isEmpty(nx, y)) {
         world.swap(x, y, nx, y);

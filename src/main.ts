@@ -61,6 +61,7 @@ const toolbar = new Toolbar(input, {
   isPaused: () => paused,
   getSpeed: () => simSpeed,
   setSpeed: (s: number) => { simSpeed = Math.max(1, Math.min(5, s)); },
+  setWind: (dir: number, strength: number) => { world.setWind(dir, strength); },
 });
 
 // 快捷键

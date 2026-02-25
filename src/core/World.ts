@@ -20,6 +20,10 @@ export class World implements WorldAPI {
   private _awakeNext: Uint8Array;
   /** 温度网格（Float32 精度，20=常温） */
   private _temp: Float32Array;
+  /** 风力方向（-1=左, 0=无, 1=右） */
+  private _windDir = 0;
+  /** 风力强度（0~1） */
+  private _windStrength = 0;
 
   constructor(width: number, height: number) {
     this.width = width;
@@ -139,6 +143,20 @@ export class World implements WorldAPI {
     const i = this.idx(x, y);
     this._temp[i] += delta;
     this.wakeArea(x, y);
+  }
+
+  getWind(): number {
+    return this._windDir;
+  }
+
+  getWindStrength(): number {
+    return this._windStrength;
+  }
+
+  /** 设置风力（供 UI 调用） */
+  setWind(dir: number, strength: number): void {
+    this._windDir = dir;
+    this._windStrength = Math.max(0, Math.min(1, strength));
   }
 
   /** 温度扩散：每帧调用，热量向邻居传导 */
