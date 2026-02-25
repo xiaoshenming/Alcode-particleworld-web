@@ -3,6 +3,8 @@ import './materials/Empty';
 import './materials/Sand';
 import './materials/Water';
 import './materials/Stone';
+import './materials/Wood';
+import './materials/Oil';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
