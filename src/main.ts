@@ -122,6 +122,11 @@ import './materials/OilShale';
 import './materials/SteamCloud';
 import './materials/Quicklime';
 import './materials/Foxfire';
+import './materials/Nacre';
+import './materials/Diatomite';
+import './materials/PlasmaOrb';
+import './materials/Coke';
+import './materials/Dew';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
