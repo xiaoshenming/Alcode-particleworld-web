@@ -7,6 +7,7 @@ export interface ToolbarCallbacks {
   onClear: () => void;
   onSave: () => void;
   onLoad: () => void;
+  onToggleTempOverlay: () => void;
   getParticleCount: () => number;
   isPaused: () => boolean;
   getSpeed: () => number;
@@ -28,6 +29,7 @@ export class Toolbar {
   private brushSlider!: HTMLInputElement;
   private speedLabel!: HTMLSpanElement;
   private speedSlider!: HTMLInputElement;
+  private tempOverlayBtn!: HTMLButtonElement;
   /** 记录每个分类的折叠状态 */
   private collapsedCategories = new Set<string>();
 
@@ -71,6 +73,12 @@ export class Toolbar {
   refreshSpeed(speed: number): void {
     this.speedLabel.textContent = `速度: ${speed}x`;
     this.speedSlider.value = String(speed);
+  }
+
+  /** 刷新温度叠加层按钮状态 */
+  refreshTempOverlay(active: boolean): void {
+    this.tempOverlayBtn.classList.toggle('active', active);
+    this.tempOverlayBtn.textContent = active ? '温度: 开' : '温度: 关';
   }
 
   /** 创建材质按钮 */
@@ -288,6 +296,19 @@ export class Toolbar {
     saveRow.appendChild(saveBtn);
     saveRow.appendChild(loadBtn);
     controlPanel.appendChild(saveRow);
+
+    // 温度叠加层按钮
+    const tempRow = document.createElement('div');
+    tempRow.className = 'control-row';
+    this.tempOverlayBtn = document.createElement('button');
+    this.tempOverlayBtn.className = 'ctrl-btn';
+    this.tempOverlayBtn.textContent = '温度: 关';
+    this.tempOverlayBtn.title = '切换温度可视化 (T)';
+    this.tempOverlayBtn.addEventListener('click', () => {
+      this.callbacks.onToggleTempOverlay();
+    });
+    tempRow.appendChild(this.tempOverlayBtn);
+    controlPanel.appendChild(tempRow);
 
     // 模拟速度
     const speedDiv = document.createElement('div');

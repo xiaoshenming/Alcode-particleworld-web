@@ -292,6 +292,10 @@ const toolbar = new Toolbar(input, {
     const data = localStorage.getItem(SAVE_KEY);
     if (data) world.load(data);
   },
+  onToggleTempOverlay: () => {
+    renderer.showTempOverlay = !renderer.showTempOverlay;
+    toolbar.refreshTempOverlay(renderer.showTempOverlay);
+  },
   getParticleCount: () => world.getParticleCount(),
   isPaused: () => paused,
   getSpeed: () => simSpeed,
@@ -347,6 +351,13 @@ document.addEventListener('keydown', (e) => {
   if (e.code === 'Equal') {
     simSpeed = Math.min(5, simSpeed + 1);
     toolbar.refreshSpeed(simSpeed);
+    return;
+  }
+
+  // T 键切换温度可视化
+  if (e.code === 'KeyT') {
+    renderer.showTempOverlay = !renderer.showTempOverlay;
+    toolbar.refreshTempOverlay(renderer.showTempOverlay);
     return;
   }
 });

@@ -193,6 +193,11 @@ export class World implements WorldAPI {
     }
   }
 
+  /** 获取温度数组的只读引用（供渲染器使用） */
+  getTempBuffer(): Float32Array {
+    return this._temp;
+  }
+
   /** 统计非空粒子数量 */
   getParticleCount(): number {
     let count = 0;
