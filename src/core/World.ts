@@ -8,8 +8,8 @@ import { getMaterial } from '../materials/registry';
 export class World implements WorldAPI {
   readonly width: number;
   readonly height: number;
-  /** 材质 ID 网格 */
-  cells: Uint8Array;
+  /** 材质 ID 网格（Uint16 支持最多 65535 种材质） */
+  cells: Uint16Array;
   /** 颜色网格（ABGR 格式，直接写入 ImageData） */
   colors: Uint32Array;
   /** 本帧更新标记，防止同一粒子被多次处理 */
@@ -29,7 +29,7 @@ export class World implements WorldAPI {
     this.width = width;
     this.height = height;
     const size = width * height;
-    this.cells = new Uint8Array(size);
+    this.cells = new Uint16Array(size);
     this.colors = new Uint32Array(size);
     this._updated = new Uint8Array(size);
     this._awake = new Uint8Array(size);
@@ -229,10 +229,10 @@ export class World implements WorldAPI {
       }
     }
     runs.push([current, count]);
-    return JSON.stringify({ w: this.width, h: this.height, rle: runs });
+    return JSON.stringify({ v: 2, w: this.width, h: this.height, rle: runs });
   }
 
-  /** 从 JSON 字符串恢复世界状态 */
+  /** 从 JSON 字符串恢复世界状态（兼容 v1/v2 存档） */
   load(data: string): boolean {
     try {
       const obj = JSON.parse(data);
