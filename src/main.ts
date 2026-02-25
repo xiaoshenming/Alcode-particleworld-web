@@ -41,6 +41,7 @@ import './materials/Ant';
 import './materials/Portal';
 import './materials/Magnet';
 import './materials/Virus';
+import './materials/Wire';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
