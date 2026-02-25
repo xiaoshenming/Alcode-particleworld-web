@@ -66,6 +66,7 @@ import './materials/Sulfur';
 import './materials/Tar';
 import './materials/LiquidNitrogen';
 import './materials/Fluorite';
+import './materials/Mycelium';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
