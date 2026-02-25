@@ -277,6 +277,11 @@ import './materials/MoltenNiobium';
 import './materials/Fluorine';
 import './materials/Amphibolite';
 import './materials/ConductivePolymer';
+import './materials/Palladium';
+import './materials/MoltenPalladium';
+import './materials/Helium';
+import './materials/Schist';
+import './materials/Electrochromic';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
