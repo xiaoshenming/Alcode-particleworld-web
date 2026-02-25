@@ -77,6 +77,7 @@ import './materials/Basalt';
 import './materials/Tundra';
 import './materials/Sodium';
 import './materials/GlowLiquid';
+import './materials/Termite';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
