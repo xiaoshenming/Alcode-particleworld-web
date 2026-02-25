@@ -83,6 +83,7 @@ import './materials/MoltenSalt';
 import './materials/Sandstorm';
 import './materials/Copper';
 import './materials/Tin';
+import './materials/Blood';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
