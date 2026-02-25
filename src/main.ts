@@ -5,8 +5,9 @@ import './materials/Sand';
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
 import { Renderer } from './core/Renderer';
+import { InputHandler } from './ui/InputHandler';
+import { Toolbar } from './ui/Toolbar';
 
-// 网格尺寸
 const GRID_WIDTH = 200;
 const GRID_HEIGHT = 150;
 const PIXEL_SCALE = 4;
@@ -18,18 +19,29 @@ canvas.height = GRID_HEIGHT * PIXEL_SCALE;
 const world = new World(GRID_WIDTH, GRID_HEIGHT);
 const simulation = new Simulation(world);
 const renderer = new Renderer(canvas, GRID_WIDTH, GRID_HEIGHT, PIXEL_SCALE);
+const input = new InputHandler(canvas, world, PIXEL_SCALE);
+new Toolbar(input);
 
-// 测试：在顶部中央放一堆沙子
-for (let dx = -5; dx <= 5; dx++) {
-  for (let dy = 0; dy < 5; dy++) {
-    world.set(GRID_WIDTH / 2 + dx, dy, 1); // 1 = 沙子
-  }
-}
+// FPS 显示
+const fpsEl = document.createElement('div');
+fpsEl.id = 'fps';
+document.body.appendChild(fpsEl);
+let lastTime = performance.now();
+let frames = 0;
 
-// 主循环
 function loop() {
   simulation.update();
   renderer.render(world);
+
+  // FPS 计算
+  frames++;
+  const now = performance.now();
+  if (now - lastTime >= 1000) {
+    fpsEl.textContent = `${frames} FPS`;
+    frames = 0;
+    lastTime = now;
+  }
+
   requestAnimationFrame(loop);
 }
 
