@@ -15,6 +15,8 @@ import './materials/Seed';
 import './materials/Plant';
 import './materials/Ice';
 import './materials/Snow';
+import './materials/Lightning';
+import './materials/Glass';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
