@@ -207,6 +207,11 @@ import './materials/MoltenChromium';
 import './materials/HydrogenFluoride';
 import './materials/Graphene';
 import './materials/GlassBead';
+import './materials/Manganese';
+import './materials/MoltenManganese';
+import './materials/SodiumCyanide';
+import './materials/Calcite';
+import './materials/Thermoplastic';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
