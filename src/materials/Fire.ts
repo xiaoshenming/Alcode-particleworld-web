@@ -75,8 +75,8 @@ export const Fire: MaterialDef = {
 
       // 火 + 水 → 蒸汽（火熄灭）
       if (neighborId === 2) {
-        world.set(x, y, 7); // 当前火变烟
-        world.set(nx, ny, 7); // 水变蒸汽（暂用烟代替）
+        world.set(x, y, 8); // 当前火变蒸汽
+        world.set(nx, ny, 8); // 水变蒸汽
         setLife(x, y, 0);
         return;
       }

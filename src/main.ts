@@ -7,6 +7,8 @@ import './materials/Wood';
 import './materials/Oil';
 import './materials/Fire';
 import './materials/Smoke';
+import './materials/Steam';
+import './materials/Acid';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
