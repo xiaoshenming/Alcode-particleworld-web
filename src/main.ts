@@ -49,6 +49,7 @@ import './materials/Moss';
 import './materials/Tornado';
 import './materials/Foam';
 import './materials/Firefly';
+import './materials/Crystal';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
