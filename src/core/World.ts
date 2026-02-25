@@ -78,4 +78,9 @@ export class World implements WorldAPI {
   resetUpdated(): void {
     this._updated.fill(0);
   }
+
+  getDensity(x: number, y: number): number {
+    const mat = getMaterial(this.cells[this.idx(x, y)]);
+    return mat ? mat.density : 0;
+  }
 }

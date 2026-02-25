@@ -21,4 +21,6 @@ export interface WorldAPI {
   inBounds(x: number, y: number): boolean;
   isUpdated(x: number, y: number): boolean;
   markUpdated(x: number, y: number): void;
+  /** 获取指定位置材质的密度 */
+  getDensity(x: number, y: number): number;
 }

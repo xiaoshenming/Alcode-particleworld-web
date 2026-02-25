@@ -1,6 +1,7 @@
 // 注册所有材质（副作用导入）
 import './materials/Empty';
 import './materials/Sand';
+import './materials/Water';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
