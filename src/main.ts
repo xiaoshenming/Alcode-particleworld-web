@@ -24,6 +24,8 @@ import './materials/Clay';
 import './materials/Gunpowder';
 import './materials/Salt';
 import './materials/Saltwater';
+import './materials/Wax';
+import './materials/MoltenWax';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
