@@ -227,6 +227,11 @@ import './materials/MoltenLead';
 import './materials/Ozone';
 import './materials/VolcanicGlass';
 import './materials/Electromagnet';
+import './materials/Cobalt';
+import './materials/MoltenCobalt';
+import './materials/CarbonMonoxide';
+import './materials/Slate';
+import './materials/PiezoelectricCeramic';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
