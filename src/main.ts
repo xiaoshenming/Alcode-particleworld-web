@@ -52,6 +52,7 @@ import './materials/Firefly';
 import './materials/Crystal';
 import './materials/Swamp';
 import './materials/Plasma';
+import './materials/Mercury';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
