@@ -102,6 +102,11 @@ import './materials/SteamEngine';
 import './materials/GoldDust';
 import './materials/RainbowLiquid';
 import './materials/Bone';
+import './materials/Brick';
+import './materials/Honeycomb';
+import './materials/LiquidHelium';
+import './materials/Nitroglycerin';
+import './materials/MossyStone';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
