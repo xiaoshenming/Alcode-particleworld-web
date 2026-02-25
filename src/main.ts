@@ -53,6 +53,7 @@ import './materials/Crystal';
 import './materials/Swamp';
 import './materials/Plasma';
 import './materials/Mercury';
+import './materials/Vine';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
