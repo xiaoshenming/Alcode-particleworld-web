@@ -85,6 +85,7 @@ import './materials/Copper';
 import './materials/Tin';
 import './materials/Blood';
 import './materials/Gear';
+import './materials/Slime';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
