@@ -127,6 +127,11 @@ import './materials/Diatomite';
 import './materials/PlasmaOrb';
 import './materials/Coke';
 import './materials/Dew';
+import './materials/IndustrialMoltenSalt';
+import './materials/Aerogel';
+import './materials/Phosphor';
+import './materials/Hay';
+import './materials/LiquidSulfur';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
