@@ -26,6 +26,8 @@ import './materials/Salt';
 import './materials/Saltwater';
 import './materials/Wax';
 import './materials/MoltenWax';
+import './materials/Firework';
+import './materials/Spark';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
