@@ -43,6 +43,7 @@ import './materials/Magnet';
 import './materials/Virus';
 import './materials/Wire';
 import './materials/Honey';
+import './materials/Charcoal';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';

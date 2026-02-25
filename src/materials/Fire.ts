@@ -7,7 +7,7 @@ import { registerMaterial } from './registry';
  */
 
 /** 可燃材质 ID 集合 */
-const FLAMMABLE = new Set([4, 5, 13, 25, 26]); // 木头、油、植物、蜡、液蜡
+const FLAMMABLE = new Set([4, 5, 13, 25, 26, 46]); // 木头、油、植物、蜡、液蜡、木炭
 
 /** 火的生命值存储（用 Map 模拟，key = "x,y"） */
 const fireLife = new Map<string, number>();
@@ -86,7 +86,12 @@ export const Fire: MaterialDef = {
 
       // 点燃可燃物（概率性蔓延）
       if (FLAMMABLE.has(neighborId) && Math.random() < 0.05) {
-        world.set(nx, ny, 6); // 点燃
+        // 木头燃烧有概率产生木炭
+        if (neighborId === 4 && Math.random() < 0.4) {
+          world.set(nx, ny, 46); // 木炭
+        } else {
+          world.set(nx, ny, 6); // 点燃
+        }
         world.markUpdated(nx, ny);
       }
     }
