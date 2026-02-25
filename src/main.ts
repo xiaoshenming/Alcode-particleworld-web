@@ -222,6 +222,11 @@ import './materials/MoltenZinc';
 import './materials/Ammonia';
 import './materials/DiatomMud';
 import './materials/GlowMoss';
+import './materials/Lead';
+import './materials/MoltenLead';
+import './materials/Ozone';
+import './materials/VolcanicGlass';
+import './materials/Electromagnet';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
