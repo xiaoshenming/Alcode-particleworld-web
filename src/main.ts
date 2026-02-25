@@ -262,6 +262,11 @@ import './materials/MoltenHafnium';
 import './materials/Xenon';
 import './materials/Gneiss';
 import './materials/ShapeMemoryPolymer';
+import './materials/Iridium';
+import './materials/MoltenIridium';
+import './materials/Neon';
+import './materials/Serpentinite';
+import './materials/PiezoFilm';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
