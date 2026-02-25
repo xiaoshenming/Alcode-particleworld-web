@@ -75,6 +75,7 @@ import './materials/Frost';
 import './materials/Cloud';
 import './materials/Basalt';
 import './materials/Tundra';
+import './materials/Sodium';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
