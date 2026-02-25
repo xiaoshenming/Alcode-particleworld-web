@@ -1,16 +1,6 @@
 import { InputHandler } from './InputHandler';
-import { getAllMaterials } from '../materials/registry';
+import { getMaterialsByCategory } from '../materials/registry';
 import type { MaterialDef } from '../materials/types';
-
-/** 材质分类 */
-const CATEGORIES: Record<string, number[]> = {
-  '粉末': [1, 12, 15, 20, 22, 23, 27, 30, 34, 46, 78, 79],    // 沙子、种子、雪、泥土、火药、盐、烟花、炼金石、水泥、木炭、苔原、钠
-  '液体': [2, 5, 9, 11, 24, 26, 35, 45, 80],  // 水、油、酸液、熔岩、盐水、液蜡、湿水泥、蜂蜜、荧光液
-  '气体': [6, 7, 8, 16, 18, 19, 28, 50, 76], // 火、烟、蒸汽、雷电、毒气、氢气、火花、龙卷风、云
-  '固体': [3, 4, 10, 13, 14, 17, 21, 25, 29, 31, 32, 33, 36, 42, 44, 77], // 石头、木头、金属、植物、冰、玻璃、黏土、蜡、橡皮泥、金、钻石、橡胶、混凝土、磁铁、电线、岩浆岩
-  '生物': [40, 43, 49],                          // 蚂蚁、病毒、苔藓
-  '工具': [0, 37, 38, 39, 41, 47],             // 空气(橡皮擦)、克隆体、虚空、喷泉、传送门、激光
-};
 
 export interface ToolbarCallbacks {
   onPause: () => void;
@@ -25,7 +15,8 @@ export interface ToolbarCallbacks {
 }
 
 /**
- * 工具栏 —— 分类材质面板 + 笔刷 + 控制按钮
+ * 工具栏 —— 动态分类材质面板 + 笔刷 + 控制按钮
+ * 支持可折叠分类，自动从 registry 获取全部材质
  */
 export class Toolbar {
   private container: HTMLElement;
@@ -37,6 +28,8 @@ export class Toolbar {
   private brushSlider!: HTMLInputElement;
   private speedLabel!: HTMLSpanElement;
   private speedSlider!: HTMLInputElement;
+  /** 记录每个分类的折叠状态 */
+  private collapsedCategories = new Set<string>();
 
   constructor(input: InputHandler, callbacks: ToolbarCallbacks) {
     this.input = input;
@@ -44,6 +37,10 @@ export class Toolbar {
     this.container = document.createElement('div');
     this.container.id = 'toolbar';
     document.body.appendChild(this.container);
+    // 默认折叠非常用分类
+    this.collapsedCategories.add('熔融金属');
+    this.collapsedCategories.add('矿石');
+    this.collapsedCategories.add('特殊');
     this.build();
   }
 
@@ -76,57 +73,82 @@ export class Toolbar {
     this.speedSlider.value = String(speed);
   }
 
+  /** 创建材质按钮 */
+  private createMaterialBtn(mat: MaterialDef): HTMLButtonElement {
+    const btn = document.createElement('button');
+    btn.className = 'material-btn';
+    btn.textContent = mat.name;
+    btn.dataset['materialId'] = String(mat.id);
+    btn.title = `${mat.name} (ID: ${mat.id})`;
+
+    const color = mat.color();
+    const r = color & 0xFF;
+    const g = (color >> 8) & 0xFF;
+    const b = (color >> 16) & 0xFF;
+    btn.style.backgroundColor = `rgb(${r},${g},${b})`;
+    const luma = 0.299 * r + 0.587 * g + 0.114 * b;
+    btn.style.color = luma > 128 ? '#000' : '#fff';
+
+    if (mat.id === this.input.getMaterial()) {
+      btn.classList.add('active');
+    }
+
+    btn.addEventListener('click', () => {
+      this.input.setMaterial(mat.id);
+      this.container.querySelectorAll('.material-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+
+    return btn;
+  }
+
   private build(): void {
-    const allMats = getAllMaterials();
-    const matMap = new Map<number, MaterialDef>();
-    for (const m of allMats) matMap.set(m.id, m);
+    const categorized = getMaterialsByCategory();
 
     // 分类材质区
     const matsPanel = document.createElement('div');
     matsPanel.className = 'materials-panel';
 
-    for (const [catName, ids] of Object.entries(CATEGORIES)) {
+    for (const [catName, mats] of categorized) {
       const catDiv = document.createElement('div');
       catDiv.className = 'category';
 
+      // 可折叠的分类标题
+      const catHeader = document.createElement('div');
+      catHeader.className = 'category-header';
+      const isCollapsed = this.collapsedCategories.has(catName);
+
+      const catArrow = document.createElement('span');
+      catArrow.className = 'category-arrow';
+      catArrow.textContent = isCollapsed ? '▶' : '▼';
+
       const catLabel = document.createElement('span');
       catLabel.className = 'category-label';
-      catLabel.textContent = catName;
-      catDiv.appendChild(catLabel);
+      catLabel.textContent = `${catName} (${mats.length})`;
+
+      catHeader.appendChild(catArrow);
+      catHeader.appendChild(catLabel);
+      catDiv.appendChild(catHeader);
 
       const btnsDiv = document.createElement('div');
       btnsDiv.className = 'category-btns';
+      if (isCollapsed) btnsDiv.style.display = 'none';
 
-      for (const id of ids) {
-        const mat = matMap.get(id);
-        if (!mat) continue;
-
-        const btn = document.createElement('button');
-        btn.className = 'material-btn';
-        btn.textContent = mat.name;
-        btn.dataset['materialId'] = String(mat.id);
-
-        const color = mat.color();
-        const r = color & 0xFF;
-        const g = (color >> 8) & 0xFF;
-        const b = (color >> 16) & 0xFF;
-        btn.style.backgroundColor = `rgb(${r},${g},${b})`;
-        const luma = 0.299 * r + 0.587 * g + 0.114 * b;
-        btn.style.color = luma > 128 ? '#000' : '#fff';
-        btn.dataset['materialId'] = String(mat.id);
-
-        if (mat.id === this.input.getMaterial()) {
-          btn.classList.add('active');
-        }
-
-        btn.addEventListener('click', () => {
-          this.input.setMaterial(mat.id);
-          this.container.querySelectorAll('.material-btn').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-        });
-
-        btnsDiv.appendChild(btn);
+      for (const mat of mats) {
+        btnsDiv.appendChild(this.createMaterialBtn(mat));
       }
+
+      // 点击标题折叠/展开
+      catHeader.addEventListener('click', () => {
+        const collapsed = btnsDiv.style.display === 'none';
+        btnsDiv.style.display = collapsed ? '' : 'none';
+        catArrow.textContent = collapsed ? '▼' : '▶';
+        if (collapsed) {
+          this.collapsedCategories.delete(catName);
+        } else {
+          this.collapsedCategories.add(catName);
+        }
+      });
 
       catDiv.appendChild(btnsDiv);
       matsPanel.appendChild(catDiv);

@@ -1,7 +1,15 @@
+/** 材质分类 */
+export type MaterialCategory =
+  | '粉末' | '液体' | '气体' | '固体'
+  | '金属' | '熔融金属' | '生物' | '工具'
+  | '化学' | '矿石' | '特殊';
+
 /** 材质行为定义 */
 export interface MaterialDef {
   id: number;
   name: string;
+  /** 材质分类，用于 UI 面板分组 */
+  category?: MaterialCategory;
   /** 返回 ABGR 格式的颜色值（用于 Uint32Array 写入 ImageData） */
   color(): number;
   /** 密度，越大越重。0 = 空气，Infinity = 不可移动 */

@@ -58,11 +58,31 @@ html, body {
   gap: 3px;
 }
 
+.category-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  padding: 2px 0;
+  user-select: none;
+}
+
+.category-header:hover .category-label {
+  color: #bbb;
+}
+
+.category-arrow {
+  font-size: 9px;
+  color: #666;
+  width: 12px;
+  text-align: center;
+}
+
 .category-label {
   font-size: 11px;
   color: #888;
-  text-transform: uppercase;
   letter-spacing: 1px;
+  transition: color 0.15s;
 }
 
 .category-btns {
