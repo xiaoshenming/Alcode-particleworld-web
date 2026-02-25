@@ -65,6 +65,7 @@ import './materials/DryIce';
 import './materials/Sulfur';
 import './materials/Tar';
 import './materials/LiquidNitrogen';
+import './materials/Fluorite';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
