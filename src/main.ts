@@ -89,6 +89,7 @@ import './materials/Slime';
 import './materials/Ceramic';
 import './materials/Fiber';
 import './materials/MoltenGlass';
+import './materials/Spore';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
