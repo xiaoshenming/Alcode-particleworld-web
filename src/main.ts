@@ -59,6 +59,7 @@ import './materials/Cobweb';
 import './materials/Obsidian';
 import './materials/Amber';
 import './materials/Phosphorus';
+import './materials/Mud';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
