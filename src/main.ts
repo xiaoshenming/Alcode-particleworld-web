@@ -81,6 +81,7 @@ import './materials/Termite';
 import './materials/Gel';
 import './materials/MoltenSalt';
 import './materials/Sandstorm';
+import './materials/Copper';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
