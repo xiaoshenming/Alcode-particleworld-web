@@ -5,6 +5,8 @@ import './materials/Water';
 import './materials/Stone';
 import './materials/Wood';
 import './materials/Oil';
+import './materials/Fire';
+import './materials/Smoke';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
