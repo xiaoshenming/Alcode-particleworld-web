@@ -267,6 +267,11 @@ import './materials/MoltenIridium';
 import './materials/Neon';
 import './materials/Serpentinite';
 import './materials/PiezoFilm';
+import './materials/Rhodium';
+import './materials/MoltenRhodium';
+import './materials/Radon';
+import './materials/Diabase';
+import './materials/ShapeMemoryCeramic';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
