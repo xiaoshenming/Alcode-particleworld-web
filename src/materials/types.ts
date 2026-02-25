@@ -10,6 +10,8 @@ export interface MaterialDef {
   name: string;
   /** 材质分类，用于 UI 面板分组 */
   category?: MaterialCategory;
+  /** 材质描述（用于信息面板） */
+  description?: string;
   /** 返回 ABGR 格式的颜色值（用于 Uint32Array 写入 ImageData） */
   color(): number;
   /** 密度，越大越重。0 = 空气，Infinity = 不可移动 */

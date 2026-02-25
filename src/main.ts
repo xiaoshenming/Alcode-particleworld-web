@@ -268,6 +268,7 @@ import { Simulation } from './core/Simulation';
 import { Renderer } from './core/Renderer';
 import { InputHandler } from './ui/InputHandler';
 import { Toolbar } from './ui/Toolbar';
+import { InfoPanel } from './ui/InfoPanel';
 import { History } from './core/History';
 
 const GRID_WIDTH = 200;
@@ -283,6 +284,7 @@ const simulation = new Simulation(world);
 const renderer = new Renderer(canvas, GRID_WIDTH, GRID_HEIGHT, PIXEL_SCALE);
 const input = new InputHandler(canvas, world, PIXEL_SCALE);
 const history = new History();
+const infoPanel = new InfoPanel(canvas, world, PIXEL_SCALE);
 
 let paused = false;
 let simSpeed = 1; // 模拟速度倍率 1~5
@@ -417,6 +419,7 @@ function loop() {
   }
 
   toolbar.updateStats();
+  infoPanel.update();
 
   // FPS 计算
   frames++;

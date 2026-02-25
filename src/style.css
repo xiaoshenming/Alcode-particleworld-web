@@ -212,3 +212,38 @@ input[type="range"] {
   color: #888;
   font-family: monospace;
 }
+
+/* 材质信息面板 */
+#info-panel {
+  position: fixed;
+  bottom: 28px;
+  right: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: rgba(20, 20, 40, 0.9);
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #444;
+  z-index: 10;
+  pointer-events: none;
+  min-width: 140px;
+}
+
+.info-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #e0e0e0;
+}
+
+.info-detail {
+  font-size: 11px;
+  color: #999;
+  font-family: monospace;
+}
+
+.info-desc {
+  font-size: 11px;
+  color: #777;
+  margin-top: 2px;
+}
