@@ -97,6 +97,11 @@ import './materials/DistilledWater';
 import './materials/Quartz';
 import './materials/Soda';
 import './materials/Mushroom';
+import './materials/Snowball';
+import './materials/SteamEngine';
+import './materials/GoldDust';
+import './materials/RainbowLiquid';
+import './materials/Bone';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
