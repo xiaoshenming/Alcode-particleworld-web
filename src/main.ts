@@ -38,6 +38,7 @@ import './materials/Clone';
 import './materials/Void';
 import './materials/Fountain';
 import './materials/Ant';
+import './materials/Portal';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
