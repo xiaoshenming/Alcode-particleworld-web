@@ -9,6 +9,31 @@
 - 不同材质之间有真实的相互作用
 - 视觉上有清晰的材质区分和动态效果
 
+## 技术架构
+
+### 技术栈
+- TypeScript + Vite（零运行时依赖）
+- Canvas 2D 渲染，像素风格（imageSmoothingEnabled = false）
+
+### 核心数据结构
+- `World`: 200x150 网格，TypedArray 存储
+  - `cells: Uint8Array` — 材质 ID
+  - `colors: Uint32Array` — ABGR 颜色（直接写入 ImageData）
+  - `_updated: Uint8Array` — 帧内更新标记
+  - `_awake / _awakeNext: Uint8Array` — 双缓冲活跃标记
+- `Simulation`: 从底向上扫描，随机左右方向，只处理活跃粒子
+- `Renderer`: 1:1 ImageData → 临时 Canvas → 4x 缩放绘制到主 Canvas
+
+### 材质系统
+- `MaterialDef` 接口：id, name, color(), density, update()
+- `registry.ts` 注册表：Map<id, MaterialDef>
+- 材质 ID 分配：0=空气, 1=沙子, 2=水, 3=石头, 4=木头, 5=油, 6=火, 7=烟, 8=蒸汽, 9=酸液, 10=金属, 11=熔岩, 12=种子, 13=植物
+- 新材质只需：创建文件 → 实现 MaterialDef → registerMaterial() → main.ts 导入
+
+### 性能优化
+- 双缓冲活跃标记：set/swap 自动唤醒 3x3 邻域
+- 静止粒子（已堆积的沙子、石头、金属等）跳过更新
+
 ## 技术边界
 - 浏览器可运行（无需后端）
 - 纯前端实现
@@ -32,7 +57,7 @@
 
 ## 开发规范
 - 每个功能一个原子 commit（feat/fix/refactor: 描述）
-- 代码质量检查必须通过（根据你选的技术栈决定检查方式）
+- 代码质量检查必须通过（tsc --noEmit + vite build）
 - 构建必须成功
 - 每次 commit 后 git push origin main（确保远程同步）
 - 代码要有清晰注释
