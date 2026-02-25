@@ -130,19 +130,41 @@ export class Renderer {
     this.ctx.stroke();
   }
 
-  /** 绘制笔刷预览圆圈 */
-  renderBrushPreview(cx: number, cy: number, brushSize: number): void {
+  /** 绘制笔刷预览 */
+  renderBrushPreview(cx: number, cy: number, brushSize: number, shape: string = 'circle'): void {
     const r = Math.floor(brushSize / 2);
     const s = this.scale;
     this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
     this.ctx.lineWidth = 1;
     this.ctx.beginPath();
-    this.ctx.arc(
-      (cx + 0.5) * s,
-      (cy + 0.5) * s,
-      (r + 0.5) * s,
-      0, Math.PI * 2,
-    );
+
+    if (shape === 'square') {
+      const x = (cx - r) * s;
+      const y = (cy - r) * s;
+      const size = (r * 2 + 1) * s;
+      this.ctx.rect(x, y, size, size);
+    } else {
+      // circle (default) and line use circle preview at cursor
+      this.ctx.arc(
+        (cx + 0.5) * s,
+        (cy + 0.5) * s,
+        (r + 0.5) * s,
+        0, Math.PI * 2,
+      );
+    }
     this.ctx.stroke();
+  }
+
+  /** 绘制线条预览（从起点到当前光标） */
+  renderLinePreview(x0: number, y0: number, x1: number, y1: number): void {
+    const s = this.scale;
+    this.ctx.strokeStyle = 'rgba(255, 255, 100, 0.7)';
+    this.ctx.lineWidth = 1.5;
+    this.ctx.setLineDash([4, 4]);
+    this.ctx.beginPath();
+    this.ctx.moveTo((x0 + 0.5) * s, (y0 + 0.5) * s);
+    this.ctx.lineTo((x1 + 0.5) * s, (y1 + 0.5) * s);
+    this.ctx.stroke();
+    this.ctx.setLineDash([]);
   }
 }

@@ -412,6 +412,17 @@ document.addEventListener('keydown', (e) => {
     toolbar.refreshGrid(renderer.showGrid);
     return;
   }
+
+  // B 键切换笔刷形状
+  if (e.code === 'KeyB') {
+    const shapes = ['circle', 'square', 'line'] as const;
+    const current = input.getBrushShape();
+    const idx = shapes.indexOf(current);
+    const next = shapes[(idx + 1) % shapes.length];
+    input.setBrushShape(next);
+    toolbar.refreshBrushShape();
+    return;
+  }
 });
 
 // FPS 显示
@@ -431,7 +442,12 @@ function loop() {
 
   // 笔刷预览
   if (input.cursorVisible) {
-    renderer.renderBrushPreview(input.cursorX, input.cursorY, input.getBrushSize());
+    renderer.renderBrushPreview(input.cursorX, input.cursorY, input.getBrushSize(), input.getBrushShape());
+    // 线条模式预览
+    if (input.isDrawingLine()) {
+      const [lx, ly] = input.getLineStart();
+      renderer.renderLinePreview(lx, ly, input.cursorX, input.cursorY);
+    }
   }
 
   toolbar.updateStats();

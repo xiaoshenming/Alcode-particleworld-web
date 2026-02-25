@@ -197,6 +197,16 @@ input[type="range"] {
   background: rgba(150, 40, 40, 0.7);
 }
 
+/* 笔刷形状按钮 */
+.brush-shape-btn {
+  flex: 0 0 auto;
+  width: 28px;
+  padding: 2px 0;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1;
+}
+
 .stats {
   font-size: 11px;
   color: #999;

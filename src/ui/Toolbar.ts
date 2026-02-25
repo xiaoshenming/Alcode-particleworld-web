@@ -1,4 +1,4 @@
-import { InputHandler } from './InputHandler';
+import { InputHandler, BrushShape } from './InputHandler';
 import { getMaterialsByCategory } from '../materials/registry';
 import type { MaterialDef } from '../materials/types';
 
@@ -30,6 +30,7 @@ export class Toolbar {
   private pauseBtn!: HTMLButtonElement;
   private brushLabel!: HTMLSpanElement;
   private brushSlider!: HTMLInputElement;
+  private brushShapeBtns: HTMLButtonElement[] = [];
   private speedLabel!: HTMLSpanElement;
   private speedSlider!: HTMLInputElement;
   private tempOverlayBtn!: HTMLButtonElement;
@@ -71,6 +72,15 @@ export class Toolbar {
     const size = this.input.getBrushSize();
     this.brushLabel.textContent = `笔刷: ${size}`;
     this.brushSlider.value = String(size);
+  }
+
+  /** 刷新笔刷形状按钮状态 */
+  refreshBrushShape(): void {
+    const current = this.input.getBrushShape();
+    for (const btn of this.brushShapeBtns) {
+      const shape = btn.title.includes('圆') ? 'circle' : btn.title.includes('方') ? 'square' : 'line';
+      btn.classList.toggle('active', shape === current);
+    }
   }
 
   /** 刷新速度显示 */
@@ -271,6 +281,34 @@ export class Toolbar {
     brushDiv.appendChild(slider);
     controlPanel.appendChild(brushDiv);
 
+    // 笔刷形状
+    const shapeDiv = document.createElement('div');
+    shapeDiv.className = 'control-row';
+    const shapeLabel = document.createElement('span');
+    shapeLabel.className = 'control-label';
+    shapeLabel.textContent = '形状:';
+    shapeDiv.appendChild(shapeLabel);
+
+    const shapes: { shape: BrushShape; label: string }[] = [
+      { shape: 'circle', label: '●' },
+      { shape: 'square', label: '■' },
+      { shape: 'line', label: '╱' },
+    ];
+    for (const { shape, label } of shapes) {
+      const btn = document.createElement('button');
+      btn.className = 'ctrl-btn brush-shape-btn';
+      btn.textContent = label;
+      btn.title = shape === 'circle' ? '圆形笔刷' : shape === 'square' ? '方形笔刷' : '线条笔刷';
+      if (shape === this.input.getBrushShape()) btn.classList.add('active');
+      btn.addEventListener('click', () => {
+        this.input.setBrushShape(shape);
+        this.refreshBrushShape();
+      });
+      this.brushShapeBtns.push(btn);
+      shapeDiv.appendChild(btn);
+    }
+    controlPanel.appendChild(shapeDiv);
+
     // 按钮行
     const btnRow = document.createElement('div');
     btnRow.className = 'control-row';
@@ -424,7 +462,7 @@ export class Toolbar {
     this.container.appendChild(helpDiv);
     const keysDiv = document.createElement('div');
     keysDiv.className = 'control-row stats';
-    keysDiv.textContent = 'Space 暂停 · 1~0 材质 · [] 笔刷 · -/= 速度 · Ctrl+Z/Y 撤销';
+    keysDiv.textContent = 'Space 暂停 · 1~0 材质 · [] 笔刷 · B 形状 · -/= 速度';
     this.container.appendChild(keysDiv);
 
     // 监听滚轮笔刷变化同步滑块
