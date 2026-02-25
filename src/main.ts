@@ -36,6 +36,7 @@ import './materials/Rubber';
 import './materials/Cement';
 import './materials/Clone';
 import './materials/Void';
+import './materials/Fountain';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
