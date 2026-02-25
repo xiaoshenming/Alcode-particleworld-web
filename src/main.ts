@@ -285,6 +285,7 @@ import { InputHandler } from './ui/InputHandler';
 import { Toolbar } from './ui/Toolbar';
 import { InfoPanel } from './ui/InfoPanel';
 import { History } from './core/History';
+import { FpsGraph } from './ui/FpsGraph';
 
 const GRID_WIDTH = 200;
 const GRID_HEIGHT = 150;
@@ -461,12 +462,8 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-// FPS 显示
-const fpsEl = document.createElement('div');
-fpsEl.id = 'fps';
-document.body.appendChild(fpsEl);
-let lastTime = performance.now();
-let frames = 0;
+// FPS 图表
+const fpsGraph = new FpsGraph();
 
 function loop() {
   if (!paused) {
@@ -488,15 +485,7 @@ function loop() {
 
   toolbar.updateStats();
   infoPanel.update();
-
-  // FPS 计算
-  frames++;
-  const now = performance.now();
-  if (now - lastTime >= 1000) {
-    fpsEl.textContent = `${frames} FPS`;
-    frames = 0;
-    lastTime = now;
-  }
+  fpsGraph.tick();
 
   requestAnimationFrame(loop);
 }
