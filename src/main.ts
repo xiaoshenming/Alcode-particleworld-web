@@ -237,6 +237,11 @@ import './materials/MoltenTinBronze';
 import './materials/Chlorine';
 import './materials/Marble';
 import './materials/OpticalFiber';
+import './materials/Vanadium';
+import './materials/MoltenVanadium';
+import './materials/SulfurDioxide';
+import './materials/Sandstone';
+import './materials/CarbonNanotube';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
