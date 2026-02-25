@@ -47,6 +47,7 @@ import './materials/Charcoal';
 import './materials/Laser';
 import './materials/Moss';
 import './materials/Tornado';
+import './materials/Foam';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
