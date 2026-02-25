@@ -45,6 +45,15 @@ export const Lava: MaterialDef = {
         return;
       }
 
+      // 熔岩 + 冰/雪 → 岩浆岩 + 蒸汽
+      if ((nid === 14 || nid === 15) && Math.random() < 0.3) {
+        world.set(x, y, 77);  // 岩浆岩
+        world.set(nx, ny, 8); // 蒸汽
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
       // 点燃可燃物
       if (FLAMMABLE.has(nid) && Math.random() < 0.1) {
         world.set(nx, ny, 6); // 着火
