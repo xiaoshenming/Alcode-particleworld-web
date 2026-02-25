@@ -12,6 +12,8 @@ export class InputHandler {
   private canvas: HTMLCanvasElement;
   private scale: number;
   private painting = false;
+  /** 右键擦除模式 */
+  private erasing = false;
   private selectedMaterial = 1; // 默认沙子
   private brushSize = 3;
   private brushShape: BrushShape = 'circle';
@@ -66,11 +68,16 @@ export class InputHandler {
   }
 
   private bindEvents(): void {
+    // 禁用右键菜单
+    this.canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+
     this.canvas.addEventListener('mousedown', (e) => {
       this.onPaintStart?.();
+      // 右键 = 擦除模式
+      this.erasing = e.button === 2;
       this.painting = true;
       const [gx, gy] = this.toGrid(e.clientX, e.clientY);
-      if (this.brushShape === 'line') {
+      if (this.brushShape === 'line' && !this.erasing) {
         // 线条模式：记录起点，松开时画线
         this.lineStartX = gx;
         this.lineStartY = gy;
@@ -83,21 +90,23 @@ export class InputHandler {
       this.cursorX = gx;
       this.cursorY = gy;
       this.cursorVisible = true;
-      if (this.painting && this.brushShape !== 'line') {
+      if (this.painting && (this.brushShape !== 'line' || this.erasing)) {
         this.drawAt(gx, gy);
       }
     });
     this.canvas.addEventListener('mouseup', (e) => {
-      if (this.painting && this.brushShape === 'line' && this.lineStartX >= 0) {
+      if (this.painting && this.brushShape === 'line' && !this.erasing && this.lineStartX >= 0) {
         const [gx, gy] = this.toGrid(e.clientX, e.clientY);
         this.drawLine(this.lineStartX, this.lineStartY, gx, gy);
         this.lineStartX = -1;
         this.lineStartY = -1;
       }
       this.painting = false;
+      this.erasing = false;
     });
     this.canvas.addEventListener('mouseleave', () => {
       this.painting = false;
+      this.erasing = false;
       this.cursorVisible = false;
       this.lineStartX = -1;
       this.lineStartY = -1;
@@ -133,6 +142,7 @@ export class InputHandler {
 
   /** 在指定位置绘制（根据笔刷形状） */
   private drawAt(cx: number, cy: number): void {
+    const matId = this.erasing ? 0 : this.selectedMaterial;
     const r = Math.floor(this.brushSize / 2);
     for (let dy = -r; dy <= r; dy++) {
       for (let dx = -r; dx <= r; dx++) {
@@ -144,8 +154,8 @@ export class InputHandler {
           if (dx * dx + dy * dy > r * r) continue;
         }
         // square 不需要额外判断，矩形范围即可
-        if (this.selectedMaterial === 0 || this.world.isEmpty(x, y)) {
-          this.world.set(x, y, this.selectedMaterial);
+        if (matId === 0 || this.world.isEmpty(x, y)) {
+          this.world.set(x, y, matId);
         }
       }
     }
@@ -172,6 +182,7 @@ export class InputHandler {
 
   /** 在单个点绘制一个笔刷大小的点 */
   private drawDot(cx: number, cy: number): void {
+    const matId = this.erasing ? 0 : this.selectedMaterial;
     const r = Math.floor(this.brushSize / 2);
     for (let dy = -r; dy <= r; dy++) {
       for (let dx = -r; dx <= r; dx++) {
@@ -179,8 +190,8 @@ export class InputHandler {
         const y = cy + dy;
         if (!this.world.inBounds(x, y)) continue;
         if (dx * dx + dy * dy > r * r) continue;
-        if (this.selectedMaterial === 0 || this.world.isEmpty(x, y)) {
-          this.world.set(x, y, this.selectedMaterial);
+        if (matId === 0 || this.world.isEmpty(x, y)) {
+          this.world.set(x, y, matId);
         }
       }
     }

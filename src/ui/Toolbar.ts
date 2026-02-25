@@ -35,6 +35,7 @@ export class Toolbar {
   private speedSlider!: HTMLInputElement;
   private tempOverlayBtn!: HTMLButtonElement;
   private gridBtn!: HTMLButtonElement;
+  private eraserBtn!: HTMLButtonElement;
   /** 记录每个分类的折叠状态 */
   private collapsedCategories = new Set<string>();
 
@@ -65,6 +66,12 @@ export class Toolbar {
       const btn = b as HTMLButtonElement;
       btn.classList.toggle('active', btn.dataset['materialId'] === String(currentId));
     });
+    this.refreshEraser();
+  }
+
+  /** 刷新橡皮擦按钮状态 */
+  refreshEraser(): void {
+    this.eraserBtn.classList.toggle('active', this.input.getMaterial() === 0);
   }
 
   /** 刷新笔刷大小显示 */
@@ -364,6 +371,26 @@ export class Toolbar {
     undoRow.appendChild(undoBtn);
     undoRow.appendChild(redoBtn);
     controlPanel.appendChild(undoRow);
+
+    // 橡皮擦按钮
+    const eraserRow = document.createElement('div');
+    eraserRow.className = 'control-row';
+    this.eraserBtn = document.createElement('button');
+    this.eraserBtn.className = 'ctrl-btn';
+    this.eraserBtn.textContent = '橡皮擦';
+    this.eraserBtn.title = '切换橡皮擦 (E) · 右键也可擦除';
+    this.eraserBtn.addEventListener('click', () => {
+      if (this.input.getMaterial() === 0) {
+        // 已经是橡皮擦，切回沙子
+        this.input.setMaterial(1);
+      } else {
+        this.input.setMaterial(0);
+      }
+      this.refreshMaterialSelection();
+      this.refreshEraser();
+    });
+    eraserRow.appendChild(this.eraserBtn);
+    controlPanel.appendChild(eraserRow);
 
     // 温度叠加层按钮
     const tempRow = document.createElement('div');

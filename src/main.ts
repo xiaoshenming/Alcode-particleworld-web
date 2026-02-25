@@ -428,6 +428,17 @@ document.addEventListener('keydown', (e) => {
     toolbar.refreshBrushShape();
     return;
   }
+
+  // E 键切换橡皮擦
+  if (e.code === 'KeyE') {
+    if (input.getMaterial() === 0) {
+      input.setMaterial(1); // 切回沙子
+    } else {
+      input.setMaterial(0);
+    }
+    toolbar.refreshMaterialSelection();
+    return;
+  }
 });
 
 // FPS 显示
