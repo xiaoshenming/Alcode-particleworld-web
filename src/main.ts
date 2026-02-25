@@ -67,6 +67,11 @@ import './materials/Tar';
 import './materials/LiquidNitrogen';
 import './materials/Fluorite';
 import './materials/Mycelium';
+import './materials/Resin';
+import './materials/Rust';
+import './materials/Bubble';
+import './materials/OilSand';
+import './materials/Frost';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
