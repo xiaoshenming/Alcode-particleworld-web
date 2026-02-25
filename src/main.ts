@@ -54,6 +54,7 @@ import './materials/Swamp';
 import './materials/Plasma';
 import './materials/Mercury';
 import './materials/Vine';
+import './materials/Meteor';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
