@@ -13,6 +13,8 @@ import './materials/Metal';
 import './materials/Lava';
 import './materials/Seed';
 import './materials/Plant';
+import './materials/Ice';
+import './materials/Snow';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
