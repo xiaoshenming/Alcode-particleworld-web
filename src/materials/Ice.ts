@@ -20,6 +20,16 @@ export const Ice: MaterialDef = {
   },
   density: Infinity, // 固体不可移动
   update(x: number, y: number, world: WorldAPI) {
+    // 温度高于 0° 时融化
+    if (world.getTemp(x, y) > 35) {
+      world.set(x, y, 2); // 变水
+      world.setTemp(x, y, 20);
+      return;
+    }
+
+    // 冰降低周围温度
+    world.setTemp(x, y, Math.min(world.getTemp(x, y), -5));
+
     const neighbors: [number, number][] = [
       [x, y - 1], [x, y + 1], [x - 1, y], [x + 1, y],
     ];

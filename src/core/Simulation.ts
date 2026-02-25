@@ -39,5 +39,8 @@ export class Simulation {
         }
       }
     }
+
+    // 温度扩散
+    this.world.diffuseTemperature();
   }
 }

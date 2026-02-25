@@ -18,6 +18,8 @@ export class World implements WorldAPI {
   private _awake: Uint8Array;
   /** 下一帧的活跃标记（双缓冲） */
   private _awakeNext: Uint8Array;
+  /** 温度网格（Float32 精度，20=常温） */
+  private _temp: Float32Array;
 
   constructor(width: number, height: number) {
     this.width = width;
@@ -28,6 +30,8 @@ export class World implements WorldAPI {
     this._updated = new Uint8Array(size);
     this._awake = new Uint8Array(size);
     this._awakeNext = new Uint8Array(size);
+    this._temp = new Float32Array(size);
+    this._temp.fill(20); // 常温 20°
 
     // 初始化为空气背景色
     const emptyMat = getMaterial(0);
@@ -71,6 +75,10 @@ export class World implements WorldAPI {
     const tmpColor = this.colors[i1];
     this.colors[i1] = this.colors[i2];
     this.colors[i2] = tmpColor;
+
+    const tmpTemp = this._temp[i1];
+    this._temp[i1] = this._temp[i2];
+    this._temp[i2] = tmpTemp;
 
     // 交换涉及的两个位置都需要唤醒
     this.wakeArea(x1, y1);
@@ -118,6 +126,55 @@ export class World implements WorldAPI {
     return mat ? mat.density : 0;
   }
 
+  getTemp(x: number, y: number): number {
+    return this._temp[this.idx(x, y)];
+  }
+
+  setTemp(x: number, y: number, temp: number): void {
+    this._temp[this.idx(x, y)] = temp;
+    this.wakeArea(x, y);
+  }
+
+  addTemp(x: number, y: number, delta: number): void {
+    const i = this.idx(x, y);
+    this._temp[i] += delta;
+    this.wakeArea(x, y);
+  }
+
+  /** 温度扩散：每帧调用，热量向邻居传导 */
+  diffuseTemperature(): void {
+    const w = this.width;
+    const h = this.height;
+    // 简单扩散：每个格子向四邻居均匀传导
+    // 使用就地更新（近似，但性能好）
+    const rate = 0.05; // 扩散速率
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const i = y * w + x;
+        const t = this._temp[i];
+        // 只处理偏离常温的格子
+        if (Math.abs(t - 20) < 0.5) continue;
+
+        let sum = 0;
+        let count = 0;
+        if (x > 0) { sum += this._temp[i - 1]; count++; }
+        if (x < w - 1) { sum += this._temp[i + 1]; count++; }
+        if (y > 0) { sum += this._temp[i - w]; count++; }
+        if (y < h - 1) { sum += this._temp[i + w]; count++; }
+
+        if (count > 0) {
+          const avg = sum / count;
+          this._temp[i] += (avg - t) * rate;
+        }
+
+        // 空气格子温度向常温衰减
+        if (this.cells[i] === 0) {
+          this._temp[i] += (20 - this._temp[i]) * 0.1;
+        }
+      }
+    }
+  }
+
   /** 统计非空粒子数量 */
   getParticleCount(): number {
     let count = 0;
@@ -135,6 +192,7 @@ export class World implements WorldAPI {
     this.colors.fill(bgColor);
     this._awake.fill(0);
     this._awakeNext.fill(0);
+    this._temp.fill(20);
   }
 
   /** 序列化世界状态为 JSON 字符串（只保存 cells） */

@@ -25,4 +25,10 @@ export interface WorldAPI {
   getDensity(x: number, y: number): number;
   /** 唤醒指定位置及其邻居（下一帧参与模拟） */
   wakeArea(cx: number, cy: number): void;
+  /** 获取指定位置的温度（0=绝对零度，20=常温，100+=高温） */
+  getTemp(x: number, y: number): number;
+  /** 设置指定位置的温度 */
+  setTemp(x: number, y: number, temp: number): void;
+  /** 在指定位置增加温度 */
+  addTemp(x: number, y: number, delta: number): void;
 }

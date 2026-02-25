@@ -23,6 +23,9 @@ export const Lava: MaterialDef = {
   },
   density: 4, // 很重的液体
   update(x: number, y: number, world: WorldAPI) {
+    // 熔岩产生高温
+    world.setTemp(x, y, 500);
+
     // 刷新颜色（熔岩闪烁）
     world.set(x, y, 11);
 

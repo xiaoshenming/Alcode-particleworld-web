@@ -37,6 +37,9 @@ export const Fire: MaterialDef = {
   },
   density: 0.1, // 极轻，几乎像气体
   update(x: number, y: number, world: WorldAPI) {
+    // 火产生热量
+    world.setTemp(x, y, 200);
+
     // 获取/初始化生命值
     let life = getLife(x, y);
     if (life === 0) {

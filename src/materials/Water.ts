@@ -13,6 +13,19 @@ export const Water: MaterialDef = {
   },
   density: 2,
   update(x: number, y: number, world: WorldAPI) {
+    // 高温蒸发：温度超过 80° 变蒸汽
+    if (world.getTemp(x, y) > 80) {
+      world.set(x, y, 8); // 蒸汽
+      world.setTemp(x, y, 60);
+      return;
+    }
+
+    // 低温结冰：温度低于 -10° 变冰
+    if (world.getTemp(x, y) < -10) {
+      world.set(x, y, 14); // 冰
+      return;
+    }
+
     if (y >= world.height - 1) return;
 
     // 1. 尝试直接下落
