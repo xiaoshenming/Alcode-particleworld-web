@@ -232,6 +232,11 @@ import './materials/MoltenCobalt';
 import './materials/CarbonMonoxide';
 import './materials/Slate';
 import './materials/PiezoelectricCeramic';
+import './materials/TinBronze';
+import './materials/MoltenTinBronze';
+import './materials/Chlorine';
+import './materials/Marble';
+import './materials/OpticalFiber';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
