@@ -11,6 +11,8 @@ import './materials/Steam';
 import './materials/Acid';
 import './materials/Metal';
 import './materials/Lava';
+import './materials/Seed';
+import './materials/Plant';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
