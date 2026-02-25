@@ -64,11 +64,55 @@ const toolbar = new Toolbar(input, {
   setWind: (dir: number, strength: number) => { world.setWind(dir, strength); },
 });
 
+// 常用材质快捷键映射（数字键 1~9, 0）
+const HOTKEY_MATERIALS = [1, 2, 3, 4, 6, 11, 22, 20, 5, 0]; // 沙水石木火熔岩火药泥土油橡皮
+
 // 快捷键
 document.addEventListener('keydown', (e) => {
+  // Space 暂停
   if (e.code === 'Space') {
     e.preventDefault();
     paused = !paused;
+    return;
+  }
+
+  // 数字键 1~9, 0 选材质
+  if (e.code >= 'Digit1' && e.code <= 'Digit9') {
+    const idx = parseInt(e.code.charAt(5)) - 1;
+    if (idx < HOTKEY_MATERIALS.length) {
+      input.setMaterial(HOTKEY_MATERIALS[idx]);
+      toolbar.refreshMaterialSelection();
+    }
+    return;
+  }
+  if (e.code === 'Digit0') {
+    input.setMaterial(HOTKEY_MATERIALS[9]);
+    toolbar.refreshMaterialSelection();
+    return;
+  }
+
+  // [ ] 调笔刷大小
+  if (e.code === 'BracketLeft') {
+    input.setBrushSize(input.getBrushSize() - 1);
+    toolbar.refreshBrushSize();
+    return;
+  }
+  if (e.code === 'BracketRight') {
+    input.setBrushSize(input.getBrushSize() + 1);
+    toolbar.refreshBrushSize();
+    return;
+  }
+
+  // - = 调速度
+  if (e.code === 'Minus') {
+    simSpeed = Math.max(1, simSpeed - 1);
+    toolbar.refreshSpeed(simSpeed);
+    return;
+  }
+  if (e.code === 'Equal') {
+    simSpeed = Math.min(5, simSpeed + 1);
+    toolbar.refreshSpeed(simSpeed);
+    return;
   }
 });
 

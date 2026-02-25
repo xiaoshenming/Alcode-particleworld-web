@@ -32,6 +32,10 @@ export class Toolbar {
   private callbacks: ToolbarCallbacks;
   private particleCountEl!: HTMLSpanElement;
   private pauseBtn!: HTMLButtonElement;
+  private brushLabel!: HTMLSpanElement;
+  private brushSlider!: HTMLInputElement;
+  private speedLabel!: HTMLSpanElement;
+  private speedSlider!: HTMLInputElement;
 
   constructor(input: InputHandler, callbacks: ToolbarCallbacks) {
     this.input = input;
@@ -47,6 +51,28 @@ export class Toolbar {
     this.particleCountEl.textContent = String(this.callbacks.getParticleCount());
     this.pauseBtn.textContent = this.callbacks.isPaused() ? '继续' : '暂停';
     this.pauseBtn.classList.toggle('active', this.callbacks.isPaused());
+  }
+
+  /** 刷新材质选中状态（快捷键切换后调用） */
+  refreshMaterialSelection(): void {
+    const currentId = this.input.getMaterial();
+    this.container.querySelectorAll('.material-btn').forEach(b => {
+      const btn = b as HTMLButtonElement;
+      btn.classList.toggle('active', btn.dataset['materialId'] === String(currentId));
+    });
+  }
+
+  /** 刷新笔刷大小显示 */
+  refreshBrushSize(): void {
+    const size = this.input.getBrushSize();
+    this.brushLabel.textContent = `笔刷: ${size}`;
+    this.brushSlider.value = String(size);
+  }
+
+  /** 刷新速度显示 */
+  refreshSpeed(speed: number): void {
+    this.speedLabel.textContent = `速度: ${speed}x`;
+    this.speedSlider.value = String(speed);
   }
 
   private build(): void {
@@ -86,6 +112,7 @@ export class Toolbar {
         btn.style.backgroundColor = `rgb(${r},${g},${b})`;
         const luma = 0.299 * r + 0.587 * g + 0.114 * b;
         btn.style.color = luma > 128 ? '#000' : '#fff';
+        btn.dataset['materialId'] = String(mat.id);
 
         if (mat.id === this.input.getMaterial()) {
           btn.classList.add('active');
@@ -131,6 +158,8 @@ export class Toolbar {
       this.input.setBrushSize(size);
       brushLabel.textContent = `笔刷: ${size}`;
     });
+    this.brushLabel = brushLabel;
+    this.brushSlider = slider;
     brushDiv.appendChild(brushLabel);
     brushDiv.appendChild(slider);
     controlPanel.appendChild(brushDiv);
@@ -188,6 +217,8 @@ export class Toolbar {
       this.callbacks.setSpeed(speed);
       speedLabel.textContent = `速度: ${speed}x`;
     });
+    this.speedLabel = speedLabel;
+    this.speedSlider = speedSlider;
     speedDiv.appendChild(speedLabel);
     speedDiv.appendChild(speedSlider);
     controlPanel.appendChild(speedDiv);
@@ -240,7 +271,7 @@ export class Toolbar {
     this.container.appendChild(helpDiv);
     const keysDiv = document.createElement('div');
     keysDiv.className = 'control-row stats';
-    keysDiv.textContent = 'Space 暂停 \u00B7 滚轮 笔刷';
+    keysDiv.textContent = 'Space 暂停 · 1~0 材质 · [] 笔刷 · -/= 速度';
     this.container.appendChild(keysDiv);
 
     // 监听滚轮笔刷变化同步滑块
