@@ -107,6 +107,11 @@ import './materials/Honeycomb';
 import './materials/LiquidHelium';
 import './materials/Nitroglycerin';
 import './materials/MossyStone';
+import './materials/BallLightning';
+import './materials/RockSalt';
+import './materials/MoltenMetal';
+import './materials/Pollen';
+import './materials/Pumice';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
