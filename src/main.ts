@@ -90,6 +90,7 @@ import './materials/Ceramic';
 import './materials/Fiber';
 import './materials/MoltenGlass';
 import './materials/Spore';
+import './materials/Thermite';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
