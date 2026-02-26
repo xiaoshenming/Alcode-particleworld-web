@@ -410,6 +410,7 @@ import { StatsPanel } from './ui/StatsPanel';
 import { Encyclopedia } from './ui/Encyclopedia';
 import { ScenePanel } from './ui/ScenePresets';
 import { SelectionTool } from './ui/SelectionTool';
+import { RadialMenu } from './ui/RadialMenu';
 
 import { GifEncoder } from './utils/GifEncoder';
 import { getMaterial } from './materials/registry';
@@ -437,6 +438,8 @@ const scenePanel = new ScenePanel((preset) => {
 
 const selectionTool = new SelectionTool(world);
 selectionTool.onSnapshot = () => history.pushSnapshot(world.cells);
+
+const radialMenu = new RadialMenu();
 
 let paused = false;
 let simSpeed = 1; // 模拟速度倍率 1~5
@@ -638,6 +641,9 @@ const toolbar = new Toolbar(input, {
   },
 });
 
+// 连接材质选择到轮盘历史记录
+toolbar.onMaterialSelect = (matId) => radialMenu.recordUsage(matId);
+
 // 常用材质快捷键映射（数字键 1~9, 0）
 const DEFAULT_HOTKEYS = [1, 2, 3, 4, 6, 11, 22, 20, 5, 0]; // 沙水石木火熔岩火药泥土油橡皮
 const HOTKEY_STORAGE_KEY = 'pw-hotkey-bindings';
@@ -716,6 +722,21 @@ document.addEventListener('keydown', (e) => {
       return;
     }
     if (scenePanel.isVisible()) { scenePanel.hide(); return; }
+    if (radialMenu.isVisible()) { radialMenu.hide(); return; }
+  }
+
+  // ` 键（反引号）打开材质快速轮盘
+  if (e.code === 'Backquote' && !radialMenu.isVisible()) {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    radialMenu.show(cx, cy, (matId) => {
+      input.setMaterial(matId);
+      radialMenu.recordUsage(matId);
+      toolbar.refreshMaterialSelection();
+    });
+    return;
   }
 
   // I 键切换选区模式

@@ -113,6 +113,8 @@ export class Toolbar {
   private boundaryBtn!: HTMLButtonElement;
   private densityMapBtn!: HTMLButtonElement;
   private hotkeyBarEl!: HTMLElement;
+  /** 材质选择回调（用于通知外部记录使用历史等） */
+  onMaterialSelect?: (matId: number) => void;
 
   constructor(input: InputHandler, callbacks: ToolbarCallbacks) {
     this.input = input;
@@ -627,6 +629,7 @@ export class Toolbar {
       this.input.setMaterial(mat.id);
       this.container.querySelectorAll('.material-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
+      this.onMaterialSelect?.(mat.id);
     });
 
     // 右键添加/移除收藏
