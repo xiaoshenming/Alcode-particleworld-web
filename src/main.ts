@@ -491,6 +491,12 @@ import './materials/MoltenNiobiumRhenium';
 import './materials/IndiumFluoride';
 import './materials/GreenFibrousRock';
 import './materials/PhotoelectroacousticMaterial';
+// v36.2 新材质 (ID 486~490)
+import './materials/NiobiumChromiumAlloy';
+import './materials/MoltenNiobiumChromium';
+import './materials/GalliumFluoride';
+import './materials/BerylRock';
+import './materials/AcoustooptoelectricMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
