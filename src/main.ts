@@ -404,6 +404,7 @@ import { FpsGraph } from './ui/FpsGraph';
 import { StatsPanel } from './ui/StatsPanel';
 import { Encyclopedia } from './ui/Encyclopedia';
 import { ScenePanel } from './ui/ScenePresets';
+import { SelectionTool } from './ui/SelectionTool';
 
 import { GifEncoder } from './utils/GifEncoder';
 import { getMaterial } from './materials/registry';
@@ -428,6 +429,9 @@ const scenePanel = new ScenePanel((preset) => {
   history.pushSnapshot(world.cells);
   preset.generate(world);
 });
+
+const selectionTool = new SelectionTool(world);
+selectionTool.onSnapshot = () => history.pushSnapshot(world.cells);
 
 let paused = false;
 let simSpeed = 1; // 模拟速度倍率 1~5
@@ -701,7 +705,51 @@ document.addEventListener('drop', (e) => {
 document.addEventListener('keydown', (e) => {
   // Escape 关闭弹出面板
   if (e.code === 'Escape') {
+    if (selectionTool.active) {
+      selectionTool.cancel();
+      selectionTool.active = false;
+      return;
+    }
     if (scenePanel.isVisible()) { scenePanel.hide(); return; }
+  }
+
+  // I 键切换选区模式
+  if (e.code === 'KeyI') {
+    selectionTool.toggle();
+    return;
+  }
+
+  // 选区模式下的快捷键
+  if (selectionTool.active) {
+    // Ctrl+C 复制
+    if ((e.ctrlKey || e.metaKey) && e.code === 'KeyC') {
+      e.preventDefault();
+      selectionTool.copy();
+      return;
+    }
+    // Ctrl+X 剪切
+    if ((e.ctrlKey || e.metaKey) && e.code === 'KeyX') {
+      e.preventDefault();
+      selectionTool.cut();
+      return;
+    }
+    // Ctrl+V 粘贴
+    if ((e.ctrlKey || e.metaKey) && e.code === 'KeyV') {
+      e.preventDefault();
+      selectionTool.paste();
+      return;
+    }
+    // Delete 删除选区
+    if (e.code === 'Delete' || e.code === 'Backspace') {
+      e.preventDefault();
+      selectionTool.deleteSelection();
+      return;
+    }
+    // 方向键微调浮动选区
+    if (e.code === 'ArrowUp') { e.preventDefault(); selectionTool.nudge(0, -1); return; }
+    if (e.code === 'ArrowDown') { e.preventDefault(); selectionTool.nudge(0, 1); return; }
+    if (e.code === 'ArrowLeft') { e.preventDefault(); selectionTool.nudge(-1, 0); return; }
+    if (e.code === 'ArrowRight') { e.preventDefault(); selectionTool.nudge(1, 0); return; }
   }
 
   // Backspace 按住倒流
@@ -1022,6 +1070,29 @@ canvas.addEventListener('mousedown', (e) => {
   }
 }, true);
 
+// 选区工具鼠标事件拦截（capture 阶段）
+canvas.addEventListener('mousedown', (e) => {
+  if (!selectionTool.active || e.button !== 0) return;
+  const rect = canvas.getBoundingClientRect();
+  const [gx, gy] = renderer.screenToGrid(e.clientX - rect.left, e.clientY - rect.top);
+  if (selectionTool.mouseDown(gx, gy)) {
+    e.stopPropagation();
+    e.preventDefault();
+  }
+}, true);
+
+canvas.addEventListener('mousemove', (e) => {
+  if (!selectionTool.active) return;
+  const rect = canvas.getBoundingClientRect();
+  const [gx, gy] = renderer.screenToGrid(e.clientX - rect.left, e.clientY - rect.top);
+  selectionTool.mouseMove(gx, gy);
+});
+
+canvas.addEventListener('mouseup', () => {
+  if (!selectionTool.active) return;
+  selectionTool.mouseUp();
+});
+
 // 追踪模式下点击选择粒子
 canvas.addEventListener('mousedown', (e) => {
   if (!trackingMode || e.button !== 0) return;
@@ -1156,6 +1227,24 @@ function loop() {
     if (recordFrameCount >= MAX_GIF_FRAMES) {
       finishRecording();
     }
+  }
+
+  // 选区工具渲染
+  if (selectionTool.active) {
+    if (selectionTool.rect) {
+      const r = selectionTool.rect;
+      renderer.renderSelectionRect(r.x, r.y, r.w, r.h);
+    }
+    if (selectionTool.floating) {
+      const f = selectionTool.floating;
+      renderer.renderFloatingSelection(selectionTool.floatingX, selectionTool.floatingY, f.w, f.h, f.cells);
+    }
+    const hint = selectionTool.floating
+      ? '选区模式 | 点击放置 | 方向键微调 | Esc退出'
+      : selectionTool.rect
+        ? '选区模式 | Ctrl+C复制 Ctrl+X剪切 Del删除 | Esc退出'
+        : '选区模式 | 拖拽框选 | Ctrl+V粘贴 | Esc退出';
+    renderer.renderSelectionHint(hint);
   }
 
   // 笔刷预览

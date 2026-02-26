@@ -459,4 +459,64 @@ export class Renderer {
     this.viewPanX = 0;
     this.viewPanY = 0;
   }
+
+  /** 绘制选区框（虚线矩形） */
+  renderSelectionRect(rx: number, ry: number, rw: number, rh: number): void {
+    const s = this.scale;
+    this.ctx.save();
+    this.ctx.translate(this.viewPanX, this.viewPanY);
+    this.ctx.scale(this.viewZoom, this.viewZoom);
+    this.ctx.strokeStyle = 'rgba(100, 200, 255, 0.8)';
+    this.ctx.lineWidth = 1.5 / this.viewZoom;
+    this.ctx.setLineDash([4 / this.viewZoom, 3 / this.viewZoom]);
+    this.ctx.strokeRect(rx * s, ry * s, rw * s, rh * s);
+    this.ctx.setLineDash([]);
+    // 半透明填充
+    this.ctx.fillStyle = 'rgba(100, 200, 255, 0.08)';
+    this.ctx.fillRect(rx * s, ry * s, rw * s, rh * s);
+    this.ctx.restore();
+  }
+
+  /** 绘制浮动选区预览 */
+  renderFloatingSelection(fx: number, fy: number, fw: number, fh: number, cells: Uint16Array): void {
+    const s = this.scale;
+    this.ctx.save();
+    this.ctx.translate(this.viewPanX, this.viewPanY);
+    this.ctx.scale(this.viewZoom, this.viewZoom);
+
+    // 绘制粒子（简化：用材质颜色填充像素）
+    for (let dy = 0; dy < fh; dy++) {
+      for (let dx = 0; dx < fw; dx++) {
+        const matId = cells[dy * fw + dx];
+        if (matId === 0) continue;
+        // 用半透明白色表示有粒子
+        this.ctx.fillStyle = 'rgba(200, 220, 255, 0.5)';
+        this.ctx.fillRect((fx + dx) * s, (fy + dy) * s, s, s);
+      }
+    }
+
+    // 外框
+    this.ctx.strokeStyle = 'rgba(255, 200, 100, 0.9)';
+    this.ctx.lineWidth = 1.5 / this.viewZoom;
+    this.ctx.setLineDash([3 / this.viewZoom, 3 / this.viewZoom]);
+    this.ctx.strokeRect(fx * s, fy * s, fw * s, fh * s);
+    this.ctx.setLineDash([]);
+    this.ctx.restore();
+  }
+
+  /** 绘制选区模式提示 */
+  renderSelectionHint(text: string): void {
+    this.ctx.save();
+    this.ctx.font = '12px monospace';
+    const metrics = this.ctx.measureText(text);
+    const pad = 6;
+    const bx = 8, by = 32;
+    const bw = metrics.width + pad * 2;
+    const bh = 18;
+    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+    this.ctx.fillRect(bx, by, bw, bh);
+    this.ctx.fillStyle = 'rgba(100, 200, 255, 0.95)';
+    this.ctx.fillText(text, bx + pad, by + 13);
+    this.ctx.restore();
+  }
 }
