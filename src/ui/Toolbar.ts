@@ -1,5 +1,5 @@
 import { InputHandler, BrushShape } from './InputHandler';
-import { getMaterialsByCategory } from '../materials/registry';
+import { getMaterialsByCategory, getMaterial } from '../materials/registry';
 import type { MaterialDef } from '../materials/types';
 
 export interface ToolbarCallbacks {
@@ -40,6 +40,12 @@ export class Toolbar {
   private fillBtn!: HTMLButtonElement;
   /** 记录每个分类的折叠状态 */
   private collapsedCategories = new Set<string>();
+  /** 收藏夹材质 ID 列表 */
+  private favorites: number[] = [];
+  /** 收藏夹按钮容器 */
+  private favBtnsDiv!: HTMLElement;
+  /** 收藏夹分类容器 */
+  private favDiv!: HTMLElement;
 
   constructor(input: InputHandler, callbacks: ToolbarCallbacks) {
     this.input = input;
@@ -51,6 +57,7 @@ export class Toolbar {
     this.collapsedCategories.add('熔融金属');
     this.collapsedCategories.add('矿石');
     this.collapsedCategories.add('特殊');
+    this.loadFavorites();
     this.build();
   }
 
@@ -117,6 +124,49 @@ export class Toolbar {
     this.fillBtn.textContent = isFill ? '填充: 开' : '填充';
   }
 
+  /** 加载收藏夹 */
+  private loadFavorites(): void {
+    try {
+      const data = localStorage.getItem('pw-favorites');
+      if (data) this.favorites = JSON.parse(data);
+    } catch { /* ignore */ }
+  }
+
+  /** 保存收藏夹 */
+  private saveFavorites(): void {
+    localStorage.setItem('pw-favorites', JSON.stringify(this.favorites));
+  }
+
+  /** 切换收藏状态 */
+  private toggleFavorite(id: number): void {
+    const idx = this.favorites.indexOf(id);
+    if (idx >= 0) {
+      this.favorites.splice(idx, 1);
+    } else {
+      this.favorites.push(id);
+    }
+    this.saveFavorites();
+    this.refreshFavorites();
+  }
+
+  /** 刷新收藏夹 UI */
+  private refreshFavorites(): void {
+    while (this.favBtnsDiv.firstChild) {
+      this.favBtnsDiv.removeChild(this.favBtnsDiv.firstChild);
+    }
+    if (this.favorites.length === 0) {
+      this.favDiv.style.display = 'none';
+      return;
+    }
+    this.favDiv.style.display = '';
+    for (const id of this.favorites) {
+      const mat = getMaterial(id);
+      if (!mat) continue;
+      const btn = this.createMaterialBtn(mat);
+      this.favBtnsDiv.appendChild(btn);
+    }
+  }
+
   /** 创建材质按钮 */
   private createMaterialBtn(mat: MaterialDef): HTMLButtonElement {
     const btn = document.createElement('button');
@@ -141,6 +191,12 @@ export class Toolbar {
       this.input.setMaterial(mat.id);
       this.container.querySelectorAll('.material-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
+    });
+
+    // 右键添加/移除收藏
+    btn.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      this.toggleFavorite(mat.id);
     });
 
     return btn;
@@ -179,6 +235,22 @@ export class Toolbar {
     searchBtns.className = 'category-btns';
     searchResults.appendChild(searchBtns);
     matsPanel.appendChild(searchResults);
+
+    // 收藏夹区域
+    this.favDiv = document.createElement('div');
+    this.favDiv.className = 'category favorites';
+    if (this.favorites.length === 0) this.favDiv.style.display = 'none';
+    const favHeader = document.createElement('div');
+    favHeader.className = 'category-header';
+    const favLabel = document.createElement('span');
+    favLabel.className = 'category-label';
+    favLabel.textContent = '收藏夹';
+    favHeader.appendChild(favLabel);
+    this.favDiv.appendChild(favHeader);
+    this.favBtnsDiv = document.createElement('div');
+    this.favBtnsDiv.className = 'category-btns';
+    this.favDiv.appendChild(this.favBtnsDiv);
+    matsPanel.appendChild(this.favDiv);
 
     // 收集所有材质用于搜索
     const allMats: MaterialDef[] = [];
@@ -517,6 +589,9 @@ export class Toolbar {
     controlPanel.appendChild(statsDiv);
 
     this.container.appendChild(controlPanel);
+
+    // 初始化收藏夹
+    this.refreshFavorites();
 
     // 快捷键提示
     const helpDiv = document.createElement('div');

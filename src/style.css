@@ -87,6 +87,16 @@ html, body {
   gap: 3px;
 }
 
+.favorites .category-label {
+  color: #fd6;
+}
+
+.favorites {
+  border-bottom: 1px solid rgba(255, 221, 102, 0.2);
+  padding-bottom: 4px;
+  margin-bottom: 2px;
+}
+
 .category-header {
   display: flex;
   align-items: center;
