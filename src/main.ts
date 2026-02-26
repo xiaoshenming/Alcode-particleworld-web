@@ -969,6 +969,20 @@ import './materials/HighPurityYttriumTerbiumFluoride';
 import './materials/FibroliteGneiss2';
 import './materials/MagnetoThermoPhotoMaterial2';
 
+// v53.0 (ID 901~905)
+import './materials/NiobiumThuliumAlloy';
+import './materials/MoltenNiobiumThulium';
+import './materials/HighPurityCeriumLutetiumFluoride';
+import './materials/SerpentineGneiss2';
+import './materials/AcoustoPhotoThermalMaterial2';
+
+// v53.1 (ID 906~910)
+import './materials/NiobiumErbiumAlloy2';
+import './materials/MoltenNiobiumErbium2';
+import './materials/HighPurityLanthanumLutetiumFluoride';
+import './materials/OlivineGneiss3';
+import './materials/ElectroMagnetoAcousticMaterial3';
+
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
 import { Renderer } from './core/Renderer';
