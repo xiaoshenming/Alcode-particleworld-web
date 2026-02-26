@@ -4,6 +4,7 @@ import { getMaterial } from '../materials/registry';
 /**
  * 材质统计面板 —— 显示当前世界中各材质的粒子数量分布
  * 按数量降序排列，显示 Top 10 材质及其占比
+ * 包含比例条和总粒子数趋势迷你图
  * 可通过按钮或快捷键 (S) 切换显示
  */
 export class StatsPanel {
@@ -12,6 +13,12 @@ export class StatsPanel {
   private visible = false;
   private listEl: HTMLElement;
   private frameCount = 0;
+  /** 总粒子数历史记录（用于趋势图） */
+  private totalHistory: number[] = [];
+  private readonly maxHistory = 60;
+  /** 趋势图 Canvas */
+  private chartCanvas: HTMLCanvasElement;
+  private chartCtx: CanvasRenderingContext2D;
 
   constructor(world: World) {
     this.world = world;
@@ -28,6 +35,14 @@ export class StatsPanel {
     this.listEl = document.createElement('div');
     this.listEl.className = 'stats-list';
     this.el.appendChild(this.listEl);
+
+    // 趋势迷你图
+    this.chartCanvas = document.createElement('canvas');
+    this.chartCanvas.className = 'stats-chart';
+    this.chartCanvas.width = 180;
+    this.chartCanvas.height = 24;
+    this.el.appendChild(this.chartCanvas);
+    this.chartCtx = this.chartCanvas.getContext('2d')!;
 
     document.body.appendChild(this.el);
   }
@@ -63,9 +78,16 @@ export class StatsPanel {
       total++;
     }
 
+    // 记录历史
+    this.totalHistory.push(total);
+    if (this.totalHistory.length > this.maxHistory) {
+      this.totalHistory.shift();
+    }
+
     // 按数量降序排列
     const sorted = Array.from(counts.entries()).sort((a, b) => b[1] - a[1]);
     const top = sorted.slice(0, 10);
+    const maxCount = top.length > 0 ? top[0][1] : 1;
 
     // 构建列表
     this.listEl.innerHTML = '';
@@ -75,12 +97,15 @@ export class StatsPanel {
       empty.className = 'stats-row';
       empty.textContent = '世界为空';
       this.listEl.appendChild(empty);
+      this.drawChart();
       return;
     }
 
     for (const [id, count] of top) {
       const mat = getMaterial(id);
       if (!mat) continue;
+
+      const wrapper = document.createElement('div');
 
       const row = document.createElement('div');
       row.className = 'stats-row';
@@ -108,7 +133,19 @@ export class StatsPanel {
       row.appendChild(dot);
       row.appendChild(name);
       row.appendChild(info);
-      this.listEl.appendChild(row);
+      wrapper.appendChild(row);
+
+      // 比例条
+      const barBg = document.createElement('div');
+      barBg.className = 'stats-bar-bg';
+      const barFill = document.createElement('div');
+      barFill.className = 'stats-bar-fill';
+      barFill.style.width = `${(count / maxCount) * 100}%`;
+      barFill.style.backgroundColor = `rgb(${r},${g},${b})`;
+      barBg.appendChild(barFill);
+      wrapper.appendChild(barBg);
+
+      this.listEl.appendChild(wrapper);
     }
 
     // 总计
@@ -116,5 +153,57 @@ export class StatsPanel {
     totalRow.className = 'stats-row stats-total';
     totalRow.textContent = `总计: ${total} 粒子`;
     this.listEl.appendChild(totalRow);
+
+    // 绘制趋势图
+    this.drawChart();
+  }
+
+  /** 绘制总粒子数趋势迷你图 */
+  private drawChart(): void {
+    const ctx = this.chartCtx;
+    const w = this.chartCanvas.width;
+    const h = this.chartCanvas.height;
+    const data = this.totalHistory;
+
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = 'rgba(10, 10, 25, 0.6)';
+    ctx.fillRect(0, 0, w, h);
+
+    if (data.length < 2) return;
+
+    const maxVal = Math.max(...data, 1);
+    const step = w / (this.maxHistory - 1);
+    const offset = this.maxHistory - data.length;
+
+    // 填充区域
+    ctx.beginPath();
+    ctx.moveTo(offset * step, h);
+    for (let i = 0; i < data.length; i++) {
+      const x = (offset + i) * step;
+      const y = h - (data[i] / maxVal) * (h - 2);
+      ctx.lineTo(x, y);
+    }
+    ctx.lineTo((offset + data.length - 1) * step, h);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(100, 180, 255, 0.15)';
+    ctx.fill();
+
+    // 折线
+    ctx.beginPath();
+    for (let i = 0; i < data.length; i++) {
+      const x = (offset + i) * step;
+      const y = h - (data[i] / maxVal) * (h - 2);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.strokeStyle = 'rgba(100, 180, 255, 0.7)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // 当前值标签
+    const current = data[data.length - 1];
+    ctx.fillStyle = 'rgba(200, 220, 255, 0.6)';
+    ctx.font = '8px monospace';
+    ctx.fillText(String(current), 2, 9);
   }
 }
