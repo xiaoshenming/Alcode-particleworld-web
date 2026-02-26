@@ -1,5 +1,5 @@
 import { InputHandler, BrushShape } from './InputHandler';
-import { getMaterialsByCategory, getMaterial } from '../materials/registry';
+import { getMaterialsByCategory, getMaterial, getAllMaterials } from '../materials/registry';
 import type { MaterialDef } from '../materials/types';
 import { matchMaterial } from '../utils/pinyin';
 
@@ -92,6 +92,12 @@ export class Toolbar {
   private weatherBtn!: HTMLButtonElement;
   /** 录制按钮 */
   private recordBtn!: HTMLButtonElement;
+  /** 混合笔刷控件 */
+  private mixBtn!: HTMLButtonElement;
+  private mixRatioSlider!: HTMLInputElement;
+  private mixRatioLabel!: HTMLSpanElement;
+  private mixSecondSelect!: HTMLSelectElement;
+  private mixControlRow!: HTMLElement;
 
   constructor(input: InputHandler, callbacks: ToolbarCallbacks) {
     this.input = input;
@@ -222,6 +228,14 @@ export class Toolbar {
   refreshRecord(recording: boolean): void {
     this.recordBtn.textContent = recording ? '停止录制' : '录制 GIF';
     this.recordBtn.classList.toggle('active', recording);
+  }
+
+  /** 刷新混合笔刷按钮状态 */
+  refreshMixBrush(): void {
+    const on = this.input.getMixBrush();
+    this.mixBtn.classList.toggle('active', on);
+    this.mixBtn.textContent = on ? '混合: 开' : '混合';
+    this.mixControlRow.style.display = on ? '' : 'none';
   }
 
   /** 加载收藏夹 */
@@ -790,6 +804,74 @@ export class Toolbar {
     this.gradientBtn = gradientBtn;
     shapeDiv.appendChild(gradientBtn);
 
+    // 混合笔刷按钮
+    const mixRow = document.createElement('div');
+    mixRow.className = 'control-row';
+    this.mixBtn = document.createElement('button');
+    this.mixBtn.className = 'ctrl-btn';
+    this.mixBtn.textContent = '混合';
+    this.mixBtn.title = '混合笔刷模式 (N) · 同时绘制两种材质';
+    this.mixBtn.addEventListener('click', () => {
+      this.input.setMixBrush(!this.input.getMixBrush());
+      this.refreshMixBrush();
+    });
+    mixRow.appendChild(this.mixBtn);
+    controlPanel.appendChild(mixRow);
+
+    // 混合笔刷控制区（副材质选择 + 比例滑块）
+    this.mixControlRow = document.createElement('div');
+    this.mixControlRow.className = 'control-row mix-control';
+    this.mixControlRow.style.display = this.input.getMixBrush() ? '' : 'none';
+
+    // 副材质选择下拉框
+    const mixSelectLabel = document.createElement('span');
+    mixSelectLabel.className = 'control-label';
+    mixSelectLabel.textContent = '副材质:';
+    this.mixSecondSelect = document.createElement('select');
+    this.mixSecondSelect.className = 'mix-select';
+    this.mixSecondSelect.setAttribute('aria-label', '副材质选择');
+    const allMatsForMix = getAllMaterials().filter(m => m.id > 0);
+    for (const mat of allMatsForMix) {
+      const opt = document.createElement('option');
+      opt.value = String(mat.id);
+      opt.textContent = mat.name;
+      if (mat.id === this.input.getSecondMaterial()) opt.selected = true;
+      this.mixSecondSelect.appendChild(opt);
+    }
+    this.mixSecondSelect.addEventListener('change', () => {
+      this.input.setSecondMaterial(parseInt(this.mixSecondSelect.value));
+    });
+
+    // 混合比例滑块
+    const mixRatioDiv = document.createElement('div');
+    mixRatioDiv.className = 'control-row';
+    this.mixRatioLabel = document.createElement('span');
+    this.mixRatioLabel.className = 'control-label';
+    this.mixRatioLabel.textContent = `比例: ${Math.round(this.input.getMixRatio() * 100)}%`;
+    this.mixRatioSlider = document.createElement('input');
+    this.mixRatioSlider.type = 'range';
+    this.mixRatioSlider.min = '0';
+    this.mixRatioSlider.max = '100';
+    this.mixRatioSlider.value = String(Math.round(this.input.getMixRatio() * 100));
+    this.mixRatioSlider.setAttribute('aria-label', '混合比例');
+    this.mixRatioSlider.addEventListener('input', () => {
+      const val = parseInt(this.mixRatioSlider.value);
+      this.input.setMixRatio(val / 100);
+      this.mixRatioLabel.textContent = `比例: ${val}%`;
+    });
+
+    this.mixControlRow.appendChild(mixSelectLabel);
+    this.mixControlRow.appendChild(this.mixSecondSelect);
+    const mixRatioInner = document.createElement('div');
+    mixRatioInner.style.display = 'flex';
+    mixRatioInner.style.alignItems = 'center';
+    mixRatioInner.style.gap = '4px';
+    mixRatioInner.style.width = '100%';
+    mixRatioInner.appendChild(this.mixRatioLabel);
+    mixRatioInner.appendChild(this.mixRatioSlider);
+    this.mixControlRow.appendChild(mixRatioInner);
+    controlPanel.appendChild(this.mixControlRow);
+
     // 笔刷预设区域
     const presetSep = document.createElement('div');
     presetSep.className = 'toolbar-sep';
@@ -1183,7 +1265,7 @@ export class Toolbar {
     this.container.appendChild(helpDiv);
     const keysDiv = document.createElement('div');
     keysDiv.className = 'control-row stats';
-    keysDiv.textContent = 'Space 暂停 · 1~0 材质 · [] 笔刷 · B 形状 · D 密度 · G 渐变 · F 填充 · X 替换 · R 随机 · M 镜像 · W 天气 · S 统计 · -/= 速度';
+    keysDiv.textContent = 'Space 暂停 · 1~0 材质 · [] 笔刷 · B 形状 · D 密度 · G 渐变 · N 混合 · F 填充 · X 替换 · R 随机 · M 镜像 · W 天气 · S 统计 · -/= 速度';
     this.container.appendChild(keysDiv);
 
     // 监听滚轮笔刷变化同步滑块

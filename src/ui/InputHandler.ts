@@ -29,6 +29,12 @@ export class InputHandler {
   private sprayDensity = 0.4;
   /** 渐变笔刷模式 */
   private gradientBrush = false;
+  /** 混合笔刷模式 */
+  private mixBrushEnabled = false;
+  /** 混合笔刷副材质 ID */
+  private secondMaterial = 2; // 默认副材质为水
+  /** 混合笔刷副材质占比 0~1 */
+  private mixRatio = 0.5;
   /** 替换模式的目标材质 ID */
   private replaceTarget = -1;
   /** 笔刷旋转角度（弧度，仅方形笔刷生效） */
@@ -127,6 +133,13 @@ export class InputHandler {
     return this.gradientBrush;
   }
 
+  setMixBrush(on: boolean): void { this.mixBrushEnabled = on; }
+  getMixBrush(): boolean { return this.mixBrushEnabled; }
+  setSecondMaterial(id: number): void { this.secondMaterial = id; }
+  getSecondMaterial(): number { return this.secondMaterial; }
+  setMixRatio(ratio: number): void { this.mixRatio = Math.max(0, Math.min(1, ratio)); }
+  getMixRatio(): number { return this.mixRatio; }
+
   setBrushAngle(angle: number): void {
     // 归一化到 0~2π
     this.brushAngle = ((angle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
@@ -139,7 +152,13 @@ export class InputHandler {
   /** 获取当前绘制用的材质 ID（随机模式下每次调用返回不同材质） */
   private getDrawMaterial(): number {
     if (this.erasing) return 0;
-    if (!this.randomMode) return this.selectedMaterial;
+    if (!this.randomMode) {
+      // 混合笔刷模式：按比例随机返回主材质或副材质
+      if (this.mixBrushEnabled) {
+        return Math.random() < this.mixRatio ? this.secondMaterial : this.selectedMaterial;
+      }
+      return this.selectedMaterial;
+    }
     // 随机模式：从非空气、非工具类材质中随机选一种
     const mats = getAllMaterials().filter(m => m.id > 0 && m.category !== '工具');
     if (mats.length === 0) return this.selectedMaterial;

@@ -357,6 +357,11 @@ import './materials/MoltenCerium';
 import './materials/CarbonTetrachloride';
 import './materials/SerpentinizedPeridotite';
 import './materials/ElectrothermalMaterial';
+import './materials/Praseodymium';
+import './materials/MoltenPraseodymium';
+import './materials/PhosphorusPentafluoride';
+import './materials/Greenschist';
+import './materials/PhotothermalMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
@@ -733,6 +738,13 @@ document.addEventListener('keydown', (e) => {
     input.setMirrorMode(!input.getMirrorMode());
     renderer.showMirrorLine = input.getMirrorMode();
     toolbar.refreshMirrorMode();
+    return;
+  }
+
+  // N 键切换混合笔刷模式
+  if (e.code === 'KeyN') {
+    input.setMixBrush(!input.getMixBrush());
+    toolbar.refreshMixBrush();
     return;
   }
 
