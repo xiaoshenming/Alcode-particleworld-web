@@ -457,6 +457,14 @@ document.addEventListener('keydown', (e) => {
     return;
   }
 
+  // F 键切换填充模式
+  if (e.code === 'KeyF') {
+    const current = input.getDrawMode();
+    input.setDrawMode(current === 'fill' ? 'brush' : 'fill');
+    toolbar.refreshDrawMode();
+    return;
+  }
+
   // P 键截图
   if (e.code === 'KeyP') {
     const link = document.createElement('a');

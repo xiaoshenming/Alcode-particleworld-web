@@ -37,6 +37,7 @@ export class Toolbar {
   private tempOverlayBtn!: HTMLButtonElement;
   private gridBtn!: HTMLButtonElement;
   private eraserBtn!: HTMLButtonElement;
+  private fillBtn!: HTMLButtonElement;
   /** 记录每个分类的折叠状态 */
   private collapsedCategories = new Set<string>();
 
@@ -107,6 +108,13 @@ export class Toolbar {
   refreshGrid(active: boolean): void {
     this.gridBtn.classList.toggle('active', active);
     this.gridBtn.textContent = active ? '网格: 开' : '网格: 关';
+  }
+
+  /** 刷新填充模式按钮状态 */
+  refreshDrawMode(): void {
+    const isFill = this.input.getDrawMode() === 'fill';
+    this.fillBtn.classList.toggle('active', isFill);
+    this.fillBtn.textContent = isFill ? '填充: 开' : '填充';
   }
 
   /** 创建材质按钮 */
@@ -393,6 +401,21 @@ export class Toolbar {
     eraserRow.appendChild(this.eraserBtn);
     controlPanel.appendChild(eraserRow);
 
+    // 填充工具按钮
+    const fillRow = document.createElement('div');
+    fillRow.className = 'control-row';
+    this.fillBtn = document.createElement('button');
+    this.fillBtn.className = 'ctrl-btn';
+    this.fillBtn.textContent = '填充';
+    this.fillBtn.title = '洪水填充工具 (F)';
+    this.fillBtn.addEventListener('click', () => {
+      const current = this.input.getDrawMode();
+      this.input.setDrawMode(current === 'fill' ? 'brush' : 'fill');
+      this.refreshDrawMode();
+    });
+    fillRow.appendChild(this.fillBtn);
+    controlPanel.appendChild(fillRow);
+
     // 截图按钮
     const screenshotRow = document.createElement('div');
     screenshotRow.className = 'control-row';
@@ -501,7 +524,7 @@ export class Toolbar {
     this.container.appendChild(helpDiv);
     const keysDiv = document.createElement('div');
     keysDiv.className = 'control-row stats';
-    keysDiv.textContent = 'Space 暂停 · 1~0 材质 · [] 笔刷 · B 形状 · -/= 速度';
+    keysDiv.textContent = 'Space 暂停 · 1~0 材质 · [] 笔刷 · B 形状 · F 填充 · -/= 速度';
     this.container.appendChild(keysDiv);
 
     // 监听滚轮笔刷变化同步滑块

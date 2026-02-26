@@ -2,6 +2,8 @@ import { World } from '../core/World';
 
 /** 笔刷形状类型 */
 export type BrushShape = 'circle' | 'square' | 'line';
+/** 绘制模式 */
+export type DrawMode = 'brush' | 'fill';
 
 /**
  * 鼠标/触摸输入处理器
@@ -17,6 +19,7 @@ export class InputHandler {
   private selectedMaterial = 1; // 默认沙子
   private brushSize = 3;
   private brushShape: BrushShape = 'circle';
+  private drawMode: DrawMode = 'brush';
   /** 线条笔刷的起点 */
   private lineStartX = -1;
   private lineStartY = -1;
@@ -59,6 +62,14 @@ export class InputHandler {
     return this.brushShape;
   }
 
+  setDrawMode(mode: DrawMode): void {
+    this.drawMode = mode;
+  }
+
+  getDrawMode(): DrawMode {
+    return this.drawMode;
+  }
+
   private toGrid(clientX: number, clientY: number): [number, number] {
     const rect = this.canvas.getBoundingClientRect();
     return [
@@ -77,6 +88,14 @@ export class InputHandler {
       this.erasing = e.button === 2;
       this.painting = true;
       const [gx, gy] = this.toGrid(e.clientX, e.clientY);
+
+      // 填充模式
+      if (this.drawMode === 'fill' && !this.erasing) {
+        this.floodFill(gx, gy, this.selectedMaterial);
+        this.painting = false;
+        return;
+      }
+
       if (this.brushShape === 'line' && !this.erasing) {
         // 线条模式：记录起点，松开时画线
         this.lineStartX = gx;
@@ -205,5 +224,40 @@ export class InputHandler {
   /** 是否正在绘制线条 */
   isDrawingLine(): boolean {
     return this.painting && this.brushShape === 'line' && this.lineStartX >= 0;
+  }
+
+  /** 洪水填充（BFS） */
+  private floodFill(startX: number, startY: number, fillMat: number): void {
+    if (!this.world.inBounds(startX, startY)) return;
+    const targetMat = this.world.get(startX, startY);
+    if (targetMat === fillMat) return; // 目标与填充材质相同，无需操作
+
+    const w = this.world.width;
+    const h = this.world.height;
+    const maxFill = 50000; // 防止填充过大区域卡死
+    let filled = 0;
+
+    const visited = new Uint8Array(w * h);
+    const queue: number[] = [startX, startY];
+    visited[startY * w + startX] = 1;
+
+    while (queue.length > 0 && filled < maxFill) {
+      const x = queue.shift()!;
+      const y = queue.shift()!;
+
+      this.world.set(x, y, fillMat);
+      filled++;
+
+      // 四邻扩展
+      const neighbors: [number, number][] = [[x-1, y], [x+1, y], [x, y-1], [x, y+1]];
+      for (const [nx, ny] of neighbors) {
+        if (!this.world.inBounds(nx, ny)) continue;
+        const idx = ny * w + nx;
+        if (visited[idx]) continue;
+        if (this.world.get(nx, ny) !== targetMat) continue;
+        visited[idx] = 1;
+        queue.push(nx, ny);
+      }
+    }
   }
 }
