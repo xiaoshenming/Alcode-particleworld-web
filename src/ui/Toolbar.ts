@@ -3,6 +3,16 @@ import { getMaterialsByCategory, getMaterial } from '../materials/registry';
 import type { MaterialDef } from '../materials/types';
 import { matchMaterial } from '../utils/pinyin';
 
+/** 笔刷预设配置 */
+interface BrushPreset {
+  name: string;
+  materialId: number;
+  brushSize: number;
+  brushShape: BrushShape;
+  sprayDensity: number;
+  gradientBrush: boolean;
+}
+
 export interface ToolbarCallbacks {
   onPause: () => void;
   onClear: () => void;
@@ -60,6 +70,10 @@ export class Toolbar {
   /** 材质悬浮卡片 */
   private tooltip!: HTMLElement;
   private tooltipTimer: ReturnType<typeof setTimeout> | null = null;
+  /** 笔刷预设 */
+  private presets: BrushPreset[] = [];
+  private presetBtnsDiv!: HTMLElement;
+  private presetDiv!: HTMLElement;
 
   constructor(input: InputHandler, callbacks: ToolbarCallbacks) {
     this.input = input;
@@ -72,6 +86,7 @@ export class Toolbar {
     this.collapsedCategories.add('矿石');
     this.collapsedCategories.add('特殊');
     this.loadFavorites();
+    this.loadPresets();
     this.buildTooltip();
     this.build();
   }
@@ -279,6 +294,93 @@ export class Toolbar {
       this.tooltipTimer = null;
     }
     this.tooltip.classList.remove('visible');
+  }
+
+  /** 加载笔刷预设 */
+  private loadPresets(): void {
+    try {
+      const data = localStorage.getItem('pw-brush-presets');
+      if (data) this.presets = JSON.parse(data);
+    } catch { /* ignore */ }
+  }
+
+  /** 保存笔刷预设 */
+  private savePresets(): void {
+    localStorage.setItem('pw-brush-presets', JSON.stringify(this.presets));
+  }
+
+  /** 保存当前笔刷为预设 */
+  private saveCurrentAsPreset(): void {
+    const mat = getMaterial(this.input.getMaterial());
+    const defaultName = mat ? mat.name : `预设${this.presets.length + 1}`;
+    const name = prompt('预设名称:', defaultName);
+    if (!name) return;
+
+    this.presets.push({
+      name,
+      materialId: this.input.getMaterial(),
+      brushSize: this.input.getBrushSize(),
+      brushShape: this.input.getBrushShape(),
+      sprayDensity: this.input.getSprayDensity(),
+      gradientBrush: this.input.getGradientBrush(),
+    });
+    this.savePresets();
+    this.refreshPresets();
+  }
+
+  /** 应用笔刷预设 */
+  private applyPreset(preset: BrushPreset): void {
+    this.input.setMaterial(preset.materialId);
+    this.input.setBrushSize(preset.brushSize);
+    this.input.setBrushShape(preset.brushShape);
+    this.input.setSprayDensity(preset.sprayDensity);
+    this.input.setGradientBrush(preset.gradientBrush);
+    this.refreshMaterialSelection();
+    this.refreshBrushSize();
+    this.refreshBrushShape();
+    this.refreshSprayDensity();
+    this.refreshGradientBrush();
+  }
+
+  /** 删除笔刷预设 */
+  private deletePreset(index: number): void {
+    this.presets.splice(index, 1);
+    this.savePresets();
+    this.refreshPresets();
+  }
+
+  /** 刷新笔刷预设 UI */
+  private refreshPresets(): void {
+    while (this.presetBtnsDiv.firstChild) {
+      this.presetBtnsDiv.removeChild(this.presetBtnsDiv.firstChild);
+    }
+    if (this.presets.length === 0) {
+      this.presetDiv.style.display = 'none';
+      return;
+    }
+    this.presetDiv.style.display = '';
+    for (let i = 0; i < this.presets.length; i++) {
+      const preset = this.presets[i];
+      const btn = document.createElement('button');
+      btn.className = 'ctrl-btn preset-btn';
+      btn.textContent = preset.name;
+      const mat = getMaterial(preset.materialId);
+      if (mat) {
+        const color = mat.color();
+        const r = color & 0xFF;
+        const g = (color >> 8) & 0xFF;
+        const b = (color >> 16) & 0xFF;
+        btn.style.borderLeftColor = `rgb(${r},${g},${b})`;
+        btn.style.borderLeftWidth = '3px';
+      }
+      btn.title = `点击应用 · 右键删除`;
+      btn.addEventListener('click', () => this.applyPreset(preset));
+      btn.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        this.deletePreset(i);
+      });
+      this.presetBtnsDiv.appendChild(btn);
+    }
   }
 
   /** 刷新收藏夹 UI */
@@ -572,6 +674,45 @@ export class Toolbar {
     });
     this.gradientBtn = gradientBtn;
     shapeDiv.appendChild(gradientBtn);
+
+    // 笔刷预设区域
+    const presetSep = document.createElement('div');
+    presetSep.className = 'toolbar-sep';
+    controlPanel.appendChild(presetSep);
+
+    this.presetDiv = document.createElement('div');
+    this.presetDiv.className = 'preset-section';
+    if (this.presets.length === 0) this.presetDiv.style.display = 'none';
+
+    const presetHeader = document.createElement('div');
+    presetHeader.className = 'control-row';
+    const presetLabel = document.createElement('span');
+    presetLabel.className = 'control-label';
+    presetLabel.textContent = '预设:';
+    presetHeader.appendChild(presetLabel);
+    this.presetDiv.appendChild(presetHeader);
+
+    this.presetBtnsDiv = document.createElement('div');
+    this.presetBtnsDiv.className = 'preset-btns';
+    this.presetDiv.appendChild(this.presetBtnsDiv);
+    controlPanel.appendChild(this.presetDiv);
+
+    // 保存预设按钮
+    const savePresetRow = document.createElement('div');
+    savePresetRow.className = 'control-row';
+    const savePresetBtn = document.createElement('button');
+    savePresetBtn.className = 'ctrl-btn';
+    savePresetBtn.textContent = '保存预设';
+    savePresetBtn.title = '将当前笔刷配置保存为预设';
+    savePresetBtn.addEventListener('click', () => this.saveCurrentAsPreset());
+    savePresetRow.appendChild(savePresetBtn);
+    controlPanel.appendChild(savePresetRow);
+
+    this.refreshPresets();
+
+    const presetSep2 = document.createElement('div');
+    presetSep2.className = 'toolbar-sep';
+    controlPanel.appendChild(presetSep2);
 
     // 按钮行
     const btnRow = document.createElement('div');

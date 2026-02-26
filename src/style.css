@@ -429,3 +429,23 @@ input[type="range"] {
   color: #777;
   line-height: 1.3;
 }
+
+/* 笔刷预设区域 */
+.preset-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.preset-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.preset-btn {
+  text-align: left;
+  padding: 3px 6px;
+  font-size: 11px;
+  border-left-style: solid;
+}
