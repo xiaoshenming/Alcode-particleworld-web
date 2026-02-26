@@ -1,4 +1,5 @@
 import { World } from '../core/World';
+import { getAllMaterials } from '../materials/registry';
 
 /** 笔刷形状类型 */
 export type BrushShape = 'circle' | 'square' | 'line';
@@ -20,6 +21,8 @@ export class InputHandler {
   private brushSize = 3;
   private brushShape: BrushShape = 'circle';
   private drawMode: DrawMode = 'brush';
+  /** 随机材质模式 */
+  private randomMode = false;
   /** 线条笔刷的起点 */
   private lineStartX = -1;
   private lineStartY = -1;
@@ -68,6 +71,24 @@ export class InputHandler {
 
   getDrawMode(): DrawMode {
     return this.drawMode;
+  }
+
+  setRandomMode(on: boolean): void {
+    this.randomMode = on;
+  }
+
+  getRandomMode(): boolean {
+    return this.randomMode;
+  }
+
+  /** 获取当前绘制用的材质 ID（随机模式下每次调用返回不同材质） */
+  private getDrawMaterial(): number {
+    if (this.erasing) return 0;
+    if (!this.randomMode) return this.selectedMaterial;
+    // 随机模式：从非空气、非工具类材质中随机选一种
+    const mats = getAllMaterials().filter(m => m.id > 0 && m.category !== '工具');
+    if (mats.length === 0) return this.selectedMaterial;
+    return mats[Math.floor(Math.random() * mats.length)].id;
   }
 
   private toGrid(clientX: number, clientY: number): [number, number] {
@@ -161,7 +182,6 @@ export class InputHandler {
 
   /** 在指定位置绘制（根据笔刷形状） */
   private drawAt(cx: number, cy: number): void {
-    const matId = this.erasing ? 0 : this.selectedMaterial;
     const r = Math.floor(this.brushSize / 2);
     for (let dy = -r; dy <= r; dy++) {
       for (let dx = -r; dx <= r; dx++) {
@@ -173,6 +193,7 @@ export class InputHandler {
           if (dx * dx + dy * dy > r * r) continue;
         }
         // square 不需要额外判断，矩形范围即可
+        const matId = this.getDrawMaterial();
         if (matId === 0 || this.world.isEmpty(x, y)) {
           this.world.set(x, y, matId);
         }
@@ -201,7 +222,6 @@ export class InputHandler {
 
   /** 在单个点绘制一个笔刷大小的点 */
   private drawDot(cx: number, cy: number): void {
-    const matId = this.erasing ? 0 : this.selectedMaterial;
     const r = Math.floor(this.brushSize / 2);
     for (let dy = -r; dy <= r; dy++) {
       for (let dx = -r; dx <= r; dx++) {
@@ -209,6 +229,7 @@ export class InputHandler {
         const y = cy + dy;
         if (!this.world.inBounds(x, y)) continue;
         if (dx * dx + dy * dy > r * r) continue;
+        const matId = this.getDrawMaterial();
         if (matId === 0 || this.world.isEmpty(x, y)) {
           this.world.set(x, y, matId);
         }
@@ -230,11 +251,11 @@ export class InputHandler {
   private floodFill(startX: number, startY: number, fillMat: number): void {
     if (!this.world.inBounds(startX, startY)) return;
     const targetMat = this.world.get(startX, startY);
-    if (targetMat === fillMat) return; // 目标与填充材质相同，无需操作
+    if (!this.randomMode && targetMat === fillMat) return;
 
     const w = this.world.width;
     const h = this.world.height;
-    const maxFill = 50000; // 防止填充过大区域卡死
+    const maxFill = 50000;
     let filled = 0;
 
     const visited = new Uint8Array(w * h);
@@ -245,10 +266,10 @@ export class InputHandler {
       const x = queue.shift()!;
       const y = queue.shift()!;
 
-      this.world.set(x, y, fillMat);
+      const mat = this.randomMode ? this.getDrawMaterial() : fillMat;
+      this.world.set(x, y, mat);
       filled++;
 
-      // 四邻扩展
       const neighbors: [number, number][] = [[x-1, y], [x+1, y], [x, y-1], [x, y+1]];
       for (const [nx, ny] of neighbors) {
         if (!this.world.inBounds(nx, ny)) continue;

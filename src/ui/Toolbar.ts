@@ -38,6 +38,7 @@ export class Toolbar {
   private gridBtn!: HTMLButtonElement;
   private eraserBtn!: HTMLButtonElement;
   private fillBtn!: HTMLButtonElement;
+  private randomBtn!: HTMLButtonElement;
   /** 记录每个分类的折叠状态 */
   private collapsedCategories = new Set<string>();
   /** 收藏夹材质 ID 列表 */
@@ -122,6 +123,13 @@ export class Toolbar {
     const isFill = this.input.getDrawMode() === 'fill';
     this.fillBtn.classList.toggle('active', isFill);
     this.fillBtn.textContent = isFill ? '填充: 开' : '填充';
+  }
+
+  /** 刷新随机模式按钮状态 */
+  refreshRandomMode(): void {
+    const on = this.input.getRandomMode();
+    this.randomBtn.classList.toggle('active', on);
+    this.randomBtn.textContent = on ? '随机: 开' : '随机';
   }
 
   /** 加载收藏夹 */
@@ -488,6 +496,20 @@ export class Toolbar {
     fillRow.appendChild(this.fillBtn);
     controlPanel.appendChild(fillRow);
 
+    // 随机材质按钮
+    const randomRow = document.createElement('div');
+    randomRow.className = 'control-row';
+    this.randomBtn = document.createElement('button');
+    this.randomBtn.className = 'ctrl-btn';
+    this.randomBtn.textContent = '随机';
+    this.randomBtn.title = '随机材质模式 (R) · 每个像素随机选择材质';
+    this.randomBtn.addEventListener('click', () => {
+      this.input.setRandomMode(!this.input.getRandomMode());
+      this.refreshRandomMode();
+    });
+    randomRow.appendChild(this.randomBtn);
+    controlPanel.appendChild(randomRow);
+
     // 截图按钮
     const screenshotRow = document.createElement('div');
     screenshotRow.className = 'control-row';
@@ -599,7 +621,7 @@ export class Toolbar {
     this.container.appendChild(helpDiv);
     const keysDiv = document.createElement('div');
     keysDiv.className = 'control-row stats';
-    keysDiv.textContent = 'Space 暂停 · 1~0 材质 · [] 笔刷 · B 形状 · F 填充 · -/= 速度';
+    keysDiv.textContent = 'Space 暂停 · 1~0 材质 · [] 笔刷 · B 形状 · F 填充 · R 随机 · -/= 速度';
     this.container.appendChild(keysDiv);
 
     // 监听滚轮笔刷变化同步滑块

@@ -470,6 +470,13 @@ document.addEventListener('keydown', (e) => {
     return;
   }
 
+  // R 键切换随机材质模式
+  if (e.code === 'KeyR') {
+    input.setRandomMode(!input.getRandomMode());
+    toolbar.refreshRandomMode();
+    return;
+  }
+
   // P 键截图
   if (e.code === 'KeyP') {
     const link = document.createElement('a');
