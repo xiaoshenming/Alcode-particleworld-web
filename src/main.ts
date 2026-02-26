@@ -659,6 +659,11 @@ import './materials/MoltenNiobiumScandium';
 import './materials/HighPurityYtterbiumFluoride';
 import './materials/GarnetGneiss';
 import './materials/ThermoElectroSonicMaterial';
+import './materials/TantalumHafniumAlloy';
+import './materials/MoltenTantalumHafnium';
+import './materials/HighPurityCeriumFluoride';
+import './materials/ElongateGneiss';
+import './materials/AcoustoOptoMagneticMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
