@@ -3,40 +3,40 @@ import { registerMaterial } from './registry';
 
 /**
  * 液态铌钌 —— 铌钌合金的熔融态
- * - 液体，密度 12.8（极重质液态金属）
- * - 冷却 <2150° → 铌钌合金(571)
- * - 高温发光，冷白色熔融金属
+ * - 液体，密度 7.5（中重质液态金属）
+ * - 冷却 <2200° → 铌钌合金(641)
+ * - 高温发光，银灰色熔融金属
  */
 
 export const MoltenNiobiumRuthenium: MaterialDef = {
-  id: 572,
+  id: 642,
   name: '液态铌钌',
   category: '液体',
-  description: '铌钌合金的熔融态，高温极重质液态金属',
-  density: 12.8,
+  description: '铌钌合金的熔融态，高温中重质液态金属',
+  density: 7.5,
   color() {
     const phase = Math.random();
     let r: number, g: number, b: number;
     if (phase < 0.5) {
-      r = 248 + Math.floor(Math.random() * 7);
-      g = 242 + Math.floor(Math.random() * 10);
-      b = 255;
+      r = 232 + Math.floor(Math.random() * 12);
+      g = 232 + Math.floor(Math.random() * 10);
+      b = 242 + Math.floor(Math.random() * 8);
     } else if (phase < 0.8) {
-      r = 255;
-      g = 250 + Math.floor(Math.random() * 5);
-      b = 255;
+      r = 248 + Math.floor(Math.random() * 5);
+      g = 246 + Math.floor(Math.random() * 5);
+      b = 252;
     } else {
-      r = 238 + Math.floor(Math.random() * 12);
-      g = 228 + Math.floor(Math.random() * 18);
-      b = 248 + Math.floor(Math.random() * 7);
+      r = 220 + Math.floor(Math.random() * 15);
+      g = 220 + Math.floor(Math.random() * 12);
+      b = 232 + Math.floor(Math.random() * 12);
     }
     return (0xFF << 24) | (b << 16) | (g << 8) | r;
   },
   update(x: number, y: number, world: WorldAPI) {
     const temp = world.getTemp(x, y);
 
-    if (temp < 2150) {
-      world.set(x, y, 571);
+    if (temp < 2200) {
+      world.set(x, y, 641);
       world.setTemp(x, y, temp);
       world.wakeArea(x, y);
       return;
@@ -50,7 +50,7 @@ export const MoltenNiobiumRuthenium: MaterialDef = {
         return;
       }
       const belowDensity = world.getDensity(x, y + 1);
-      if (belowDensity < 12.8 && belowDensity !== Infinity && Math.random() < 0.7) {
+      if (belowDensity < 7.5 && belowDensity !== Infinity && Math.random() < 0.7) {
         world.swap(x, y, x, y + 1);
         world.wakeArea(x, y + 1);
         return;
