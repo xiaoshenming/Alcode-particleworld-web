@@ -1004,6 +1004,20 @@ import './materials/HighPuritySamariumLutetiumFluoride';
 import './materials/MagnesiteGneiss2';
 import './materials/MagnetoPhotoElectricMaterial2';
 
+// v54.0 (ID 926~930)
+import './materials/MolybdenumLanthanumAlloy';
+import './materials/MoltenMolybdenumLanthanum';
+import './materials/HighPurityThuliumLutetiumFluoride';
+import './materials/TalcGneiss3';
+import './materials/ThermoPhotoAcousticMaterial3';
+
+// v54.1 (ID 931~935)
+import './materials/MolybdenumPraseodymiumAlloy';
+import './materials/MoltenMolybdenumPraseodymium';
+import './materials/HighPurityErbiumLutetiumFluoride';
+import './materials/EpidoteGneiss3';
+import './materials/AcoustoElectroMagneticMaterial3';
+
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
 import { Renderer } from './core/Renderer';
