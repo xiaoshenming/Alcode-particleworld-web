@@ -669,6 +669,11 @@ import './materials/MoltenTantalumTungsten';
 import './materials/HighPurityLanthanumCeriumFluoride';
 import './materials/DiabaseGneiss';
 import './materials/ThermoAcoustoMagneticMaterial';
+import './materials/TantalumMolybdenumAlloy';
+import './materials/MoltenTantalumMolybdenum';
+import './materials/HighPurityNeodymiumLanthanumFluoride';
+import './materials/AmphiboleGneiss';
+import './materials/ElectroMagnetoSonicMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
