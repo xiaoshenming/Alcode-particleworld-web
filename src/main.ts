@@ -544,6 +544,11 @@ import './materials/MoltenNiobiumManganese';
 import './materials/YttriumFluoride';
 import './materials/SillimaniteSchist';
 import './materials/MagnetothermalAcousticMaterial';
+import './materials/NiobiumSilverAlloy';
+import './materials/MoltenNiobiumSilver';
+import './materials/LanthanumFluoride';
+import './materials/KyaniteSchist';
+import './materials/ElectrothermalAcousticMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
