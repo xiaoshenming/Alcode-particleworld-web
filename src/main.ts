@@ -539,6 +539,11 @@ import './materials/MoltenNiobiumCopper';
 import './materials/CeriumFluoride';
 import './materials/StauroliteSchist';
 import './materials/ThermoAcoustoElectricMaterial';
+import './materials/NiobiumManganeseAlloy';
+import './materials/MoltenNiobiumManganese';
+import './materials/YttriumFluoride';
+import './materials/SillimaniteSchist';
+import './materials/MagnetothermalAcousticMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
