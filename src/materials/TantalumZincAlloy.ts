@@ -2,42 +2,42 @@ import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
 /**
- * 滑石片麻岩 —— 含滑石的片麻岩
+ * 钽锌合金 —— 耐蚀防护合金
  * - 固体，密度 Infinity（不可移动）
- * - 熔点 >1100° → 熔岩(11)
- * - 较耐酸腐蚀
- * - 浅灰白色带滑石条纹纹理
+ * - 熔点 >2100° → 液态钽锌(712)
+ * - 耐酸腐蚀
+ * - 银灰色带淡蓝锌调金属光泽
  */
 
-export const TalcGneiss: MaterialDef = {
-  id: 714,
-  name: '滑石片麻岩',
-  category: '固体',
-  description: '含滑石矿物的片麻岩，质地较软的变质岩',
+export const TantalumZincAlloy: MaterialDef = {
+  id: 711,
+  name: '钽锌合金',
+  category: '金属',
+  description: '耐蚀防护合金，用于海洋防腐和电镀基材',
   density: Infinity,
   color() {
     const phase = Math.random();
     let r: number, g: number, b: number;
     if (phase < 0.5) {
-      r = 192 + Math.floor(Math.random() * 12);
-      g = 195 + Math.floor(Math.random() * 10);
-      b = 188 + Math.floor(Math.random() * 10);
+      r = 162 + Math.floor(Math.random() * 12);
+      g = 170 + Math.floor(Math.random() * 10);
+      b = 178 + Math.floor(Math.random() * 12);
     } else if (phase < 0.8) {
-      r = 205 + Math.floor(Math.random() * 10);
-      g = 208 + Math.floor(Math.random() * 10);
-      b = 200 + Math.floor(Math.random() * 10);
+      r = 175 + Math.floor(Math.random() * 14);
+      g = 182 + Math.floor(Math.random() * 12);
+      b = 192 + Math.floor(Math.random() * 10);
     } else {
-      r = 180 + Math.floor(Math.random() * 10);
-      g = 185 + Math.floor(Math.random() * 10);
-      b = 178 + Math.floor(Math.random() * 8);
+      r = 148 + Math.floor(Math.random() * 10);
+      g = 158 + Math.floor(Math.random() * 10);
+      b = 165 + Math.floor(Math.random() * 10);
     }
     return (0xFF << 24) | (b << 16) | (g << 8) | r;
   },
   update(x: number, y: number, world: WorldAPI) {
     const temp = world.getTemp(x, y);
 
-    if (temp > 1100) {
-      world.set(x, y, 11);
+    if (temp > 2100) {
+      world.set(x, y, 712);
       world.setTemp(x, y, temp);
       world.wakeArea(x, y);
       return;
@@ -49,17 +49,17 @@ export const TalcGneiss: MaterialDef = {
       if (!world.inBounds(nx, ny)) continue;
       const nid = world.get(nx, ny);
 
-      if (nid === 9 && Math.random() < 0.004) {
+      if (nid === 9 && Math.random() < 0.0003) {
         world.set(x, y, 0);
         world.set(nx, ny, 7);
         world.wakeArea(x, y);
         return;
       }
 
-      if (nid !== 0 && Math.random() < 0.06) {
+      if (nid !== 0 && Math.random() < 0.07) {
         const nt = world.getTemp(nx, ny);
         if (Math.abs(temp - nt) > 5) {
-          const diff = (nt - temp) * 0.07;
+          const diff = (nt - temp) * 0.08;
           world.addTemp(x, y, diff);
           world.addTemp(nx, ny, -diff);
         }
@@ -68,4 +68,4 @@ export const TalcGneiss: MaterialDef = {
   },
 };
 
-registerMaterial(TalcGneiss);
+registerMaterial(TantalumZincAlloy);

@@ -718,6 +718,11 @@ import './materials/MoltenTantalumManganese';
 import './materials/HighPurityYtterbiumLanthanumFluoride';
 import './materials/TremoliteGneiss';
 import './materials/AcoustoMagnetoOpticMaterial';
+import './materials/TantalumZincAlloy';
+import './materials/MoltenTantalumZinc';
+import './materials/HighPurityCeriumLanthanumFluoride';
+import './materials/TalcGneiss';
+import './materials/ElectroAcoustoMagneticMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
