@@ -485,6 +485,12 @@ import './materials/MoltenNiobiumMolybdenum';
 import './materials/ThalliumFluoride';
 import './materials/GreenCurtainSchist';
 import './materials/ElectroopticoacousticMaterial';
+// v36.1 新材质 (ID 481~485)
+import './materials/NiobiumRheniumAlloy';
+import './materials/MoltenNiobiumRhenium';
+import './materials/IndiumFluoride';
+import './materials/GreenFibrousRock';
+import './materials/PhotoelectroacousticMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
