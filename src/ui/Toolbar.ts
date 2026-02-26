@@ -888,6 +888,28 @@ export class Toolbar {
     sprayDensityDiv.appendChild(sprayDensitySlider);
     controlPanel.appendChild(sprayDensityDiv);
 
+    // 笔刷概率放置滑块
+    const brushProbDiv = document.createElement('div');
+    brushProbDiv.className = 'control-row';
+    const brushProbLabel = document.createElement('span');
+    brushProbLabel.className = 'control-label';
+    brushProbLabel.textContent = `概率: ${Math.round(this.input.getBrushProbability() * 100)}%`;
+    const brushProbSlider = document.createElement('input');
+    brushProbSlider.type = 'range';
+    brushProbSlider.min = '10';
+    brushProbSlider.max = '100';
+    brushProbSlider.step = '10';
+    brushProbSlider.value = String(Math.round(this.input.getBrushProbability() * 100));
+    brushProbSlider.setAttribute('aria-label', '笔刷放置概率');
+    brushProbSlider.addEventListener('input', () => {
+      const val = parseInt(brushProbSlider.value);
+      this.input.setBrushProbability(val / 100);
+      brushProbLabel.textContent = `概率: ${val}%`;
+    });
+    brushProbDiv.appendChild(brushProbLabel);
+    brushProbDiv.appendChild(brushProbSlider);
+    controlPanel.appendChild(brushProbDiv);
+
     // 渐变笔刷按钮
     const gradientBtn = document.createElement('button');
     gradientBtn.textContent = '渐变';

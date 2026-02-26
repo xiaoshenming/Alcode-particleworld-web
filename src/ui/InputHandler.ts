@@ -41,6 +41,8 @@ export class InputHandler {
   private brushAngle = 0;
   /** 温度笔刷：绘制时注入的温度值（20=常温，0=关闭温度注入） */
   private brushTemp = 0;
+  /** 笔刷放置概率 (0.1~1.0)，1.0=每个像素都放置 */
+  private brushProbability = 1.0;
   /** 中键拖拽平移状态 */
   private panning = false;
   private panLastX = 0;
@@ -134,6 +136,11 @@ export class InputHandler {
   getGradientBrush(): boolean {
     return this.gradientBrush;
   }
+
+  setBrushProbability(prob: number): void {
+    this.brushProbability = Math.max(0.1, Math.min(1.0, prob));
+  }
+  getBrushProbability(): number { return this.brushProbability; }
 
   setMixBrush(on: boolean): void { this.mixBrushEnabled = on; }
   getMixBrush(): boolean { return this.mixBrushEnabled; }
@@ -308,6 +315,8 @@ export class InputHandler {
 
   /** 放置单个像素（含镜像） */
   private placePixel(x: number, y: number, matId: number): void {
+    // 概率放置：非擦除时按概率跳过
+    if (this.brushProbability < 1.0 && matId !== 0 && Math.random() > this.brushProbability) return;
     if (this.world.inBounds(x, y) && (matId === 0 || this.world.isEmpty(x, y))) {
       this.world.set(x, y, matId);
       // 温度笔刷：放置后注入指定温度
