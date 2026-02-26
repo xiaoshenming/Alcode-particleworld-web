@@ -1143,6 +1143,38 @@ import './materials/MoltenTungstenSamarium';
 import './materials/HighPurityDysprosiumYttriumFluoride';
 import './materials/ChiastoliteGneiss3';
 import './materials/PhotoElectroAcousticMaterial3';
+// v57.5 (ID 1026~1030)
+import './materials/RheniumLanthanumAlloy';
+import './materials/MoltenRheniumLanthanum';
+import './materials/HighPurityThuliumYttriumFluoride';
+import './materials/BerylGneiss2';
+import './materials/ThermoMagnetoElectricMaterial3';
+
+// v58.1 (ID 1031~1035)
+import './materials/RheniumPraseodymiumAlloy';
+import './materials/MoltenRheniumPraseodymium';
+import './materials/HighPurityErbiumYttriumFluoride';
+import './materials/CorundumGneiss2';
+import './materials/AcoustoPhotoMagneticMaterial';
+
+// v58.2 (ID 1036~1040)
+import './materials/RheniumNeodymiumAlloy';
+import './materials/MoltenRheniumNeodymium';
+import './materials/HighPurityHolmiumYttriumFluoride';
+import './materials/NephelineGneiss2';
+import './materials/ElectroThermoAcousticMaterial4';
+// v58.3 (ID 1041~1045)
+import './materials/RheniumGadoliniumAlloy';
+import './materials/MoltenRheniumGadolinium';
+import './materials/HighPurityEuropiumYttriumFluoride';
+import './materials/ScapoliteGneiss3';
+import './materials/MagnetoAcoustoPhotoMaterial3';
+// v58.4 (ID 1046~1050)
+import './materials/RheniumDysprosiumAlloy';
+import './materials/MoltenRheniumDysprosium';
+import './materials/HighPuritySamariumYttriumFluoride';
+import './materials/PrehniteGneiss2';
+import './materials/PhotoThermoElectricMaterial3';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
