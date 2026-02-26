@@ -784,3 +784,11 @@ input[type="range"] {
 .scene-close-btn:hover {
   background: rgba(100, 100, 130, 0.8);
 }
+
+/* 温度笔刷标签 */
+.brush-temp-label {
+  font-size: 11px;
+  color: #f90;
+  margin-left: 6px;
+  font-weight: 600;
+}

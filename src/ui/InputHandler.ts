@@ -39,6 +39,8 @@ export class InputHandler {
   private replaceTarget = -1;
   /** 笔刷旋转角度（弧度，仅方形笔刷生效） */
   private brushAngle = 0;
+  /** 温度笔刷：绘制时注入的温度值（20=常温，0=关闭温度注入） */
+  private brushTemp = 0;
   /** 中键拖拽平移状态 */
   private panning = false;
   private panLastX = 0;
@@ -147,6 +149,15 @@ export class InputHandler {
 
   getBrushAngle(): number {
     return this.brushAngle;
+  }
+
+  /** 设置温度笔刷温度值（0=关闭温度注入） */
+  setBrushTemp(temp: number): void {
+    this.brushTemp = Math.max(0, Math.min(5000, temp));
+  }
+
+  getBrushTemp(): number {
+    return this.brushTemp;
   }
 
   /** 获取当前绘制用的材质 ID（随机模式下每次调用返回不同材质） */
@@ -299,11 +310,18 @@ export class InputHandler {
   private placePixel(x: number, y: number, matId: number): void {
     if (this.world.inBounds(x, y) && (matId === 0 || this.world.isEmpty(x, y))) {
       this.world.set(x, y, matId);
+      // 温度笔刷：放置后注入指定温度
+      if (this.brushTemp > 0 && matId !== 0) {
+        this.world.setTemp(x, y, this.brushTemp);
+      }
     }
     if (this.mirrorMode) {
       const mx = this.world.width - 1 - x;
       if (mx !== x && this.world.inBounds(mx, y) && (matId === 0 || this.world.isEmpty(mx, y))) {
         this.world.set(mx, y, matId);
+        if (this.brushTemp > 0 && matId !== 0) {
+          this.world.setTemp(mx, y, this.brushTemp);
+        }
       }
     }
   }

@@ -826,6 +826,24 @@ document.addEventListener('keydown', (e) => {
     return;
   }
 
+  // , 键降低温度笔刷温度 / . 键升高温度笔刷温度
+  if (e.code === 'Comma') {
+    const current = input.getBrushTemp();
+    if (current <= 0) {
+      input.setBrushTemp(100);
+    } else {
+      input.setBrushTemp(Math.max(0, current - 100));
+    }
+    toolbar.refreshBrushTemp();
+    return;
+  }
+  if (e.code === 'Period') {
+    const current = input.getBrushTemp();
+    input.setBrushTemp(current + 100);
+    toolbar.refreshBrushTemp();
+    return;
+  }
+
   // Shift+Arrow 翻转世界
   if (e.shiftKey && e.code === 'ArrowUp') {
     e.preventDefault();

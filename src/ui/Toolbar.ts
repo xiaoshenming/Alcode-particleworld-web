@@ -101,6 +101,9 @@ export class Toolbar {
   private mixRatioLabel!: HTMLSpanElement;
   private mixSecondSelect!: HTMLSelectElement;
   private mixControlRow!: HTMLElement;
+  /** 温度笔刷控件 */
+  private tempBrushBtn!: HTMLButtonElement;
+  private tempBrushLabel!: HTMLSpanElement;
 
   constructor(input: InputHandler, callbacks: ToolbarCallbacks) {
     this.input = input;
@@ -245,6 +248,19 @@ export class Toolbar {
   refreshAntiGravity(on: boolean): void {
     this.antiGravityBtn.classList.toggle('active', on);
     this.antiGravityBtn.textContent = on ? '反重力: 开' : '反重力';
+  }
+
+  /** 刷新温度笔刷显示 */
+  refreshBrushTemp(): void {
+    const temp = this.input.getBrushTemp();
+    if (temp > 0) {
+      this.tempBrushBtn.classList.add('active');
+      this.tempBrushLabel.textContent = `${temp}°`;
+      this.tempBrushLabel.style.display = '';
+    } else {
+      this.tempBrushBtn.classList.remove('active');
+      this.tempBrushLabel.style.display = 'none';
+    }
   }
 
   /** 加载收藏夹 */
@@ -1267,6 +1283,29 @@ export class Toolbar {
     });
     antiGravRow.appendChild(this.antiGravityBtn);
     controlPanel.appendChild(antiGravRow);
+
+    // 温度笔刷按钮
+    const tempBrushRow = document.createElement('div');
+    tempBrushRow.className = 'control-row';
+    this.tempBrushBtn = document.createElement('button');
+    this.tempBrushBtn.className = 'ctrl-btn';
+    this.tempBrushBtn.textContent = '温度笔刷';
+    this.tempBrushBtn.title = '温度笔刷 (< > 调节温度)';
+    this.tempBrushBtn.addEventListener('click', () => {
+      const current = this.input.getBrushTemp();
+      if (current > 0) {
+        this.input.setBrushTemp(0);
+      } else {
+        this.input.setBrushTemp(500);
+      }
+      this.refreshBrushTemp();
+    });
+    tempBrushRow.appendChild(this.tempBrushBtn);
+    this.tempBrushLabel = document.createElement('span');
+    this.tempBrushLabel.className = 'brush-temp-label';
+    this.tempBrushLabel.style.display = 'none';
+    tempBrushRow.appendChild(this.tempBrushLabel);
+    controlPanel.appendChild(tempBrushRow);
 
     // 粒子计数
     const statsDiv = document.createElement('div');
