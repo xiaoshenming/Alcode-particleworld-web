@@ -548,6 +548,14 @@ const toolbar = new Toolbar(input, {
   onClear: () => { world.clear(); history.clear(); },
   onSave: () => {
     localStorage.setItem(SAVE_KEY, world.save());
+    // 生成缩略图
+    const thumbCanvas = document.createElement('canvas');
+    thumbCanvas.width = 80;
+    thumbCanvas.height = 60;
+    const ctx = thumbCanvas.getContext('2d')!;
+    ctx.drawImage(canvas, 0, 0, 80, 60);
+    localStorage.setItem(SAVE_KEY + '-thumb', thumbCanvas.toDataURL('image/png', 0.6));
+    toolbar.refreshSaveThumbnail();
   },
   onLoad: () => {
     const data = localStorage.getItem(SAVE_KEY);

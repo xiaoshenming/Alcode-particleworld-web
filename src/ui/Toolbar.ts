@@ -113,6 +113,8 @@ export class Toolbar {
   private boundaryBtn!: HTMLButtonElement;
   private densityMapBtn!: HTMLButtonElement;
   private hotkeyBarEl!: HTMLElement;
+  /** 存档缩略图 */
+  private saveThumbImg!: HTMLImageElement;
   /** 材质选择回调（用于通知外部记录使用历史等） */
   onMaterialSelect?: (matId: number) => void;
 
@@ -152,6 +154,17 @@ export class Toolbar {
   /** 刷新橡皮擦按钮状态 */
   refreshEraser(): void {
     this.eraserBtn.classList.toggle('active', this.input.getMaterial() === 0);
+  }
+
+  /** 刷新存档缩略图 */
+  refreshSaveThumbnail(): void {
+    const thumb = localStorage.getItem('particleworld-save-thumb');
+    if (thumb) {
+      this.saveThumbImg.src = thumb;
+      this.saveThumbImg.style.display = '';
+    } else {
+      this.saveThumbImg.style.display = 'none';
+    }
   }
 
   /** 聚焦搜索框 (Ctrl+F) */
@@ -1109,6 +1122,24 @@ export class Toolbar {
     saveRow.appendChild(saveBtn);
     saveRow.appendChild(loadBtn);
     controlPanel.appendChild(saveRow);
+
+    // 存档缩略图预览
+    const thumbRow = document.createElement('div');
+    thumbRow.className = 'control-row';
+    thumbRow.style.justifyContent = 'center';
+    this.saveThumbImg = document.createElement('img');
+    this.saveThumbImg.className = 'save-thumbnail';
+    this.saveThumbImg.alt = '存档预览';
+    this.saveThumbImg.style.display = 'none';
+    this.saveThumbImg.style.width = '80px';
+    this.saveThumbImg.style.height = '60px';
+    this.saveThumbImg.style.borderRadius = '4px';
+    this.saveThumbImg.style.border = '1px solid #555';
+    this.saveThumbImg.style.imageRendering = 'pixelated';
+    thumbRow.appendChild(this.saveThumbImg);
+    controlPanel.appendChild(thumbRow);
+    // 初始加载缩略图
+    this.refreshSaveThumbnail();
 
     // 导出/导入文件按钮行
     const fileRow = document.createElement('div');
