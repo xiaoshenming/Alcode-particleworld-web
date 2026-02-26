@@ -1039,6 +1039,20 @@ import './materials/HighPurityYttriumLutetiumFluoride';
 import './materials/GraphiteGneiss2';
 import './materials/ThermoMagnetoAcousticMaterial2';
 
+// v55.0 (ID 951~955)
+import './materials/MolybdenumThuliumAlloy';
+import './materials/MoltenMolybdenumThulium';
+import './materials/HighPurityCeriumScandiumFluoride';
+import './materials/SpinelGneiss2';
+import './materials/AcoustoPhotoElectricMaterial2';
+
+// v55.1 (ID 956~960)
+import './materials/MolybdenumErbiumAlloy';
+import './materials/MoltenMolybdenumErbium';
+import './materials/HighPurityLanthanumScandiumFluoride';
+import './materials/GarnetGneiss4';
+import './materials/ElectroThermoAcousticMaterial3';
+
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
 import { Renderer } from './core/Renderer';
