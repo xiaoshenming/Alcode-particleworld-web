@@ -252,6 +252,56 @@ export class World implements WorldAPI {
     }
   }
 
+  /** 上下翻转世界（重力反转效果） */
+  flipVertical(): void {
+    const w = this.width;
+    const h = this.height;
+    for (let y = 0; y < Math.floor(h / 2); y++) {
+      const mirrorY = h - 1 - y;
+      for (let x = 0; x < w; x++) {
+        const i1 = y * w + x;
+        const i2 = mirrorY * w + x;
+        // 交换 cells
+        const tmpCell = this.cells[i1];
+        this.cells[i1] = this.cells[i2];
+        this.cells[i2] = tmpCell;
+        // 交换 colors
+        const tmpColor = this.colors[i1];
+        this.colors[i1] = this.colors[i2];
+        this.colors[i2] = tmpColor;
+        // 交换温度
+        const tmpTemp = this._temp[i1];
+        this._temp[i1] = this._temp[i2];
+        this._temp[i2] = tmpTemp;
+      }
+    }
+    // 唤醒所有非空粒子
+    this._awakeNext.fill(1);
+  }
+
+  /** 左右翻转世界 */
+  flipHorizontal(): void {
+    const w = this.width;
+    const h = this.height;
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < Math.floor(w / 2); x++) {
+        const mirrorX = w - 1 - x;
+        const i1 = y * w + x;
+        const i2 = y * w + mirrorX;
+        const tmpCell = this.cells[i1];
+        this.cells[i1] = this.cells[i2];
+        this.cells[i2] = tmpCell;
+        const tmpColor = this.colors[i1];
+        this.colors[i1] = this.colors[i2];
+        this.colors[i2] = tmpColor;
+        const tmpTemp = this._temp[i1];
+        this._temp[i1] = this._temp[i2];
+        this._temp[i2] = tmpTemp;
+      }
+    }
+    this._awakeNext.fill(1);
+  }
+
   /** 从 JSON 字符串恢复世界状态（兼容 v1/v2 存档） */
   load(data: string): boolean {
     try {

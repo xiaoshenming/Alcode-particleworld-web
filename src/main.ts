@@ -542,6 +542,28 @@ document.addEventListener('keydown', (e) => {
     return;
   }
 
+  // Shift+Arrow 翻转世界
+  if (e.shiftKey && e.code === 'ArrowUp') {
+    e.preventDefault();
+    world.flipVertical();
+    return;
+  }
+  if (e.shiftKey && e.code === 'ArrowDown') {
+    e.preventDefault();
+    world.flipVertical();
+    return;
+  }
+  if (e.shiftKey && e.code === 'ArrowLeft') {
+    e.preventDefault();
+    world.flipHorizontal();
+    return;
+  }
+  if (e.shiftKey && e.code === 'ArrowRight') {
+    e.preventDefault();
+    world.flipHorizontal();
+    return;
+  }
+
   // P 键截图
   if (e.code === 'KeyP') {
     const link = document.createElement('a');
