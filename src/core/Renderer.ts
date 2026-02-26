@@ -18,6 +18,8 @@ export class Renderer {
   showTempOverlay = false;
   /** 网格线开关 */
   showGrid = false;
+  /** 镜像线开关 */
+  showMirrorLine = false;
 
   constructor(canvas: HTMLCanvasElement, gridWidth: number, gridHeight: number, scale: number) {
     const ctx = canvas.getContext('2d');
@@ -64,6 +66,19 @@ export class Renderer {
     // 网格线
     if (this.showGrid && this.scale >= 3) {
       this.drawGrid();
+    }
+
+    // 镜像中轴线
+    if (this.showMirrorLine) {
+      const cx = this.gridWidth * this.scale / 2;
+      this.ctx.strokeStyle = 'rgba(255, 200, 80, 0.5)';
+      this.ctx.lineWidth = 1;
+      this.ctx.setLineDash([4, 4]);
+      this.ctx.beginPath();
+      this.ctx.moveTo(cx, 0);
+      this.ctx.lineTo(cx, this.gridHeight * this.scale);
+      this.ctx.stroke();
+      this.ctx.setLineDash([]);
     }
   }
 

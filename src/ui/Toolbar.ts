@@ -12,6 +12,7 @@ export interface ToolbarCallbacks {
   onToggleTempOverlay: () => void;
   onToggleGrid: () => void;
   onScreenshot: () => void;
+  onToggleMirror?: () => void;
   getParticleCount: () => number;
   isPaused: () => boolean;
   getSpeed: () => number;
@@ -39,6 +40,7 @@ export class Toolbar {
   private eraserBtn!: HTMLButtonElement;
   private fillBtn!: HTMLButtonElement;
   private randomBtn!: HTMLButtonElement;
+  private mirrorBtn!: HTMLButtonElement;
   /** 记录每个分类的折叠状态 */
   private collapsedCategories = new Set<string>();
   /** 收藏夹材质 ID 列表 */
@@ -130,6 +132,13 @@ export class Toolbar {
     const on = this.input.getRandomMode();
     this.randomBtn.classList.toggle('active', on);
     this.randomBtn.textContent = on ? '随机: 开' : '随机';
+  }
+
+  /** 刷新镜像模式按钮状态 */
+  refreshMirrorMode(): void {
+    const on = this.input.getMirrorMode();
+    this.mirrorBtn.classList.toggle('active', on);
+    this.mirrorBtn.textContent = on ? '镜像: 开' : '镜像';
   }
 
   /** 加载收藏夹 */
@@ -510,6 +519,21 @@ export class Toolbar {
     randomRow.appendChild(this.randomBtn);
     controlPanel.appendChild(randomRow);
 
+    // 镜像绘制按钮
+    const mirrorRow = document.createElement('div');
+    mirrorRow.className = 'control-row';
+    this.mirrorBtn = document.createElement('button');
+    this.mirrorBtn.className = 'ctrl-btn';
+    this.mirrorBtn.textContent = '镜像';
+    this.mirrorBtn.title = '镜像绘制模式 (M) · 沿中轴对称绘制';
+    this.mirrorBtn.addEventListener('click', () => {
+      this.input.setMirrorMode(!this.input.getMirrorMode());
+      this.refreshMirrorMode();
+      this.callbacks.onToggleMirror?.();
+    });
+    mirrorRow.appendChild(this.mirrorBtn);
+    controlPanel.appendChild(mirrorRow);
+
     // 截图按钮
     const screenshotRow = document.createElement('div');
     screenshotRow.className = 'control-row';
@@ -621,7 +645,7 @@ export class Toolbar {
     this.container.appendChild(helpDiv);
     const keysDiv = document.createElement('div');
     keysDiv.className = 'control-row stats';
-    keysDiv.textContent = 'Space 暂停 · 1~0 材质 · [] 笔刷 · B 形状 · F 填充 · R 随机 · S 统计 · -/= 速度';
+    keysDiv.textContent = 'Space 暂停 · 1~0 材质 · [] 笔刷 · B 形状 · F 填充 · R 随机 · M 镜像 · S 统计 · -/= 速度';
     this.container.appendChild(keysDiv);
 
     // 监听滚轮笔刷变化同步滑块

@@ -366,6 +366,9 @@ const toolbar = new Toolbar(input, {
     link.href = canvas.toDataURL('image/png');
     link.click();
   },
+  onToggleMirror: () => {
+    renderer.showMirrorLine = input.getMirrorMode();
+  },
   getParticleCount: () => world.getParticleCount(),
   isPaused: () => paused,
   getSpeed: () => simSpeed,
@@ -492,6 +495,14 @@ document.addEventListener('keydown', (e) => {
   // S 键切换材质统计面板
   if (e.code === 'KeyS') {
     statsPanel.toggle();
+    return;
+  }
+
+  // M 键切换镜像绘制模式
+  if (e.code === 'KeyM') {
+    input.setMirrorMode(!input.getMirrorMode());
+    renderer.showMirrorLine = input.getMirrorMode();
+    toolbar.refreshMirrorMode();
     return;
   }
 

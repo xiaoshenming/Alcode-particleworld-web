@@ -23,6 +23,8 @@ export class InputHandler {
   private drawMode: DrawMode = 'brush';
   /** 随机材质模式 */
   private randomMode = false;
+  /** 镜像绘制模式 */
+  private mirrorMode = false;
   /** 线条笔刷的起点 */
   private lineStartX = -1;
   private lineStartY = -1;
@@ -79,6 +81,14 @@ export class InputHandler {
 
   getRandomMode(): boolean {
     return this.randomMode;
+  }
+
+  setMirrorMode(on: boolean): void {
+    this.mirrorMode = on;
+  }
+
+  getMirrorMode(): boolean {
+    return this.mirrorMode;
   }
 
   /** 获取当前绘制用的材质 ID（随机模式下每次调用返回不同材质） */
@@ -180,6 +190,19 @@ export class InputHandler {
     this.drawAt(gx, gy);
   }
 
+  /** 放置单个像素（含镜像） */
+  private placePixel(x: number, y: number, matId: number): void {
+    if (this.world.inBounds(x, y) && (matId === 0 || this.world.isEmpty(x, y))) {
+      this.world.set(x, y, matId);
+    }
+    if (this.mirrorMode) {
+      const mx = this.world.width - 1 - x;
+      if (mx !== x && this.world.inBounds(mx, y) && (matId === 0 || this.world.isEmpty(mx, y))) {
+        this.world.set(mx, y, matId);
+      }
+    }
+  }
+
   /** 在指定位置绘制（根据笔刷形状） */
   private drawAt(cx: number, cy: number): void {
     const r = Math.floor(this.brushSize / 2);
@@ -188,15 +211,10 @@ export class InputHandler {
         const x = cx + dx;
         const y = cy + dy;
         if (!this.world.inBounds(x, y)) continue;
-        // 根据形状判断是否在笔刷范围内
         if (this.brushShape === 'circle') {
           if (dx * dx + dy * dy > r * r) continue;
         }
-        // square 不需要额外判断，矩形范围即可
-        const matId = this.getDrawMaterial();
-        if (matId === 0 || this.world.isEmpty(x, y)) {
-          this.world.set(x, y, matId);
-        }
+        this.placePixel(x, y, this.getDrawMaterial());
       }
     }
   }
@@ -229,10 +247,7 @@ export class InputHandler {
         const y = cy + dy;
         if (!this.world.inBounds(x, y)) continue;
         if (dx * dx + dy * dy > r * r) continue;
-        const matId = this.getDrawMaterial();
-        if (matId === 0 || this.world.isEmpty(x, y)) {
-          this.world.set(x, y, matId);
-        }
+        this.placePixel(x, y, this.getDrawMaterial());
       }
     }
   }
