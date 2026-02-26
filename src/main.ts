@@ -694,6 +694,11 @@ import './materials/MoltenTantalumNiobium';
 import './materials/HighPurityHolmiumLanthanumFluoride';
 import './materials/KyaniteGneiss';
 import './materials/MagnetoAcoustoMagneticMaterial';
+import './materials/TantalumZirconiumAlloy';
+import './materials/MoltenTantalumZirconium';
+import './materials/HighPurityErbiumLanthanumFluoride';
+import './materials/AndalusiteGneiss';
+import './materials/ElectroThermoMagneticMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';

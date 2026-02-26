@@ -4,32 +4,32 @@ import { registerMaterial } from './registry';
 /**
  * 电热磁材料 —— 电-热-磁三场耦合功能材料
  * - 固体，密度 Infinity（不可移动）
- * - 遇闪电(16)/电线(44)产生热效应（加温周围）
- * - 遇磁铁(42)产生电效应（生成闪电(16)）
- * - 深橙褐色带电热纹理
+ * - 遇电线(44)通电产生热效应（升温）
+ * - 高温时产生磁效应（生成磁铁(42)）
+ * - 深红铜色带电热纹理
  */
 
 export const ElectroThermoMagneticMaterial: MaterialDef = {
-  id: 585,
+  id: 690,
   name: '电热磁材料',
   category: '固体',
-  description: '电-热-磁三场耦合功能材料，用于电磁加热和感应熔炼',
+  description: '电-热-磁三场耦合功能材料，用于电磁加热和磁热泵',
   density: Infinity,
   color() {
     const phase = Math.random();
     let r: number, g: number, b: number;
     if (phase < 0.5) {
-      r = 158 + Math.floor(Math.random() * 15);
-      g = 88 + Math.floor(Math.random() * 10);
-      b = 42 + Math.floor(Math.random() * 12);
+      r = 148 + Math.floor(Math.random() * 15);
+      g = 52 + Math.floor(Math.random() * 10);
+      b = 48 + Math.floor(Math.random() * 10);
     } else if (phase < 0.8) {
-      r = 138 + Math.floor(Math.random() * 12);
-      g = 72 + Math.floor(Math.random() * 8);
-      b = 32 + Math.floor(Math.random() * 10);
+      r = 132 + Math.floor(Math.random() * 12);
+      g = 38 + Math.floor(Math.random() * 8);
+      b = 35 + Math.floor(Math.random() * 8);
     } else {
-      r = 178 + Math.floor(Math.random() * 18);
-      g = 102 + Math.floor(Math.random() * 12);
-      b = 52 + Math.floor(Math.random() * 15);
+      r = 165 + Math.floor(Math.random() * 15);
+      g = 65 + Math.floor(Math.random() * 10);
+      b = 58 + Math.floor(Math.random() * 10);
     }
     return (0xFF << 24) | (b << 16) | (g << 8) | r;
   },
@@ -42,17 +42,17 @@ export const ElectroThermoMagneticMaterial: MaterialDef = {
       if (!world.inBounds(nx, ny)) continue;
       const nid = world.get(nx, ny);
 
-      // 遇闪电/电线产生热效应（加温周围）
-      if ((nid === 16 || nid === 44) && Math.random() < 0.06) {
+      // 遇电线产生热效应（模拟电→热）
+      if (nid === 44 && Math.random() < 0.04) {
         world.addTemp(x, y, 50);
         world.wakeArea(x, y);
       }
 
-      // 遇磁铁产生闪电
-      if (nid === 42 && Math.random() < 0.05) {
+      // 高温时产生磁效应（模拟热→磁）
+      if (temp > 500 && Math.random() < 0.03) {
         const fy = y - 1;
         if (world.inBounds(x, fy) && world.get(x, fy) === 0) {
-          world.set(x, fy, 16);
+          world.set(x, fy, 42);
           world.wakeArea(x, fy);
         }
       }
