@@ -388,6 +388,13 @@ let gifEncoder: GifEncoder | null = null;
 let recordFrameCount = 0;
 const MAX_GIF_FRAMES = 150; // 最多录制 150 帧（约 5 秒）
 
+// 时间倒流系统
+const REWIND_BUFFER_SIZE = 120; // 最多记录 120 帧（约 2 秒）
+const rewindBuffer: Uint16Array[] = [];
+let rewindHead = 0; // 写入位置
+let rewindCount = 0; // 已存帧数
+let rewinding = false; // 是否正在倒流
+
 const SAVE_KEY = 'particleworld-save';
 
 // 绘制前保存快照（用于撤销）
@@ -551,6 +558,15 @@ document.addEventListener('drop', (e) => {
 
 // 快捷键
 document.addEventListener('keydown', (e) => {
+  // Backspace 按住倒流
+  if (e.code === 'Backspace') {
+    e.preventDefault();
+    if (!rewinding && rewindCount > 0) {
+      rewinding = true;
+    }
+    return;
+  }
+
   // Ctrl+Z 撤销 / Ctrl+Y 或 Ctrl+Shift+Z 重做
   if ((e.ctrlKey || e.metaKey) && e.code === 'KeyZ' && !e.shiftKey) {
     e.preventDefault();
@@ -760,6 +776,12 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
+document.addEventListener('keyup', (e) => {
+  if (e.code === 'Backspace') {
+    rewinding = false;
+  }
+});
+
 // 小地图点击拦截（capture 阶段优先处理）
 canvas.addEventListener('mousedown', (e) => {
   const rect = canvas.getBoundingClientRect();
@@ -794,8 +816,24 @@ const gifCtx = gifCanvas.getContext('2d')!;
 const fpsGraph = new FpsGraph();
 
 function loop() {
-  if (!paused) {
+  if (rewinding) {
+    // 倒流模式：从缓冲区回放
+    if (rewindCount > 0) {
+      rewindHead = (rewindHead - 1 + REWIND_BUFFER_SIZE) % REWIND_BUFFER_SIZE;
+      rewindCount--;
+      world.restoreFromSnapshot(rewindBuffer[rewindHead]);
+    }
+  } else if (!paused) {
+    // 正常模拟：记录帧到环形缓冲区
     for (let i = 0; i < simSpeed; i++) {
+      // 每步模拟前记录快照
+      if (!rewindBuffer[rewindHead]) {
+        rewindBuffer[rewindHead] = new Uint16Array(world.cells.length);
+      }
+      rewindBuffer[rewindHead].set(world.cells);
+      rewindHead = (rewindHead + 1) % REWIND_BUFFER_SIZE;
+      if (rewindCount < REWIND_BUFFER_SIZE) rewindCount++;
+
       simulation.update();
     }
   }
