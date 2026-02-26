@@ -36,6 +36,7 @@ export class Toolbar {
   private sprayDensityLabel!: HTMLSpanElement;
   private sprayDensitySlider!: HTMLInputElement;
   private sprayDensityRow!: HTMLElement;
+  private gradientBtn!: HTMLButtonElement;
   private speedLabel!: HTMLSpanElement;
   private speedSlider!: HTMLInputElement;
   private tempOverlayBtn!: HTMLButtonElement;
@@ -153,6 +154,13 @@ export class Toolbar {
     const val = Math.round(this.input.getSprayDensity() * 100);
     this.sprayDensityLabel.textContent = `密度: ${val}%`;
     this.sprayDensitySlider.value = String(val);
+  }
+
+  /** 刷新渐变笔刷按钮状态 */
+  refreshGradientBrush(): void {
+    const on = this.input.getGradientBrush();
+    this.gradientBtn.classList.toggle('active', on);
+    this.gradientBtn.textContent = on ? '渐变: 开' : '渐变';
   }
 
   /** 加载收藏夹 */
@@ -454,6 +462,19 @@ export class Toolbar {
     sprayDensityDiv.appendChild(sprayDensitySlider);
     controlPanel.appendChild(sprayDensityDiv);
 
+    // 渐变笔刷按钮
+    const gradientBtn = document.createElement('button');
+    gradientBtn.textContent = '渐变';
+    gradientBtn.title = '渐变笔刷 (G)';
+    gradientBtn.setAttribute('aria-label', '渐变笔刷');
+    gradientBtn.classList.toggle('active', this.input.getGradientBrush());
+    gradientBtn.addEventListener('click', () => {
+      this.input.setGradientBrush(!this.input.getGradientBrush());
+      this.refreshGradientBrush();
+    });
+    this.gradientBtn = gradientBtn;
+    shapeDiv.appendChild(gradientBtn);
+
     // 按钮行
     const btnRow = document.createElement('div');
     btnRow.className = 'control-row';
@@ -685,7 +706,7 @@ export class Toolbar {
     this.container.appendChild(helpDiv);
     const keysDiv = document.createElement('div');
     keysDiv.className = 'control-row stats';
-    keysDiv.textContent = 'Space 暂停 · 1~0 材质 · [] 笔刷 · B 形状 · D 密度 · F 填充 · R 随机 · M 镜像 · S 统计 · -/= 速度';
+    keysDiv.textContent = 'Space 暂停 · 1~0 材质 · [] 笔刷 · B 形状 · D 密度 · G 渐变 · F 填充 · R 随机 · M 镜像 · S 统计 · -/= 速度';
     this.container.appendChild(keysDiv);
 
     // 监听滚轮笔刷变化同步滑块

@@ -27,6 +27,8 @@ export class InputHandler {
   private mirrorMode = false;
   /** 喷雾密度 (0.1~1.0) */
   private sprayDensity = 0.4;
+  /** 渐变笔刷模式 */
+  private gradientBrush = false;
   /** 线条笔刷的起点 */
   private lineStartX = -1;
   private lineStartY = -1;
@@ -99,6 +101,14 @@ export class InputHandler {
 
   getSprayDensity(): number {
     return this.sprayDensity;
+  }
+
+  setGradientBrush(on: boolean): void {
+    this.gradientBrush = on;
+  }
+
+  getGradientBrush(): boolean {
+    return this.gradientBrush;
   }
 
   /** 获取当前绘制用的材质 ID（随机模式下每次调用返回不同材质） */
@@ -240,6 +250,13 @@ export class InputHandler {
         if (!this.world.inBounds(x, y)) continue;
         if (this.brushShape === 'circle') {
           if (dx * dx + dy * dy > r * r) continue;
+        }
+        // 渐变笔刷：边缘放置概率降低
+        if (this.gradientBrush && r > 1) {
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          const ratio = dist / r; // 0(中心)~1(边缘)
+          const prob = 1 - ratio * ratio; // 二次衰减
+          if (Math.random() > prob) continue;
         }
         this.placePixel(x, y, this.getDrawMaterial());
       }

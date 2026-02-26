@@ -522,6 +522,13 @@ document.addEventListener('keydown', (e) => {
     return;
   }
 
+  // G 键切换渐变笔刷
+  if (e.code === 'KeyG') {
+    input.setGradientBrush(!input.getGradientBrush());
+    toolbar.refreshGradientBrush();
+    return;
+  }
+
   // P 键截图
   if (e.code === 'KeyP') {
     const link = document.createElement('a');
@@ -545,7 +552,7 @@ function loop() {
 
   // 笔刷预览
   if (input.cursorVisible) {
-    renderer.renderBrushPreview(input.cursorX, input.cursorY, input.getBrushSize(), input.getBrushShape());
+    renderer.renderBrushPreview(input.cursorX, input.cursorY, input.getBrushSize(), input.getBrushShape(), input.getGradientBrush());
     // 线条模式预览
     if (input.isDrawingLine()) {
       const [lx, ly] = input.getLineStart();

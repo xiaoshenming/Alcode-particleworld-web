@@ -146,7 +146,7 @@ export class Renderer {
   }
 
   /** 绘制笔刷预览 */
-  renderBrushPreview(cx: number, cy: number, brushSize: number, shape: string = 'circle'): void {
+  renderBrushPreview(cx: number, cy: number, brushSize: number, shape: string = 'circle', gradient: boolean = false): void {
     const r = Math.floor(brushSize / 2);
     const s = this.scale;
     this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
@@ -195,6 +195,21 @@ export class Renderer {
         0, Math.PI * 2,
       );
       this.ctx.stroke();
+    }
+
+    // 渐变模式指示：内圈虚线
+    if (gradient && r > 1 && shape !== 'spray') {
+      this.ctx.strokeStyle = 'rgba(255, 200, 100, 0.4)';
+      this.ctx.setLineDash([2, 3]);
+      this.ctx.beginPath();
+      this.ctx.arc(
+        (cx + 0.5) * s,
+        (cy + 0.5) * s,
+        (r * 0.5) * s,
+        0, Math.PI * 2,
+      );
+      this.ctx.stroke();
+      this.ctx.setLineDash([]);
     }
   }
 
