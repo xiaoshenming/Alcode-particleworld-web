@@ -564,6 +564,11 @@ import './materials/MoltenNiobiumIridium';
 import './materials/DysprosiumFluoride';
 import './materials/DiopsideSchist';
 import './materials/ElectroOptoAcousticMaterial';
+import './materials/NiobiumRhodiumAlloy';
+import './materials/MoltenNiobiumRhodium';
+import './materials/EuropiumFluoride';
+import './materials/ActinoliteSchist';
+import './materials/MagnetoElectroOpticMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
