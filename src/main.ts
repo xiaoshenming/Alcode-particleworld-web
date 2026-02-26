@@ -559,6 +559,10 @@ const toolbar = new Toolbar(input, {
   onCycleBoundary: () => {
     return simulation.cycleBoundary();
   },
+  onToggleDensityMap: () => {
+    renderer.showDensityMap = !renderer.showDensityMap;
+    return renderer.showDensityMap;
+  },
 });
 
 // 常用材质快捷键映射（数字键 1~9, 0）
@@ -856,6 +860,13 @@ document.addEventListener('keydown', (e) => {
   if (e.code === 'KeyJ') {
     const mode = simulation.cycleBoundary();
     toolbar.refreshBoundary(mode);
+    return;
+  }
+
+  // Y 键切换密度热力图
+  if (e.code === 'KeyY') {
+    renderer.showDensityMap = !renderer.showDensityMap;
+    toolbar.refreshDensityMap(renderer.showDensityMap);
     return;
   }
 

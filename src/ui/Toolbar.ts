@@ -38,6 +38,7 @@ export interface ToolbarCallbacks {
   onEncyclopedia?: () => void;
   onToggleAntiGravity?: () => boolean; // 返回是否开启反重力
   onCycleBoundary?: () => string; // 返回新的边界模式
+  onToggleDensityMap?: () => boolean; // 返回是否开启密度热力图
 }
 
 /**
@@ -107,6 +108,7 @@ export class Toolbar {
   private tempBrushLabel!: HTMLSpanElement;
   /** 边界模式按钮 */
   private boundaryBtn!: HTMLButtonElement;
+  private densityMapBtn!: HTMLButtonElement;
 
   constructor(input: InputHandler, callbacks: ToolbarCallbacks) {
     this.input = input;
@@ -271,6 +273,10 @@ export class Toolbar {
     const labels: Record<string, string> = { wall: '边界: 实墙', wrap: '边界: 环绕', open: '边界: 开放' };
     this.boundaryBtn.textContent = labels[mode] || '边界: 实墙';
     this.boundaryBtn.classList.toggle('active', mode !== 'wall');
+  }
+
+  refreshDensityMap(active: boolean): void {
+    this.densityMapBtn.classList.toggle('active', active);
   }
 
   /** 加载收藏夹 */
@@ -1332,6 +1338,22 @@ export class Toolbar {
     });
     boundaryRow.appendChild(this.boundaryBtn);
     controlPanel.appendChild(boundaryRow);
+
+    // 密度热力图按钮
+    const densityRow = document.createElement('div');
+    densityRow.className = 'control-row';
+    this.densityMapBtn = document.createElement('button');
+    this.densityMapBtn.className = 'ctrl-btn';
+    this.densityMapBtn.textContent = '密度热力图';
+    this.densityMapBtn.title = '切换粒子密度热力图 (Y)';
+    this.densityMapBtn.addEventListener('click', () => {
+      if (this.callbacks.onToggleDensityMap) {
+        const on = this.callbacks.onToggleDensityMap();
+        this.refreshDensityMap(on);
+      }
+    });
+    densityRow.appendChild(this.densityMapBtn);
+    controlPanel.appendChild(densityRow);
 
     // 粒子计数
     const statsDiv = document.createElement('div');

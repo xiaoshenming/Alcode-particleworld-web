@@ -16,6 +16,8 @@ export class Renderer {
   private tempCtx: CanvasRenderingContext2D;
   /** 温度叠加层开关 */
   showTempOverlay = false;
+  /** 密度热力图开关 */
+  showDensityMap = false;
   /** 网格线开关 */
   showGrid = false;
   /** 镜像线开关 */
@@ -59,6 +61,11 @@ export class Renderer {
     // 温度叠加层
     if (this.showTempOverlay) {
       this.applyTempOverlay(world);
+    }
+
+    // 密度热力图叠加层
+    if (this.showDensityMap) {
+      this.applyDensityOverlay(world);
     }
 
     // putImageData 到临时 canvas，再缩放绘制到主 canvas
@@ -140,6 +147,77 @@ export class Renderer {
           pg = Math.min(255, Math.round(pg * (1 - alpha) + (100 * intensity) * alpha));
           pb = Math.min(255, Math.round(pb * (1 - alpha) + 255 * alpha));
         }
+
+        this.pixels[i] = (pa << 24) | (pb << 16) | (pg << 8) | pr;
+      }
+    }
+  }
+
+  /** 密度热力图叠加层 —— 将世界分成 10x10 区块，统计粒子密度并用颜色渐变显示 */
+  private applyDensityOverlay(world: World): void {
+    const w = this.gridWidth;
+    const h = this.gridHeight;
+    const blockSize = 10;
+    const bw = Math.ceil(w / blockSize);
+    const bh = Math.ceil(h / blockSize);
+    const cells = world.cells;
+
+    // 统计每个区块的粒子数
+    const density = new Uint16Array(bw * bh);
+    for (let y = 0; y < h; y++) {
+      const by = Math.floor(y / blockSize);
+      for (let x = 0; x < w; x++) {
+        if (cells[y * w + x] !== 0) {
+          density[by * bw + Math.floor(x / blockSize)]++;
+        }
+      }
+    }
+
+    // 找最大密度用于归一化
+    let maxDensity = 1;
+    for (let i = 0; i < density.length; i++) {
+      if (density[i] > maxDensity) maxDensity = density[i];
+    }
+
+    // 叠加颜色：蓝(低) → 绿(中) → 黄(中高) → 红(高)
+    for (let y = 0; y < h; y++) {
+      const by = Math.floor(y / blockSize);
+      for (let x = 0; x < w; x++) {
+        const bx = Math.floor(x / blockSize);
+        const d = density[by * bw + bx] / maxDensity;
+        if (d < 0.01) continue; // 空区域跳过
+
+        const i = y * w + x;
+        const pixel = this.pixels[i];
+        let pr = pixel & 0xFF;
+        let pg = (pixel >> 8) & 0xFF;
+        let pb = (pixel >> 16) & 0xFF;
+        const pa = (pixel >> 24) & 0xFF;
+
+        // 热力图颜色映射
+        let hr: number, hg: number, hb: number;
+        if (d < 0.25) {
+          // 蓝 → 青
+          const t = d / 0.25;
+          hr = 0; hg = Math.round(t * 200); hb = Math.round(200 + t * 55);
+        } else if (d < 0.5) {
+          // 青 → 绿
+          const t = (d - 0.25) / 0.25;
+          hr = 0; hg = Math.round(200 + t * 55); hb = Math.round(255 - t * 255);
+        } else if (d < 0.75) {
+          // 绿 → 黄
+          const t = (d - 0.5) / 0.25;
+          hr = Math.round(t * 255); hg = 255; hb = 0;
+        } else {
+          // 黄 → 红
+          const t = (d - 0.75) / 0.25;
+          hr = 255; hg = Math.round(255 - t * 255); hb = 0;
+        }
+
+        const alpha = 0.35 + d * 0.25;
+        pr = Math.min(255, Math.round(pr * (1 - alpha) + hr * alpha));
+        pg = Math.min(255, Math.round(pg * (1 - alpha) + hg * alpha));
+        pb = Math.min(255, Math.round(pb * (1 - alpha) + hb * alpha));
 
         this.pixels[i] = (pa << 24) | (pb << 16) | (pg << 8) | pr;
       }
