@@ -302,6 +302,11 @@ import './materials/MoltenRheniumAlloy';
 import './materials/NitrogenTrifluoride';
 import './materials/Andesite';
 import './materials/PhotochromicMaterial';
+import './materials/Thallium';
+import './materials/MoltenThallium';
+import './materials/Iodine';
+import './materials/Granulite';
+import './materials/PhotovoltaicMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
