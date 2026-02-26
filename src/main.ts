@@ -382,6 +382,11 @@ import './materials/LiquidYtterbium';
 import './materials/GermaniumTetrafluoride';
 import './materials/SerpentinizedPeridotite2';
 import './materials/ElectrorheologicalFluid';
+import './materials/Holmium';
+import './materials/LiquidHolmium';
+import './materials/PhosphorusPentachloride';
+import './materials/SericiteSchist';
+import './materials/DielectricElastomer';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
