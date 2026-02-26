@@ -2,50 +2,42 @@ import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
 /**
- * 铟 —— 柔软的稀有金属，低熔点
+ * 铟 —— 柔软低熔点金属
  * - 固体，密度 Infinity（不可移动）
- * - 低熔点：>157° → 液态铟(317)
- * - 极软：接触酸(9)较快溶解
- * - 中等导热(0.06)
- * - 银白色带微蓝调
+ * - 熔点：>157° → 液态铟(432)
+ * - 极其柔软，可被酸腐蚀（概率0.008）
+ * - 银白色带微蓝光泽
  */
 
 export const Indium: MaterialDef = {
-  id: 316,
+  id: 431,
   name: '铟',
   category: '金属',
-  description: '柔软的稀有金属，低熔点',
+  description: '柔软低熔点金属，银白色，用于触摸屏和焊料',
   density: Infinity,
   color() {
     const phase = Math.random();
     let r: number, g: number, b: number;
     if (phase < 0.5) {
-      // 银白
-      const base = 175 + Math.floor(Math.random() * 20);
-      r = base;
-      g = base + 3;
-      b = base + 10;
+      r = 195 + Math.floor(Math.random() * 15);
+      g = 198 + Math.floor(Math.random() * 12);
+      b = 215 + Math.floor(Math.random() * 15);
     } else if (phase < 0.8) {
-      // 微蓝灰
-      const base = 150 + Math.floor(Math.random() * 15);
-      r = base - 5;
-      g = base;
-      b = base + 12;
+      r = 180 + Math.floor(Math.random() * 12);
+      g = 185 + Math.floor(Math.random() * 10);
+      b = 205 + Math.floor(Math.random() * 12);
     } else {
-      // 高光
-      const base = 200 + Math.floor(Math.random() * 20);
-      r = base;
-      g = base + 2;
-      b = base + 8;
+      r = 210 + Math.floor(Math.random() * 12);
+      g = 215 + Math.floor(Math.random() * 10);
+      b = 230 + Math.floor(Math.random() * 10);
     }
     return (0xFF << 24) | (b << 16) | (g << 8) | r;
   },
   update(x: number, y: number, world: WorldAPI) {
     const temp = world.getTemp(x, y);
 
-    // 低熔点
     if (temp > 157) {
-      world.set(x, y, 317);
+      world.set(x, y, 432);
       world.setTemp(x, y, temp);
       world.wakeArea(x, y);
       return;
@@ -57,19 +49,17 @@ export const Indium: MaterialDef = {
       if (!world.inBounds(nx, ny)) continue;
       const nid = world.get(nx, ny);
 
-      // 酸溶解（较快）
-      if (nid === 9 && Math.random() < 0.03) {
+      if (nid === 9 && Math.random() < 0.008) {
         world.set(x, y, 0);
         world.set(nx, ny, 7);
         world.wakeArea(x, y);
         return;
       }
 
-      // 导热
-      if (nid !== 0 && Math.random() < 0.06) {
+      if (nid !== 0 && Math.random() < 0.09) {
         const nt = world.getTemp(nx, ny);
         if (Math.abs(temp - nt) > 5) {
-          const diff = (nt - temp) * 0.08;
+          const diff = (nt - temp) * 0.11;
           world.addTemp(x, y, diff);
           world.addTemp(nx, ny, -diff);
         }

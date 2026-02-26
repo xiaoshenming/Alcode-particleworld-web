@@ -2,46 +2,41 @@ import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
 /**
- * 辉石岩 —— 深成超基性岩，主要由辉石组成
+ * 辉岩 —— 深色超基性岩
  * - 固体，密度 Infinity（不可移动）
- * - 高熔点：>1200° → 熔岩(11)
- * - 耐酸(9)：极缓慢溶解
- * - 低导热(0.04)
- * - 深绿色带黑色斑纹
+ * - 极耐高温（>2800° 才熔化为熔岩）
+ * - 耐酸性极好（概率0.001）
+ * - 深绿黑色，带橄榄石斑点
  */
 
 export const Pyroxenite: MaterialDef = {
-  id: 324,
-  name: '辉石岩',
-  category: '矿石',
-  description: '深成超基性岩，主要由辉石组成',
+  id: 434,
+  name: '辉岩',
+  category: '固体',
+  description: '深色超基性岩，由辉石矿物组成，极其坚硬致密',
   density: Infinity,
   color() {
     const phase = Math.random();
     let r: number, g: number, b: number;
-    if (phase < 0.5) {
-      // 深绿基质
-      r = 40 + Math.floor(Math.random() * 15);
-      g = 60 + Math.floor(Math.random() * 20);
-      b = 35 + Math.floor(Math.random() * 10);
+    if (phase < 0.55) {
+      r = 35 + Math.floor(Math.random() * 15);
+      g = 45 + Math.floor(Math.random() * 15);
+      b = 30 + Math.floor(Math.random() * 12);
     } else if (phase < 0.8) {
-      // 黑色斑纹
-      r = 25 + Math.floor(Math.random() * 10);
-      g = 30 + Math.floor(Math.random() * 10);
-      b = 25 + Math.floor(Math.random() * 8);
+      r = 55 + Math.floor(Math.random() * 12);
+      g = 58 + Math.floor(Math.random() * 10);
+      b = 52 + Math.floor(Math.random() * 10);
     } else {
-      // 暗橄榄绿
-      r = 55 + Math.floor(Math.random() * 15);
-      g = 70 + Math.floor(Math.random() * 15);
-      b = 40 + Math.floor(Math.random() * 10);
+      r = 80 + Math.floor(Math.random() * 20);
+      g = 100 + Math.floor(Math.random() * 20);
+      b = 50 + Math.floor(Math.random() * 15);
     }
     return (0xFF << 24) | (b << 16) | (g << 8) | r;
   },
   update(x: number, y: number, world: WorldAPI) {
     const temp = world.getTemp(x, y);
 
-    // 高温熔化
-    if (temp > 1200) {
+    if (temp > 2800) {
       world.set(x, y, 11);
       world.setTemp(x, y, temp);
       world.wakeArea(x, y);
@@ -54,19 +49,17 @@ export const Pyroxenite: MaterialDef = {
       if (!world.inBounds(nx, ny)) continue;
       const nid = world.get(nx, ny);
 
-      // 极耐酸
-      if (nid === 9 && Math.random() < 0.005) {
+      if (nid === 9 && Math.random() < 0.001) {
         world.set(x, y, 0);
         world.set(nx, ny, 7);
         world.wakeArea(x, y);
         return;
       }
 
-      // 导热
-      if (nid !== 0 && Math.random() < 0.04) {
+      if (nid !== 0 && Math.random() < 0.03) {
         const nt = world.getTemp(nx, ny);
-        if (Math.abs(temp - nt) > 5) {
-          const diff = (nt - temp) * 0.06;
+        if (Math.abs(temp - nt) > 10) {
+          const diff = (nt - temp) * 0.05;
           world.addTemp(x, y, diff);
           world.addTemp(nx, ny, -diff);
         }

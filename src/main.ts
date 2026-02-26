@@ -427,6 +427,11 @@ import './materials/MoltenGallium';
 import './materials/CalciumFluoride';
 import './materials/Larvikite';
 import './materials/ThermomagneticMaterial';
+import './materials/Indium';
+import './materials/MoltenIndium';
+import './materials/AluminumFluoride';
+import './materials/Pyroxenite';
+import './materials/PhotoelectricMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
