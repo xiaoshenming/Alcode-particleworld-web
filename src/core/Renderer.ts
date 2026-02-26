@@ -18,6 +18,8 @@ export class Renderer {
   showTempOverlay = false;
   /** 密度热力图开关 */
   showDensityMap = false;
+  /** 年龄叠加层开关 */
+  showAgeOverlay = false;
   /** 网格线开关 */
   showGrid = false;
   /** 镜像线开关 */
@@ -66,6 +68,11 @@ export class Renderer {
     // 密度热力图叠加层
     if (this.showDensityMap) {
       this.applyDensityOverlay(world);
+    }
+
+    // 年龄叠加层
+    if (this.showAgeOverlay) {
+      this.applyAgeOverlay(world);
     }
 
     // putImageData 到临时 canvas，再缩放绘制到主 canvas
@@ -215,6 +222,60 @@ export class Renderer {
         }
 
         const alpha = 0.35 + d * 0.25;
+        pr = Math.min(255, Math.round(pr * (1 - alpha) + hr * alpha));
+        pg = Math.min(255, Math.round(pg * (1 - alpha) + hg * alpha));
+        pb = Math.min(255, Math.round(pb * (1 - alpha) + hb * alpha));
+
+        this.pixels[i] = (pa << 24) | (pb << 16) | (pg << 8) | pr;
+      }
+    }
+  }
+
+  /** 年龄叠加层 —— 新粒子亮绿，老粒子暗紫，帮助观察粒子流动 */
+  private applyAgeOverlay(world: World): void {
+    const ages = world.getAgeBuffer();
+    const cells = world.cells;
+    const w = this.gridWidth;
+    const h = this.gridHeight;
+
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const i = y * w + x;
+        if (cells[i] === 0) continue;
+
+        const age = ages[i];
+        // 归一化：0~2000帧映射到 0~1
+        const t = Math.min(1, age / 2000);
+
+        const pixel = this.pixels[i];
+        let pr = pixel & 0xFF;
+        let pg = (pixel >> 8) & 0xFF;
+        let pb = (pixel >> 16) & 0xFF;
+        const pa = (pixel >> 24) & 0xFF;
+
+        // 新粒子(t≈0)：亮绿  老粒子(t≈1)：暗紫
+        let hr: number, hg: number, hb: number;
+        if (t < 0.33) {
+          // 亮绿 → 黄
+          const s = t / 0.33;
+          hr = Math.round(s * 255);
+          hg = 255;
+          hb = 0;
+        } else if (t < 0.66) {
+          // 黄 → 橙红
+          const s = (t - 0.33) / 0.33;
+          hr = 255;
+          hg = Math.round(255 - s * 180);
+          hb = 0;
+        } else {
+          // 橙红 → 暗紫
+          const s = (t - 0.66) / 0.34;
+          hr = Math.round(255 - s * 120);
+          hg = Math.round(75 - s * 75);
+          hb = Math.round(s * 180);
+        }
+
+        const alpha = 0.4;
         pr = Math.min(255, Math.round(pr * (1 - alpha) + hr * alpha));
         pg = Math.min(255, Math.round(pg * (1 - alpha) + hg * alpha));
         pb = Math.min(255, Math.round(pb * (1 - alpha) + hb * alpha));

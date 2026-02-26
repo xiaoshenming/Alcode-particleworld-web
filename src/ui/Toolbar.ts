@@ -39,6 +39,7 @@ export interface ToolbarCallbacks {
   onToggleAntiGravity?: () => boolean; // 返回是否开启反重力
   onCycleBoundary?: () => string; // 返回新的边界模式
   onToggleDensityMap?: () => boolean; // 返回是否开启密度热力图
+  onToggleAgeOverlay?: () => boolean; // 返回是否开启年龄叠加层
   onGetAutosaveSlots?: () => Array<{slot: number; time: number; particles: number} | null>;
   onLoadAutosave?: (slot: number) => boolean;
   getHotkeyBindings?: () => number[];
@@ -112,6 +113,7 @@ export class Toolbar {
   /** 边界模式按钮 */
   private boundaryBtn!: HTMLButtonElement;
   private densityMapBtn!: HTMLButtonElement;
+  private ageOverlayBtn!: HTMLButtonElement;
   private hotkeyBarEl!: HTMLElement;
   /** 存档缩略图 */
   private saveThumbImg!: HTMLImageElement;
@@ -296,6 +298,10 @@ export class Toolbar {
 
   refreshDensityMap(active: boolean): void {
     this.densityMapBtn.classList.toggle('active', active);
+  }
+
+  refreshAgeOverlay(active: boolean): void {
+    this.ageOverlayBtn.classList.toggle('active', active);
   }
 
   /** 刷新快捷键栏显示 */
@@ -1463,6 +1469,22 @@ export class Toolbar {
     });
     densityRow.appendChild(this.densityMapBtn);
     controlPanel.appendChild(densityRow);
+
+    // 年龄叠加层按钮
+    const ageRow = document.createElement('div');
+    ageRow.className = 'control-row';
+    this.ageOverlayBtn = document.createElement('button');
+    this.ageOverlayBtn.className = 'ctrl-btn';
+    this.ageOverlayBtn.textContent = '年龄叠加层';
+    this.ageOverlayBtn.title = '切换粒子年龄可视化 (A)';
+    this.ageOverlayBtn.addEventListener('click', () => {
+      if (this.callbacks.onToggleAgeOverlay) {
+        const on = this.callbacks.onToggleAgeOverlay();
+        this.refreshAgeOverlay(on);
+      }
+    });
+    ageRow.appendChild(this.ageOverlayBtn);
+    controlPanel.appendChild(ageRow);
 
     // 自动保存恢复按钮
     const autosaveRow = document.createElement('div');

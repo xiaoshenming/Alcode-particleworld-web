@@ -232,6 +232,10 @@ export class World implements WorldAPI {
     return this._temp;
   }
 
+  getAgeBuffer(): Uint16Array {
+    return this._age;
+  }
+
   /** 统计非空粒子数量 */
   getParticleCount(): number {
     let count = 0;

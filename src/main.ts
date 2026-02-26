@@ -658,6 +658,10 @@ const toolbar = new Toolbar(input, {
     renderer.showDensityMap = !renderer.showDensityMap;
     return renderer.showDensityMap;
   },
+  onToggleAgeOverlay: () => {
+    renderer.showAgeOverlay = !renderer.showAgeOverlay;
+    return renderer.showAgeOverlay;
+  },
   onGetAutosaveSlots: () => {
     return getAutosaveSlots();
   },
@@ -1069,6 +1073,13 @@ document.addEventListener('keydown', (e) => {
   if (e.code === 'KeyY') {
     renderer.showDensityMap = !renderer.showDensityMap;
     toolbar.refreshDensityMap(renderer.showDensityMap);
+    return;
+  }
+
+  // A 键切换年龄叠加层
+  if (e.code === 'KeyA') {
+    renderer.showAgeOverlay = !renderer.showAgeOverlay;
+    toolbar.refreshAgeOverlay(renderer.showAgeOverlay);
     return;
   }
 
