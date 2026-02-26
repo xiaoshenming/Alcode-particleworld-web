@@ -367,6 +367,11 @@ import './materials/LiquidLanthanum';
 import './materials/ArsenicTrifluoride';
 import './materials/Pyrophyllite';
 import './materials/Sonoluminescent';
+import './materials/Neodymium';
+import './materials/LiquidNeodymium';
+import './materials/TungstenHexafluoride';
+import './materials/Hornblende';
+import './materials/MagnetoOptical';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';

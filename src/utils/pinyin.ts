@@ -129,6 +129,7 @@ const EXACT_PINYIN: Record<string, string> = {
   '铌铁合金': 'NTHJ', '液态铌铁': 'YTNT', '甲硅烷': 'JGW',
   '变质辉绿岩': 'BZHLY', '热致变色材料': 'RZBSCL',
   '石棉': 'SM',
+  '钕': 'N', '液态钕': 'YTN', '六氟化钨': 'LFHW', '角闪石': 'JSS', '磁光材料': 'CGCL',
 };
 
 /**
