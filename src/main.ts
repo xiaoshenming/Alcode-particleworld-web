@@ -322,6 +322,11 @@ import './materials/MoltenGermanium';
 import './materials/HydrogenBromide';
 import './materials/Pyroxenite';
 import './materials/FlexSolar';
+import './materials/Ferroniobium';
+import './materials/MoltenFerroniobium';
+import './materials/Silane';
+import './materials/MetaDiabas';
+import './materials/Thermochromic';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
