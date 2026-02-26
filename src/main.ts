@@ -664,6 +664,11 @@ import './materials/MoltenTantalumHafnium';
 import './materials/HighPurityCeriumFluoride';
 import './materials/ElongateGneiss';
 import './materials/AcoustoOptoMagneticMaterial';
+import './materials/TantalumTungstenAlloy';
+import './materials/MoltenTantalumTungsten';
+import './materials/HighPurityLanthanumCeriumFluoride';
+import './materials/DiabaseGneiss';
+import './materials/ThermoAcoustoMagneticMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
