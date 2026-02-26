@@ -461,6 +461,12 @@ import './materials/MoltenTitaniumNiobium';
 import './materials/PotassiumFluoride';
 import './materials/GreenMudstone';
 import './materials/ElectroacousticMaterial';
+// v35.1 新材质 (ID 461~465)
+import './materials/NiobiumTantalumAlloy';
+import './materials/MoltenNiobiumTantalum';
+import './materials/CalciumSodiumFluoride';
+import './materials/EpidoteRock';
+import './materials/PhotoacoustoelectricMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
