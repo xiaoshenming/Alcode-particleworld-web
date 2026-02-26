@@ -899,6 +899,41 @@ import './materials/HighPurityYttriumDysprosiumFluoride';
 import './materials/ZirconGneiss2';
 import './materials/ThermoMagnetoPhotoMaterial2';
 
+// v51.0 (ID 851~855)
+import './materials/HafniumThuliumAlloy';
+import './materials/MoltenHafniumThulium';
+import './materials/HighPurityCeriumTerbiumFluoride';
+import './materials/ApatiteGneiss2';
+import './materials/PhotoMagnetoThermalMaterial2';
+
+// v51.1 (ID 856~860)
+import './materials/HafniumErbiumAlloy';
+import './materials/MoltenHafniumErbium';
+import './materials/HighPurityLanthanumTerbiumFluoride';
+import './materials/TourmalineGneiss2';
+import './materials/AcoustoElectroMagneticMaterial2';
+
+// v51.2 (ID 861~865)
+import './materials/HafniumHolmiumAlloy';
+import './materials/MoltenHafniumHolmium';
+import './materials/HighPurityNeodymiumTerbiumFluoride';
+import './materials/TopazGneiss2';
+import './materials/ThermoElectroPhotoMaterial2';
+
+// v51.3 (ID 866~870)
+import './materials/HafniumEuropiumAlloy';
+import './materials/MoltenHafniumEuropium';
+import './materials/HighPurityGadoliniumTerbiumFluoride';
+import './materials/FluoriteGneiss2';
+import './materials/MagnetoAcoustoElectricMaterial2';
+
+// v51.4 (ID 871~875)
+import './materials/HafniumSamariumAlloy';
+import './materials/MoltenHafniumSamarium';
+import './materials/HighPuritySamariumTerbiumFluoride';
+import './materials/BariteGneiss2';
+import './materials/ElectroThermoMagneticMaterial2';
+
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
 import { Renderer } from './core/Renderer';
