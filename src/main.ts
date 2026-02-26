@@ -674,6 +674,11 @@ import './materials/MoltenTantalumMolybdenum';
 import './materials/HighPurityNeodymiumLanthanumFluoride';
 import './materials/AmphiboleGneiss';
 import './materials/ElectroMagnetoSonicMaterial';
+import './materials/TantalumRheniumAlloy';
+import './materials/MoltenTantalumRhenium';
+import './materials/HighPurityGadoliniumCeriumFluoride';
+import './materials/CordieriteGneiss';
+import './materials/PhotoAcoustoMagneticMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
