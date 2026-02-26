@@ -473,6 +473,12 @@ import './materials/MoltenNiobiumZirconium';
 import './materials/RubidiumFluoride';
 import './materials/GreenSlateSchist';
 import './materials/MagnetoelectroacousticMaterial';
+// v35.4 新材质 (ID 471~475)
+import './materials/NiobiumHafniumAlloy';
+import './materials/MoltenNiobiumHafnium';
+import './materials/CesiumFluoride';
+import './materials/ChloriteMudrock';
+import './materials/AcoustoelectroopticMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
