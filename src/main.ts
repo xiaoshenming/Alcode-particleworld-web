@@ -347,6 +347,11 @@ import './materials/MoltenSamarium';
 import './materials/SulfurHexafluoride';
 import './materials/Breccia';
 import './materials/FerroelectricMaterial';
+import './materials/Europium';
+import './materials/MoltenEuropium';
+import './materials/BoronTrifluoride';
+import './materials/GneissGranite';
+import './materials/PyroelectricMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
