@@ -1018,6 +1018,27 @@ import './materials/HighPurityErbiumLutetiumFluoride';
 import './materials/EpidoteGneiss3';
 import './materials/AcoustoElectroMagneticMaterial3';
 
+// v54.2 (ID 936~940)
+import './materials/MolybdenumNeodymiumAlloy';
+import './materials/MoltenMolybdenumNeodymium';
+import './materials/HighPurityHolmiumLutetiumFluoride';
+import './materials/AmphiboleGneiss2';
+import './materials/ElectroPhotoThermalMaterial3';
+
+// v54.3 (ID 941~945)
+import './materials/MolybdenumGadoliniumAlloy';
+import './materials/MoltenMolybdenumGadolinium';
+import './materials/HighPurityEuropiumLutetiumFluoride';
+import './materials/PyroxeneGneiss2';
+import './materials/MagnetoAcoustoPhotoMaterial2';
+
+// v54.4 (ID 946~950)
+import './materials/MolybdenumDysprosiumAlloy';
+import './materials/MoltenMolybdenumDysprosium';
+import './materials/HighPurityYttriumLutetiumFluoride';
+import './materials/GraphiteGneiss2';
+import './materials/ThermoMagnetoAcousticMaterial2';
+
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
 import { Renderer } from './core/Renderer';
