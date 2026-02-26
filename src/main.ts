@@ -514,6 +514,11 @@ import './materials/MoltenNiobiumTungsten';
 import './materials/StrontiumFluoride';
 import './materials/BlueschistGneiss';
 import './materials/ThermomagnetoopticMaterial';
+import './materials/NiobiumCobaltAlloy';
+import './materials/MoltenNiobiumCobalt';
+import './materials/BariumSodiumFluoride';
+import './materials/PyroxeneSchist';
+import './materials/Photomagnetothermal';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
