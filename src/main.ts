@@ -352,6 +352,11 @@ import './materials/MoltenEuropium';
 import './materials/BoronTrifluoride';
 import './materials/GneissGranite';
 import './materials/PyroelectricMaterial';
+import './materials/Cerium';
+import './materials/MoltenCerium';
+import './materials/CarbonTetrachloride';
+import './materials/SerpentinizedPeridotite';
+import './materials/ElectrothermalMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
