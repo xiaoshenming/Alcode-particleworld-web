@@ -422,6 +422,11 @@ import './materials/MoltenBeryllium';
 import './materials/AmmoniumFluoride';
 import './materials/Syenite';
 import './materials/PhotomagneticMaterial';
+import './materials/Gallium';
+import './materials/MoltenGallium';
+import './materials/CalciumFluoride';
+import './materials/Larvikite';
+import './materials/ThermomagneticMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
