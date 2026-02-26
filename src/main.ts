@@ -559,6 +559,11 @@ import './materials/MoltenNiobiumPlatinum';
 import './materials/GadoliniumFluoride';
 import './materials/WollastoniteSchist';
 import './materials/MagnetoOptoAcousticMaterial';
+import './materials/NiobiumIridiumAlloy';
+import './materials/MoltenNiobiumIridium';
+import './materials/DysprosiumFluoride';
+import './materials/DiopsideSchist';
+import './materials/ElectroOptoAcousticMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
