@@ -634,6 +634,11 @@ import './materials/MoltenNiobiumGadolinium';
 import './materials/HighPuritySamariumFluoride';
 import './materials/SerpentineGneiss';
 import './materials/MagnetoAcoustoOpticMaterial';
+import './materials/NiobiumHolmiumAlloy';
+import './materials/MoltenNiobiumHolmium';
+import './materials/HighPurityTerbiumFluoride';
+import './materials/SyeniteGneiss';
+import './materials/ThermoAcoustoOpticMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
