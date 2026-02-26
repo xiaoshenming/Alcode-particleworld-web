@@ -377,6 +377,11 @@ import './materials/LiquidGadolinium';
 import './materials/BoronTrichloride';
 import './materials/Phyllite';
 import './materials/Magnetoresistive';
+import './materials/Ytterbium';
+import './materials/LiquidYtterbium';
+import './materials/GermaniumTetrafluoride';
+import './materials/SerpentinizedPeridotite2';
+import './materials/ElectrorheologicalFluid';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
