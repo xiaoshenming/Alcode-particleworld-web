@@ -1109,6 +1109,41 @@ import './materials/HighPurityYttriumScandiumFluoride';
 import './materials/WollastoniteGneiss3';
 import './materials/PhotoAcoustoElectricMaterial2';
 
+// v57.0 (ID 1001~1005)
+import './materials/TungstenThuliumAlloy';
+import './materials/MoltenTungstenThulium';
+import './materials/HighPurityCeriumYttriumFluoride';
+import './materials/FibrolitGneiss3';
+import './materials/ThermoMagnetoAcousticMaterial3';
+
+// v57.1 (ID 1006~1010)
+import './materials/TungstenErbiumAlloy';
+import './materials/MoltenTungstenErbium';
+import './materials/HighPurityLanthanumYttriumFluoride';
+import './materials/GraphiteGneiss3';
+import './materials/ElectroPhotoAcousticMaterial2';
+
+// v57.2 (ID 1011~1015)
+import './materials/TungstenHolmiumAlloy';
+import './materials/MoltenTungstenHolmium';
+import './materials/HighPurityNeodymiumYttriumFluoride';
+import './materials/PyroxeneGneiss3';
+import './materials/AcoustoThermoElectricMaterial4';
+
+// v57.3 (ID 1016~1020)
+import './materials/TungstenEuropiumAlloy';
+import './materials/MoltenTungstenEuropium';
+import './materials/HighPurityGadoliniumYttriumFluoride';
+import './materials/AmphiboleGneiss3';
+import './materials/MagnetoPhotoThermalMaterial2';
+
+// v57.4 (ID 1021~1025)
+import './materials/TungstenSamariumAlloy';
+import './materials/MoltenTungstenSamarium';
+import './materials/HighPurityDysprosiumYttriumFluoride';
+import './materials/ChiastoliteGneiss3';
+import './materials/PhotoElectroAcousticMaterial3';
+
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
 import { Renderer } from './core/Renderer';
