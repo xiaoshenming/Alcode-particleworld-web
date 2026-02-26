@@ -33,6 +33,9 @@ export class Toolbar {
   private brushLabel!: HTMLSpanElement;
   private brushSlider!: HTMLInputElement;
   private brushShapeBtns: HTMLButtonElement[] = [];
+  private sprayDensityLabel!: HTMLSpanElement;
+  private sprayDensitySlider!: HTMLInputElement;
+  private sprayDensityRow!: HTMLElement;
   private speedLabel!: HTMLSpanElement;
   private speedSlider!: HTMLInputElement;
   private tempOverlayBtn!: HTMLButtonElement;
@@ -97,8 +100,12 @@ export class Toolbar {
   refreshBrushShape(): void {
     const current = this.input.getBrushShape();
     for (const btn of this.brushShapeBtns) {
-      const shape = btn.title.includes('圆') ? 'circle' : btn.title.includes('方') ? 'square' : 'line';
+      const shape = btn.title.includes('圆') ? 'circle' : btn.title.includes('方') ? 'square' : btn.title.includes('线') ? 'line' : 'spray';
       btn.classList.toggle('active', shape === current);
+    }
+    // 喷雾密度行仅在喷雾模式下显示
+    if (this.sprayDensityRow) {
+      this.sprayDensityRow.style.display = current === 'spray' ? '' : 'none';
     }
   }
 
@@ -139,6 +146,13 @@ export class Toolbar {
     const on = this.input.getMirrorMode();
     this.mirrorBtn.classList.toggle('active', on);
     this.mirrorBtn.textContent = on ? '镜像: 开' : '镜像';
+  }
+
+  /** 刷新喷雾密度显示 */
+  refreshSprayDensity(): void {
+    const val = Math.round(this.input.getSprayDensity() * 100);
+    this.sprayDensityLabel.textContent = `密度: ${val}%`;
+    this.sprayDensitySlider.value = String(val);
   }
 
   /** 加载收藏夹 */
@@ -398,12 +412,13 @@ export class Toolbar {
       { shape: 'circle', label: '●' },
       { shape: 'square', label: '■' },
       { shape: 'line', label: '╱' },
+      { shape: 'spray', label: '✦' },
     ];
     for (const { shape, label } of shapes) {
       const btn = document.createElement('button');
       btn.className = 'ctrl-btn brush-shape-btn';
       btn.textContent = label;
-      btn.title = shape === 'circle' ? '圆形笔刷' : shape === 'square' ? '方形笔刷' : '线条笔刷';
+      btn.title = shape === 'circle' ? '圆形笔刷' : shape === 'square' ? '方形笔刷' : shape === 'line' ? '线条笔刷' : '喷雾笔刷';
       if (shape === this.input.getBrushShape()) btn.classList.add('active');
       btn.addEventListener('click', () => {
         this.input.setBrushShape(shape);
@@ -413,6 +428,31 @@ export class Toolbar {
       shapeDiv.appendChild(btn);
     }
     controlPanel.appendChild(shapeDiv);
+
+    // 喷雾密度控制（仅在喷雾模式下显示）
+    const sprayDensityDiv = document.createElement('div');
+    sprayDensityDiv.className = 'control-row';
+    sprayDensityDiv.style.display = this.input.getBrushShape() === 'spray' ? '' : 'none';
+    const sprayDensityLabel = document.createElement('span');
+    sprayDensityLabel.className = 'control-label';
+    sprayDensityLabel.textContent = `密度: ${Math.round(this.input.getSprayDensity() * 100)}%`;
+    const sprayDensitySlider = document.createElement('input');
+    sprayDensitySlider.type = 'range';
+    sprayDensitySlider.min = '10';
+    sprayDensitySlider.max = '100';
+    sprayDensitySlider.value = String(Math.round(this.input.getSprayDensity() * 100));
+    sprayDensitySlider.setAttribute('aria-label', '喷雾密度');
+    sprayDensitySlider.addEventListener('input', () => {
+      const val = parseInt(sprayDensitySlider.value);
+      this.input.setSprayDensity(val / 100);
+      sprayDensityLabel.textContent = `密度: ${val}%`;
+    });
+    this.sprayDensityLabel = sprayDensityLabel;
+    this.sprayDensitySlider = sprayDensitySlider;
+    this.sprayDensityRow = sprayDensityDiv;
+    sprayDensityDiv.appendChild(sprayDensityLabel);
+    sprayDensityDiv.appendChild(sprayDensitySlider);
+    controlPanel.appendChild(sprayDensityDiv);
 
     // 按钮行
     const btnRow = document.createElement('div');
@@ -645,7 +685,7 @@ export class Toolbar {
     this.container.appendChild(helpDiv);
     const keysDiv = document.createElement('div');
     keysDiv.className = 'control-row stats';
-    keysDiv.textContent = 'Space 暂停 · 1~0 材质 · [] 笔刷 · B 形状 · F 填充 · R 随机 · M 镜像 · S 统计 · -/= 速度';
+    keysDiv.textContent = 'Space 暂停 · 1~0 材质 · [] 笔刷 · B 形状 · D 密度 · F 填充 · R 随机 · M 镜像 · S 统计 · -/= 速度';
     this.container.appendChild(keysDiv);
 
     // 监听滚轮笔刷变化同步滑块

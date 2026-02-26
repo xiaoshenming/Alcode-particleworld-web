@@ -151,23 +151,51 @@ export class Renderer {
     const s = this.scale;
     this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
     this.ctx.lineWidth = 1;
-    this.ctx.beginPath();
 
-    if (shape === 'square') {
-      const x = (cx - r) * s;
-      const y = (cy - r) * s;
-      const size = (r * 2 + 1) * s;
-      this.ctx.rect(x, y, size, size);
-    } else {
-      // circle (default) and line use circle preview at cursor
+    if (shape === 'spray') {
+      // 喷雾预览：虚线圆 + 内部散点
+      this.ctx.setLineDash([3, 3]);
+      this.ctx.beginPath();
       this.ctx.arc(
         (cx + 0.5) * s,
         (cy + 0.5) * s,
         (r + 0.5) * s,
         0, Math.PI * 2,
       );
+      this.ctx.stroke();
+      this.ctx.setLineDash([]);
+      // 散点指示
+      this.ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+      const dots = Math.min(12, Math.max(4, r * 3));
+      for (let i = 0; i < dots; i++) {
+        const angle = (i / dots) * Math.PI * 2;
+        const dist = (r * 0.5 + (i % 3) * r * 0.15) * s;
+        const dx = Math.cos(angle) * dist;
+        const dy = Math.sin(angle) * dist;
+        this.ctx.fillRect(
+          (cx + 0.5) * s + dx - 1,
+          (cy + 0.5) * s + dy - 1,
+          2, 2,
+        );
+      }
+    } else if (shape === 'square') {
+      this.ctx.beginPath();
+      const x = (cx - r) * s;
+      const y = (cy - r) * s;
+      const size = (r * 2 + 1) * s;
+      this.ctx.rect(x, y, size, size);
+      this.ctx.stroke();
+    } else {
+      // circle (default) and line use circle preview at cursor
+      this.ctx.beginPath();
+      this.ctx.arc(
+        (cx + 0.5) * s,
+        (cy + 0.5) * s,
+        (r + 0.5) * s,
+        0, Math.PI * 2,
+      );
+      this.ctx.stroke();
     }
-    this.ctx.stroke();
   }
 
   /** 绘制线条预览（从起点到当前光标） */

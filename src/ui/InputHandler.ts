@@ -2,7 +2,7 @@ import { World } from '../core/World';
 import { getAllMaterials } from '../materials/registry';
 
 /** 笔刷形状类型 */
-export type BrushShape = 'circle' | 'square' | 'line';
+export type BrushShape = 'circle' | 'square' | 'line' | 'spray';
 /** 绘制模式 */
 export type DrawMode = 'brush' | 'fill';
 
@@ -25,6 +25,8 @@ export class InputHandler {
   private randomMode = false;
   /** 镜像绘制模式 */
   private mirrorMode = false;
+  /** 喷雾密度 (0.1~1.0) */
+  private sprayDensity = 0.4;
   /** 线条笔刷的起点 */
   private lineStartX = -1;
   private lineStartY = -1;
@@ -89,6 +91,14 @@ export class InputHandler {
 
   getMirrorMode(): boolean {
     return this.mirrorMode;
+  }
+
+  setSprayDensity(density: number): void {
+    this.sprayDensity = Math.max(0.1, Math.min(1.0, density));
+  }
+
+  getSprayDensity(): number {
+    return this.sprayDensity;
   }
 
   /** 获取当前绘制用的材质 ID（随机模式下每次调用返回不同材质） */
@@ -206,6 +216,23 @@ export class InputHandler {
   /** 在指定位置绘制（根据笔刷形状） */
   private drawAt(cx: number, cy: number): void {
     const r = Math.floor(this.brushSize / 2);
+
+    if (this.brushShape === 'spray') {
+      // 喷雾模式：在圆形范围内随机散布粒子
+      const area = Math.PI * r * r;
+      const count = Math.max(1, Math.floor(area * this.sprayDensity));
+      for (let i = 0; i < count; i++) {
+        // 极坐标随机采样，保证均匀分布
+        const angle = Math.random() * Math.PI * 2;
+        const dist = Math.sqrt(Math.random()) * (r + 0.5);
+        const x = cx + Math.round(Math.cos(angle) * dist);
+        const y = cy + Math.round(Math.sin(angle) * dist);
+        if (!this.world.inBounds(x, y)) continue;
+        this.placePixel(x, y, this.getDrawMaterial());
+      }
+      return;
+    }
+
     for (let dy = -r; dy <= r; dy++) {
       for (let dx = -r; dx <= r; dx++) {
         const x = cx + dx;

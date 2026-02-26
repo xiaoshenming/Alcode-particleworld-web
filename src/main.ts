@@ -457,7 +457,7 @@ document.addEventListener('keydown', (e) => {
 
   // B 键切换笔刷形状
   if (e.code === 'KeyB') {
-    const shapes = ['circle', 'square', 'line'] as const;
+    const shapes = ['circle', 'square', 'line', 'spray'] as const;
     const current = input.getBrushShape();
     const idx = shapes.indexOf(current);
     const next = shapes[(idx + 1) % shapes.length];
@@ -503,6 +503,17 @@ document.addEventListener('keydown', (e) => {
     input.setMirrorMode(!input.getMirrorMode());
     renderer.showMirrorLine = input.getMirrorMode();
     toolbar.refreshMirrorMode();
+    return;
+  }
+
+  // D 键循环喷雾密度 (20% → 40% → 60% → 80% → 100% → 20%)
+  if (e.code === 'KeyD') {
+    const current = Math.round(input.getSprayDensity() * 100);
+    const steps = [20, 40, 60, 80, 100];
+    const idx = steps.indexOf(current);
+    const next = steps[(idx + 1) % steps.length];
+    input.setSprayDensity(next / 100);
+    toolbar.refreshSprayDensity();
     return;
   }
 
