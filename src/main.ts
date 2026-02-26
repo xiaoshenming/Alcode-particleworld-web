@@ -417,6 +417,11 @@ import './materials/MoltenThorium';
 import './materials/IronTrifluoride';
 import './materials/Molybdenite';
 import './materials/ElectromagneticElastomer';
+import './materials/Beryllium';
+import './materials/MoltenBeryllium';
+import './materials/AmmoniumFluoride';
+import './materials/Syenite';
+import './materials/PhotomagneticMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
