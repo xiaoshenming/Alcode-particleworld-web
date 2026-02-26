@@ -307,6 +307,11 @@ import './materials/MoltenThallium';
 import './materials/Iodine';
 import './materials/Granulite';
 import './materials/PhotovoltaicMaterial';
+import './materials/Osmium';
+import './materials/MoltenOsmium';
+import './materials/Arsine';
+import './materials/Eclogite';
+import './materials/FlexCircuit';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
