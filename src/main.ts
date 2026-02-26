@@ -332,6 +332,11 @@ import './materials/MoltenDysprosium';
 import './materials/SiliconTetrafluoride';
 import './materials/Blueschist';
 import './materials/QuantumDot';
+import './materials/HafniumTerbiumAlloy';
+import './materials/MoltenHafniumTerbium';
+import './materials/HydrogenSelenide';
+import './materials/MicaSchist';
+import './materials/Electroluminescent';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
