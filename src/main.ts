@@ -392,6 +392,11 @@ import './materials/LiquidThulium';
 import './materials/SeleniumHexafluoride';
 import './materials/MicaGneiss';
 import './materials/PhotoelasticMaterial';
+import './materials/Erbium';
+import './materials/LiquidErbium';
+import './materials/ChlorineTrifluoride';
+import './materials/Hornfels2';
+import './materials/PhotoacousticMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
