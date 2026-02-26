@@ -529,6 +529,11 @@ import './materials/MoltenNiobiumZinc';
 import './materials/HafniumFluoride';
 import './materials/GarnetSchist';
 import './materials/Electromagnetothermal';
+import './materials/NiobiumAluminumAlloy';
+import './materials/MoltenNiobiumAluminum';
+import './materials/ThoriumFluoride';
+import './materials/CordieriteSchist';
+import './materials/Magnetoacoustothermal';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
