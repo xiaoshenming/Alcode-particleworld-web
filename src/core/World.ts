@@ -20,6 +20,8 @@ export class World implements WorldAPI {
   private _awakeNext: Uint8Array;
   /** 温度网格（Float32 精度，20=常温） */
   private _temp: Float32Array;
+  /** 粒子年龄网格（帧数，Uint16 最大 65535） */
+  private _age: Uint16Array;
   /** 风力方向（-1=左, 0=无, 1=右） */
   private _windDir = 0;
   /** 风力强度（0~1） */
@@ -35,6 +37,7 @@ export class World implements WorldAPI {
     this._awake = new Uint8Array(size);
     this._awakeNext = new Uint8Array(size);
     this._temp = new Float32Array(size);
+    this._age = new Uint16Array(size);
     this._temp.fill(20); // 常温 20°
 
     // 初始化为空气背景色
@@ -60,6 +63,8 @@ export class World implements WorldAPI {
     this.cells[i] = materialId;
     const mat = getMaterial(materialId);
     this.colors[i] = mat ? mat.color() : 0xFF3E2116;
+    // 新放置的粒子年龄归零
+    this._age[i] = 0;
     // 被修改的格子及其邻居需要唤醒
     this.wakeArea(x, y);
   }
@@ -83,6 +88,10 @@ export class World implements WorldAPI {
     const tmpTemp = this._temp[i1];
     this._temp[i1] = this._temp[i2];
     this._temp[i2] = tmpTemp;
+
+    const tmpAge = this._age[i1];
+    this._age[i1] = this._age[i2];
+    this._age[i2] = tmpAge;
 
     // 交换涉及的两个位置都需要唤醒
     this.wakeArea(x1, y1);
@@ -159,6 +168,31 @@ export class World implements WorldAPI {
     this._windStrength = Math.max(0, Math.min(1, strength));
   }
 
+  /** 获取粒子年龄（帧数） */
+  getAge(x: number, y: number): number {
+    return this._age[this.idx(x, y)];
+  }
+
+  /** 设置粒子年龄 */
+  setAge(x: number, y: number, age: number): void {
+    this._age[this.idx(x, y)] = Math.min(65535, Math.max(0, age));
+  }
+
+  /** 重置粒子年龄为 0 */
+  resetAge(x: number, y: number): void {
+    this._age[this.idx(x, y)] = 0;
+  }
+
+  /** 递增所有活跃非空粒子的年龄（每帧调用一次） */
+  tickAge(): void {
+    const len = this.cells.length;
+    for (let i = 0; i < len; i++) {
+      if (this.cells[i] !== 0 && this._awake[i] === 1 && this._age[i] < 65535) {
+        this._age[i]++;
+      }
+    }
+  }
+
   /** 温度扩散：每帧调用，热量向邻居传导 */
   diffuseTemperature(): void {
     const w = this.width;
@@ -216,6 +250,7 @@ export class World implements WorldAPI {
     this._awake.fill(0);
     this._awakeNext.fill(0);
     this._temp.fill(20);
+    this._age.fill(0);
   }
 
   /** 序列化世界状态为 JSON 字符串（只保存 cells） */
@@ -273,6 +308,10 @@ export class World implements WorldAPI {
         const tmpTemp = this._temp[i1];
         this._temp[i1] = this._temp[i2];
         this._temp[i2] = tmpTemp;
+        // 交换年龄
+        const tmpAge = this._age[i1];
+        this._age[i1] = this._age[i2];
+        this._age[i2] = tmpAge;
       }
     }
     // 唤醒所有非空粒子
@@ -297,6 +336,9 @@ export class World implements WorldAPI {
         const tmpTemp = this._temp[i1];
         this._temp[i1] = this._temp[i2];
         this._temp[i2] = tmpTemp;
+        const tmpAge = this._age[i1];
+        this._age[i1] = this._age[i2];
+        this._age[i2] = tmpAge;
       }
     }
     this._awakeNext.fill(1);
@@ -310,6 +352,7 @@ export class World implements WorldAPI {
     const newCells = new Uint16Array(size);
     const newColors = new Uint32Array(size);
     const newTemp = new Float32Array(size);
+    const newAge = new Uint16Array(size);
 
     for (let y = 0; y < h; y++) {
       for (let x = 0; x < w; x++) {
@@ -321,12 +364,14 @@ export class World implements WorldAPI {
         newCells[dstIdx] = this.cells[srcIdx];
         newColors[dstIdx] = this.colors[srcIdx];
         newTemp[dstIdx] = this._temp[srcIdx];
+        newAge[dstIdx] = this._age[srcIdx];
       }
     }
 
     this.cells.set(newCells);
     this.colors.set(newColors);
     this._temp.set(newTemp);
+    this._age.set(newAge);
     this._awakeNext.fill(1);
   }
 

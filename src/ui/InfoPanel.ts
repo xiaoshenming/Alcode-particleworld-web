@@ -80,9 +80,11 @@ export class InfoPanel {
     }
 
     const densityStr = mat.density === Infinity ? '∞' : mat.density.toFixed(1);
+    const age = this.world.getAge(x, y);
+    const ageStr = cellId === 0 ? '' : ` · 年龄: ${age}`;
 
     this.nameEl.textContent = mat.name;
-    this.detailEl.textContent = `ID: ${mat.id} · 密度: ${densityStr}`;
+    this.detailEl.textContent = `ID: ${mat.id} · 密度: ${densityStr}${ageStr}`;
     this.tempEl.textContent = `温度: ${temp.toFixed(1)}° · 坐标: (${x}, ${y})`;
     this.descEl.textContent = mat.description || '';
     this.descEl.style.display = mat.description ? '' : 'none';

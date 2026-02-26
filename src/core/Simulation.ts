@@ -114,6 +114,9 @@ export class Simulation {
     // 温度扩散
     this.world.diffuseTemperature();
 
+    // 粒子年龄递增
+    this.world.tickAge();
+
     // 边界处理
     if (this._boundary !== 'wall') {
       this.processBoundary();

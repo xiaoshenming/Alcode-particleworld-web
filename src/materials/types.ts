@@ -45,4 +45,10 @@ export interface WorldAPI {
   getWind(): number;
   /** 获取当前风力强度（0~1） */
   getWindStrength(): number;
+  /** 获取粒子年龄（帧数） */
+  getAge(x: number, y: number): number;
+  /** 设置粒子年龄 */
+  setAge(x: number, y: number, age: number): void;
+  /** 重置粒子年龄为 0 */
+  resetAge(x: number, y: number): void;
 }
