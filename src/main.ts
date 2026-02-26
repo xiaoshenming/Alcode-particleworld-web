@@ -619,6 +619,11 @@ import './materials/MoltenNiobiumTerbium';
 import './materials/HighPurityHolmiumFluoride';
 import './materials/MetaAmphiboliteSchist';
 import './materials/ThermoElectroOpticMaterial';
+import './materials/NiobiumSamariumAlloy';
+import './materials/MoltenNiobiumSamarium';
+import './materials/HighPurityErbiumFluoride';
+import './materials/ChloriteGneiss';
+import './materials/AcoustoElectroMagneticMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
