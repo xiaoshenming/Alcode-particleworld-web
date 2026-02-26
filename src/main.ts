@@ -449,6 +449,12 @@ import './materials/MoltenHafniumTungsten';
 import './materials/MagnesiumFluoride';
 import './materials/MixedGneiss';
 import './materials/ThermoacousticMaterial';
+// v34.4 新材质 (ID 451~455)
+import './materials/Scandium';
+import './materials/MoltenScandium';
+import './materials/SodiumFluoride';
+import './materials/AmphiboliteSchist';
+import './materials/MagnetoacousticMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
