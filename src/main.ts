@@ -584,6 +584,11 @@ import './materials/MoltenNiobiumRuthenium';
 import './materials/HolmiumFluoride';
 import './materials/ChloriteSchist';
 import './materials/PhotoMagnetoElectricMaterial';
+import './materials/NiobiumScandiumAlloy';
+import './materials/MoltenNiobiumScandium';
+import './materials/ErbiumFluoride';
+import './materials/SerpentiniteSchist';
+import './materials/ThermoMagnetoElectricMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
