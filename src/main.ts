@@ -934,6 +934,41 @@ import './materials/HighPuritySamariumTerbiumFluoride';
 import './materials/BariteGneiss2';
 import './materials/ElectroThermoMagneticMaterial2';
 
+// v52.0 (ID 876~880)
+import './materials/NiobiumLanthanumAlloy2';
+import './materials/MoltenNiobiumLanthanum2';
+import './materials/HighPurityThuliumTerbiumFluoride';
+import './materials/GarnetGneiss3';
+import './materials/PhotoThermoAcousticMaterial3';
+
+// v52.1 (ID 881~885)
+import './materials/NiobiumPraseodymiumAlloy';
+import './materials/MoltenNiobiumPraseodymium';
+import './materials/HighPurityErbiumTerbiumFluoride';
+import './materials/CordieriteGneiss3';
+import './materials/MagnetoElectroAcousticMaterial2';
+
+// v52.2 (ID 886~890)
+import './materials/NiobiumNeodymiumAlloy';
+import './materials/MoltenNiobiumNeodymium';
+import './materials/HighPurityHolmiumTerbiumFluoride';
+import './materials/StauroliteGneiss3';
+import './materials/ThermoAcoustoElectricMaterial2';
+
+// v52.3 (ID 891~895)
+import './materials/NiobiumGadoliniumAlloy2';
+import './materials/MoltenNiobiumGadolinium2';
+import './materials/HighPurityEuropiumTerbiumFluoride';
+import './materials/SillimaniteGneiss3';
+import './materials/ElectroAcoustoPhotoMaterial2';
+
+// v52.4 (ID 896~900)
+import './materials/NiobiumDysprosiumAlloy2';
+import './materials/MoltenNiobiumDysprosium2';
+import './materials/HighPurityYttriumTerbiumFluoride';
+import './materials/FibroliteGneiss2';
+import './materials/MagnetoThermoPhotoMaterial2';
+
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
 import { Renderer } from './core/Renderer';
