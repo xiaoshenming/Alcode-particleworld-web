@@ -698,7 +698,11 @@ import './materials/TantalumZirconiumAlloy';
 import './materials/MoltenTantalumZirconium';
 import './materials/HighPurityErbiumLanthanumFluoride';
 import './materials/AndalusiteGneiss';
-import './materials/ElectroThermoMagneticMaterial';
+import './materials/TantalumCobaltAlloy';
+import './materials/MoltenTantalumCobalt';
+import './materials/HighPurityLutetiumLanthanumFluoride';
+import './materials/WollastoniteGneiss';
+import './materials/PhotoMagnetoAcousticMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
