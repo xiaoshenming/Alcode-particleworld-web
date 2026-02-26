@@ -146,7 +146,7 @@ export class Renderer {
   }
 
   /** 绘制笔刷预览 */
-  renderBrushPreview(cx: number, cy: number, brushSize: number, shape: string = 'circle', gradient: boolean = false): void {
+  renderBrushPreview(cx: number, cy: number, brushSize: number, shape: string = 'circle', gradient: boolean = false, angle: number = 0): void {
     const r = Math.floor(brushSize / 2);
     const s = this.scale;
     this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
@@ -179,12 +179,16 @@ export class Renderer {
         );
       }
     } else if (shape === 'square') {
+      const centerX = (cx + 0.5) * s;
+      const centerY = (cy + 0.5) * s;
+      const halfSize = (r + 0.5) * s;
+      this.ctx.save();
+      this.ctx.translate(centerX, centerY);
+      this.ctx.rotate(angle);
       this.ctx.beginPath();
-      const x = (cx - r) * s;
-      const y = (cy - r) * s;
-      const size = (r * 2 + 1) * s;
-      this.ctx.rect(x, y, size, size);
+      this.ctx.rect(-halfSize, -halfSize, halfSize * 2, halfSize * 2);
       this.ctx.stroke();
+      this.ctx.restore();
     } else {
       // circle (default) and line use circle preview at cursor
       this.ctx.beginPath();

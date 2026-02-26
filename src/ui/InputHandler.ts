@@ -31,6 +31,8 @@ export class InputHandler {
   private gradientBrush = false;
   /** 替换模式的目标材质 ID */
   private replaceTarget = -1;
+  /** 笔刷旋转角度（弧度，仅方形笔刷生效） */
+  private brushAngle = 0;
   /** 线条笔刷的起点 */
   private lineStartX = -1;
   private lineStartY = -1;
@@ -113,6 +115,15 @@ export class InputHandler {
     return this.gradientBrush;
   }
 
+  setBrushAngle(angle: number): void {
+    // 归一化到 0~2π
+    this.brushAngle = ((angle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+  }
+
+  getBrushAngle(): number {
+    return this.brushAngle;
+  }
+
   /** 获取当前绘制用的材质 ID（随机模式下每次调用返回不同材质） */
   private getDrawMaterial(): number {
     if (this.erasing) return 0;
@@ -189,12 +200,18 @@ export class InputHandler {
       this.lineStartY = -1;
     });
 
-    // 滚轮调整笔刷大小
+    // 滚轮调整笔刷大小 / Shift+滚轮旋转方形笔刷
     this.canvas.addEventListener('wheel', (e) => {
       e.preventDefault();
-      this.setBrushSize(this.brushSize + (e.deltaY < 0 ? 1 : -1));
-      // 触发自定义事件通知 Toolbar 更新
-      this.canvas.dispatchEvent(new CustomEvent('brushchange', { detail: this.brushSize }));
+      if (e.shiftKey && this.brushShape === 'square') {
+        // Shift+滚轮：旋转方形笔刷（每次 15°）
+        const step = Math.PI / 12; // 15°
+        this.setBrushAngle(this.brushAngle + (e.deltaY < 0 ? step : -step));
+        this.canvas.dispatchEvent(new CustomEvent('brushanglechange', { detail: this.brushAngle }));
+      } else {
+        this.setBrushSize(this.brushSize + (e.deltaY < 0 ? 1 : -1));
+        this.canvas.dispatchEvent(new CustomEvent('brushchange', { detail: this.brushSize }));
+      }
     }, { passive: false });
 
     // 触摸支持
@@ -238,13 +255,22 @@ export class InputHandler {
     if (this.drawMode === 'replace' && !this.erasing && this.replaceTarget >= 0) {
       const matId = this.getDrawMaterial();
       if (matId === this.replaceTarget) return; // 相同材质无需替换
-      for (let dy = -r; dy <= r; dy++) {
-        for (let dx = -r; dx <= r; dx++) {
+      const replScanR = (this.brushShape === 'square' && this.brushAngle !== 0)
+        ? Math.ceil(r * 1.42) : r;
+      for (let dy = -replScanR; dy <= replScanR; dy++) {
+        for (let dx = -replScanR; dx <= replScanR; dx++) {
           const x = cx + dx;
           const y = cy + dy;
           if (!this.world.inBounds(x, y)) continue;
           if (this.brushShape === 'circle' || this.brushShape === 'spray') {
             if (dx * dx + dy * dy > r * r) continue;
+          }
+          if (this.brushShape === 'square' && this.brushAngle !== 0) {
+            const cos = Math.cos(-this.brushAngle);
+            const sin = Math.sin(-this.brushAngle);
+            const rx = dx * cos - dy * sin;
+            const ry = dx * sin + dy * cos;
+            if (Math.abs(rx) > r || Math.abs(ry) > r) continue;
           }
           if (this.world.get(x, y) === this.replaceTarget) {
             this.world.set(x, y, matId);
@@ -276,13 +302,26 @@ export class InputHandler {
       return;
     }
 
-    for (let dy = -r; dy <= r; dy++) {
-      for (let dx = -r; dx <= r; dx++) {
+    // 旋转方形笔刷时扩大扫描范围
+    const scanR = (this.brushShape === 'square' && this.brushAngle !== 0)
+      ? Math.ceil(r * 1.42) // √2 ≈ 1.414
+      : r;
+
+    for (let dy = -scanR; dy <= scanR; dy++) {
+      for (let dx = -scanR; dx <= scanR; dx++) {
         const x = cx + dx;
         const y = cy + dy;
         if (!this.world.inBounds(x, y)) continue;
         if (this.brushShape === 'circle') {
           if (dx * dx + dy * dy > r * r) continue;
+        }
+        // 方形笔刷旋转：逆旋转判断点是否在原始方形内
+        if (this.brushShape === 'square' && this.brushAngle !== 0) {
+          const cos = Math.cos(-this.brushAngle);
+          const sin = Math.sin(-this.brushAngle);
+          const rx = dx * cos - dy * sin;
+          const ry = dx * sin + dy * cos;
+          if (Math.abs(rx) > r || Math.abs(ry) > r) continue;
         }
         // 渐变笔刷：边缘放置概率降低
         if (this.gradientBrush && r > 1) {

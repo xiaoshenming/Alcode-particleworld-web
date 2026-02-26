@@ -592,7 +592,7 @@ function loop() {
 
   // 笔刷预览
   if (input.cursorVisible) {
-    renderer.renderBrushPreview(input.cursorX, input.cursorY, input.getBrushSize(), input.getBrushShape(), input.getGradientBrush());
+    renderer.renderBrushPreview(input.cursorX, input.cursorY, input.getBrushSize(), input.getBrushShape(), input.getGradientBrush(), input.getBrushAngle());
     // 线条模式预览
     if (input.isDrawingLine()) {
       const [lx, ly] = input.getLineStart();
