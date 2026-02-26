@@ -31,6 +31,7 @@ export interface ToolbarCallbacks {
   getSpeed: () => number;
   setSpeed: (speed: number) => void;
   setWind: (dir: number, strength: number) => void;
+  onCycleWeather?: () => string;
 }
 
 /**
@@ -83,6 +84,8 @@ export class Toolbar {
   private snapBBtn!: HTMLButtonElement;
   private snapCompareBtn!: HTMLButtonElement;
   private snapshotOverlay: HTMLElement | null = null;
+  /** 天气按钮 */
+  private weatherBtn!: HTMLButtonElement;
 
   constructor(input: InputHandler, callbacks: ToolbarCallbacks) {
     this.input = input;
@@ -201,6 +204,12 @@ export class Toolbar {
     const on = this.input.getGradientBrush();
     this.gradientBtn.classList.toggle('active', on);
     this.gradientBtn.textContent = on ? '渐变: 开' : '渐变';
+  }
+
+  /** 刷新天气按钮状态 */
+  refreshWeather(label: string): void {
+    this.weatherBtn.textContent = `天气: ${label}`;
+    this.weatherBtn.classList.toggle('active', label !== '晴天');
   }
 
   /** 加载收藏夹 */
@@ -1076,6 +1085,23 @@ export class Toolbar {
     windDiv.appendChild(windSlider);
     controlPanel.appendChild(windDiv);
 
+    // 天气切换按钮
+    const weatherRow = document.createElement('div');
+    weatherRow.className = 'control-row';
+    this.weatherBtn = document.createElement('button');
+    this.weatherBtn.className = 'ctrl-btn';
+    this.weatherBtn.textContent = '天气: 晴天';
+    this.weatherBtn.title = '切换天气 (W) · 晴天/雨天/雪天/沙尘暴/酸雨';
+    this.weatherBtn.addEventListener('click', () => {
+      if (this.callbacks.onCycleWeather) {
+        const label = this.callbacks.onCycleWeather();
+        this.weatherBtn.textContent = `天气: ${label}`;
+        this.weatherBtn.classList.toggle('active', label !== '晴天');
+      }
+    });
+    weatherRow.appendChild(this.weatherBtn);
+    controlPanel.appendChild(weatherRow);
+
     // 粒子计数
     const statsDiv = document.createElement('div');
     statsDiv.className = 'control-row stats';
@@ -1098,7 +1124,7 @@ export class Toolbar {
     this.container.appendChild(helpDiv);
     const keysDiv = document.createElement('div');
     keysDiv.className = 'control-row stats';
-    keysDiv.textContent = 'Space 暂停 · 1~0 材质 · [] 笔刷 · B 形状 · D 密度 · G 渐变 · F 填充 · X 替换 · R 随机 · M 镜像 · S 统计 · -/= 速度';
+    keysDiv.textContent = 'Space 暂停 · 1~0 材质 · [] 笔刷 · B 形状 · D 密度 · G 渐变 · F 填充 · X 替换 · R 随机 · M 镜像 · W 天气 · S 统计 · -/= 速度';
     this.container.appendChild(keysDiv);
 
     // 监听滚轮笔刷变化同步滑块

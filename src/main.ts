@@ -438,6 +438,10 @@ const toolbar = new Toolbar(input, {
   getSpeed: () => simSpeed,
   setSpeed: (s: number) => { simSpeed = Math.max(1, Math.min(5, s)); },
   setWind: (dir: number, strength: number) => { world.setWind(dir, strength); },
+  onCycleWeather: () => {
+    simulation.cycleWeather();
+    return simulation.getWeatherLabel();
+  },
 });
 
 // 常用材质快捷键映射（数字键 1~9, 0）
@@ -574,6 +578,13 @@ document.addEventListener('keydown', (e) => {
   // Q 键顺时针旋转世界 90°
   if (e.code === 'KeyQ') {
     world.rotateCW();
+    return;
+  }
+
+  // W 键循环切换天气
+  if (e.code === 'KeyW') {
+    const label = simulation.cycleWeather();
+    toolbar.refreshWeather(label);
     return;
   }
 
