@@ -663,6 +663,14 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
+// 小地图点击拦截（capture 阶段优先处理）
+canvas.addEventListener('mousedown', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  if (renderer.minimapClick(e.clientX - rect.left, e.clientY - rect.top)) {
+    e.stopPropagation();
+  }
+}, true);
+
 // FPS 图表
 const fpsGraph = new FpsGraph();
 

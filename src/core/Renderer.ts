@@ -20,6 +20,8 @@ export class Renderer {
   showGrid = false;
   /** 镜像线开关 */
   showMirrorLine = false;
+  /** 小地图开关（缩放时自动显示） */
+  showMinimap = true;
   /** 视图缩放倍率 (1.0 = 原始) */
   viewZoom = 1.0;
   /** 视图平移偏移（像素坐标） */
@@ -95,6 +97,11 @@ export class Renderer {
     }
 
     this.ctx.restore();
+
+    // 小地图（缩放/平移非默认时显示）
+    if (this.showMinimap && (this.viewZoom !== 1.0 || this.viewPanX !== 0 || this.viewPanY !== 0)) {
+      this.drawMinimap(canvasW, canvasH);
+    }
   }
 
   /** 将温度数据叠加到像素缓冲区（蓝=冷，红=热） */
@@ -258,6 +265,69 @@ export class Renderer {
     const gx = Math.floor((screenX - this.viewPanX) / (this.scale * this.viewZoom));
     const gy = Math.floor((screenY - this.viewPanY) / (this.scale * this.viewZoom));
     return [gx, gy];
+  }
+
+  /** 绘制右下角小地图 */
+  private drawMinimap(canvasW: number, canvasH: number): void {
+    const margin = 8;
+    const mapW = 120;
+    const mapH = Math.round(mapW * this.gridHeight / this.gridWidth);
+
+    const mx = canvasW - mapW - margin;
+    const my = canvasH - mapH - margin;
+
+    // 半透明背景
+    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+    this.ctx.fillRect(mx - 1, my - 1, mapW + 2, mapH + 2);
+
+    // 绘制缩略世界
+    this.ctx.drawImage(this.tempCanvas, mx, my, mapW, mapH);
+
+    // 计算当前视口在世界中的范围
+    const worldW = this.gridWidth * this.scale;
+    const worldH = this.gridHeight * this.scale;
+    const vx = -this.viewPanX / (this.viewZoom * worldW);
+    const vy = -this.viewPanY / (this.viewZoom * worldH);
+    const vw = canvasW / (this.viewZoom * worldW);
+    const vh = canvasH / (this.viewZoom * worldH);
+
+    // 视口矩形
+    this.ctx.strokeStyle = 'rgba(255, 255, 100, 0.8)';
+    this.ctx.lineWidth = 1.5;
+    this.ctx.strokeRect(
+      mx + vx * mapW,
+      my + vy * mapH,
+      Math.max(4, vw * mapW),
+      Math.max(3, vh * mapH),
+    );
+  }
+
+  /** 小地图点击定位：传入屏幕坐标，返回是否命中小地图 */
+  minimapClick(screenX: number, screenY: number): boolean {
+    if (!this.showMinimap) return false;
+    if (this.viewZoom === 1.0 && this.viewPanX === 0 && this.viewPanY === 0) return false;
+
+    const canvasW = this.gridWidth * this.scale;
+    const canvasH = this.gridHeight * this.scale;
+    const margin = 8;
+    const mapW = 120;
+    const mapH = Math.round(mapW * this.gridHeight / this.gridWidth);
+    const mx = canvasW - mapW - margin;
+    const my = canvasH - mapH - margin;
+
+    if (screenX < mx || screenX > mx + mapW || screenY < my || screenY > my + mapH) return false;
+
+    // 点击位置对应世界中的归一化坐标
+    const nx = (screenX - mx) / mapW;
+    const ny = (screenY - my) / mapH;
+
+    // 将该点居中到视口
+    const worldW = this.gridWidth * this.scale;
+    const worldH = this.gridHeight * this.scale;
+    this.viewPanX = canvasW / 2 - nx * worldW * this.viewZoom;
+    this.viewPanY = canvasH / 2 - ny * worldH * this.viewZoom;
+
+    return true;
   }
 
   /** 重置视图缩放和平移 */
