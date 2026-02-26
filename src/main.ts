@@ -372,6 +372,11 @@ import './materials/LiquidNeodymium';
 import './materials/TungstenHexafluoride';
 import './materials/Hornblende';
 import './materials/MagnetoOptical';
+import './materials/Gadolinium';
+import './materials/LiquidGadolinium';
+import './materials/BoronTrichloride';
+import './materials/Phyllite';
+import './materials/Magnetoresistive';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';

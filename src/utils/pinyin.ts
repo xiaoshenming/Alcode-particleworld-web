@@ -130,6 +130,7 @@ const EXACT_PINYIN: Record<string, string> = {
   '变质辉绿岩': 'BZHLY', '热致变色材料': 'RZBSCL',
   '石棉': 'SM',
   '钕': 'N', '液态钕': 'YTN', '六氟化钨': 'LFHW', '角闪石': 'JSS', '磁光材料': 'CGCL',
+  '钆': 'G', '液态钆': 'YTG', '三氯化硼': 'SLHP', '千枚岩': 'QMY', '磁阻材料': 'CZCL',
 };
 
 /**
