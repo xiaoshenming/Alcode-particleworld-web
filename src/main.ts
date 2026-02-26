@@ -609,6 +609,11 @@ import './materials/MoltenNiobiumBeryllium';
 import './materials/ThuliumFluoride';
 import './materials/LabradoriteSchist';
 import './materials/MagnetoThermoElectricMaterial';
+import './materials/NiobiumDysprosiumAlloy';
+import './materials/MoltenNiobiumDysprosium';
+import './materials/YtterbiumFluoride';
+import './materials/DiabaseSchist';
+import './materials/ElectromagnetoOpticMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
