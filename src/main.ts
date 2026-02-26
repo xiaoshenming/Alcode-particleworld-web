@@ -479,6 +479,12 @@ import './materials/MoltenNiobiumHafnium';
 import './materials/CesiumFluoride';
 import './materials/ChloriteMudrock';
 import './materials/AcoustoelectroopticMaterial';
+// v36.0 新材质 (ID 476~480)
+import './materials/NiobiumMolybdenumAlloy';
+import './materials/MoltenNiobiumMolybdenum';
+import './materials/ThalliumFluoride';
+import './materials/GreenCurtainSchist';
+import './materials/ElectroopticoacousticMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
