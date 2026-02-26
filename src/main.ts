@@ -1104,6 +1104,12 @@ document.addEventListener('keydown', (e) => {
     return;
   }
 
+  // U 键切换温度计 HUD
+  if (e.code === 'KeyU') {
+    renderer.showThermometer = !renderer.showThermometer;
+    return;
+  }
+
   // Shift+Arrow 翻转世界
   if (e.shiftKey && e.code === 'ArrowUp') {
     e.preventDefault();
@@ -1345,6 +1351,20 @@ function loop() {
     if (input.isDrawingLine()) {
       const [lx, ly] = input.getLineStart();
       renderer.renderLinePreview(lx, ly, input.cursorX, input.cursorY);
+    }
+  }
+
+  // 温度计 HUD
+  if (renderer.showThermometer && input.cursorVisible) {
+    const gx = input.cursorX, gy = input.cursorY;
+    if (world.inBounds(gx, gy)) {
+      const temp = world.getTemp(gx, gy);
+      const matId = world.get(gx, gy);
+      const mat = getMaterial(matId);
+      const name = mat ? mat.name : '空气';
+      const sx = (gx + 0.5) * PIXEL_SCALE * renderer.viewZoom + renderer.viewPanX;
+      const sy = (gy + 0.5) * PIXEL_SCALE * renderer.viewZoom + renderer.viewPanY;
+      renderer.renderThermometer(sx, sy, temp, name);
     }
   }
 

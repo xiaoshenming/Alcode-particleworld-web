@@ -22,6 +22,8 @@ export class Renderer {
   showAgeOverlay = false;
   /** 轨迹叠加层开关 */
   showTrailOverlay = false;
+  /** 温度计 HUD 开关 */
+  showThermometer = false;
   /** 网格线开关 */
   showGrid = false;
   /** 镜像线开关 */
@@ -618,6 +620,93 @@ export class Renderer {
     this.ctx.fillRect(bx, by, bw, bh);
     this.ctx.fillStyle = 'rgba(100, 200, 255, 0.95)';
     this.ctx.fillText(text, bx + pad, by + 13);
+    this.ctx.restore();
+  }
+
+  /** 绘制鼠标旁温度计 HUD（温度条 + 材质名 + 温度值） */
+  renderThermometer(screenX: number, screenY: number, temp: number, matName: string): void {
+    this.ctx.save();
+
+    // 温度计位置：鼠标右上方偏移
+    const tx = screenX + 16;
+    const ty = screenY - 60;
+
+    // 温度条参数
+    const barW = 6;
+    const barH = 48;
+    const bx = tx;
+    const by = ty;
+
+    // 背景
+    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
+    this.ctx.beginPath();
+    this.ctx.roundRect(bx - 4, by - 18, barW + 80, barH + 26, 4);
+    this.ctx.fill();
+
+    // 材质名
+    this.ctx.font = '11px monospace';
+    this.ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+    this.ctx.fillText(matName, bx + barW + 6, by - 4);
+
+    // 温度条背景
+    this.ctx.fillStyle = 'rgba(40, 40, 50, 0.8)';
+    this.ctx.fillRect(bx, by, barW, barH);
+
+    // 温度映射到填充比例：-200° ~ 3000° → 0 ~ 1
+    const tNorm = Math.max(0, Math.min(1, (temp + 200) / 3200));
+    const fillH = tNorm * barH;
+
+    // 温度条颜色渐变
+    let r: number, g: number, b: number;
+    if (tNorm < 0.1) {
+      // 深蓝（极冷）
+      r = 30; g = 60; b = 200;
+    } else if (tNorm < 0.25) {
+      // 蓝 → 青
+      const s = (tNorm - 0.1) / 0.15;
+      r = 30; g = Math.round(60 + s * 180); b = 200;
+    } else if (tNorm < 0.4) {
+      // 青 → 绿
+      const s = (tNorm - 0.25) / 0.15;
+      r = 30; g = 240; b = Math.round(200 - s * 180);
+    } else if (tNorm < 0.6) {
+      // 绿 → 黄
+      const s = (tNorm - 0.4) / 0.2;
+      r = Math.round(30 + s * 225); g = 240; b = 20;
+    } else if (tNorm < 0.8) {
+      // 黄 → 橙
+      const s = (tNorm - 0.6) / 0.2;
+      r = 255; g = Math.round(240 - s * 100); b = 20;
+    } else {
+      // 橙 → 红
+      const s = (tNorm - 0.8) / 0.2;
+      r = 255; g = Math.round(140 - s * 120); b = Math.round(20 + s * 30);
+    }
+
+    this.ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+    this.ctx.fillRect(bx, by + barH - fillH, barW, fillH);
+
+    // 温度条边框
+    this.ctx.strokeStyle = 'rgba(200, 200, 200, 0.5)';
+    this.ctx.lineWidth = 0.5;
+    this.ctx.strokeRect(bx, by, barW, barH);
+
+    // 温度数值
+    this.ctx.font = '11px monospace';
+    this.ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+    const tempStr = `${temp.toFixed(1)}°`;
+    this.ctx.fillText(tempStr, bx + barW + 6, by + 12);
+
+    // 常温标记线（20°）
+    const roomY = by + barH - ((20 + 200) / 3200) * barH;
+    this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+    this.ctx.setLineDash([2, 2]);
+    this.ctx.beginPath();
+    this.ctx.moveTo(bx, roomY);
+    this.ctx.lineTo(bx + barW, roomY);
+    this.ctx.stroke();
+    this.ctx.setLineDash([]);
+
     this.ctx.restore();
   }
 }
