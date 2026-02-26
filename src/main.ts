@@ -689,6 +689,11 @@ import './materials/MoltenTantalumVanadium';
 import './materials/HighPurityGadoliniumLanthanumFluoride';
 import './materials/SillimaniteGneiss';
 import './materials/ElectroAcoustoMagneticMaterial';
+import './materials/TantalumNiobiumAlloy';
+import './materials/MoltenTantalumNiobium';
+import './materials/HighPurityHolmiumLanthanumFluoride';
+import './materials/KyaniteGneiss';
+import './materials/MagnetoAcoustoMagneticMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
