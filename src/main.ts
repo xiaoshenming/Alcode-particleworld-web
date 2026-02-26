@@ -524,6 +524,11 @@ import './materials/MoltenNiobiumNickel';
 import './materials/ZirconiumFluoride';
 import './materials/OlivineSchist';
 import './materials/Acoustothermomagnet';
+import './materials/NiobiumZincAlloy';
+import './materials/MoltenNiobiumZinc';
+import './materials/HafniumFluoride';
+import './materials/GarnetSchist';
+import './materials/Electromagnetothermal';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
