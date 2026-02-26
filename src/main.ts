@@ -1211,6 +1211,41 @@ import './materials/HighPurityErbiumCeriumFluoride';
 import './materials/ChloriteGneiss3';
 import './materials/PhotoElectroThermalMaterial4';
 
+// v60.0 (ID 1076~1080)
+import './materials/VanadiumLanthanumAlloy';
+import './materials/MoltenVanadiumLanthanum';
+import './materials/HighPurityThuliumCeriumFluoride';
+import './materials/SerpentiniteGneiss3';
+import './materials/ThermoMagnetoElectricMaterial2';
+
+// v60.1 (ID 1081~1085)
+import './materials/VanadiumPraseodymiumAlloy';
+import './materials/MoltenVanadiumPraseodymium';
+import './materials/HighPurityYtterbiumCeriumFluoride';
+import './materials/ScapolitGneiss4';
+import './materials/ThermoPhotoMagneticMaterial2';
+
+// v60.2 (ID 1086~1090)
+import './materials/VanadiumNeodymiumAlloy';
+import './materials/MoltenVanadiumNeodymium';
+import './materials/HighPurityLutetiumCeriumFluoride';
+import './materials/SpinelGneiss3';
+import './materials/AcoustoElectroPhotoMaterial2';
+
+// v60.3 (ID 1091~1095)
+import './materials/VanadiumGadoliniumAlloy';
+import './materials/MoltenVanadiumGadolinium';
+import './materials/HighPurityScandiumCeriumFluoride';
+import './materials/ZoisiteGneiss3';
+import './materials/ThermoElectroAcousticMaterial2';
+
+// v60.4 (ID 1096~1100)
+import './materials/VanadiumDysprosiumAlloy';
+import './materials/MoltenVanadiumDysprosium';
+import './materials/HighPurityYttriumCeriumFluoride';
+import './materials/CalciteGneiss3';
+import './materials/AcoustoMagnetoPhotoMaterial2';
+
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
 import { Renderer } from './core/Renderer';
