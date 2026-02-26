@@ -569,6 +569,11 @@ import './materials/MoltenNiobiumRhodium';
 import './materials/EuropiumFluoride';
 import './materials/ActinoliteSchist';
 import './materials/MagnetoElectroOpticMaterial';
+import './materials/NiobiumPalladiumAlloy';
+import './materials/MoltenNiobiumPalladium';
+import './materials/TerbiumFluoride';
+import './materials/TremoliteSchist';
+import './materials/ThermoPhotoElectricMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
