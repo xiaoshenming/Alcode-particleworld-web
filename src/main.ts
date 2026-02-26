@@ -337,6 +337,11 @@ import './materials/MoltenHafniumTerbium';
 import './materials/HydrogenSelenide';
 import './materials/MicaSchist';
 import './materials/Electroluminescent';
+import './materials/Terbium';
+import './materials/MoltenTerbium';
+import './materials/PhosphorusTrichloride';
+import './materials/Phyllite';
+import './materials/MagnetostrictiveMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
