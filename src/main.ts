@@ -733,6 +733,36 @@ import './materials/MoltenTantalumSilver';
 import './materials/HighPurityGadoliniumEuropiumFluoride';
 import './materials/SerpentiniteGneiss';
 import './materials/MagnetoThermoElectricMaterial';
+// v46.0 (ID 726~730)
+import './materials/TantalumGoldAlloy';
+import './materials/MoltenTantalumGold';
+import './materials/HighPuritySamariumEuropiumFluoride';
+import './materials/SyeniteGneiss2';
+import './materials/ElectroThermoOpticMaterial';
+// v46.1 (ID 731~735)
+import './materials/TantalumPlatinumAlloy';
+import './materials/MoltenTantalumPlatinum';
+import './materials/HighPurityHolmiumEuropiumFluoride';
+import './materials/PyroxeniteGneiss2';
+import './materials/PhotoElectroThermalMaterial';
+// v46.2 (ID 736~740)
+import './materials/TantalumIridiumAlloy';
+import './materials/MoltenTantalumIridium';
+import './materials/HighPurityErbiumEuropiumFluoride';
+import './materials/HornblendeGneiss2';
+import './materials/AcoustoThermoElectricMaterial2';
+// v46.3 (ID 741~745)
+import './materials/TantalumRhodiumAlloy';
+import './materials/MoltenTantalumRhodium';
+import './materials/HighPurityLutetiumEuropiumFluoride';
+import './materials/DiopsideGneiss2';
+import './materials/MagnetoOptoElectricMaterial';
+// v46.4 (ID 746~750)
+import './materials/TantalumPalladiumAlloy';
+import './materials/MoltenTantalumPalladium';
+import './materials/HighPurityThuliumEuropiumFluoride';
+import './materials/StauroliteGneiss2';
+import './materials/ThermoMagnetoAcousticMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
