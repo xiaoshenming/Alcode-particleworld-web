@@ -703,6 +703,11 @@ import './materials/MoltenTantalumCobalt';
 import './materials/HighPurityLutetiumLanthanumFluoride';
 import './materials/WollastoniteGneiss';
 import './materials/PhotoMagnetoAcousticMaterial';
+import './materials/TantalumNickelAlloy';
+import './materials/MoltenTantalumNickel';
+import './materials/HighPurityScandiumLanthanumFluoride';
+import './materials/DiopsideGneiss';
+import './materials/ThermoPhotoMagneticMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
