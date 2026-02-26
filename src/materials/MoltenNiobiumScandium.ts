@@ -3,40 +3,40 @@ import { registerMaterial } from './registry';
 
 /**
  * 液态铌钪 —— 铌钪合金的熔融态
- * - 液体，密度 7.8（重质液态金属）
- * - 冷却 <2100° → 铌钪合金(576)
- * - 高温发光，亮银白色熔融金属
+ * - 液体，密度 6.9（中质液态金属）
+ * - 冷却 <2220° → 铌钪合金(646)
+ * - 高温发光，银白色熔融金属
  */
 
 export const MoltenNiobiumScandium: MaterialDef = {
-  id: 577,
+  id: 647,
   name: '液态铌钪',
   category: '液体',
-  description: '铌钪合金的熔融态，高温重质液态金属',
-  density: 7.8,
+  description: '铌钪合金的熔融态，高温中质液态金属',
+  density: 6.9,
   color() {
     const phase = Math.random();
     let r: number, g: number, b: number;
     if (phase < 0.5) {
-      r = 245 + Math.floor(Math.random() * 10);
-      g = 248 + Math.floor(Math.random() * 7);
-      b = 255;
+      r = 240 + Math.floor(Math.random() * 10);
+      g = 242 + Math.floor(Math.random() * 8);
+      b = 245 + Math.floor(Math.random() * 8);
     } else if (phase < 0.8) {
-      r = 255;
+      r = 250 + Math.floor(Math.random() * 5);
       g = 252 + Math.floor(Math.random() * 3);
       b = 255;
     } else {
-      r = 235 + Math.floor(Math.random() * 12);
-      g = 238 + Math.floor(Math.random() * 12);
-      b = 248 + Math.floor(Math.random() * 7);
+      r = 228 + Math.floor(Math.random() * 15);
+      g = 230 + Math.floor(Math.random() * 12);
+      b = 235 + Math.floor(Math.random() * 10);
     }
     return (0xFF << 24) | (b << 16) | (g << 8) | r;
   },
   update(x: number, y: number, world: WorldAPI) {
     const temp = world.getTemp(x, y);
 
-    if (temp < 2100) {
-      world.set(x, y, 576);
+    if (temp < 2220) {
+      world.set(x, y, 646);
       world.setTemp(x, y, temp);
       world.wakeArea(x, y);
       return;
@@ -50,7 +50,7 @@ export const MoltenNiobiumScandium: MaterialDef = {
         return;
       }
       const belowDensity = world.getDensity(x, y + 1);
-      if (belowDensity < 7.8 && belowDensity !== Infinity && Math.random() < 0.7) {
+      if (belowDensity < 6.9 && belowDensity !== Infinity && Math.random() < 0.7) {
         world.swap(x, y, x, y + 1);
         world.wakeArea(x, y + 1);
         return;

@@ -2,42 +2,42 @@ import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
 /**
- * 铌钪合金 —— 轻质高强合金
+ * 石榴片麻岩 —— 含石榴石的片麻岩
  * - 固体，密度 Infinity（不可移动）
- * - 熔点 >2320° → 液态铌钪(647)
- * - 极耐酸腐蚀
- * - 银白色带亮灰调金属光泽
+ * - 熔点 >1200° → 熔岩(11)
+ * - 较耐酸腐蚀
+ * - 暗红灰色带石榴石斑晶
  */
 
-export const NiobiumScandiumAlloy: MaterialDef = {
-  id: 646,
-  name: '铌钪合金',
-  category: '金属',
-  description: '轻质高强合金，用于航空航天结构件和高性能运动器材',
+export const GarnetGneiss: MaterialDef = {
+  id: 649,
+  name: '石榴片麻岩',
+  category: '固体',
+  description: '含石榴石矿物的片麻岩，属于高级区域变质岩',
   density: Infinity,
   color() {
     const phase = Math.random();
     let r: number, g: number, b: number;
     if (phase < 0.5) {
-      r = 198 + Math.floor(Math.random() * 12);
-      g = 200 + Math.floor(Math.random() * 10);
-      b = 202 + Math.floor(Math.random() * 12);
+      r = 108 + Math.floor(Math.random() * 12);
+      g = 62 + Math.floor(Math.random() * 10);
+      b = 65 + Math.floor(Math.random() * 10);
     } else if (phase < 0.8) {
-      r = 215 + Math.floor(Math.random() * 14);
-      g = 218 + Math.floor(Math.random() * 12);
-      b = 220 + Math.floor(Math.random() * 10);
+      r = 125 + Math.floor(Math.random() * 10);
+      g = 75 + Math.floor(Math.random() * 10);
+      b = 78 + Math.floor(Math.random() * 10);
     } else {
-      r = 182 + Math.floor(Math.random() * 10);
-      g = 185 + Math.floor(Math.random() * 10);
-      b = 188 + Math.floor(Math.random() * 10);
+      r = 92 + Math.floor(Math.random() * 10);
+      g = 52 + Math.floor(Math.random() * 10);
+      b = 55 + Math.floor(Math.random() * 8);
     }
     return (0xFF << 24) | (b << 16) | (g << 8) | r;
   },
   update(x: number, y: number, world: WorldAPI) {
     const temp = world.getTemp(x, y);
 
-    if (temp > 2320) {
-      world.set(x, y, 647);
+    if (temp > 1200) {
+      world.set(x, y, 11);
       world.setTemp(x, y, temp);
       world.wakeArea(x, y);
       return;
@@ -49,17 +49,17 @@ export const NiobiumScandiumAlloy: MaterialDef = {
       if (!world.inBounds(nx, ny)) continue;
       const nid = world.get(nx, ny);
 
-      if (nid === 9 && Math.random() < 0.0003) {
+      if (nid === 9 && Math.random() < 0.003) {
         world.set(x, y, 0);
         world.set(nx, ny, 7);
         world.wakeArea(x, y);
         return;
       }
 
-      if (nid !== 0 && Math.random() < 0.07) {
+      if (nid !== 0 && Math.random() < 0.06) {
         const nt = world.getTemp(nx, ny);
         if (Math.abs(temp - nt) > 5) {
-          const diff = (nt - temp) * 0.08;
+          const diff = (nt - temp) * 0.07;
           world.addTemp(x, y, diff);
           world.addTemp(nx, ny, -diff);
         }
@@ -68,4 +68,4 @@ export const NiobiumScandiumAlloy: MaterialDef = {
   },
 };
 
-registerMaterial(NiobiumScandiumAlloy);
+registerMaterial(GarnetGneiss);

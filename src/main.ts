@@ -654,6 +654,11 @@ import './materials/MoltenNiobiumRuthenium';
 import './materials/HighPurityPraseodymiumFluoride';
 import './materials/OlivineGneiss';
 import './materials/MagnetoElectroSonicMaterial';
+import './materials/NiobiumScandiumAlloy';
+import './materials/MoltenNiobiumScandium';
+import './materials/HighPurityYtterbiumFluoride';
+import './materials/GarnetGneiss';
+import './materials/ThermoElectroSonicMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
