@@ -983,6 +983,27 @@ import './materials/HighPurityLanthanumLutetiumFluoride';
 import './materials/OlivineGneiss3';
 import './materials/ElectroMagnetoAcousticMaterial3';
 
+// v53.2 (ID 911~915)
+import './materials/NiobiumHolmiumAlloy2';
+import './materials/MoltenNiobiumHolmium2';
+import './materials/HighPurityNeodymiumLutetiumFluoride';
+import './materials/CalciteGneiss2';
+import './materials/PhotoElectroMagneticMaterial2';
+
+// v53.3 (ID 916~920)
+import './materials/NiobiumEuropiumAlloy2';
+import './materials/MoltenNiobiumEuropium2';
+import './materials/HighPurityGadoliniumLutetiumFluoride';
+import './materials/DolomiteGneiss2';
+import './materials/AcoustoThermoElectricMaterial3';
+
+// v53.4 (ID 921~925)
+import './materials/NiobiumSamariumAlloy2';
+import './materials/MoltenNiobiumSamarium2';
+import './materials/HighPuritySamariumLutetiumFluoride';
+import './materials/MagnesiteGneiss2';
+import './materials/MagnetoPhotoElectricMaterial2';
+
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
 import { Renderer } from './core/Renderer';
