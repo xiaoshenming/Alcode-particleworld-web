@@ -1,0 +1,97 @@
+import type { MaterialDef, WorldAPI } from './types';
+import { registerMaterial } from './registry';
+
+/**
+ * 液态钽锇 —— 钽锇合金的熔融态
+ * - 液体，密度 16.2（重质液态金属）
+ * - 冷却 <2600° → 钽锇合金(751)
+ * - 点燃可燃物，亮银灰色熔融金属
+ */
+
+export const MoltenTantalumOsmium: MaterialDef = {
+  id: 752,
+  name: '液态钽锇',
+  category: '液体',
+  description: '钽锇合金的熔融态，超高密度重质液态金属',
+  density: 16.2,
+  color() {
+    const phase = Math.random();
+    let r: number, g: number, b: number;
+    if (phase < 0.5) {
+      r = 225 + Math.floor(Math.random() * 10);
+      g = 228 + Math.floor(Math.random() * 10);
+      b = 235 + Math.floor(Math.random() * 10);
+    } else if (phase < 0.8) {
+      r = 235 + Math.floor(Math.random() * 7);
+      g = 238 + Math.floor(Math.random() * 7);
+      b = 245 + Math.floor(Math.random() * 7);
+    } else {
+      r = 218 + Math.floor(Math.random() * 12);
+      g = 222 + Math.floor(Math.random() * 12);
+      b = 228 + Math.floor(Math.random() * 12);
+    }
+    return (0xFF << 24) | (b << 16) | (g << 8) | r;
+  },
+  update(x: number, y: number, world: WorldAPI) {
+    const temp = world.getTemp(x, y);
+
+    if (temp < 2600) {
+      world.set(x, y, 751);
+      world.setTemp(x, y, temp);
+      world.wakeArea(x, y);
+      return;
+    }
+
+    const below = world.get(x, y + 1);
+    if (world.inBounds(x, y + 1)) {
+      if (below === 0) {
+        world.swap(x, y, x, y + 1);
+        world.wakeArea(x, y + 1);
+        return;
+      }
+      const belowDensity = world.getDensity(x, y + 1);
+      if (belowDensity < 16.2 && belowDensity !== Infinity && Math.random() < 0.7) {
+        world.swap(x, y, x, y + 1);
+        world.wakeArea(x, y + 1);
+        return;
+      }
+    }
+
+    const dir = Math.random() < 0.5 ? -1 : 1;
+    const sx = x + dir;
+    if (world.inBounds(sx, y) && world.get(sx, y) === 0) {
+      world.swap(x, y, sx, y);
+      world.wakeArea(sx, y);
+      return;
+    }
+    const sx2 = x - dir;
+    if (world.inBounds(sx2, y) && world.get(sx2, y) === 0) {
+      world.swap(x, y, sx2, y);
+      world.wakeArea(sx2, y);
+      return;
+    }
+
+    const dirs: [number, number][] = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+    for (const [dx, dy] of dirs) {
+      const nx = x + dx, ny = y + dy;
+      if (!world.inBounds(nx, ny)) continue;
+      const nid = world.get(nx, ny);
+
+      if ((nid === 4 || nid === 5 || nid === 22 || nid === 134) && Math.random() < 0.3) {
+        world.set(nx, ny, 6);
+        world.wakeArea(nx, ny);
+      }
+
+      if (nid !== 0 && Math.random() < 0.06) {
+        const nt = world.getTemp(nx, ny);
+        if (Math.abs(temp - nt) > 5) {
+          const diff = (nt - temp) * 0.07;
+          world.addTemp(x, y, diff);
+          world.addTemp(nx, ny, -diff);
+        }
+      }
+    }
+  },
+};
+
+registerMaterial(MoltenTantalumOsmium);
