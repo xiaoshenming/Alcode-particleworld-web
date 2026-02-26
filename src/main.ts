@@ -431,6 +431,8 @@ const toolbar = new Toolbar(input, {
   onToggleMirror: () => {
     renderer.showMirrorLine = input.getMirrorMode();
   },
+  onSnapshotA: () => canvas.toDataURL('image/png'),
+  onSnapshotB: () => canvas.toDataURL('image/png'),
   getParticleCount: () => world.getParticleCount(),
   isPaused: () => paused,
   getSpeed: () => simSpeed,

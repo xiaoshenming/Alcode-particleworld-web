@@ -24,6 +24,8 @@ export interface ToolbarCallbacks {
   onToggleGrid: () => void;
   onScreenshot: () => void;
   onToggleMirror?: () => void;
+  onSnapshotA?: () => string;
+  onSnapshotB?: () => string;
   getParticleCount: () => number;
   isPaused: () => boolean;
   getSpeed: () => number;
@@ -74,6 +76,13 @@ export class Toolbar {
   private presets: BrushPreset[] = [];
   private presetBtnsDiv!: HTMLElement;
   private presetDiv!: HTMLElement;
+  /** 快照对比 */
+  private snapshotA: string | null = null;
+  private snapshotB: string | null = null;
+  private snapABtn!: HTMLButtonElement;
+  private snapBBtn!: HTMLButtonElement;
+  private snapCompareBtn!: HTMLButtonElement;
+  private snapshotOverlay: HTMLElement | null = null;
 
   constructor(input: InputHandler, callbacks: ToolbarCallbacks) {
     this.input = input;
@@ -380,6 +389,91 @@ export class Toolbar {
         this.deletePreset(i);
       });
       this.presetBtnsDiv.appendChild(btn);
+    }
+  }
+
+  /** 更新对比按钮状态 */
+  private updateCompareBtn(): void {
+    this.snapCompareBtn.disabled = !(this.snapshotA && this.snapshotB);
+  }
+
+  /** 显示快照对比浮层 */
+  private showSnapshotCompare(): void {
+    if (!this.snapshotA || !this.snapshotB) return;
+
+    // 移除已有浮层
+    if (this.snapshotOverlay) {
+      this.snapshotOverlay.remove();
+    }
+
+    const overlay = document.createElement('div');
+    overlay.className = 'snapshot-overlay';
+
+    const content = document.createElement('div');
+    content.className = 'snapshot-content';
+
+    const titleEl = document.createElement('div');
+    titleEl.className = 'snapshot-title';
+    titleEl.textContent = '快照对比 (Esc 关闭)';
+    content.appendChild(titleEl);
+
+    const imgRow = document.createElement('div');
+    imgRow.className = 'snapshot-images';
+
+    const wrapA = document.createElement('div');
+    wrapA.className = 'snapshot-wrap';
+    const labelA = document.createElement('div');
+    labelA.className = 'snapshot-label';
+    labelA.textContent = '快照 A';
+    const imgA = document.createElement('img');
+    imgA.src = this.snapshotA;
+    imgA.alt = '快照A';
+    wrapA.appendChild(labelA);
+    wrapA.appendChild(imgA);
+
+    const wrapB = document.createElement('div');
+    wrapB.className = 'snapshot-wrap';
+    const labelB = document.createElement('div');
+    labelB.className = 'snapshot-label';
+    labelB.textContent = '快照 B';
+    const imgB = document.createElement('img');
+    imgB.src = this.snapshotB;
+    imgB.alt = '快照B';
+    wrapB.appendChild(labelB);
+    wrapB.appendChild(imgB);
+
+    imgRow.appendChild(wrapA);
+    imgRow.appendChild(wrapB);
+    content.appendChild(imgRow);
+
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'ctrl-btn snapshot-close';
+    closeBtn.textContent = '关闭';
+    closeBtn.addEventListener('click', () => this.closeSnapshotCompare());
+    content.appendChild(closeBtn);
+
+    overlay.appendChild(content);
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) this.closeSnapshotCompare();
+    });
+
+    document.body.appendChild(overlay);
+    this.snapshotOverlay = overlay;
+
+    const onEsc = (e: KeyboardEvent) => {
+      if (e.code === 'Escape') {
+        this.closeSnapshotCompare();
+        document.removeEventListener('keydown', onEsc);
+      }
+    };
+    document.addEventListener('keydown', onEsc);
+  }
+
+  /** 关闭快照对比浮层 */
+  private closeSnapshotCompare(): void {
+    if (this.snapshotOverlay) {
+      this.snapshotOverlay.remove();
+      this.snapshotOverlay = null;
     }
   }
 
@@ -713,6 +807,50 @@ export class Toolbar {
     const presetSep2 = document.createElement('div');
     presetSep2.className = 'toolbar-sep';
     controlPanel.appendChild(presetSep2);
+
+    // 快照对比区域
+    const snapRow = document.createElement('div');
+    snapRow.className = 'control-row snapshot-row';
+
+    this.snapABtn = document.createElement('button');
+    this.snapABtn.className = 'ctrl-btn';
+    this.snapABtn.textContent = '快照A';
+    this.snapABtn.title = '捕获当前世界为快照A';
+    this.snapABtn.addEventListener('click', () => {
+      if (this.callbacks.onSnapshotA) {
+        this.snapshotA = this.callbacks.onSnapshotA();
+        this.snapABtn.classList.add('active');
+        this.updateCompareBtn();
+      }
+    });
+
+    this.snapBBtn = document.createElement('button');
+    this.snapBBtn.className = 'ctrl-btn';
+    this.snapBBtn.textContent = '快照B';
+    this.snapBBtn.title = '捕获当前世界为快照B';
+    this.snapBBtn.addEventListener('click', () => {
+      if (this.callbacks.onSnapshotB) {
+        this.snapshotB = this.callbacks.onSnapshotB();
+        this.snapBBtn.classList.add('active');
+        this.updateCompareBtn();
+      }
+    });
+
+    this.snapCompareBtn = document.createElement('button');
+    this.snapCompareBtn.className = 'ctrl-btn';
+    this.snapCompareBtn.textContent = '对比';
+    this.snapCompareBtn.title = '并排对比快照A与快照B';
+    this.snapCompareBtn.disabled = true;
+    this.snapCompareBtn.addEventListener('click', () => this.showSnapshotCompare());
+
+    snapRow.appendChild(this.snapABtn);
+    snapRow.appendChild(this.snapBBtn);
+    snapRow.appendChild(this.snapCompareBtn);
+    controlPanel.appendChild(snapRow);
+
+    const snapSep = document.createElement('div');
+    snapSep.className = 'toolbar-sep';
+    controlPanel.appendChild(snapSep);
 
     // 按钮行
     const btnRow = document.createElement('div');
