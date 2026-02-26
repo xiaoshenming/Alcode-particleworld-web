@@ -509,6 +509,11 @@ import './materials/MoltenNiobiumTitanium';
 import './materials/BerylliumFluoride';
 import './materials/AmphiboliteGneiss';
 import './materials/MagnetothermoopticMaterial';
+import './materials/NiobiumTungstenAlloy';
+import './materials/MoltenNiobiumTungsten';
+import './materials/StrontiumFluoride';
+import './materials/BlueschistGneiss';
+import './materials/ThermomagnetoopticMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
