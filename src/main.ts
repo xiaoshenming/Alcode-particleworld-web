@@ -497,6 +497,12 @@ import './materials/MoltenNiobiumChromium';
 import './materials/GalliumFluoride';
 import './materials/BerylRock';
 import './materials/AcoustooptoelectricMaterial';
+// v36.3 新材质 (ID 491~495)
+import './materials/NiobiumVanadiumAlloy';
+import './materials/MoltenNiobiumVanadium';
+import './materials/GermaniumFluoride';
+import './materials/Ophiolite';
+import './materials/ThermooptoacousticMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
