@@ -367,6 +367,7 @@ import { InfoPanel } from './ui/InfoPanel';
 import { History } from './core/History';
 import { FpsGraph } from './ui/FpsGraph';
 import { StatsPanel } from './ui/StatsPanel';
+import { Encyclopedia } from './ui/Encyclopedia';
 
 import { GifEncoder } from './utils/GifEncoder';
 
@@ -385,6 +386,7 @@ const input = new InputHandler(canvas, world, PIXEL_SCALE);
 const history = new History();
 const infoPanel = new InfoPanel(canvas, world, PIXEL_SCALE);
 const statsPanel = new StatsPanel(world);
+const encyclopedia = new Encyclopedia();
 
 let paused = false;
 let simSpeed = 1; // 模拟速度倍率 1~5
@@ -511,6 +513,9 @@ const toolbar = new Toolbar(input, {
       reader.readAsText(file);
     });
     input.click();
+  },
+  onEncyclopedia: () => {
+    encyclopedia.toggle();
   },
 });
 
@@ -714,6 +719,12 @@ document.addEventListener('keydown', (e) => {
   // S 键切换材质统计面板
   if (e.code === 'KeyS') {
     statsPanel.toggle();
+    return;
+  }
+
+  // H 键打开材质百科全书
+  if (e.code === 'KeyH') {
+    encyclopedia.toggle();
     return;
   }
 

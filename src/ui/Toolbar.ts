@@ -35,6 +35,7 @@ export interface ToolbarCallbacks {
   onToggleRecord?: () => boolean; // 返回是否正在录制
   onExportFile?: () => void;
   onImportFile?: () => void;
+  onEncyclopedia?: () => void;
 }
 
 /**
@@ -927,6 +928,17 @@ export class Toolbar {
     fileRow.appendChild(exportBtn);
     fileRow.appendChild(importBtn);
     controlPanel.appendChild(fileRow);
+
+    // 百科全书按钮
+    const encyclopediaRow = document.createElement('div');
+    encyclopediaRow.className = 'control-row';
+    const encyclopediaBtn = document.createElement('button');
+    encyclopediaBtn.className = 'ctrl-btn';
+    encyclopediaBtn.textContent = '百科全书';
+    encyclopediaBtn.title = '查看所有材质详细信息 (H)';
+    encyclopediaBtn.addEventListener('click', () => this.callbacks.onEncyclopedia?.());
+    encyclopediaRow.appendChild(encyclopediaBtn);
+    controlPanel.appendChild(encyclopediaRow);
 
     // 撤销/重做按钮行
     const undoRow = document.createElement('div');
