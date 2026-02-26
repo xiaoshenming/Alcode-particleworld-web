@@ -728,6 +728,11 @@ import './materials/MoltenTantalumAluminum';
 import './materials/HighPurityLanthanumCeriumEuropiumFluoride';
 import './materials/ChloriteGneiss';
 import './materials/ThermoElectroAcousticMaterial';
+import './materials/TantalumSilverAlloy';
+import './materials/MoltenTantalumSilver';
+import './materials/HighPurityGadoliniumEuropiumFluoride';
+import './materials/SerpentiniteGneiss';
+import './materials/MagnetoThermoElectricMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
