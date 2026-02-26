@@ -342,6 +342,11 @@ import './materials/MoltenTerbium';
 import './materials/PhosphorusTrichloride';
 import './materials/Phyllite';
 import './materials/MagnetostrictiveMaterial';
+import './materials/Samarium';
+import './materials/MoltenSamarium';
+import './materials/SulfurHexafluoride';
+import './materials/Breccia';
+import './materials/FerroelectricMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
