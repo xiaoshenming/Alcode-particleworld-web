@@ -412,6 +412,11 @@ import './materials/MoltenHafniumRhenium';
 import './materials/XenonDifluoride';
 import './materials/Pegmatite';
 import './materials/MagnetoelasticMaterial';
+import './materials/Thorium';
+import './materials/MoltenThorium';
+import './materials/IronTrifluoride';
+import './materials/Molybdenite';
+import './materials/ElectromagneticElastomer';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
