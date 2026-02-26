@@ -629,6 +629,11 @@ import './materials/MoltenNiobiumEuropium';
 import './materials/HighPurityGadoliniumFluoride';
 import './materials/TalcGneiss';
 import './materials/PhotoThermoMagneticMaterial';
+import './materials/NiobiumGadoliniumAlloy';
+import './materials/MoltenNiobiumGadolinium';
+import './materials/HighPuritySamariumFluoride';
+import './materials/SerpentineGneiss';
+import './materials/MagnetoAcoustoOpticMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
