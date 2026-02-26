@@ -639,6 +639,11 @@ import './materials/MoltenNiobiumHolmium';
 import './materials/HighPurityTerbiumFluoride';
 import './materials/SyeniteGneiss';
 import './materials/ThermoAcoustoOpticMaterial';
+import './materials/NiobiumErbiumAlloy';
+import './materials/MoltenNiobiumErbium';
+import './materials/HighPurityLutetiumFluoride';
+import './materials/SoapstoneGneiss';
+import './materials/AcoustoThermoOpticMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
