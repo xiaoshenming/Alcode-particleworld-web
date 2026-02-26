@@ -708,6 +708,11 @@ import './materials/MoltenTantalumNickel';
 import './materials/HighPurityScandiumLanthanumFluoride';
 import './materials/DiopsideGneiss';
 import './materials/ThermoPhotoMagneticMaterial';
+import './materials/TantalumCopperAlloy';
+import './materials/MoltenTantalumCopper';
+import './materials/HighPurityPraseodymiumLanthanumFluoride';
+import './materials/ActinoliteGneiss';
+import './materials/PhotoThermalMagneticMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
