@@ -444,6 +444,46 @@ const TRACK_MAX_TRAIL = 120;
 
 const SAVE_KEY = 'particleworld-save';
 
+// 自动保存系统
+const AUTOSAVE_KEY = 'particleworld-autosave';
+const AUTOSAVE_INTERVAL = 60_000; // 60秒
+const AUTOSAVE_SLOTS = 3; // 3个轮转槽位
+let autosaveSlot = 0;
+let lastAutosaveTime = Date.now();
+
+/** 执行自动保存（轮转槽位） */
+function autosave(): void {
+  const data = world.save();
+  const key = `${AUTOSAVE_KEY}-${autosaveSlot}`;
+  const meta = { slot: autosaveSlot, time: Date.now(), particles: world.getParticleCount() };
+  localStorage.setItem(key, data);
+  localStorage.setItem(`${AUTOSAVE_KEY}-meta-${autosaveSlot}`, JSON.stringify(meta));
+  autosaveSlot = (autosaveSlot + 1) % AUTOSAVE_SLOTS;
+  lastAutosaveTime = Date.now();
+}
+
+/** 获取所有自动保存槽位信息 */
+function getAutosaveSlots(): Array<{slot: number; time: number; particles: number} | null> {
+  const slots: Array<{slot: number; time: number; particles: number} | null> = [];
+  for (let i = 0; i < AUTOSAVE_SLOTS; i++) {
+    try {
+      const raw = localStorage.getItem(`${AUTOSAVE_KEY}-meta-${i}`);
+      slots.push(raw ? JSON.parse(raw) : null);
+    } catch { slots.push(null); }
+  }
+  return slots;
+}
+
+/** 从指定槽位恢复自动保存 */
+function loadAutosave(slot: number): boolean {
+  const data = localStorage.getItem(`${AUTOSAVE_KEY}-${slot}`);
+  if (data) {
+    history.pushSnapshot(world.cells);
+    return world.load(data);
+  }
+  return false;
+}
+
 // 绘制前保存快照（用于撤销）
 input.onPaintStart = () => {
   history.pushSnapshot(world.cells);
@@ -567,6 +607,12 @@ const toolbar = new Toolbar(input, {
   onToggleDensityMap: () => {
     renderer.showDensityMap = !renderer.showDensityMap;
     return renderer.showDensityMap;
+  },
+  onGetAutosaveSlots: () => {
+    return getAutosaveSlots();
+  },
+  onLoadAutosave: (slot: number) => {
+    return loadAutosave(slot);
   },
 });
 
@@ -1077,6 +1123,11 @@ function loop() {
   infoPanel.update();
   statsPanel.update();
   fpsGraph.tick();
+
+  // 自动保存（每60秒）
+  if (Date.now() - lastAutosaveTime >= AUTOSAVE_INTERVAL && !paused) {
+    autosave();
+  }
 
   requestAnimationFrame(loop);
 }

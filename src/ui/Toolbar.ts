@@ -39,6 +39,8 @@ export interface ToolbarCallbacks {
   onToggleAntiGravity?: () => boolean; // 返回是否开启反重力
   onCycleBoundary?: () => string; // 返回新的边界模式
   onToggleDensityMap?: () => boolean; // 返回是否开启密度热力图
+  onGetAutosaveSlots?: () => Array<{slot: number; time: number; particles: number} | null>;
+  onLoadAutosave?: (slot: number) => boolean;
 }
 
 /**
@@ -1354,6 +1356,34 @@ export class Toolbar {
     });
     densityRow.appendChild(this.densityMapBtn);
     controlPanel.appendChild(densityRow);
+
+    // 自动保存恢复按钮
+    const autosaveRow = document.createElement('div');
+    autosaveRow.className = 'control-row';
+    const autosaveBtn = document.createElement('button');
+    autosaveBtn.className = 'ctrl-btn';
+    autosaveBtn.textContent = '恢复自动保存';
+    autosaveBtn.title = '从自动保存槽位恢复世界';
+    autosaveBtn.addEventListener('click', () => {
+      if (!this.callbacks.onGetAutosaveSlots || !this.callbacks.onLoadAutosave) return;
+      const slots = this.callbacks.onGetAutosaveSlots();
+      // 找到最新的有效槽位
+      let newest: {slot: number; time: number; particles: number} | null = null;
+      for (const s of slots) {
+        if (s && (!newest || s.time > newest.time)) newest = s;
+      }
+      if (newest) {
+        const ago = Math.round((Date.now() - newest.time) / 1000);
+        const label = ago < 60 ? `${ago}秒前` : `${Math.round(ago / 60)}分钟前`;
+        if (confirm(`恢复自动保存？\n槽位 ${newest.slot} · ${label} · ${newest.particles} 粒子`)) {
+          this.callbacks.onLoadAutosave(newest.slot);
+        }
+      } else {
+        alert('暂无自动保存记录');
+      }
+    });
+    autosaveRow.appendChild(autosaveBtn);
+    controlPanel.appendChild(autosaveRow);
 
     // 粒子计数
     const statsDiv = document.createElement('div');
