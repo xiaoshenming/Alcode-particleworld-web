@@ -297,6 +297,11 @@ import './materials/MoltenTantalum';
 import './materials/Deuterium';
 import './materials/Gabbro';
 import './materials/Memristor';
+import './materials/RheniumAlloy';
+import './materials/MoltenRheniumAlloy';
+import './materials/NitrogenTrifluoride';
+import './materials/Andesite';
+import './materials/PhotochromicMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
