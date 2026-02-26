@@ -51,4 +51,6 @@ export interface WorldAPI {
   setAge(x: number, y: number, age: number): void;
   /** 重置粒子年龄为 0 */
   resetAge(x: number, y: number): void;
+  /** 获取指定位置的压力值（上方粒子堆叠数） */
+  getPressure(x: number, y: number): number;
 }

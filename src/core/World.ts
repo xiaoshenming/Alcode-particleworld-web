@@ -24,6 +24,8 @@ export class World implements WorldAPI {
   private _age: Uint16Array;
   /** 粒子轨迹强度（0~255，每帧衰减） */
   private _trail: Uint8Array;
+  /** 压力网格（上方粒子堆叠数，Uint8 最大 255） */
+  private _pressure: Uint8Array;
   /** 风力方向（-1=左, 0=无, 1=右） */
   private _windDir = 0;
   /** 风力强度（0~1） */
@@ -41,6 +43,7 @@ export class World implements WorldAPI {
     this._temp = new Float32Array(size);
     this._age = new Uint16Array(size);
     this._trail = new Uint8Array(size);
+    this._pressure = new Uint8Array(size);
     this._temp.fill(20); // 常温 20°
 
     // 初始化为空气背景色
@@ -257,6 +260,35 @@ export class World implements WorldAPI {
     }
   }
 
+  /** 计算压力：从顶部向下扫描，累计每列上方非空粒子数 */
+  computePressure(): void {
+    const w = this.width;
+    const h = this.height;
+    for (let x = 0; x < w; x++) {
+      let stack = 0;
+      for (let y = 0; y < h; y++) {
+        const i = y * w + x;
+        if (this.cells[i] !== 0) {
+          this._pressure[i] = Math.min(255, stack);
+          stack++;
+        } else {
+          this._pressure[i] = 0;
+          stack = 0; // 空气断开压力传递
+        }
+      }
+    }
+  }
+
+  /** 获取指定位置的压力值 */
+  getPressure(x: number, y: number): number {
+    return this._pressure[this.idx(x, y)];
+  }
+
+  /** 获取压力缓冲区（供渲染器使用） */
+  getPressureBuffer(): Uint8Array {
+    return this._pressure;
+  }
+
   /** 获取世界统计信息：活跃粒子数、总粒子数、平均温度 */
   getWorldStats(): { total: number; active: number; avgTemp: number } {
     let total = 0;
@@ -296,6 +328,7 @@ export class World implements WorldAPI {
     this._temp.fill(20);
     this._age.fill(0);
     this._trail.fill(0);
+    this._pressure.fill(0);
   }
 
   /** 序列化世界状态为 JSON 字符串（只保存 cells） */

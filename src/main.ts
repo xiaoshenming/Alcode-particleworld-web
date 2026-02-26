@@ -1121,6 +1121,12 @@ document.addEventListener('keydown', (e) => {
     return;
   }
 
+  // O 键切换压力叠加层
+  if (e.code === 'KeyO') {
+    renderer.showPressureOverlay = !renderer.showPressureOverlay;
+    return;
+  }
+
   // Shift+Arrow 翻转世界
   if (e.shiftKey && e.code === 'ArrowUp') {
     e.preventDefault();

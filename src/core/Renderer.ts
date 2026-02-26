@@ -24,6 +24,8 @@ export class Renderer {
   showTrailOverlay = false;
   /** 温度计 HUD 开关 */
   showThermometer = false;
+  /** 压力叠加层开关 */
+  showPressureOverlay = false;
   /** 网格线开关 */
   showGrid = false;
   /** 镜像线开关 */
@@ -82,6 +84,11 @@ export class Renderer {
     // 轨迹叠加层
     if (this.showTrailOverlay) {
       this.applyTrailOverlay(world);
+    }
+
+    // 压力叠加层
+    if (this.showPressureOverlay) {
+      this.applyPressureOverlay(world);
     }
 
     // putImageData 到临时 canvas，再缩放绘制到主 canvas
@@ -321,6 +328,53 @@ export class Renderer {
         pr = Math.min(255, Math.round(pr * (1 - alpha) + 80 * alpha));
         pg = Math.min(255, Math.round(pg * (1 - alpha) + 230 * alpha));
         pb = Math.min(255, Math.round(pb * (1 - alpha) + 255 * alpha));
+
+        this.pixels[i] = (pa << 24) | (pb << 16) | (pg << 8) | pr;
+      }
+    }
+  }
+
+  /** 压力叠加层：低压蓝色 → 中压黄色 → 高压红色 */
+  private applyPressureOverlay(world: World): void {
+    const pressure = world.getPressureBuffer();
+    const cells = world.cells;
+    const w = this.gridWidth;
+    const h = this.gridHeight;
+
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const i = y * w + x;
+        if (cells[i] === 0) continue; // 空气不显示压力
+        const p = pressure[i];
+        if (p === 0) continue;
+
+        // 归一化压力 (0~50 映射到 0~1)
+        const norm = Math.min(1, p / 50);
+        let cr: number, cg: number, cb: number;
+        if (norm < 0.5) {
+          // 蓝 → 黄
+          const t = norm * 2;
+          cr = Math.round(50 * (1 - t) + 255 * t);
+          cg = Math.round(100 * (1 - t) + 230 * t);
+          cb = Math.round(255 * (1 - t) + 50 * t);
+        } else {
+          // 黄 → 红
+          const t = (norm - 0.5) * 2;
+          cr = 255;
+          cg = Math.round(230 * (1 - t) + 30 * t);
+          cb = Math.round(50 * (1 - t) + 20 * t);
+        }
+
+        const pixel = this.pixels[i];
+        let pr = pixel & 0xFF;
+        let pg = (pixel >> 8) & 0xFF;
+        let pb = (pixel >> 16) & 0xFF;
+        const pa = (pixel >> 24) & 0xFF;
+
+        const alpha = 0.45;
+        pr = Math.min(255, Math.round(pr * (1 - alpha) + cr * alpha));
+        pg = Math.min(255, Math.round(pg * (1 - alpha) + cg * alpha));
+        pb = Math.min(255, Math.round(pb * (1 - alpha) + cb * alpha));
 
         this.pixels[i] = (pa << 24) | (pb << 16) | (pg << 8) | pr;
       }

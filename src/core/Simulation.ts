@@ -114,6 +114,9 @@ export class Simulation {
     // 温度扩散
     this.world.diffuseTemperature();
 
+    // 压力计算
+    this.world.computePressure();
+
     // 粒子年龄递增
     this.world.tickAge();
 
