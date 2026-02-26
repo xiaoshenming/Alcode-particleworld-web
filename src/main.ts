@@ -503,6 +503,12 @@ import './materials/MoltenNiobiumVanadium';
 import './materials/GermaniumFluoride';
 import './materials/Ophiolite';
 import './materials/ThermooptoacousticMaterial';
+// v36.4 新材质 (ID 496~500)
+import './materials/NiobiumTitaniumAlloy';
+import './materials/MoltenNiobiumTitanium';
+import './materials/BerylliumFluoride';
+import './materials/AmphiboliteGneiss';
+import './materials/MagnetothermoopticMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
