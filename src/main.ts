@@ -437,6 +437,12 @@ import './materials/MoltenCesium';
 import './materials/BariumFluoride';
 import './materials/Diabase';
 import './materials/AcoustomagneticMaterial';
+// v34.0 新材质 (ID 441~445)
+import './materials/Yttrium';
+import './materials/MoltenYttrium';
+import './materials/LithiumFluoride';
+import './materials/SerpentinizedGabbro';
+import './materials/AcoustoelasticMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
