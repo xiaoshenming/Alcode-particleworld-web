@@ -407,6 +407,11 @@ import './materials/LiquidRuthenium';
 import './materials/CarbonTetrafluoride';
 import './materials/Soapstone';
 import './materials/AcoustoElectricMaterial';
+import './materials/HafniumRhenium';
+import './materials/MoltenHafniumRhenium';
+import './materials/XenonDifluoride';
+import './materials/Pegmatite';
+import './materials/MagnetoelasticMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
