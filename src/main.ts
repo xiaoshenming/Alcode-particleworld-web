@@ -794,6 +794,41 @@ import './materials/HighPurityDysprosiumEuropiumFluoride';
 import './materials/SoapstoneGneiss2';
 import './materials/MagnetoElectroThermalMaterial2';
 
+// v48.0 (ID 776~780)
+import './materials/TantalumLanthanumAlloy';
+import './materials/MoltenTantalumLanthanum';
+import './materials/HighPurityCeriumDysprosiumFluoride';
+import './materials/DiopsideGneiss2';
+import './materials/ThermoElectroMagneticMaterial2';
+
+// v48.1 (ID 781~785)
+import './materials/TantalumPraseodymiumAlloy';
+import './materials/MoltenTantalumPraseodymium';
+import './materials/HighPurityLanthanumDysprosiumFluoride';
+import './materials/ActinoliteGneiss2';
+import './materials/PhotoMagnetoAcousticMaterial2';
+
+// v48.2 (ID 786~790)
+import './materials/TantalumNeodymiumAlloy';
+import './materials/MoltenTantalumNeodymium';
+import './materials/HighPurityGadoliniumDysprosiumFluoride';
+import './materials/TremoliteGneiss2';
+import './materials/ElectroAcoustoMagneticMaterial2';
+
+// v48.3 (ID 791~795)
+import './materials/TantalumGadoliniumAlloy';
+import './materials/MoltenTantalumGadolinium';
+import './materials/HighPuritySamariumDysprosiumFluoride';
+import './materials/TalcGneiss2';
+import './materials/ThermoAcoustoMagneticMaterial2';
+
+// v48.4 (ID 796~800)
+import './materials/TantalumDysprosiumAlloy';
+import './materials/MoltenTantalumDysprosium';
+import './materials/HighPurityHolmiumDysprosiumFluoride';
+import './materials/ChloriteGneiss2';
+import './materials/MagnetoOptoAcousticMaterial2';
+
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
 import { Renderer } from './core/Renderer';
