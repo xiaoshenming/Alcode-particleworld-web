@@ -467,6 +467,12 @@ import './materials/MoltenNiobiumTantalum';
 import './materials/CalciumSodiumFluoride';
 import './materials/EpidoteRock';
 import './materials/PhotoacoustoelectricMaterial';
+// v35.2 新材质 (ID 466~470)
+import './materials/NiobiumZirconiumAlloy';
+import './materials/MoltenNiobiumZirconium';
+import './materials/RubidiumFluoride';
+import './materials/GreenSlateSchist';
+import './materials/MagnetoelectroacousticMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
