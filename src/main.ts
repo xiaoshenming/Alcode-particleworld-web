@@ -574,6 +574,11 @@ import './materials/MoltenNiobiumPalladium';
 import './materials/TerbiumFluoride';
 import './materials/TremoliteSchist';
 import './materials/ThermoPhotoElectricMaterial';
+import './materials/NiobiumOsmiumAlloy';
+import './materials/MoltenNiobiumOsmium';
+import './materials/SamariumFluoride';
+import './materials/TalcSchist';
+import './materials/AcoustoMagnetoElectricMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
