@@ -402,6 +402,11 @@ import './materials/LiquidLutetium';
 import './materials/ChlorinePentafluoride';
 import './materials/Serpentine';
 import './materials/AcoustoOpticMaterial';
+import './materials/Ruthenium';
+import './materials/LiquidRuthenium';
+import './materials/CarbonTetrafluoride';
+import './materials/Soapstone';
+import './materials/AcoustoElectricMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
