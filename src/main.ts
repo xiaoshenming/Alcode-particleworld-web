@@ -432,6 +432,11 @@ import './materials/MoltenIndium';
 import './materials/AluminumFluoride';
 import './materials/Pyroxenite';
 import './materials/PhotoelectricMaterial';
+import './materials/Cesium';
+import './materials/MoltenCesium';
+import './materials/BariumFluoride';
+import './materials/Diabase';
+import './materials/AcoustomagneticMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
