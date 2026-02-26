@@ -619,10 +619,34 @@ const toolbar = new Toolbar(input, {
   onLoadAutosave: (slot: number) => {
     return loadAutosave(slot);
   },
+  getHotkeyBindings: () => {
+    return HOTKEY_MATERIALS;
+  },
 });
 
 // 常用材质快捷键映射（数字键 1~9, 0）
-const HOTKEY_MATERIALS = [1, 2, 3, 4, 6, 11, 22, 20, 5, 0]; // 沙水石木火熔岩火药泥土油橡皮
+const DEFAULT_HOTKEYS = [1, 2, 3, 4, 6, 11, 22, 20, 5, 0]; // 沙水石木火熔岩火药泥土油橡皮
+const HOTKEY_STORAGE_KEY = 'pw-hotkey-bindings';
+let HOTKEY_MATERIALS = [...DEFAULT_HOTKEYS];
+
+// 从 localStorage 恢复自定义快捷键绑定
+try {
+  const saved = localStorage.getItem(HOTKEY_STORAGE_KEY);
+  if (saved) {
+    const parsed = JSON.parse(saved);
+    if (Array.isArray(parsed) && parsed.length === 10) {
+      HOTKEY_MATERIALS = parsed;
+    }
+  }
+} catch { /* ignore */ }
+
+/** 保存快捷键绑定到 localStorage */
+function saveHotkeyBindings(): void {
+  localStorage.setItem(HOTKEY_STORAGE_KEY, JSON.stringify(HOTKEY_MATERIALS));
+}
+
+// 初始化快捷键栏显示
+toolbar.refreshHotkeyBar(HOTKEY_MATERIALS);
 
 // 拖拽导入 .pw 文件
 const dropOverlay = document.createElement('div');
@@ -709,6 +733,21 @@ document.addEventListener('keydown', (e) => {
   if (e.code === 'Space') {
     e.preventDefault();
     paused = !paused;
+    return;
+  }
+
+  // Shift+数字键 绑定当前材质到快捷键
+  if (e.shiftKey && e.code >= 'Digit1' && e.code <= 'Digit9') {
+    const idx = parseInt(e.code.charAt(5)) - 1;
+    HOTKEY_MATERIALS[idx] = input.getMaterial();
+    saveHotkeyBindings();
+    toolbar.refreshHotkeyBar(HOTKEY_MATERIALS);
+    return;
+  }
+  if (e.shiftKey && e.code === 'Digit0') {
+    HOTKEY_MATERIALS[9] = input.getMaterial();
+    saveHotkeyBindings();
+    toolbar.refreshHotkeyBar(HOTKEY_MATERIALS);
     return;
   }
 

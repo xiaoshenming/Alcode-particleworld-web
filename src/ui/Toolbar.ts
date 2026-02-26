@@ -41,6 +41,7 @@ export interface ToolbarCallbacks {
   onToggleDensityMap?: () => boolean; // 返回是否开启密度热力图
   onGetAutosaveSlots?: () => Array<{slot: number; time: number; particles: number} | null>;
   onLoadAutosave?: (slot: number) => boolean;
+  getHotkeyBindings?: () => number[];
 }
 
 /**
@@ -111,6 +112,7 @@ export class Toolbar {
   /** 边界模式按钮 */
   private boundaryBtn!: HTMLButtonElement;
   private densityMapBtn!: HTMLButtonElement;
+  private hotkeyBarEl!: HTMLElement;
 
   constructor(input: InputHandler, callbacks: ToolbarCallbacks) {
     this.input = input;
@@ -279,6 +281,34 @@ export class Toolbar {
 
   refreshDensityMap(active: boolean): void {
     this.densityMapBtn.classList.toggle('active', active);
+  }
+
+  /** 刷新快捷键栏显示 */
+  refreshHotkeyBar(bindings: number[]): void {
+    if (!this.hotkeyBarEl) return;
+    const btns = this.hotkeyBarEl.querySelectorAll('.hotkey-slot');
+    btns.forEach((btn, i) => {
+      const matId = bindings[i];
+      const mat = getMaterial(matId);
+      const label = i < 9 ? `${i + 1}` : '0';
+      (btn as HTMLElement).textContent = `${label}:${mat ? mat.name.slice(0, 2) : '空'}`;
+      if (mat) {
+        const c = mat.color();
+        const r = c & 0xFF, g = (c >> 8) & 0xFF, b = (c >> 16) & 0xFF;
+        (btn as HTMLElement).style.borderBottomColor = `rgb(${r},${g},${b})`;
+      } else {
+        (btn as HTMLElement).style.borderBottomColor = 'transparent';
+      }
+    });
+  }
+
+  /** 获取指定槽位的快捷键绑定材质 ID */
+  private getHotkeyBinding(idx: number): number | undefined {
+    if (this.callbacks.getHotkeyBindings) {
+      const bindings = this.callbacks.getHotkeyBindings();
+      return bindings[idx];
+    }
+    return undefined;
   }
 
   /** 加载收藏夹 */
@@ -629,6 +659,27 @@ export class Toolbar {
     this.searchInput.setAttribute('aria-label', '搜索材质');
     searchDiv.appendChild(this.searchInput);
     this.container.appendChild(searchDiv);
+
+    // 快捷键栏（数字键 1~9, 0 绑定材质）
+    this.hotkeyBarEl = document.createElement('div');
+    this.hotkeyBarEl.className = 'hotkey-bar';
+    this.hotkeyBarEl.title = 'Shift+数字键绑定当前材质';
+    for (let i = 0; i < 10; i++) {
+      const slot = document.createElement('span');
+      slot.className = 'hotkey-slot';
+      const label = i < 9 ? `${i + 1}` : '0';
+      slot.textContent = `${label}:--`;
+      slot.addEventListener('click', () => {
+        // 点击快捷键槽位选择对应材质
+        const matId = this.getHotkeyBinding(i);
+        if (matId !== undefined) {
+          this.input.setMaterial(matId);
+          this.refreshMaterialSelection();
+        }
+      });
+      this.hotkeyBarEl.appendChild(slot);
+    }
+    this.container.appendChild(this.hotkeyBarEl);
 
     // 分类材质区
     const matsPanel = document.createElement('div');
