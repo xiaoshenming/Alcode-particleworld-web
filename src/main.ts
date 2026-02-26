@@ -443,6 +443,12 @@ import './materials/MoltenYttrium';
 import './materials/LithiumFluoride';
 import './materials/SerpentinizedGabbro';
 import './materials/AcoustoelasticMaterial';
+// v34.2 新材质 (ID 446~450)
+import './materials/HafniumTungstenAlloy';
+import './materials/MoltenHafniumTungsten';
+import './materials/MagnesiumFluoride';
+import './materials/MixedGneiss';
+import './materials/ThermoacousticMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
