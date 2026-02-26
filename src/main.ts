@@ -1275,6 +1275,36 @@ import './materials/MoltenVanadiumSamarium';
 import './materials/HighPurityDysprosiumSamariumFluoride';
 import './materials/OlivineGneiss4';
 import './materials/PhotoAcoustoThermalMaterial2';
+// v62.0 (ID 1126~1130)
+import './materials/IridiumLanthanumAlloy';
+import './materials/MoltenIridiumLanthanum';
+import './materials/HighPurityHolmiumSamariumFluoride';
+import './materials/AndalusiteGneiss5';
+import './materials/AcoustoThermoPhotoMaterial3';
+// v62.1 (ID 1131~1135)
+import './materials/IridiumPraseodymiumAlloy';
+import './materials/MoltenIridiumPraseodymium';
+import './materials/HighPurityErbiumSamariumFluoride';
+import './materials/ScapolitGneiss6';
+import './materials/PhotoMagnetoThermalMaterial3';
+// v62.2 (ID 1136~1140)
+import './materials/IridiumNeodymiumAlloy';
+import './materials/MoltenIridiumNeodymium';
+import './materials/HighPurityThuliumSamariumFluoride';
+import './materials/SpinelGneiss5';
+import './materials/ThermoElectroAcousticMaterial3';
+// v62.3 (ID 1141~1145)
+import './materials/IridiumGadoliniumAlloy';
+import './materials/MoltenIridiumGadolinium';
+import './materials/HighPurityYtterbiumSamariumFluoride';
+import './materials/ZoisiteGneiss5';
+import './materials/MagnetoPhotoElectricMaterial3';
+// v62.4 (ID 1146~1150)
+import './materials/IridiumDysprosiumAlloy';
+import './materials/MoltenIridiumDysprosium';
+import './materials/HighPurityLutetiumSamariumFluoride';
+import './materials/CalciteGneiss5';
+import './materials/AcoustoElectroThermalMaterial3';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
