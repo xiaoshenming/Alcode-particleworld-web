@@ -22,6 +22,8 @@ export class World implements WorldAPI {
   private _temp: Float32Array;
   /** 粒子年龄网格（帧数，Uint16 最大 65535） */
   private _age: Uint16Array;
+  /** 粒子轨迹强度（0~255，每帧衰减） */
+  private _trail: Uint8Array;
   /** 风力方向（-1=左, 0=无, 1=右） */
   private _windDir = 0;
   /** 风力强度（0~1） */
@@ -38,6 +40,7 @@ export class World implements WorldAPI {
     this._awakeNext = new Uint8Array(size);
     this._temp = new Float32Array(size);
     this._age = new Uint16Array(size);
+    this._trail = new Uint8Array(size);
     this._temp.fill(20); // 常温 20°
 
     // 初始化为空气背景色
@@ -92,6 +95,10 @@ export class World implements WorldAPI {
     const tmpAge = this._age[i1];
     this._age[i1] = this._age[i2];
     this._age[i2] = tmpAge;
+
+    // 粒子移动时在源位置留下轨迹
+    if (this.cells[i2] !== 0) this._trail[i1] = 255;
+    if (this.cells[i1] !== 0) this._trail[i2] = 255;
 
     // 交换涉及的两个位置都需要唤醒
     this.wakeArea(x1, y1);
@@ -236,6 +243,20 @@ export class World implements WorldAPI {
     return this._age;
   }
 
+  /** 获取轨迹缓冲区（供渲染器使用） */
+  getTrailBuffer(): Uint8Array {
+    return this._trail;
+  }
+
+  /** 每帧衰减轨迹强度 */
+  decayTrail(): void {
+    for (let i = 0; i < this._trail.length; i++) {
+      if (this._trail[i] > 0) {
+        this._trail[i] = Math.max(0, this._trail[i] - 12);
+      }
+    }
+  }
+
   /** 获取世界统计信息：活跃粒子数、总粒子数、平均温度 */
   getWorldStats(): { total: number; active: number; avgTemp: number } {
     let total = 0;
@@ -274,6 +295,7 @@ export class World implements WorldAPI {
     this._awakeNext.fill(0);
     this._temp.fill(20);
     this._age.fill(0);
+    this._trail.fill(0);
   }
 
   /** 序列化世界状态为 JSON 字符串（只保存 cells） */

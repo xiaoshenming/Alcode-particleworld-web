@@ -20,6 +20,8 @@ export class Renderer {
   showDensityMap = false;
   /** 年龄叠加层开关 */
   showAgeOverlay = false;
+  /** 轨迹叠加层开关 */
+  showTrailOverlay = false;
   /** 网格线开关 */
   showGrid = false;
   /** 镜像线开关 */
@@ -73,6 +75,11 @@ export class Renderer {
     // 年龄叠加层
     if (this.showAgeOverlay) {
       this.applyAgeOverlay(world);
+    }
+
+    // 轨迹叠加层
+    if (this.showTrailOverlay) {
+      this.applyTrailOverlay(world);
     }
 
     // putImageData 到临时 canvas，再缩放绘制到主 canvas
@@ -279,6 +286,39 @@ export class Renderer {
         pr = Math.min(255, Math.round(pr * (1 - alpha) + hr * alpha));
         pg = Math.min(255, Math.round(pg * (1 - alpha) + hg * alpha));
         pb = Math.min(255, Math.round(pb * (1 - alpha) + hb * alpha));
+
+        this.pixels[i] = (pa << 24) | (pb << 16) | (pg << 8) | pr;
+      }
+    }
+  }
+
+  /** 轨迹叠加层 —— 粒子经过的路径显示为青色尾迹 */
+  private applyTrailOverlay(world: World): void {
+    const trail = world.getTrailBuffer();
+    const cells = world.cells;
+    const w = this.gridWidth;
+    const h = this.gridHeight;
+
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const i = y * w + x;
+        const t = trail[i];
+        if (t === 0) continue;
+        // 只在空气格子上显示轨迹（粒子本身不需要）
+        if (cells[i] !== 0) continue;
+
+        const intensity = t / 255;
+        const pixel = this.pixels[i];
+        let pr = pixel & 0xFF;
+        let pg = (pixel >> 8) & 0xFF;
+        let pb = (pixel >> 16) & 0xFF;
+        const pa = (pixel >> 24) & 0xFF;
+
+        // 青色尾迹
+        const alpha = intensity * 0.6;
+        pr = Math.min(255, Math.round(pr * (1 - alpha) + 80 * alpha));
+        pg = Math.min(255, Math.round(pg * (1 - alpha) + 230 * alpha));
+        pb = Math.min(255, Math.round(pb * (1 - alpha) + 255 * alpha));
 
         this.pixels[i] = (pa << 24) | (pb << 16) | (pg << 8) | pr;
       }

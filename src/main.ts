@@ -1093,6 +1093,12 @@ document.addEventListener('keydown', (e) => {
     return;
   }
 
+  // T 键切换粒子轨迹叠加层
+  if (e.code === 'KeyT') {
+    renderer.showTrailOverlay = !renderer.showTrailOverlay;
+    return;
+  }
+
   // Shift+Arrow 翻转世界
   if (e.shiftKey && e.code === 'ArrowUp') {
     e.preventDefault();
@@ -1242,6 +1248,11 @@ function loop() {
     }
     if (antiGravity) {
       world.flipVertical();
+    }
+
+    // 轨迹衰减
+    if (renderer.showTrailOverlay) {
+      world.decayTrail();
     }
 
     // 粒子轨迹追踪：每帧更新追踪位置
