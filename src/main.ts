@@ -599,6 +599,11 @@ import './materials/MoltenNiobiumCerium';
 import './materials/ScandiumFluoride';
 import './materials/SoapstoneSchist';
 import './materials/PhotoElectroMagneticMaterial';
+import './materials/NiobiumLanthanumAlloy';
+import './materials/MoltenNiobiumLanthanum';
+import './materials/PraseodymiumFluoride';
+import './materials/PyroxeneGneiss';
+import './materials/AcoustoThermoElectricMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
