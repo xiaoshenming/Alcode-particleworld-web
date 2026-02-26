@@ -579,6 +579,11 @@ import './materials/MoltenNiobiumOsmium';
 import './materials/SamariumFluoride';
 import './materials/TalcSchist';
 import './materials/AcoustoMagnetoElectricMaterial';
+import './materials/NiobiumRutheniumAlloy';
+import './materials/MoltenNiobiumRuthenium';
+import './materials/HolmiumFluoride';
+import './materials/ChloriteSchist';
+import './materials/PhotoMagnetoElectricMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
