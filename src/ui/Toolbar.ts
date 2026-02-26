@@ -57,6 +57,9 @@ export class Toolbar {
   private favDiv!: HTMLElement;
   /** 搜索输入框 */
   private searchInput!: HTMLInputElement;
+  /** 材质悬浮卡片 */
+  private tooltip!: HTMLElement;
+  private tooltipTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor(input: InputHandler, callbacks: ToolbarCallbacks) {
     this.input = input;
@@ -69,6 +72,7 @@ export class Toolbar {
     this.collapsedCategories.add('矿石');
     this.collapsedCategories.add('特殊');
     this.loadFavorites();
+    this.buildTooltip();
     this.build();
   }
 
@@ -200,6 +204,83 @@ export class Toolbar {
     this.refreshFavorites();
   }
 
+  /** 构建悬浮卡片 DOM */
+  private buildTooltip(): void {
+    this.tooltip = document.createElement('div');
+    this.tooltip.className = 'material-tooltip';
+    document.body.appendChild(this.tooltip);
+  }
+
+  /** 显示材质悬浮卡片 */
+  private showTooltip(mat: MaterialDef, anchor: HTMLElement): void {
+    if (this.tooltipTimer) clearTimeout(this.tooltipTimer);
+    this.tooltipTimer = setTimeout(() => {
+      const color = mat.color();
+      const r = color & 0xFF;
+      const g = (color >> 8) & 0xFF;
+      const b = (color >> 16) & 0xFF;
+      const densityStr = mat.density === Infinity ? '∞' : mat.density.toFixed(1);
+      const cat = mat.category || '';
+
+      // 清空旧内容
+      while (this.tooltip.firstChild) this.tooltip.removeChild(this.tooltip.firstChild);
+
+      // 头部：色块 + 名称
+      const header = document.createElement('div');
+      header.className = 'material-tooltip-header';
+      const swatch = document.createElement('div');
+      swatch.className = 'material-tooltip-swatch';
+      swatch.style.backgroundColor = `rgb(${r},${g},${b})`;
+      const nameEl = document.createElement('span');
+      nameEl.className = 'material-tooltip-name';
+      nameEl.textContent = mat.name;
+      header.appendChild(swatch);
+      header.appendChild(nameEl);
+      this.tooltip.appendChild(header);
+
+      // 详情
+      const detail = document.createElement('div');
+      detail.className = 'material-tooltip-detail';
+      detail.textContent = `ID: ${mat.id} · 密度: ${densityStr}${cat ? ` · ${cat}` : ''}`;
+      this.tooltip.appendChild(detail);
+
+      // 描述
+      if (mat.description) {
+        const desc = document.createElement('div');
+        desc.className = 'material-tooltip-desc';
+        desc.textContent = mat.description;
+        this.tooltip.appendChild(desc);
+      }
+
+      // 定位：在按钮右侧显示
+      const rect = anchor.getBoundingClientRect();
+      let left = rect.right + 8;
+      let top = rect.top;
+
+      // 如果超出右边界，改为左侧显示
+      if (left + 220 > window.innerWidth) {
+        left = rect.left - 228;
+      }
+      // 如果超出底部，向上偏移
+      if (top + 100 > window.innerHeight) {
+        top = window.innerHeight - 110;
+      }
+
+      this.tooltip.style.left = `${left}px`;
+      this.tooltip.style.top = `${top}px`;
+      this.tooltip.classList.add('visible');
+    }, 300);
+  }
+
+  /** 隐藏悬浮卡片 */
+  private hideTooltip(): void {
+    if (this.tooltipTimer) {
+      clearTimeout(this.tooltipTimer);
+      this.tooltipTimer = null;
+    }
+    this.tooltip.classList.remove('visible');
+  }
+
   /** 刷新收藏夹 UI */
   private refreshFavorites(): void {
     while (this.favBtnsDiv.firstChild) {
@@ -248,6 +329,14 @@ export class Toolbar {
     btn.addEventListener('contextmenu', (e) => {
       e.preventDefault();
       this.toggleFavorite(mat.id);
+    });
+
+    // 悬浮显示材质信息卡片
+    btn.addEventListener('mouseenter', () => {
+      this.showTooltip(mat, btn);
+    });
+    btn.addEventListener('mouseleave', () => {
+      this.hideTooltip();
     });
 
     return btn;

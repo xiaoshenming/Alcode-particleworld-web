@@ -374,3 +374,58 @@ input[type="range"] {
   color: #888;
   font-size: 11px;
 }
+
+/* 材质悬浮卡片 */
+.material-tooltip {
+  position: fixed;
+  z-index: 100;
+  pointer-events: none;
+  background: rgba(16, 16, 32, 0.95);
+  border: 1px solid #555;
+  border-radius: 6px;
+  padding: 8px 10px;
+  min-width: 150px;
+  max-width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.material-tooltip.visible {
+  opacity: 1;
+}
+
+.material-tooltip-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.material-tooltip-swatch {
+  width: 20px;
+  height: 20px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+}
+
+.material-tooltip-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #e0e0e0;
+}
+
+.material-tooltip-detail {
+  font-size: 11px;
+  color: #999;
+  font-family: monospace;
+}
+
+.material-tooltip-desc {
+  font-size: 11px;
+  color: #777;
+  line-height: 1.3;
+}
