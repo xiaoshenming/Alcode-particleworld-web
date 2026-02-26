@@ -604,6 +604,11 @@ import './materials/MoltenNiobiumLanthanum';
 import './materials/PraseodymiumFluoride';
 import './materials/PyroxeneGneiss';
 import './materials/AcoustoThermoElectricMaterial';
+import './materials/NiobiumBerylliumAlloy';
+import './materials/MoltenNiobiumBeryllium';
+import './materials/ThuliumFluoride';
+import './materials/LabradoriteSchist';
+import './materials/MagnetoThermoElectricMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
