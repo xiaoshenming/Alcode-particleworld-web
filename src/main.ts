@@ -679,6 +679,11 @@ import './materials/MoltenTantalumRhenium';
 import './materials/HighPurityGadoliniumCeriumFluoride';
 import './materials/CordieriteGneiss';
 import './materials/PhotoAcoustoMagneticMaterial';
+import './materials/TantalumChromiumAlloy';
+import './materials/MoltenTantalumChromium';
+import './materials/HighPurityEuropiumLanthanumFluoride';
+import './materials/StauroliteGneiss';
+import './materials/ThermoMagnetoSonicMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
