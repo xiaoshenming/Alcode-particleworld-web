@@ -1074,6 +1074,41 @@ import './materials/HighPurityDysprosiumScandiumFluoride';
 import './materials/ChiastoliteGneiss2';
 import './materials/MagnetoElectroPhotoMaterial2';
 
+// v56.0 (ID 976~980)
+import './materials/TungstenLanthanumAlloy';
+import './materials/MoltenTungstenLanthanum';
+import './materials/HighPurityThuliumScandiumFluoride';
+import './materials/CordieriteGneiss4';
+import './materials/ThermoElectroPhotoMaterial3';
+
+// v56.1 (ID 981~985)
+import './materials/TungstenPraseodymiumAlloy';
+import './materials/MoltenTungstenPraseodymium';
+import './materials/HighPurityErbiumScandiumFluoride';
+import './materials/SillimaniteGneiss4';
+import './materials/AcoustoMagnetoElectricMaterial3';
+
+// v56.2 (ID 986~990)
+import './materials/TungstenNeodymiumAlloy';
+import './materials/MoltenTungstenNeodymium';
+import './materials/HighPurityHolmiumScandiumFluoride';
+import './materials/KyaniteGneiss3';
+import './materials/ElectroAcoustoPhotoMaterial3';
+
+// v56.3 (ID 991~995)
+import './materials/TungstenGadoliniumAlloy';
+import './materials/MoltenTungstenGadolinium';
+import './materials/HighPurityEuropiumScandiumFluoride';
+import './materials/AndalusiteGneiss3';
+import './materials/MagnetoThermoAcousticMaterial3';
+
+// v56.4 (ID 996~1000) - 1000种材质里程碑!
+import './materials/TungstenDysprosiumAlloy';
+import './materials/MoltenTungstenDysprosium';
+import './materials/HighPurityYttriumScandiumFluoride';
+import './materials/WollastoniteGneiss3';
+import './materials/PhotoAcoustoElectricMaterial2';
+
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
 import { Renderer } from './core/Renderer';
