@@ -37,6 +37,7 @@ export interface ToolbarCallbacks {
   onImportFile?: () => void;
   onEncyclopedia?: () => void;
   onToggleAntiGravity?: () => boolean; // 返回是否开启反重力
+  onCycleBoundary?: () => string; // 返回新的边界模式
 }
 
 /**
@@ -104,6 +105,8 @@ export class Toolbar {
   /** 温度笔刷控件 */
   private tempBrushBtn!: HTMLButtonElement;
   private tempBrushLabel!: HTMLSpanElement;
+  /** 边界模式按钮 */
+  private boundaryBtn!: HTMLButtonElement;
 
   constructor(input: InputHandler, callbacks: ToolbarCallbacks) {
     this.input = input;
@@ -261,6 +264,13 @@ export class Toolbar {
       this.tempBrushBtn.classList.remove('active');
       this.tempBrushLabel.style.display = 'none';
     }
+  }
+
+  /** 刷新边界模式按钮 */
+  refreshBoundary(mode: string): void {
+    const labels: Record<string, string> = { wall: '边界: 实墙', wrap: '边界: 环绕', open: '边界: 开放' };
+    this.boundaryBtn.textContent = labels[mode] || '边界: 实墙';
+    this.boundaryBtn.classList.toggle('active', mode !== 'wall');
   }
 
   /** 加载收藏夹 */
@@ -1306,6 +1316,22 @@ export class Toolbar {
     this.tempBrushLabel.style.display = 'none';
     tempBrushRow.appendChild(this.tempBrushLabel);
     controlPanel.appendChild(tempBrushRow);
+
+    // 边界模式按钮
+    const boundaryRow = document.createElement('div');
+    boundaryRow.className = 'control-row';
+    this.boundaryBtn = document.createElement('button');
+    this.boundaryBtn.className = 'ctrl-btn';
+    this.boundaryBtn.textContent = '边界: 实墙';
+    this.boundaryBtn.title = '切换边界模式 (J)';
+    this.boundaryBtn.addEventListener('click', () => {
+      if (this.callbacks.onCycleBoundary) {
+        const mode = this.callbacks.onCycleBoundary();
+        this.refreshBoundary(mode);
+      }
+    });
+    boundaryRow.appendChild(this.boundaryBtn);
+    controlPanel.appendChild(boundaryRow);
 
     // 粒子计数
     const statsDiv = document.createElement('div');

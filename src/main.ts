@@ -556,6 +556,9 @@ const toolbar = new Toolbar(input, {
     antiGravity = !antiGravity;
     return antiGravity;
   },
+  onCycleBoundary: () => {
+    return simulation.cycleBoundary();
+  },
 });
 
 // 常用材质快捷键映射（数字键 1~9, 0）
@@ -846,6 +849,13 @@ document.addEventListener('keydown', (e) => {
     const current = input.getBrushTemp();
     input.setBrushTemp(current + 100);
     toolbar.refreshBrushTemp();
+    return;
+  }
+
+  // J 键切换边界模式
+  if (e.code === 'KeyJ') {
+    const mode = simulation.cycleBoundary();
+    toolbar.refreshBoundary(mode);
     return;
   }
 
