@@ -1176,6 +1176,41 @@ import './materials/HighPuritySamariumYttriumFluoride';
 import './materials/PrehniteGneiss2';
 import './materials/PhotoThermoElectricMaterial3';
 
+// v59.0 (ID 1051~1055)
+import './materials/RheniumThuliumAlloy';
+import './materials/MoltenRheniumThulium';
+import './materials/HighPurityPraseodymiumCeriumFluoride';
+import './materials/DiopsideGneiss3';
+import './materials/AcoustoMagnetoThermalMaterial3';
+
+// v59.1 (ID 1056~1060)
+import './materials/RheniumErbiumAlloy';
+import './materials/MoltenRheniumErbium';
+import './materials/HighPurityNeodymiumCeriumFluoride';
+import './materials/ActinoliteGneiss3';
+import './materials/ElectroPhotoMagneticMaterial3';
+
+// v59.2 (ID 1061~1065)
+import './materials/RheniumHolmiumAlloy';
+import './materials/MoltenRheniumHolmium';
+import './materials/HighPuritySamariumCeriumFluoride';
+import './materials/TremoliteGneiss3';
+import './materials/ThermoAcoustoElectricMaterial5';
+
+// v59.3 (ID 1066~1070)
+import './materials/RheniumEuropiumAlloy';
+import './materials/MoltenRheniumEuropium';
+import './materials/HighPurityHolmiumCeriumFluoride';
+import './materials/TalcGneiss4';
+import './materials/MagnetoPhotoAcousticMaterial4';
+
+// v59.4 (ID 1071~1075)
+import './materials/RheniumSamariumAlloy';
+import './materials/MoltenRheniumSamarium';
+import './materials/HighPurityErbiumCeriumFluoride';
+import './materials/ChloriteGneiss3';
+import './materials/PhotoElectroThermalMaterial4';
+
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
 import { Renderer } from './core/Renderer';
