@@ -58,6 +58,8 @@ export class InputHandler {
   onPan?: (dx: number, dy: number) => void;
   /** 重置视图回调 */
   onResetView?: () => void;
+  /** 吸管工具回调：Alt+点击吸取材质 */
+  onEyedrop?: (matId: number) => void;
   /** 外部坐标转换函数（用于缩放平移后的坐标映射） */
   screenToGrid?: (sx: number, sy: number) => [number, number];
 
@@ -204,6 +206,18 @@ export class InputHandler {
         this.panning = true;
         this.panLastX = e.clientX;
         this.panLastY = e.clientY;
+        return;
+      }
+      // Alt+左键 = 吸管工具
+      if (e.altKey && e.button === 0) {
+        const [gx, gy] = this.toGrid(e.clientX, e.clientY);
+        if (this.world.inBounds(gx, gy)) {
+          const matId = this.world.get(gx, gy);
+          if (matId !== 0) {
+            this.selectedMaterial = matId;
+            this.onEyedrop?.(matId);
+          }
+        }
         return;
       }
       this.onPaintStart?.();

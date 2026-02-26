@@ -609,6 +609,11 @@ input.onResetView = () => {
   renderer.resetView();
 };
 
+input.onEyedrop = (matId: number) => {
+  radialMenu.recordUsage(matId);
+  toolbar.refreshMaterialSelection();
+};
+
 const toolbar = new Toolbar(input, {
   onPause: () => { paused = !paused; },
   onClear: () => { world.clear(); history.clear(); },
