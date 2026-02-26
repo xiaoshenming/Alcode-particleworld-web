@@ -287,6 +287,11 @@ import './materials/MoltenZirconium';
 import './materials/Bromine';
 import './materials/Quartzite';
 import './materials/Thermoelectric';
+import './materials/HafniumAlloy';
+import './materials/MoltenHafniumAlloy';
+import './materials/Krypton';
+import './materials/Hornfels';
+import './materials/SelfHealingMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
