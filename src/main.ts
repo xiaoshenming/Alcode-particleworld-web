@@ -387,6 +387,11 @@ import './materials/LiquidHolmium';
 import './materials/PhosphorusPentachloride';
 import './materials/SericiteSchist';
 import './materials/DielectricElastomer';
+import './materials/Thulium';
+import './materials/LiquidThulium';
+import './materials/SeleniumHexafluoride';
+import './materials/MicaGneiss';
+import './materials/PhotoelasticMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
