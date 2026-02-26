@@ -330,6 +330,51 @@ export class Renderer {
     return true;
   }
 
+  /** 绘制粒子轨迹线条 */
+  renderTrail(trail: Array<{x: number; y: number}>): void {
+    if (trail.length < 2) return;
+    const s = this.scale;
+    this.ctx.save();
+    this.ctx.translate(this.viewPanX, this.viewPanY);
+    this.ctx.scale(this.viewZoom, this.viewZoom);
+
+    for (let i = 1; i < trail.length; i++) {
+      const alpha = i / trail.length; // 越新越亮
+      this.ctx.strokeStyle = `rgba(255, 255, 100, ${alpha * 0.8})`;
+      this.ctx.lineWidth = s * 0.5;
+      this.ctx.beginPath();
+      this.ctx.moveTo((trail[i - 1].x + 0.5) * s, (trail[i - 1].y + 0.5) * s);
+      this.ctx.lineTo((trail[i].x + 0.5) * s, (trail[i].y + 0.5) * s);
+      this.ctx.stroke();
+    }
+
+    // 当前位置高亮圆点
+    const last = trail[trail.length - 1];
+    this.ctx.fillStyle = 'rgba(255, 255, 100, 0.9)';
+    this.ctx.beginPath();
+    this.ctx.arc((last.x + 0.5) * s, (last.y + 0.5) * s, s * 0.8, 0, Math.PI * 2);
+    this.ctx.fill();
+
+    this.ctx.restore();
+  }
+
+  /** 在画布左上角绘制追踪信息 */
+  renderTrackInfo(gx: number, gy: number, matName: string): void {
+    const text = gx < 0 ? `[L] ${matName}` : `追踪: ${matName} (${gx}, ${gy})`;
+    this.ctx.save();
+    this.ctx.font = '13px monospace';
+    const metrics = this.ctx.measureText(text);
+    const pad = 6;
+    const bx = 8, by = 8;
+    const bw = metrics.width + pad * 2;
+    const bh = 20;
+    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+    this.ctx.fillRect(bx, by, bw, bh);
+    this.ctx.fillStyle = gx < 0 ? 'rgba(200, 200, 200, 0.9)' : 'rgba(255, 255, 100, 0.95)';
+    this.ctx.fillText(text, bx + pad, by + 15);
+    this.ctx.restore();
+  }
+
   /** 重置视图缩放和平移 */
   resetView(): void {
     this.viewZoom = 1.0;

@@ -362,6 +362,11 @@ import './materials/MoltenPraseodymium';
 import './materials/PhosphorusPentafluoride';
 import './materials/Greenschist';
 import './materials/PhotothermalMaterial';
+import './materials/Lanthanum';
+import './materials/LiquidLanthanum';
+import './materials/ArsenicTrifluoride';
+import './materials/Pyrophyllite';
+import './materials/Sonoluminescent';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
@@ -375,6 +380,7 @@ import { StatsPanel } from './ui/StatsPanel';
 import { Encyclopedia } from './ui/Encyclopedia';
 
 import { GifEncoder } from './utils/GifEncoder';
+import { getMaterial } from './materials/registry';
 
 const GRID_WIDTH = 200;
 const GRID_HEIGHT = 150;
@@ -406,6 +412,14 @@ const rewindBuffer: Uint16Array[] = [];
 let rewindHead = 0; // 写入位置
 let rewindCount = 0; // 已存帧数
 let rewinding = false; // 是否正在倒流
+
+// 粒子轨迹追踪系统
+let trackingMode = false;   // 是否处于追踪模式（按 L 切换）
+let trackingActive = false;  // 是否正在追踪某个粒子
+let trackX = -1, trackY = -1;
+let trackMatId = 0;          // 被追踪粒子的材质 ID
+let trackTrail: Array<{x: number; y: number}> = [];
+const TRACK_MAX_TRAIL = 120;
 
 const SAVE_KEY = 'particleworld-save';
 
@@ -748,6 +762,19 @@ document.addEventListener('keydown', (e) => {
     return;
   }
 
+  // L 键切换粒子轨迹追踪模式
+  if (e.code === 'KeyL') {
+    if (trackingActive) {
+      // 正在追踪时按 L 停止追踪并退出追踪模式
+      trackingActive = false;
+      trackingMode = false;
+      trackTrail = [];
+    } else {
+      trackingMode = !trackingMode;
+    }
+    return;
+  }
+
   // D 键循环喷雾密度 (20% → 40% → 60% → 80% → 100% → 20%)
   if (e.code === 'KeyD') {
     const current = Math.round(input.getSprayDensity() * 100);
@@ -818,6 +845,30 @@ canvas.addEventListener('mousedown', (e) => {
   }
 }, true);
 
+// 追踪模式下点击选择粒子
+canvas.addEventListener('mousedown', (e) => {
+  if (!trackingMode || e.button !== 0) return;
+  const rect = canvas.getBoundingClientRect();
+  const [gx, gy] = renderer.screenToGrid(e.clientX - rect.left, e.clientY - rect.top);
+  if (!world.inBounds(gx, gy)) return;
+  const matId = world.get(gx, gy);
+  if (matId === 0) {
+    // 点击空白处停止追踪
+    trackingActive = false;
+    trackingMode = false;
+    trackTrail = [];
+    return;
+  }
+  // 开始追踪该粒子
+  trackX = gx;
+  trackY = gy;
+  trackMatId = matId;
+  trackTrail = [{x: gx, y: gy}];
+  trackingActive = true;
+  e.stopPropagation();
+  e.preventDefault();
+}, true);
+
 // 录制完成：编码并下载 GIF
 function finishRecording(): void {
   if (gifEncoder) {
@@ -864,8 +915,54 @@ function loop() {
 
       simulation.update();
     }
+
+    // 粒子轨迹追踪：每帧更新追踪位置
+    if (trackingActive) {
+      const curMat = world.get(trackX, trackY);
+      if (curMat === trackMatId) {
+        // 粒子还在原位，直接记录
+        trackTrail.push({x: trackX, y: trackY});
+      } else {
+        // 粒子移动了，在邻域搜索相同材质
+        let found = false;
+        for (let r = 1; r <= 4 && !found; r++) {
+          for (let dy = -r; dy <= r && !found; dy++) {
+            for (let dx = -r; dx <= r && !found; dx++) {
+              if (Math.abs(dx) !== r && Math.abs(dy) !== r) continue; // 只搜外圈
+              const nx = trackX + dx, ny = trackY + dy;
+              if (world.inBounds(nx, ny) && world.get(nx, ny) === trackMatId) {
+                trackX = nx;
+                trackY = ny;
+                found = true;
+              }
+            }
+          }
+        }
+        if (found) {
+          trackTrail.push({x: trackX, y: trackY});
+        } else {
+          // 粒子消失，停止追踪
+          trackingActive = false;
+          trackingMode = false;
+          trackTrail = [];
+        }
+      }
+      if (trackingActive && trackTrail.length > TRACK_MAX_TRAIL) {
+        trackTrail.shift();
+      }
+    }
   }
   renderer.render(world);
+
+  // 粒子轨迹绘制
+  if (trackingActive && trackTrail.length >= 2) {
+    renderer.renderTrail(trackTrail);
+    const mat = getMaterial(world.get(trackX, trackY));
+    renderer.renderTrackInfo(trackX, trackY, mat?.name || '未知');
+  } else if (trackingMode && !trackingActive) {
+    // 追踪模式但未选择粒子，显示提示
+    renderer.renderTrackInfo(-1, -1, '点击粒子开始追踪');
+  }
 
   // GIF 录制：每 3 帧捕获一次（降低文件大小）
   if (recording && gifEncoder && !paused) {
