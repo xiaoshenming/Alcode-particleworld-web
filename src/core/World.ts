@@ -236,6 +236,25 @@ export class World implements WorldAPI {
     return this._age;
   }
 
+  /** 获取世界统计信息：活跃粒子数、总粒子数、平均温度 */
+  getWorldStats(): { total: number; active: number; avgTemp: number } {
+    let total = 0;
+    let active = 0;
+    let tempSum = 0;
+    for (let i = 0; i < this.cells.length; i++) {
+      if (this.cells[i] !== 0) {
+        total++;
+        tempSum += this._temp[i];
+        if (this._awake[i] === 1) active++;
+      }
+    }
+    return {
+      total,
+      active,
+      avgTemp: total > 0 ? tempSum / total : 20,
+    };
+  }
+
   /** 统计非空粒子数量 */
   getParticleCount(): number {
     let count = 0;

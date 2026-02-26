@@ -154,6 +154,20 @@ export class StatsPanel {
     totalRow.textContent = `总计: ${total} 粒子`;
     this.listEl.appendChild(totalRow);
 
+    // 活跃粒子比例 & 平均温度
+    const stats = this.world.getWorldStats();
+    const activeRatio = total > 0 ? ((stats.active / total) * 100).toFixed(1) : '0.0';
+
+    const activeRow = document.createElement('div');
+    activeRow.className = 'stats-row stats-extra';
+    activeRow.textContent = `活跃: ${stats.active} (${activeRatio}%)`;
+    this.listEl.appendChild(activeRow);
+
+    const tempRow = document.createElement('div');
+    tempRow.className = 'stats-row stats-extra';
+    tempRow.textContent = `平均温度: ${stats.avgTemp.toFixed(1)}°`;
+    this.listEl.appendChild(tempRow);
+
     // 绘制趋势图
     this.drawChart();
   }

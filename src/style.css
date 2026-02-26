@@ -403,6 +403,12 @@ input[type="range"] {
   font-size: 11px;
 }
 
+.stats-extra {
+  color: #7ab;
+  font-size: 11px;
+  padding-left: 2px;
+}
+
 /* 材质悬浮卡片 */
 .material-tooltip {
   position: fixed;
