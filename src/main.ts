@@ -1053,6 +1053,27 @@ import './materials/HighPurityLanthanumScandiumFluoride';
 import './materials/GarnetGneiss4';
 import './materials/ElectroThermoAcousticMaterial3';
 
+// v55.2 (ID 961~965)
+import './materials/MolybdenumHolmiumAlloy';
+import './materials/MoltenMolybdenumHolmium';
+import './materials/HighPurityNeodymiumScandiumFluoride';
+import './materials/ZoisiteGneiss2';
+import './materials/PhotoMagnetoElectricMaterial2';
+
+// v55.3 (ID 966~970)
+import './materials/MolybdenumEuropiumAlloy';
+import './materials/MoltenMolybdenumEuropium';
+import './materials/HighPurityGadoliniumScandiumFluoride';
+import './materials/StaurolitGneiss2';
+import './materials/ThermoAcoustoPhotoMaterial2';
+
+// v55.4 (ID 971~975)
+import './materials/MolybdenumSamariumAlloy';
+import './materials/MoltenMolybdenumSamarium';
+import './materials/HighPurityDysprosiumScandiumFluoride';
+import './materials/ChiastoliteGneiss2';
+import './materials/MagnetoElectroPhotoMaterial2';
+
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
 import { Renderer } from './core/Renderer';
