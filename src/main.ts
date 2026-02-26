@@ -1245,6 +1245,36 @@ import './materials/MoltenVanadiumDysprosium';
 import './materials/HighPurityYttriumCeriumFluoride';
 import './materials/CalciteGneiss3';
 import './materials/AcoustoMagnetoPhotoMaterial2';
+// v61.0 (ID 1101~1105)
+import './materials/VanadiumThuliumAlloy';
+import './materials/MoltenVanadiumThulium';
+import './materials/HighPurityLanthanumSamariumFluoride';
+import './materials/ScapolitGneiss5';
+import './materials/ThermoAcoustoMagneticMaterial3';
+// v61.1 (ID 1106~1110)
+import './materials/VanadiumErbiumAlloy';
+import './materials/MoltenVanadiumErbium';
+import './materials/HighPurityPraseodymiumSamariumFluoride';
+import './materials/SpinelGneiss4';
+import './materials/AcoustoPhotoMagneticMaterial2';
+// v61.2 (ID 1111~1115)
+import './materials/VanadiumHolmiumAlloy';
+import './materials/MoltenVanadiumHolmium';
+import './materials/HighPurityNeodymiumSamariumFluoride';
+import './materials/ZoisiteGneiss4';
+import './materials/ElectroMagnetoPhotoMaterial2';
+// v61.3 (ID 1116~1120)
+import './materials/VanadiumEuropiumAlloy';
+import './materials/MoltenVanadiumEuropium';
+import './materials/HighPurityGadoliniumSamariumFluoride';
+import './materials/CalciteGneiss4';
+import './materials/AcoustoMagnetoElectricMaterial2';
+// v61.4 (ID 1121~1125)
+import './materials/VanadiumSamariumAlloy';
+import './materials/MoltenVanadiumSamarium';
+import './materials/HighPurityDysprosiumSamariumFluoride';
+import './materials/OlivineGneiss4';
+import './materials/PhotoAcoustoThermalMaterial2';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
