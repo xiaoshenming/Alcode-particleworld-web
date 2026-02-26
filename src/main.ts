@@ -378,6 +378,7 @@ import { History } from './core/History';
 import { FpsGraph } from './ui/FpsGraph';
 import { StatsPanel } from './ui/StatsPanel';
 import { Encyclopedia } from './ui/Encyclopedia';
+import { ScenePanel } from './ui/ScenePresets';
 
 import { GifEncoder } from './utils/GifEncoder';
 import { getMaterial } from './materials/registry';
@@ -398,6 +399,10 @@ const history = new History();
 const infoPanel = new InfoPanel(canvas, world, PIXEL_SCALE);
 const statsPanel = new StatsPanel(world);
 const encyclopedia = new Encyclopedia();
+const scenePanel = new ScenePanel((preset) => {
+  history.pushSnapshot(world.cells);
+  preset.generate(world);
+});
 
 let paused = false;
 let simSpeed = 1; // 模拟速度倍率 1~5
@@ -592,6 +597,11 @@ document.addEventListener('drop', (e) => {
 
 // 快捷键
 document.addEventListener('keydown', (e) => {
+  // Escape 关闭弹出面板
+  if (e.code === 'Escape') {
+    if (scenePanel.isVisible()) { scenePanel.hide(); return; }
+  }
+
   // Backspace 按住倒流
   if (e.code === 'Backspace') {
     e.preventDefault();
@@ -749,6 +759,12 @@ document.addEventListener('keydown', (e) => {
   // H 键打开材质百科全书
   if (e.code === 'KeyH') {
     encyclopedia.toggle();
+    return;
+  }
+
+  // K 键打开场景预设面板
+  if (e.code === 'KeyK') {
+    scenePanel.toggle();
     return;
   }
 
