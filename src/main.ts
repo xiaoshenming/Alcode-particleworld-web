@@ -455,6 +455,12 @@ import './materials/MoltenScandium';
 import './materials/SodiumFluoride';
 import './materials/AmphiboliteSchist';
 import './materials/MagnetoacousticMaterial';
+// v35.0 新材质 (ID 456~460)
+import './materials/TitaniumNiobiumAlloy';
+import './materials/MoltenTitaniumNiobium';
+import './materials/PotassiumFluoride';
+import './materials/GreenMudstone';
+import './materials/ElectroacousticMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
