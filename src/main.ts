@@ -282,6 +282,11 @@ import './materials/MoltenPalladium';
 import './materials/Helium';
 import './materials/Schist';
 import './materials/Electrochromic';
+import './materials/Zirconium';
+import './materials/MoltenZirconium';
+import './materials/Bromine';
+import './materials/Quartzite';
+import './materials/Thermoelectric';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
