@@ -124,6 +124,8 @@ const EXACT_PINYIN: Record<string, string> = {
   '光伏材料': 'GFCL', '锇': 'E', '液态锇': 'YTE', '砷化氢': 'SHQ',
   '榴辉岩': 'LHY', '柔性电路': 'RXDL', '铟': 'Y', '液态铟': 'YTY',
   '硫化氢': 'LHQ', '矽卡岩': 'XKY', '柔性显示材料': 'RXXSCL',
+  '锗': 'Z', '液态锗': 'YTZ', '溴化氢': 'XHQ', '辉石岩': 'HSY',
+  '柔性太阳能': 'RXTYN',
   '石棉': 'SM',
 };
 
