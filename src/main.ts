@@ -327,6 +327,11 @@ import './materials/MoltenFerroniobium';
 import './materials/Silane';
 import './materials/MetaDiabas';
 import './materials/Thermochromic';
+import './materials/Dysprosium';
+import './materials/MoltenDysprosium';
+import './materials/SiliconTetrafluoride';
+import './materials/Blueschist';
+import './materials/QuantumDot';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
