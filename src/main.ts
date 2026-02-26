@@ -312,6 +312,11 @@ import './materials/MoltenOsmium';
 import './materials/Arsine';
 import './materials/Eclogite';
 import './materials/FlexCircuit';
+import './materials/Indium';
+import './materials/MoltenIndium';
+import './materials/HydrogenSulfide';
+import './materials/Skarn';
+import './materials/FlexDisplay';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
