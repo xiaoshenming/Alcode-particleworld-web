@@ -358,6 +358,8 @@ import { History } from './core/History';
 import { FpsGraph } from './ui/FpsGraph';
 import { StatsPanel } from './ui/StatsPanel';
 
+import { GifEncoder } from './utils/GifEncoder';
+
 const GRID_WIDTH = 200;
 const GRID_HEIGHT = 150;
 const PIXEL_SCALE = 4;
@@ -376,6 +378,10 @@ const statsPanel = new StatsPanel(world);
 
 let paused = false;
 let simSpeed = 1; // 模拟速度倍率 1~5
+let recording = false;
+let gifEncoder: GifEncoder | null = null;
+let recordFrameCount = 0;
+const MAX_GIF_FRAMES = 150; // 最多录制 150 帧（约 5 秒）
 
 const SAVE_KEY = 'particleworld-save';
 
@@ -451,6 +457,16 @@ const toolbar = new Toolbar(input, {
   onCycleWeather: () => {
     simulation.cycleWeather();
     return simulation.getWeatherLabel();
+  },
+  onToggleRecord: () => {
+    if (!recording) {
+      gifEncoder = new GifEncoder(GRID_WIDTH, GRID_HEIGHT, 5);
+      recordFrameCount = 0;
+      recording = true;
+    } else {
+      finishRecording();
+    }
+    return recording;
   },
 });
 
@@ -676,6 +692,28 @@ canvas.addEventListener('mousedown', (e) => {
   }
 }, true);
 
+// 录制完成：编码并下载 GIF
+function finishRecording(): void {
+  if (gifEncoder) {
+    const blob = gifEncoder.encode();
+    const link = document.createElement('a');
+    link.download = `particleworld-${Date.now()}.gif`;
+    link.href = URL.createObjectURL(blob);
+    link.click();
+    URL.revokeObjectURL(link.href);
+    gifEncoder = null;
+  }
+  recording = false;
+  recordFrameCount = 0;
+  toolbar.refreshRecord(false);
+}
+
+// GIF 录制用的缩小 canvas（原始分辨率，不含 UI）
+const gifCanvas = document.createElement('canvas');
+gifCanvas.width = GRID_WIDTH;
+gifCanvas.height = GRID_HEIGHT;
+const gifCtx = gifCanvas.getContext('2d')!;
+
 // FPS 图表
 const fpsGraph = new FpsGraph();
 
@@ -686,6 +724,18 @@ function loop() {
     }
   }
   renderer.render(world);
+
+  // GIF 录制：每 3 帧捕获一次（降低文件大小）
+  if (recording && gifEncoder && !paused) {
+    if (recordFrameCount % 3 === 0) {
+      gifCtx.drawImage(canvas, 0, 0, GRID_WIDTH, GRID_HEIGHT);
+      gifEncoder.addFrame(gifCanvas);
+    }
+    recordFrameCount++;
+    if (recordFrameCount >= MAX_GIF_FRAMES) {
+      finishRecording();
+    }
+  }
 
   // 笔刷预览
   if (input.cursorVisible) {

@@ -32,6 +32,7 @@ export interface ToolbarCallbacks {
   setSpeed: (speed: number) => void;
   setWind: (dir: number, strength: number) => void;
   onCycleWeather?: () => string;
+  onToggleRecord?: () => boolean; // 返回是否正在录制
 }
 
 /**
@@ -86,6 +87,8 @@ export class Toolbar {
   private snapshotOverlay: HTMLElement | null = null;
   /** 天气按钮 */
   private weatherBtn!: HTMLButtonElement;
+  /** 录制按钮 */
+  private recordBtn!: HTMLButtonElement;
 
   constructor(input: InputHandler, callbacks: ToolbarCallbacks) {
     this.input = input;
@@ -210,6 +213,12 @@ export class Toolbar {
   refreshWeather(label: string): void {
     this.weatherBtn.textContent = `天气: ${label}`;
     this.weatherBtn.classList.toggle('active', label !== '晴天');
+  }
+
+  /** 刷新录制按钮状态 */
+  refreshRecord(recording: boolean): void {
+    this.recordBtn.textContent = recording ? '停止录制' : '录制 GIF';
+    this.recordBtn.classList.toggle('active', recording);
   }
 
   /** 加载收藏夹 */
@@ -1101,6 +1110,22 @@ export class Toolbar {
     });
     weatherRow.appendChild(this.weatherBtn);
     controlPanel.appendChild(weatherRow);
+
+    // 录制 GIF 按钮
+    const recordRow = document.createElement('div');
+    recordRow.className = 'control-row';
+    this.recordBtn = document.createElement('button');
+    this.recordBtn.className = 'ctrl-btn';
+    this.recordBtn.textContent = '录制 GIF';
+    this.recordBtn.title = '录制模拟过程为 GIF 动画';
+    this.recordBtn.addEventListener('click', () => {
+      if (this.callbacks.onToggleRecord) {
+        const recording = this.callbacks.onToggleRecord();
+        this.refreshRecord(recording);
+      }
+    });
+    recordRow.appendChild(this.recordBtn);
+    controlPanel.appendChild(recordRow);
 
     // 粒子计数
     const statsDiv = document.createElement('div');
