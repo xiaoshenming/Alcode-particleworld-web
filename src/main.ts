@@ -495,6 +495,14 @@ document.addEventListener('keydown', (e) => {
     return;
   }
 
+  // X 键切换替换模式
+  if (e.code === 'KeyX') {
+    const current = input.getDrawMode();
+    input.setDrawMode(current === 'replace' ? 'brush' : 'replace');
+    toolbar.refreshDrawMode();
+    return;
+  }
+
   // R 键切换随机材质模式
   if (e.code === 'KeyR') {
     input.setRandomMode(!input.getRandomMode());

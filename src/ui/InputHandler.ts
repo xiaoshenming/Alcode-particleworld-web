@@ -4,7 +4,7 @@ import { getAllMaterials } from '../materials/registry';
 /** 笔刷形状类型 */
 export type BrushShape = 'circle' | 'square' | 'line' | 'spray';
 /** 绘制模式 */
-export type DrawMode = 'brush' | 'fill';
+export type DrawMode = 'brush' | 'fill' | 'replace';
 
 /**
  * 鼠标/触摸输入处理器
@@ -29,6 +29,8 @@ export class InputHandler {
   private sprayDensity = 0.4;
   /** 渐变笔刷模式 */
   private gradientBrush = false;
+  /** 替换模式的目标材质 ID */
+  private replaceTarget = -1;
   /** 线条笔刷的起点 */
   private lineStartX = -1;
   private lineStartY = -1;
@@ -147,6 +149,11 @@ export class InputHandler {
         return;
       }
 
+      // 替换模式：记录光标下的目标材质
+      if (this.drawMode === 'replace' && !this.erasing) {
+        this.replaceTarget = this.world.inBounds(gx, gy) ? this.world.get(gx, gy) : -1;
+      }
+
       if (this.brushShape === 'line' && !this.erasing) {
         // 线条模式：记录起点，松开时画线
         this.lineStartX = gx;
@@ -226,6 +233,32 @@ export class InputHandler {
   /** 在指定位置绘制（根据笔刷形状） */
   private drawAt(cx: number, cy: number): void {
     const r = Math.floor(this.brushSize / 2);
+
+    // 替换模式：只替换与目标材质相同的粒子
+    if (this.drawMode === 'replace' && !this.erasing && this.replaceTarget >= 0) {
+      const matId = this.getDrawMaterial();
+      if (matId === this.replaceTarget) return; // 相同材质无需替换
+      for (let dy = -r; dy <= r; dy++) {
+        for (let dx = -r; dx <= r; dx++) {
+          const x = cx + dx;
+          const y = cy + dy;
+          if (!this.world.inBounds(x, y)) continue;
+          if (this.brushShape === 'circle' || this.brushShape === 'spray') {
+            if (dx * dx + dy * dy > r * r) continue;
+          }
+          if (this.world.get(x, y) === this.replaceTarget) {
+            this.world.set(x, y, matId);
+            if (this.mirrorMode) {
+              const mx = this.world.width - 1 - x;
+              if (mx !== x && this.world.inBounds(mx, y) && this.world.get(mx, y) === this.replaceTarget) {
+                this.world.set(mx, y, matId);
+              }
+            }
+          }
+        }
+      }
+      return;
+    }
 
     if (this.brushShape === 'spray') {
       // 喷雾模式：在圆形范围内随机散布粒子

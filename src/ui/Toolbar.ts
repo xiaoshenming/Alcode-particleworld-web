@@ -43,6 +43,7 @@ export class Toolbar {
   private gridBtn!: HTMLButtonElement;
   private eraserBtn!: HTMLButtonElement;
   private fillBtn!: HTMLButtonElement;
+  private replaceBtn!: HTMLButtonElement;
   private randomBtn!: HTMLButtonElement;
   private mirrorBtn!: HTMLButtonElement;
   /** 记录每个分类的折叠状态 */
@@ -128,11 +129,13 @@ export class Toolbar {
     this.gridBtn.textContent = active ? '网格: 开' : '网格: 关';
   }
 
-  /** 刷新填充模式按钮状态 */
+  /** 刷新绘制模式按钮状态 */
   refreshDrawMode(): void {
-    const isFill = this.input.getDrawMode() === 'fill';
-    this.fillBtn.classList.toggle('active', isFill);
-    this.fillBtn.textContent = isFill ? '填充: 开' : '填充';
+    const mode = this.input.getDrawMode();
+    this.fillBtn.classList.toggle('active', mode === 'fill');
+    this.fillBtn.textContent = mode === 'fill' ? '填充: 开' : '填充';
+    this.replaceBtn.classList.toggle('active', mode === 'replace');
+    this.replaceBtn.textContent = mode === 'replace' ? '替换: 开' : '替换';
   }
 
   /** 刷新随机模式按钮状态 */
@@ -566,6 +569,21 @@ export class Toolbar {
     fillRow.appendChild(this.fillBtn);
     controlPanel.appendChild(fillRow);
 
+    // 替换工具按钮
+    const replaceRow = document.createElement('div');
+    replaceRow.className = 'control-row';
+    this.replaceBtn = document.createElement('button');
+    this.replaceBtn.className = 'ctrl-btn';
+    this.replaceBtn.textContent = '替换';
+    this.replaceBtn.title = '材质替换工具 (X) · 将笔刷范围内光标下方材质替换为当前选中材质';
+    this.replaceBtn.addEventListener('click', () => {
+      const current = this.input.getDrawMode();
+      this.input.setDrawMode(current === 'replace' ? 'brush' : 'replace');
+      this.refreshDrawMode();
+    });
+    replaceRow.appendChild(this.replaceBtn);
+    controlPanel.appendChild(replaceRow);
+
     // 随机材质按钮
     const randomRow = document.createElement('div');
     randomRow.className = 'control-row';
@@ -706,7 +724,7 @@ export class Toolbar {
     this.container.appendChild(helpDiv);
     const keysDiv = document.createElement('div');
     keysDiv.className = 'control-row stats';
-    keysDiv.textContent = 'Space 暂停 · 1~0 材质 · [] 笔刷 · B 形状 · D 密度 · G 渐变 · F 填充 · R 随机 · M 镜像 · S 统计 · -/= 速度';
+    keysDiv.textContent = 'Space 暂停 · 1~0 材质 · [] 笔刷 · B 形状 · D 密度 · G 渐变 · F 填充 · X 替换 · R 随机 · M 镜像 · S 统计 · -/= 速度';
     this.container.appendChild(keysDiv);
 
     // 监听滚轮笔刷变化同步滑块
