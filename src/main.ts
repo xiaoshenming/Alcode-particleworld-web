@@ -729,6 +729,28 @@ function saveHotkeyBindings(): void {
   localStorage.setItem(HOTKEY_STORAGE_KEY, JSON.stringify(HOTKEY_MATERIALS));
 }
 
+// === 收藏组 F1~F4：保存/加载 4 套快捷键绑定 ===
+const FAVGROUP_STORAGE_KEY = 'pw-favgroups';
+const favGroups: (number[] | null)[] = [null, null, null, null];
+
+try {
+  const saved = localStorage.getItem(FAVGROUP_STORAGE_KEY);
+  if (saved) {
+    const parsed = JSON.parse(saved);
+    if (Array.isArray(parsed) && parsed.length === 4) {
+      for (let i = 0; i < 4; i++) {
+        if (Array.isArray(parsed[i]) && parsed[i].length === 10) {
+          favGroups[i] = parsed[i];
+        }
+      }
+    }
+  }
+} catch { /* ignore */ }
+
+function saveFavGroups(): void {
+  localStorage.setItem(FAVGROUP_STORAGE_KEY, JSON.stringify(favGroups));
+}
+
 // 初始化快捷键栏显示
 toolbar.refreshHotkeyBar(HOTKEY_MATERIALS);
 
@@ -876,6 +898,28 @@ document.addEventListener('keydown', (e) => {
   if (e.code === 'Space') {
     e.preventDefault();
     paused = !paused;
+    return;
+  }
+
+  // Shift+F1~F4 保存当前快捷键绑定到收藏组
+  if (e.shiftKey && e.code >= 'F1' && e.code <= 'F4') {
+    e.preventDefault();
+    const idx = parseInt(e.code.charAt(1)) - 1;
+    favGroups[idx] = [...HOTKEY_MATERIALS];
+    saveFavGroups();
+    return;
+  }
+
+  // F1~F4 加载收藏组
+  if (!e.shiftKey && !e.ctrlKey && !e.altKey && e.code >= 'F1' && e.code <= 'F4') {
+    e.preventDefault();
+    const idx = parseInt(e.code.charAt(1)) - 1;
+    const group = favGroups[idx];
+    if (group) {
+      HOTKEY_MATERIALS = [...group];
+      saveHotkeyBindings();
+      toolbar.refreshHotkeyBar(HOTKEY_MATERIALS);
+    }
     return;
   }
 
