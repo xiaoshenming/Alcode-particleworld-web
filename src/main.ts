@@ -864,6 +864,41 @@ import './materials/HighPurityYtterbiumDysprosiumFluoride';
 import './materials/OlivineGneiss2';
 import './materials/ElectroPhotoThermalMaterial2';
 
+// v50.0 (ID 826~830)
+import './materials/HafniumLanthanumAlloy';
+import './materials/MoltenHafniumLanthanum';
+import './materials/HighPurityTerbiumDysprosiumFluoride';
+import './materials/ScapoliteGneiss2';
+import './materials/ThermoPhotoAcousticMaterial2';
+
+// v50.1 (ID 831~835)
+import './materials/HafniumPraseodymiumAlloy';
+import './materials/MoltenHafniumPraseodymium';
+import './materials/HighPurityNeodymiumDysprosiumFluoride';
+import './materials/GlaucophaneGneiss2';
+import './materials/ElectroMagnetoThermalMaterial2';
+
+// v50.2 (ID 836~840)
+import './materials/HafniumNeodymiumAlloy';
+import './materials/MoltenHafniumNeodymium';
+import './materials/HighPurityEuropiumDysprosiumFluoride';
+import './materials/TitaniteGneiss2';
+import './materials/PhotoElectroAcousticMaterial2';
+
+// v50.3 (ID 841~845)
+import './materials/HafniumGadoliniumAlloy';
+import './materials/MoltenHafniumGadolinium';
+import './materials/HighPurityThuliumDysprosiumFluoride';
+import './materials/JadeiteGneiss2';
+import './materials/AcoustoMagnetoThermalMaterial2';
+
+// v50.4 (ID 846~850)
+import './materials/HafniumDysprosiumAlloy';
+import './materials/MoltenHafniumDysprosium';
+import './materials/HighPurityYttriumDysprosiumFluoride';
+import './materials/ZirconGneiss2';
+import './materials/ThermoMagnetoPhotoMaterial2';
+
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
 import { Renderer } from './core/Renderer';
