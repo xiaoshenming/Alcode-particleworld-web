@@ -302,6 +302,34 @@ export class World implements WorldAPI {
     this._awakeNext.fill(1);
   }
 
+  /** 顺时针旋转世界 90° */
+  rotateCW(): void {
+    const w = this.width;
+    const h = this.height;
+    const size = w * h;
+    const newCells = new Uint16Array(size);
+    const newColors = new Uint32Array(size);
+    const newTemp = new Float32Array(size);
+
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const srcIdx = y * w + x;
+        // 顺时针90°: (x, y) → (h - 1 - y, x)
+        const nx = h - 1 - y;
+        const ny = x;
+        const dstIdx = ny * w + nx;
+        newCells[dstIdx] = this.cells[srcIdx];
+        newColors[dstIdx] = this.colors[srcIdx];
+        newTemp[dstIdx] = this._temp[srcIdx];
+      }
+    }
+
+    this.cells.set(newCells);
+    this.colors.set(newColors);
+    this._temp.set(newTemp);
+    this._awakeNext.fill(1);
+  }
+
   /** 从 JSON 字符串恢复世界状态（兼容 v1/v2 存档） */
   load(data: string): boolean {
     try {

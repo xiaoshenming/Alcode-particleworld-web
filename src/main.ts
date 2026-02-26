@@ -559,6 +559,12 @@ document.addEventListener('keydown', (e) => {
     return;
   }
 
+  // Q 键顺时针旋转世界 90°
+  if (e.code === 'KeyQ') {
+    world.rotateCW();
+    return;
+  }
+
   // S 键切换材质统计面板
   if (e.code === 'KeyS') {
     statsPanel.toggle();
