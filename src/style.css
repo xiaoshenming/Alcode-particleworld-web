@@ -284,3 +284,68 @@ input[type="range"] {
   color: #777;
   margin-top: 2px;
 }
+
+/* 材质统计面板 */
+#stats-panel {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: rgba(20, 20, 40, 0.92);
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #333;
+  z-index: 10;
+  min-width: 180px;
+}
+
+.stats-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #c2b280;
+  margin-bottom: 4px;
+}
+
+.stats-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.stats-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #ccc;
+}
+
+.stats-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.stats-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stats-info {
+  font-family: monospace;
+  color: #999;
+  white-space: nowrap;
+}
+
+.stats-total {
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid #444;
+  color: #888;
+  font-size: 11px;
+}

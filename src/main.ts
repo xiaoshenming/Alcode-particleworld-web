@@ -301,6 +301,7 @@ import { Toolbar } from './ui/Toolbar';
 import { InfoPanel } from './ui/InfoPanel';
 import { History } from './core/History';
 import { FpsGraph } from './ui/FpsGraph';
+import { StatsPanel } from './ui/StatsPanel';
 
 const GRID_WIDTH = 200;
 const GRID_HEIGHT = 150;
@@ -316,6 +317,7 @@ const renderer = new Renderer(canvas, GRID_WIDTH, GRID_HEIGHT, PIXEL_SCALE);
 const input = new InputHandler(canvas, world, PIXEL_SCALE);
 const history = new History();
 const infoPanel = new InfoPanel(canvas, world, PIXEL_SCALE);
+const statsPanel = new StatsPanel(world);
 
 let paused = false;
 let simSpeed = 1; // 模拟速度倍率 1~5
@@ -482,6 +484,12 @@ document.addEventListener('keydown', (e) => {
     return;
   }
 
+  // S 键切换材质统计面板
+  if (e.code === 'KeyS') {
+    statsPanel.toggle();
+    return;
+  }
+
   // P 键截图
   if (e.code === 'KeyP') {
     const link = document.createElement('a');
@@ -515,6 +523,7 @@ function loop() {
 
   toolbar.updateStats();
   infoPanel.update();
+  statsPanel.update();
   fpsGraph.tick();
 
   requestAnimationFrame(loop);
