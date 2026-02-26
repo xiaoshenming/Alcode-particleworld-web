@@ -397,6 +397,11 @@ import './materials/LiquidErbium';
 import './materials/ChlorineTrifluoride';
 import './materials/Hornfels2';
 import './materials/PhotoacousticMaterial';
+import './materials/Lutetium';
+import './materials/LiquidLutetium';
+import './materials/ChlorinePentafluoride';
+import './materials/Serpentine';
+import './materials/AcoustoOpticMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
