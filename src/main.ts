@@ -468,10 +468,81 @@ const toolbar = new Toolbar(input, {
     }
     return recording;
   },
+  onExportFile: () => {
+    const data = world.save();
+    const blob = new Blob([data], { type: 'application/json' });
+    const link = document.createElement('a');
+    link.download = `particleworld-${Date.now()}.pw`;
+    link.href = URL.createObjectURL(blob);
+    link.click();
+    URL.revokeObjectURL(link.href);
+  },
+  onImportFile: () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.pw,.json';
+    input.addEventListener('change', () => {
+      const file = input.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const text = reader.result as string;
+        if (world.load(text)) {
+          history.clear();
+        }
+      };
+      reader.readAsText(file);
+    });
+    input.click();
+  },
 });
 
 // 常用材质快捷键映射（数字键 1~9, 0）
 const HOTKEY_MATERIALS = [1, 2, 3, 4, 6, 11, 22, 20, 5, 0]; // 沙水石木火熔岩火药泥土油橡皮
+
+// 拖拽导入 .pw 文件
+const dropOverlay = document.createElement('div');
+dropOverlay.id = 'drop-overlay';
+dropOverlay.style.display = 'none';
+const dropHint = document.createElement('div');
+dropHint.className = 'drop-hint';
+dropHint.textContent = '拖放 .pw 文件以导入世界';
+dropOverlay.appendChild(dropHint);
+document.body.appendChild(dropOverlay);
+
+let dragCounter = 0;
+document.addEventListener('dragenter', (e) => {
+  e.preventDefault();
+  dragCounter++;
+  dropOverlay.style.display = 'flex';
+});
+document.addEventListener('dragleave', (e) => {
+  e.preventDefault();
+  dragCounter--;
+  if (dragCounter <= 0) {
+    dragCounter = 0;
+    dropOverlay.style.display = 'none';
+  }
+});
+document.addEventListener('dragover', (e) => {
+  e.preventDefault();
+});
+document.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dragCounter = 0;
+  dropOverlay.style.display = 'none';
+  const file = e.dataTransfer?.files[0];
+  if (!file) return;
+  if (!file.name.endsWith('.pw') && !file.name.endsWith('.json')) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const text = reader.result as string;
+    if (world.load(text)) {
+      history.clear();
+    }
+  };
+  reader.readAsText(file);
+});
 
 // 快捷键
 document.addEventListener('keydown', (e) => {

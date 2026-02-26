@@ -33,6 +33,8 @@ export interface ToolbarCallbacks {
   setWind: (dir: number, strength: number) => void;
   onCycleWeather?: () => string;
   onToggleRecord?: () => boolean; // 返回是否正在录制
+  onExportFile?: () => void;
+  onImportFile?: () => void;
 }
 
 /**
@@ -905,6 +907,26 @@ export class Toolbar {
     saveRow.appendChild(saveBtn);
     saveRow.appendChild(loadBtn);
     controlPanel.appendChild(saveRow);
+
+    // 导出/导入文件按钮行
+    const fileRow = document.createElement('div');
+    fileRow.className = 'control-row';
+
+    const exportBtn = document.createElement('button');
+    exportBtn.className = 'ctrl-btn';
+    exportBtn.textContent = '导出';
+    exportBtn.title = '导出世界为 .pw 文件';
+    exportBtn.addEventListener('click', () => this.callbacks.onExportFile?.());
+
+    const importBtn = document.createElement('button');
+    importBtn.className = 'ctrl-btn';
+    importBtn.textContent = '导入';
+    importBtn.title = '导入 .pw 文件（也可拖拽到画布）';
+    importBtn.addEventListener('click', () => this.callbacks.onImportFile?.());
+
+    fileRow.appendChild(exportBtn);
+    fileRow.appendChild(importBtn);
+    controlPanel.appendChild(fileRow);
 
     // 撤销/重做按钮行
     const undoRow = document.createElement('div');
