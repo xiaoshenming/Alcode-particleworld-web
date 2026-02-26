@@ -292,6 +292,11 @@ import './materials/MoltenHafniumAlloy';
 import './materials/Krypton';
 import './materials/Hornfels';
 import './materials/SelfHealingMaterial';
+import './materials/Tantalum';
+import './materials/MoltenTantalum';
+import './materials/Deuterium';
+import './materials/Gabbro';
+import './materials/Memristor';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
