@@ -534,6 +534,11 @@ import './materials/MoltenNiobiumAluminum';
 import './materials/ThoriumFluoride';
 import './materials/CordieriteSchist';
 import './materials/Magnetoacoustothermal';
+import './materials/NiobiumCopperAlloy';
+import './materials/MoltenNiobiumCopper';
+import './materials/CeriumFluoride';
+import './materials/StauroliteSchist';
+import './materials/ThermoAcoustoElectricMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
