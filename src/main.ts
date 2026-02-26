@@ -412,6 +412,7 @@ const rewindBuffer: Uint16Array[] = [];
 let rewindHead = 0; // 写入位置
 let rewindCount = 0; // 已存帧数
 let rewinding = false; // 是否正在倒流
+let antiGravity = false; // 反重力模式
 
 // 粒子轨迹追踪系统
 let trackingMode = false;   // 是否处于追踪模式（按 L 切换）
@@ -535,6 +536,10 @@ const toolbar = new Toolbar(input, {
   },
   onEncyclopedia: () => {
     encyclopedia.toggle();
+  },
+  onToggleAntiGravity: () => {
+    antiGravity = !antiGravity;
+    return antiGravity;
   },
 });
 
@@ -793,6 +798,13 @@ document.addEventListener('keydown', (e) => {
     return;
   }
 
+  // V 键切换反重力模式
+  if (e.code === 'KeyV') {
+    antiGravity = !antiGravity;
+    toolbar.refreshAntiGravity(antiGravity);
+    return;
+  }
+
   // Shift+Arrow 翻转世界
   if (e.shiftKey && e.code === 'ArrowUp') {
     e.preventDefault();
@@ -914,6 +926,11 @@ function loop() {
       if (rewindCount < REWIND_BUFFER_SIZE) rewindCount++;
 
       simulation.update();
+      // 反重力：模拟后翻转世界，下一帧模拟前再翻转回来
+      // 效果：粒子看起来向上运动
+    }
+    if (antiGravity) {
+      world.flipVertical();
     }
 
     // 粒子轨迹追踪：每帧更新追踪位置

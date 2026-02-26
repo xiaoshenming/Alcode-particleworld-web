@@ -36,6 +36,7 @@ export interface ToolbarCallbacks {
   onExportFile?: () => void;
   onImportFile?: () => void;
   onEncyclopedia?: () => void;
+  onToggleAntiGravity?: () => boolean; // 返回是否开启反重力
 }
 
 /**
@@ -92,6 +93,8 @@ export class Toolbar {
   private weatherBtn!: HTMLButtonElement;
   /** 录制按钮 */
   private recordBtn!: HTMLButtonElement;
+  /** 反重力按钮 */
+  private antiGravityBtn!: HTMLButtonElement;
   /** 混合笔刷控件 */
   private mixBtn!: HTMLButtonElement;
   private mixRatioSlider!: HTMLInputElement;
@@ -236,6 +239,12 @@ export class Toolbar {
     this.mixBtn.classList.toggle('active', on);
     this.mixBtn.textContent = on ? '混合: 开' : '混合';
     this.mixControlRow.style.display = on ? '' : 'none';
+  }
+
+  /** 刷新反重力按钮状态 */
+  refreshAntiGravity(on: boolean): void {
+    this.antiGravityBtn.classList.toggle('active', on);
+    this.antiGravityBtn.textContent = on ? '反重力: 开' : '反重力';
   }
 
   /** 加载收藏夹 */
@@ -1243,6 +1252,22 @@ export class Toolbar {
     recordRow.appendChild(this.recordBtn);
     controlPanel.appendChild(recordRow);
 
+    // 反重力按钮
+    const antiGravRow = document.createElement('div');
+    antiGravRow.className = 'control-row';
+    this.antiGravityBtn = document.createElement('button');
+    this.antiGravityBtn.className = 'ctrl-btn';
+    this.antiGravityBtn.textContent = '反重力';
+    this.antiGravityBtn.title = '切换反重力模式 (V)';
+    this.antiGravityBtn.addEventListener('click', () => {
+      if (this.callbacks.onToggleAntiGravity) {
+        const on = this.callbacks.onToggleAntiGravity();
+        this.refreshAntiGravity(on);
+      }
+    });
+    antiGravRow.appendChild(this.antiGravityBtn);
+    controlPanel.appendChild(antiGravRow);
+
     // 粒子计数
     const statsDiv = document.createElement('div');
     statsDiv.className = 'control-row stats';
@@ -1265,7 +1290,7 @@ export class Toolbar {
     this.container.appendChild(helpDiv);
     const keysDiv = document.createElement('div');
     keysDiv.className = 'control-row stats';
-    keysDiv.textContent = 'Space 暂停 · 1~0 材质 · [] 笔刷 · B 形状 · D 密度 · G 渐变 · N 混合 · F 填充 · X 替换 · R 随机 · M 镜像 · W 天气 · S 统计 · -/= 速度';
+    keysDiv.textContent = 'Space 暂停 · 1~0 材质 · [] 笔刷 · B 形状 · D 密度 · G 渐变 · N 混合 · V 反重力 · F 填充 · X 替换 · R 随机 · M 镜像 · W 天气 · S 统计 · -/= 速度';
     this.container.appendChild(keysDiv);
 
     // 监听滚轮笔刷变化同步滑块
