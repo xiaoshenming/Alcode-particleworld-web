@@ -519,6 +519,11 @@ import './materials/MoltenNiobiumCobalt';
 import './materials/BariumSodiumFluoride';
 import './materials/PyroxeneSchist';
 import './materials/Photomagnetothermal';
+import './materials/NiobiumNickelAlloy';
+import './materials/MoltenNiobiumNickel';
+import './materials/ZirconiumFluoride';
+import './materials/OlivineSchist';
+import './materials/Acoustothermomagnet';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
