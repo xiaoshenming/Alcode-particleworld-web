@@ -1458,7 +1458,7 @@ export class Toolbar {
     this.container.appendChild(helpDiv);
     const keysDiv = document.createElement('div');
     keysDiv.className = 'control-row stats';
-    keysDiv.textContent = 'Space 暂停 · 1~0 材质 · [] 笔刷 · B 形状 · D 密度 · G 渐变 · N 混合 · V 反重力 · F 填充 · X 替换 · R 随机 · M 镜像 · W 天气 · S 统计 · -/= 速度';
+    keysDiv.textContent = 'Space 暂停 · 1~0 材质 · [] 笔刷 · B 形状 · D 密度 · G 渐变 · N 混合 · V 反重力 · F 填充 · X 替换 · R 随机 · M 镜像 · I 选区 · W 天气 · S 统计 · -/= 速度';
     this.container.appendChild(keysDiv);
 
     // 监听滚轮笔刷变化同步滑块
