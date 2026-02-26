@@ -437,6 +437,13 @@ document.addEventListener('keydown', (e) => {
     return;
   }
 
+  // Ctrl+F 聚焦材质搜索框
+  if ((e.ctrlKey || e.metaKey) && e.code === 'KeyF') {
+    e.preventDefault();
+    toolbar.focusSearch();
+    return;
+  }
+
   // Space 暂停
   if (e.code === 'Space') {
     e.preventDefault();

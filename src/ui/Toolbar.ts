@@ -1,6 +1,7 @@
 import { InputHandler, BrushShape } from './InputHandler';
 import { getMaterialsByCategory, getMaterial } from '../materials/registry';
 import type { MaterialDef } from '../materials/types';
+import { matchMaterial } from '../utils/pinyin';
 
 export interface ToolbarCallbacks {
   onPause: () => void;
@@ -54,6 +55,8 @@ export class Toolbar {
   private favBtnsDiv!: HTMLElement;
   /** 收藏夹分类容器 */
   private favDiv!: HTMLElement;
+  /** 搜索输入框 */
+  private searchInput!: HTMLInputElement;
 
   constructor(input: InputHandler, callbacks: ToolbarCallbacks) {
     this.input = input;
@@ -89,6 +92,12 @@ export class Toolbar {
   /** 刷新橡皮擦按钮状态 */
   refreshEraser(): void {
     this.eraserBtn.classList.toggle('active', this.input.getMaterial() === 0);
+  }
+
+  /** 聚焦搜索框 (Ctrl+F) */
+  focusSearch(): void {
+    this.searchInput.focus();
+    this.searchInput.select();
   }
 
   /** 刷新笔刷大小显示 */
@@ -250,12 +259,12 @@ export class Toolbar {
     // 搜索框
     const searchDiv = document.createElement('div');
     searchDiv.className = 'search-box';
-    const searchInput = document.createElement('input');
-    searchInput.type = 'text';
-    searchInput.placeholder = '搜索材质...';
-    searchInput.className = 'search-input';
-    searchInput.setAttribute('aria-label', '搜索材质');
-    searchDiv.appendChild(searchInput);
+    this.searchInput = document.createElement('input');
+    this.searchInput.type = 'text';
+    this.searchInput.placeholder = '搜索材质 (名称/拼音/ID)...';
+    this.searchInput.className = 'search-input';
+    this.searchInput.setAttribute('aria-label', '搜索材质');
+    searchDiv.appendChild(this.searchInput);
     this.container.appendChild(searchDiv);
 
     // 分类材质区
@@ -347,8 +356,8 @@ export class Toolbar {
     this.container.appendChild(matsPanel);
 
     // 搜索逻辑
-    searchInput.addEventListener('input', () => {
-      const query = searchInput.value.trim().toLowerCase();
+    this.searchInput.addEventListener('input', () => {
+      const query = this.searchInput.value.trim().toLowerCase();
       if (!query) {
         // 清空搜索：显示分类，隐藏搜索结果
         searchResults.style.display = 'none';
@@ -359,10 +368,7 @@ export class Toolbar {
       // 有搜索词：隐藏分类，显示搜索结果
       for (const div of categoryDivs) div.style.display = 'none';
       searchBtns.innerHTML = '';
-      const matched = allMats.filter(m =>
-        m.name.toLowerCase().includes(query) ||
-        String(m.id) === query
-      );
+      const matched = allMats.filter(m => matchMaterial(m, query));
       searchLabelText.textContent = `搜索结果 (${matched.length})`;
       for (const mat of matched) {
         searchBtns.appendChild(this.createMaterialBtn(mat));
@@ -371,11 +377,11 @@ export class Toolbar {
     });
 
     // Esc 清空搜索
-    searchInput.addEventListener('keydown', (e) => {
+    this.searchInput.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
-        searchInput.value = '';
-        searchInput.dispatchEvent(new Event('input'));
-        searchInput.blur();
+        this.searchInput.value = '';
+        this.searchInput.dispatchEvent(new Event('input'));
+        this.searchInput.blur();
       }
     });
 
