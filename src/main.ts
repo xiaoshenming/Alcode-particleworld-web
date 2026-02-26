@@ -589,6 +589,11 @@ import './materials/MoltenNiobiumScandium';
 import './materials/ErbiumFluoride';
 import './materials/SerpentiniteSchist';
 import './materials/ThermoMagnetoElectricMaterial';
+import './materials/NiobiumYttriumAlloy';
+import './materials/MoltenNiobiumYttrium';
+import './materials/LutetiumFluoride';
+import './materials/SyeniteSchist';
+import './materials/ElectroThermoMagneticMaterial';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
