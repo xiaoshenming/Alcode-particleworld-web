@@ -20,6 +20,11 @@ export class Renderer {
   showGrid = false;
   /** 镜像线开关 */
   showMirrorLine = false;
+  /** 视图缩放倍率 (1.0 = 原始) */
+  viewZoom = 1.0;
+  /** 视图平移偏移（像素坐标） */
+  viewPanX = 0;
+  viewPanY = 0;
 
   constructor(canvas: HTMLCanvasElement, gridWidth: number, gridHeight: number, scale: number) {
     const ctx = canvas.getContext('2d');
@@ -56,6 +61,14 @@ export class Renderer {
 
     // putImageData 到临时 canvas，再缩放绘制到主 canvas
     this.tempCtx.putImageData(this.imageData, 0, 0);
+
+    // 清除画布并应用视图变换
+    const canvasW = this.gridWidth * this.scale;
+    const canvasH = this.gridHeight * this.scale;
+    this.ctx.clearRect(0, 0, canvasW, canvasH);
+    this.ctx.save();
+    this.ctx.translate(this.viewPanX, this.viewPanY);
+    this.ctx.scale(this.viewZoom, this.viewZoom);
     this.ctx.drawImage(
       this.tempCanvas,
       0, 0,
@@ -64,7 +77,7 @@ export class Renderer {
     );
 
     // 网格线
-    if (this.showGrid && this.scale >= 3) {
+    if (this.showGrid && this.scale * this.viewZoom >= 3) {
       this.drawGrid();
     }
 
@@ -72,14 +85,16 @@ export class Renderer {
     if (this.showMirrorLine) {
       const cx = this.gridWidth * this.scale / 2;
       this.ctx.strokeStyle = 'rgba(255, 200, 80, 0.5)';
-      this.ctx.lineWidth = 1;
-      this.ctx.setLineDash([4, 4]);
+      this.ctx.lineWidth = 1 / this.viewZoom;
+      this.ctx.setLineDash([4 / this.viewZoom, 4 / this.viewZoom]);
       this.ctx.beginPath();
       this.ctx.moveTo(cx, 0);
       this.ctx.lineTo(cx, this.gridHeight * this.scale);
       this.ctx.stroke();
       this.ctx.setLineDash([]);
     }
+
+    this.ctx.restore();
   }
 
   /** 将温度数据叠加到像素缓冲区（蓝=冷，红=热） */
@@ -149,8 +164,11 @@ export class Renderer {
   renderBrushPreview(cx: number, cy: number, brushSize: number, shape: string = 'circle', gradient: boolean = false, angle: number = 0): void {
     const r = Math.floor(brushSize / 2);
     const s = this.scale;
+    this.ctx.save();
+    this.ctx.translate(this.viewPanX, this.viewPanY);
+    this.ctx.scale(this.viewZoom, this.viewZoom);
     this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
-    this.ctx.lineWidth = 1;
+    this.ctx.lineWidth = 1 / this.viewZoom;
 
     if (shape === 'spray') {
       // 喷雾预览：虚线圆 + 内部散点
@@ -215,18 +233,37 @@ export class Renderer {
       this.ctx.stroke();
       this.ctx.setLineDash([]);
     }
+    this.ctx.restore();
   }
 
   /** 绘制线条预览（从起点到当前光标） */
   renderLinePreview(x0: number, y0: number, x1: number, y1: number): void {
     const s = this.scale;
+    this.ctx.save();
+    this.ctx.translate(this.viewPanX, this.viewPanY);
+    this.ctx.scale(this.viewZoom, this.viewZoom);
     this.ctx.strokeStyle = 'rgba(255, 255, 100, 0.7)';
-    this.ctx.lineWidth = 1.5;
-    this.ctx.setLineDash([4, 4]);
+    this.ctx.lineWidth = 1.5 / this.viewZoom;
+    this.ctx.setLineDash([4 / this.viewZoom, 4 / this.viewZoom]);
     this.ctx.beginPath();
     this.ctx.moveTo((x0 + 0.5) * s, (y0 + 0.5) * s);
     this.ctx.lineTo((x1 + 0.5) * s, (y1 + 0.5) * s);
     this.ctx.stroke();
     this.ctx.setLineDash([]);
+    this.ctx.restore();
+  }
+
+  /** 将屏幕坐标转换为网格坐标（考虑缩放平移） */
+  screenToGrid(screenX: number, screenY: number): [number, number] {
+    const gx = Math.floor((screenX - this.viewPanX) / (this.scale * this.viewZoom));
+    const gy = Math.floor((screenY - this.viewPanY) / (this.scale * this.viewZoom));
+    return [gx, gy];
+  }
+
+  /** 重置视图缩放和平移 */
+  resetView(): void {
+    this.viewZoom = 1.0;
+    this.viewPanX = 0;
+    this.viewPanY = 0;
   }
 }

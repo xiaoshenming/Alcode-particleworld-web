@@ -33,11 +33,23 @@ export class InputHandler {
   private replaceTarget = -1;
   /** 笔刷旋转角度（弧度，仅方形笔刷生效） */
   private brushAngle = 0;
+  /** 中键拖拽平移状态 */
+  private panning = false;
+  private panLastX = 0;
+  private panLastY = 0;
   /** 线条笔刷的起点 */
   private lineStartX = -1;
   private lineStartY = -1;
   /** 绘制开始时的回调（用于保存撤销快照） */
   onPaintStart?: () => void;
+  /** 缩放回调 */
+  onZoom?: (delta: number, screenX: number, screenY: number) => void;
+  /** 平移回调 */
+  onPan?: (dx: number, dy: number) => void;
+  /** 重置视图回调 */
+  onResetView?: () => void;
+  /** 外部坐标转换函数（用于缩放平移后的坐标映射） */
+  screenToGrid?: (sx: number, sy: number) => [number, number];
 
   /** 当前光标在网格中的位置（-1 表示不在画布上） */
   cursorX = -1;
@@ -136,10 +148,12 @@ export class InputHandler {
 
   private toGrid(clientX: number, clientY: number): [number, number] {
     const rect = this.canvas.getBoundingClientRect();
-    return [
-      Math.floor((clientX - rect.left) / this.scale),
-      Math.floor((clientY - rect.top) / this.scale),
-    ];
+    const sx = clientX - rect.left;
+    const sy = clientY - rect.top;
+    if (this.screenToGrid) {
+      return this.screenToGrid(sx, sy);
+    }
+    return [Math.floor(sx / this.scale), Math.floor(sy / this.scale)];
   }
 
   private bindEvents(): void {
@@ -147,6 +161,14 @@ export class InputHandler {
     this.canvas.addEventListener('contextmenu', (e) => e.preventDefault());
 
     this.canvas.addEventListener('mousedown', (e) => {
+      // 中键拖拽平移
+      if (e.button === 1) {
+        e.preventDefault();
+        this.panning = true;
+        this.panLastX = e.clientX;
+        this.panLastY = e.clientY;
+        return;
+      }
       this.onPaintStart?.();
       // 右键 = 擦除模式
       this.erasing = e.button === 2;
@@ -174,6 +196,15 @@ export class InputHandler {
       }
     });
     this.canvas.addEventListener('mousemove', (e) => {
+      // 中键拖拽平移
+      if (this.panning) {
+        const dx = e.clientX - this.panLastX;
+        const dy = e.clientY - this.panLastY;
+        this.panLastX = e.clientX;
+        this.panLastY = e.clientY;
+        this.onPan?.(dx, dy);
+        return;
+      }
       const [gx, gy] = this.toGrid(e.clientX, e.clientY);
       this.cursorX = gx;
       this.cursorY = gy;
@@ -183,6 +214,11 @@ export class InputHandler {
       }
     });
     this.canvas.addEventListener('mouseup', (e) => {
+      // 停止中键平移
+      if (this.panning) {
+        this.panning = false;
+        return;
+      }
       if (this.painting && this.brushShape === 'line' && !this.erasing && this.lineStartX >= 0) {
         const [gx, gy] = this.toGrid(e.clientX, e.clientY);
         this.drawLine(this.lineStartX, this.lineStartY, gx, gy);
@@ -200,10 +236,16 @@ export class InputHandler {
       this.lineStartY = -1;
     });
 
-    // 滚轮调整笔刷大小 / Shift+滚轮旋转方形笔刷
+    // 滚轮调整笔刷大小 / Shift+滚轮旋转方形笔刷 / Ctrl+滚轮缩放
     this.canvas.addEventListener('wheel', (e) => {
       e.preventDefault();
-      if (e.shiftKey && this.brushShape === 'square') {
+      if (e.ctrlKey || e.metaKey) {
+        // Ctrl+滚轮：缩放视图
+        const rect = this.canvas.getBoundingClientRect();
+        const sx = e.clientX - rect.left;
+        const sy = e.clientY - rect.top;
+        this.onZoom?.(e.deltaY < 0 ? 1 : -1, sx, sy);
+      } else if (e.shiftKey && this.brushShape === 'square') {
         // Shift+滚轮：旋转方形笔刷（每次 15°）
         const step = Math.PI / 12; // 15°
         this.setBrushAngle(this.brushAngle + (e.deltaY < 0 ? step : -step));

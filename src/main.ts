@@ -354,6 +354,28 @@ input.onPaintStart = () => {
   history.pushSnapshot(world.cells);
 };
 
+// 缩放/平移回调
+input.screenToGrid = (sx: number, sy: number) => renderer.screenToGrid(sx, sy);
+
+input.onZoom = (delta: number, screenX: number, screenY: number) => {
+  const oldZoom = renderer.viewZoom;
+  const factor = delta > 0 ? 1.15 : 1 / 1.15;
+  const newZoom = Math.max(0.25, Math.min(10, oldZoom * factor));
+  // 以鼠标位置为中心缩放
+  renderer.viewPanX = screenX - (screenX - renderer.viewPanX) * (newZoom / oldZoom);
+  renderer.viewPanY = screenY - (screenY - renderer.viewPanY) * (newZoom / oldZoom);
+  renderer.viewZoom = newZoom;
+};
+
+input.onPan = (dx: number, dy: number) => {
+  renderer.viewPanX += dx;
+  renderer.viewPanY += dy;
+};
+
+input.onResetView = () => {
+  renderer.resetView();
+};
+
 const toolbar = new Toolbar(input, {
   onPause: () => { paused = !paused; },
   onClear: () => { world.clear(); history.clear(); },
@@ -571,6 +593,12 @@ document.addEventListener('keydown', (e) => {
   if (e.shiftKey && e.code === 'ArrowRight') {
     e.preventDefault();
     world.flipHorizontal();
+    return;
+  }
+
+  // Home 键重置视图缩放/平移
+  if (e.code === 'Home') {
+    renderer.resetView();
     return;
   }
 
