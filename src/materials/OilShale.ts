@@ -1,4 +1,4 @@
-import { DIRS4 } from './types';
+import { DIRS4, DIRS3_SIDES } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -50,8 +50,8 @@ export const OilShale: MaterialDef = {
       if (Math.random() < 0.05) {
         world.set(x, y, 1); // 残留沙子
         // 释放油到空位
-        const dirs: [number, number][] = [[0, -1], [-1, 0], [1, 0]];
-        for (const [dx, dy] of dirs) {
+        const releaseDir = DIRS3_SIDES;
+        for (const [dx, dy] of releaseDir) {
           const nx = x + dx, ny = y + dy;
           if (world.inBounds(nx, ny) && world.isEmpty(nx, ny)) {
             world.set(nx, ny, Math.random() < 0.6 ? 5 : 7); // 油或烟
