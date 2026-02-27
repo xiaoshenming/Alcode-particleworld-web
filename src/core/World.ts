@@ -26,6 +26,8 @@ export class World implements WorldAPI {
   private _trail: Uint8Array;
   /** 压力网格（上方粒子堆叠数，Uint8 最大 255） */
   private _pressure: Uint8Array;
+  /** 本帧已手动管理 age 的格子标记（跳过 tickAge 自动递增） */
+  private _ageManaged: Uint8Array;
   /** 风力方向（-1=左, 0=无, 1=右） */
   private _windDir = 0;
   /** 风力强度（0~1） */
@@ -44,6 +46,7 @@ export class World implements WorldAPI {
     this._age = new Uint16Array(size);
     this._trail = new Uint8Array(size);
     this._pressure = new Uint8Array(size);
+    this._ageManaged = new Uint8Array(size);
     this._temp.fill(20); // 常温 20°
 
     // 初始化为空气背景色
@@ -99,6 +102,10 @@ export class World implements WorldAPI {
     this._age[i1] = this._age[i2];
     this._age[i2] = tmpAge;
 
+    const tmpAgeManaged = this._ageManaged[i1];
+    this._ageManaged[i1] = this._ageManaged[i2];
+    this._ageManaged[i2] = tmpAgeManaged;
+
     // 粒子移动时在源位置留下轨迹
     if (this.cells[i2] !== 0) this._trail[i1] = 255;
     if (this.cells[i1] !== 0) this._trail[i2] = 255;
@@ -137,6 +144,7 @@ export class World implements WorldAPI {
   /** 每帧开始前：重置更新标记，交换活跃缓冲 */
   resetUpdated(): void {
     this._updated.fill(0);
+    this._ageManaged.fill(0); // 重置手动管理标记，允许 tickAge 递增
     // 双缓冲交换：本帧的 awakeNext 变成下帧的 awake
     const tmp = this._awake;
     this._awake = this._awakeNext;
@@ -183,9 +191,11 @@ export class World implements WorldAPI {
     return this._age[this.idx(x, y)];
   }
 
-  /** 设置粒子年龄 */
+  /** 设置粒子年龄（标记为本帧手动管理，tickAge 不会自动递增） */
   setAge(x: number, y: number, age: number): void {
-    this._age[this.idx(x, y)] = Math.min(65535, Math.max(0, age));
+    const i = this.idx(x, y);
+    this._age[i] = Math.min(65535, Math.max(0, age));
+    this._ageManaged[i] = 1; // 本帧手动管理，跳过 tickAge 自动递增
   }
 
   /** 重置粒子年龄为 0 */
@@ -193,11 +203,13 @@ export class World implements WorldAPI {
     this._age[this.idx(x, y)] = 0;
   }
 
-  /** 递增所有活跃非空粒子的年龄（每帧调用一次） */
+  /** 递增所有活跃非空粒子的年龄（每帧调用一次）
+   * 跳过本帧已手动调用 setAge 的格子，避免与材质的倒计时逻辑冲突 */
   tickAge(): void {
     const len = this.cells.length;
     for (let i = 0; i < len; i++) {
-      if (this.cells[i] !== 0 && this._awake[i] === 1 && this._age[i] < 65535) {
+      if (this.cells[i] !== 0 && this._awake[i] === 1 && this._age[i] < 65535
+          && this._ageManaged[i] === 0) {
         this._age[i]++;
       }
     }
