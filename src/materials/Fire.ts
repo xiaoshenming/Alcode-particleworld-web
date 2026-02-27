@@ -31,7 +31,6 @@ export const Fire: MaterialDef = {
     let life = world.getAge(x, y);
     if (life === 0) {
       life = 30 + Math.floor(Math.random() * 40); // 30~70 帧寿命
-      world.setAge(x, y, life);
     }
 
     // 生命递减

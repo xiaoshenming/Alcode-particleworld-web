@@ -1571,11 +1571,11 @@ const toolbar = new Toolbar(input, {
   },
   onUndo: () => {
     const snapshot = history.undo();
-    if (snapshot) world.restoreFromSnapshot(snapshot);
+    if (snapshot) { world.restoreFromSnapshot(snapshot); clearAntStates(); clearAllPortals(); }
   },
   onRedo: () => {
     const snapshot = history.redo();
-    if (snapshot) world.restoreFromSnapshot(snapshot);
+    if (snapshot) { world.restoreFromSnapshot(snapshot); clearAntStates(); clearAllPortals(); }
   },
   onToggleTempOverlay: () => {
     renderer.showTempOverlay = !renderer.showTempOverlay;
@@ -1847,13 +1847,13 @@ document.addEventListener('keydown', (e) => {
   if ((e.ctrlKey || e.metaKey) && e.code === 'KeyZ' && !e.shiftKey) {
     e.preventDefault();
     const snapshot = history.undo();
-    if (snapshot) world.restoreFromSnapshot(snapshot);
+    if (snapshot) { world.restoreFromSnapshot(snapshot); clearAntStates(); clearAllPortals(); }
     return;
   }
   if ((e.ctrlKey || e.metaKey) && (e.code === 'KeyY' || (e.code === 'KeyZ' && e.shiftKey))) {
     e.preventDefault();
     const snapshot = history.redo();
-    if (snapshot) world.restoreFromSnapshot(snapshot);
+    if (snapshot) { world.restoreFromSnapshot(snapshot); clearAntStates(); clearAllPortals(); }
     return;
   }
 
