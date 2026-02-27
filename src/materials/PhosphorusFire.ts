@@ -9,29 +9,12 @@ import { registerMaterial } from './registry';
  * - 遇水不灭（白磷火特性），但会产生蒸汽
  * - 黄绿色火焰，颜色闪烁
  * - 向上飘动，随机左右
+ * 使用 World 内置 age 替代 Map<string,number>（swap自动迁移age）
+ * age=0: 未初始化; age=N: 剩余寿命=N
  */
 
 /** 可燃材质 ID 集合 */
 const FLAMMABLE = new Set([4, 5, 13, 22, 25, 26, 46, 49, 62, 134]); // 木头、油、植物、火药、蜡、液蜡、木炭、苔藓、白磷、干草
-
-/** 白磷火生命值 */
-const pfLife = new Map<string, number>();
-
-function key(x: number, y: number): string {
-  return `${x},${y}`;
-}
-
-function getLife(x: number, y: number): number {
-  return pfLife.get(key(x, y)) ?? 0;
-}
-
-function setLife(x: number, y: number, life: number): void {
-  if (life <= 0) {
-    pfLife.delete(key(x, y));
-  } else {
-    pfLife.set(key(x, y), life);
-  }
-}
 
 export const PhosphorusFire: MaterialDef = {
   id: 194,
@@ -63,17 +46,18 @@ export const PhosphorusFire: MaterialDef = {
     // 白磷火产生极高温
     world.setTemp(x, y, 2000);
 
-    // 刷新颜色（闪烁）
-    world.set(x, y, 194);
-
-    // 初始化/递减生命值
-    let life = getLife(x, y);
+    // 初始化/递减生命值（age=0表示未初始化）
+    let life = world.getAge(x, y);
     if (life === 0) {
       life = 10 + Math.floor(Math.random() * 21); // 10~30 帧
-      setLife(x, y, life);
+      world.setAge(x, y, life);
     }
     life--;
-    setLife(x, y, life);
+    world.setAge(x, y, life);
+
+    // 刷新颜色（闪烁）：set()会重置age，需立即恢复
+    world.set(x, y, 194);
+    world.setAge(x, y, life);
 
     // 生命耗尽 → 变为烟
     if (life <= 0) {
@@ -114,12 +98,8 @@ export const PhosphorusFire: MaterialDef = {
       }
     }
 
-    // 向上飘动
+    // 向上飘动（swap 自动迁移 age）
     if (y > 0 && world.isEmpty(x, y - 1) && Math.random() < 0.5) {
-      const newKey = key(x, y - 1);
-      const oldKey = key(x, y);
-      pfLife.set(newKey, life);
-      pfLife.delete(oldKey);
       world.swap(x, y, x, y - 1);
       world.markUpdated(x, y - 1);
       return;
@@ -130,10 +110,6 @@ export const PhosphorusFire: MaterialDef = {
       const dir = Math.random() < 0.5 ? -1 : 1;
       const nx = x + dir;
       if (world.inBounds(nx, y - 1) && world.isEmpty(nx, y - 1)) {
-        const newKey = key(nx, y - 1);
-        const oldKey = key(x, y);
-        pfLife.set(newKey, life);
-        pfLife.delete(oldKey);
         world.swap(x, y, nx, y - 1);
         world.markUpdated(nx, y - 1);
         return;
@@ -145,10 +121,6 @@ export const PhosphorusFire: MaterialDef = {
       const dir = Math.random() < 0.5 ? -1 : 1;
       const nx = x + dir;
       if (world.inBounds(nx, y) && world.isEmpty(nx, y)) {
-        const newKey = key(nx, y);
-        const oldKey = key(x, y);
-        pfLife.set(newKey, life);
-        pfLife.delete(oldKey);
         world.swap(x, y, nx, y);
         world.markUpdated(nx, y);
       }

@@ -9,26 +9,9 @@ import { registerMaterial } from './registry';
  * - 离开水后死亡：不在水旁边时缓慢变为泡沫(51)
  * - 遇酸(9)立即溶解
  * - 半透明蓝绿色发光体
+ * 使用 World 内置 age 替代 Map<string,number>（swap自动迁移age）
+ * age=0: 在水中（无死亡计时）; age=N: 离水死亡倒计时剩余N帧
  */
-
-/** 水母死亡倒计时（离水后） */
-const deathTimer = new Map<string, number>();
-
-function key(x: number, y: number): string {
-  return `${x},${y}`;
-}
-
-function getTimer(x: number, y: number): number {
-  return deathTimer.get(key(x, y)) ?? 0;
-}
-
-function setTimer(x: number, y: number, t: number): void {
-  if (t <= 0) {
-    deathTimer.delete(key(x, y));
-  } else {
-    deathTimer.set(key(x, y), t);
-  }
-}
 
 export const Jellyfish: MaterialDef = {
   id: 205,
@@ -65,8 +48,12 @@ export const Jellyfish: MaterialDef = {
     // 保持活跃以维持发光脉动
     world.wakeArea(x, y);
 
-    // 刷新颜色（脉动闪烁）
+    // 先读 timer（在 set 之前，避免 age 被重置）
+    let timer = world.getAge(x, y);
+
+    // 刷新颜色（脉动闪烁）：set()会重置age，需立即恢复
     world.set(x, y, 205);
+    world.setAge(x, y, timer);
 
     // 检查四邻
     const dirs: [number, number][] = [[0, -1], [0, 1], [-1, 0], [1, 0]];
@@ -80,7 +67,6 @@ export const Jellyfish: MaterialDef = {
       // 遇酸立即溶解
       if (nid === 9) {
         world.set(x, y, 0);
-        setTimer(x, y, 0);
         world.wakeArea(x, y);
         return;
       }
@@ -92,25 +78,21 @@ export const Jellyfish: MaterialDef = {
 
     // 离水死亡机制
     if (!nearWater) {
-      let timer = getTimer(x, y);
       if (timer === 0) {
         timer = 30 + Math.floor(Math.random() * 20); // 30~50帧后死亡
       }
       timer--;
-      setTimer(x, y, timer);
+      world.setAge(x, y, timer);
 
       if (timer <= 0) {
         world.set(x, y, 51); // 变为泡沫
-        setTimer(x, y, 0);
         world.wakeArea(x, y);
         return;
       }
 
-      // 离水时受重力下落
+      // 离水时受重力下落（swap 自动迁移 age）
       if (y < world.height - 1 && world.isEmpty(x, y + 1)) {
         world.swap(x, y, x, y + 1);
-        setTimer(x, y + 1, timer);
-        setTimer(x, y, 0);
         world.markUpdated(x, y + 1);
         return;
       }
@@ -118,14 +100,13 @@ export const Jellyfish: MaterialDef = {
     }
 
     // 在水中：重置死亡计时
-    setTimer(x, y, 0);
+    world.setAge(x, y, 0);
 
-    // 在水中缓慢游动（随机方向，只移动到水格子中）
+    // 在水中缓慢游动（随机方向，只移动到水格子中，swap 自动迁移 age）
     if (Math.random() < 0.3) {
       // 随机方向，轻微向上偏好（水母喜欢上浮）
-      let moveX = Math.floor(Math.random() * 3) - 1;
-      let moveY = Math.floor(Math.random() * 3) - 1;
-      if (Math.random() < 0.3) moveY = -1; // 向上偏好
+      const moveX = Math.floor(Math.random() * 3) - 1;
+      const moveY = Math.random() < 0.3 ? -1 : Math.floor(Math.random() * 3) - 1;
 
       const nx = x + moveX, ny = y + moveY;
       if (world.inBounds(nx, ny) && world.get(nx, ny) === 2) {
