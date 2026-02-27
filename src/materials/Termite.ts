@@ -1,4 +1,4 @@
-import { DIRS4 } from './types';
+import { DIRS4, DIRS_DIAG } from './types';
 import type { MaterialDef, WorldAPI } from './types';;
 import { registerMaterial } from './registry';
 
@@ -52,7 +52,7 @@ export const Termite: MaterialDef = {
 
     // 检查邻居
     const dirs = DIRS4;
-    const diag: [number, number][] = [[-1, -1], [1, -1], [-1, 1], [1, 1]];
+    const diag = DIRS_DIAG;
     const allDirs = [...dirs, ...diag];
 
     // 遇水淹死

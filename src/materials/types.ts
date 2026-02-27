@@ -9,6 +9,10 @@ export const DIRS8: ReadonlyArray<readonly [number, number]> = [
   [0, -1], [0, 1], [-1, 0], [1, 0],
   [-1, -1], [1, -1], [-1, 1], [1, 1],
 ];
+/** 4个对角方向 */
+export const DIRS_DIAG: ReadonlyArray<readonly [number, number]> = [[-1, -1], [1, -1], [-1, 1], [1, 1]];
+/** 3方向（上+左右，用于烟/气体向上飘动） */
+export const DIRS3_UP: ReadonlyArray<readonly [number, number]> = [[0, -1], [-1, -1], [1, -1]];
 
 /** 材质分类 */
 export type MaterialCategory =

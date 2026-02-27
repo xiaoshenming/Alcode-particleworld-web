@@ -1,4 +1,4 @@
-import { DIRS4 } from './types';
+import { DIRS4, DIRS_DIAG } from './types';
 import type { MaterialDef, WorldAPI } from './types';;
 import { registerMaterial } from './registry';
 
@@ -76,7 +76,7 @@ export const Permafrost: MaterialDef = {
     }
 
     // 对角线也有冷冻效果（弱）
-    const diags: [number, number][] = [[-1, -1], [1, -1], [-1, 1], [1, 1]];
+    const diags = DIRS_DIAG;
     for (const [dx, dy] of diags) {
       const nx = x + dx, ny = y + dy;
       if (!world.inBounds(nx, ny)) continue;

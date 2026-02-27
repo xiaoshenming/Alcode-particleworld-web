@@ -1,4 +1,4 @@
-import { DIRS4 } from './types';
+import { DIRS3_UP, DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';;
 import { registerMaterial } from './registry';
 
@@ -56,7 +56,7 @@ export const Cite: MaterialDef = {
 
       // 产生烟
       if (Math.random() < 0.08) {
-        const smokeDir: [number, number][] = [[0, -1], [-1, -1], [1, -1]];
+        const smokeDir = DIRS3_UP;
         for (const [dx, dy] of smokeDir) {
           const nx = x + dx, ny = y + dy;
           if (world.inBounds(nx, ny) && world.isEmpty(nx, ny)) {
