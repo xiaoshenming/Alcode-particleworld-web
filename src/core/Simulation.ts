@@ -91,22 +91,28 @@ export class Simulation {
     // 天气粒子生成
     this.spawnWeatherParticles();
 
+    // 直接引用内部缓冲区，避免热路径中重复计算 idx(x,y)
+    const cells = this.world.cells;
+    const updated = this.world.getUpdatedBuffer();
+    const awake = this.world.getAwakeBuffer();
+
     // 从底部向上遍历（重力方向）
     for (let y = height - 1; y >= 0; y--) {
       // 随机扫描方向，避免左右偏向
       const leftToRight = Math.random() < 0.5;
+      const rowBase = y * width;
       for (let i = 0; i < width; i++) {
         const x = leftToRight ? i : width - 1 - i;
+        const idx = rowBase + x;
 
-        // 跳过空气和已更新的粒子
-        const cellId = this.world.get(x, y);
-        if (cellId === 0) continue;
-        if (this.world.isUpdated(x, y)) continue;
+        // 跳过���气和已更新的粒子
+        if (cells[idx] === 0) continue;
+        if (updated[idx] === 1) continue;
 
         // 跳过非活跃粒子（静止的沙堆、石头等）
-        if (!this.world.isAwake(x, y)) continue;
+        if (awake[idx] !== 1) continue;
 
-        const mat = getMaterial(cellId);
+        const mat = getMaterial(cells[idx]);
         if (mat) {
           mat.update(x, y, this.world);
         }

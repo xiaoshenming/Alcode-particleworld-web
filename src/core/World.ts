@@ -263,6 +263,16 @@ export class World implements WorldAPI {
     return this._trail;
   }
 
+  /** 获取本帧更新标记缓冲区（供 Simulation 热路径使用，避免重复 idx 计算） */
+  getUpdatedBuffer(): Uint8Array {
+    return this._updated;
+  }
+
+  /** 获取当前帧活跃标记缓冲区（供 Simulation 热路径使用，避免重复 idx 计算） */
+  getAwakeBuffer(): Uint8Array {
+    return this._awake;
+  }
+
   /** 每帧衰减轨迹强度 */
   decayTrail(): void {
     for (let i = 0; i < this._trail.length; i++) {
