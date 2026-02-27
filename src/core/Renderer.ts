@@ -428,10 +428,10 @@ export class Renderer {
       this.ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
       const dots = Math.min(12, Math.max(4, r * 3));
       for (let i = 0; i < dots; i++) {
-        const angle = (i / dots) * Math.PI * 2;
+        const dotAngle = (i / dots) * Math.PI * 2;
         const dist = (r * 0.5 + (i % 3) * r * 0.15) * s;
-        const dx = Math.cos(angle) * dist;
-        const dy = Math.sin(angle) * dist;
+        const dx = Math.cos(dotAngle) * dist;
+        const dy = Math.sin(dotAngle) * dist;
         this.ctx.fillRect(
           (cx + 0.5) * s + dx - 1,
           (cy + 0.5) * s + dy - 1,

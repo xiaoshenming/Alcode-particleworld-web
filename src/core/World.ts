@@ -438,6 +438,8 @@ export class World implements WorldAPI {
         // 顺时针90°: (x, y) → (h - 1 - y, x)
         const nx = h - 1 - y;
         const ny = x;
+        // 非正方形网格旋转后 ny 可能超出高度范围，跳过越界写入
+        if (ny >= h) continue;
         const dstIdx = ny * w + nx;
         newCells[dstIdx] = this.cells[srcIdx];
         newColors[dstIdx] = this.colors[srcIdx];
