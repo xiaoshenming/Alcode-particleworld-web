@@ -4,22 +4,9 @@ import { registerMaterial } from './registry';
 /**
  * 水泥粉 —— 粉末状，像沙子一样下落
  * 遇水变成湿水泥（缓慢流动的液体），湿水泥一段时间后固化成混凝土
+ * WetCement 使用 World 内置 age 替代 Map<string,number>（swap自动迁移计时器）
+ * age=0: 未初始化; age=N: 固化剩余N帧
  */
-
-/** 湿水泥固化计时器 */
-const cureTimer = new Map<string, number>();
-
-function getTimer(x: number, y: number): number {
-  return cureTimer.get(`${x},${y}`) ?? 0;
-}
-
-function setTimer(x: number, y: number, t: number): void {
-  if (t <= 0) {
-    cureTimer.delete(`${x},${y}`);
-  } else {
-    cureTimer.set(`${x},${y}`, t);
-  }
-}
 
 /** 水泥粉（ID=34）—— 粉末，遇水变湿水泥 */
 export const Cement: MaterialDef = {
@@ -40,17 +27,15 @@ export const Cement: MaterialDef = {
       const nid = world.get(nx, ny);
       // 水(2) 或 盐水(24) → 变成湿水泥
       if (nid === 2 || nid === 24) {
-        world.set(x, y, 35); // 当前变湿水泥
+        world.set(x, y, 35); // 当前变湿水泥（age被重置为0，下帧WetCement会初始化）
         world.set(nx, ny, 35); // 水也变湿水泥
-        setTimer(x, y, 120 + Math.floor(Math.random() * 60));
-        setTimer(nx, ny, 120 + Math.floor(Math.random() * 60));
         world.markUpdated(x, y);
         world.markUpdated(nx, ny);
         return;
       }
     }
 
-    // 粉末下落（类似沙子）
+    // 粉末下落（类似沙子，swap自动迁移age）
     if (y < world.height - 1) {
       if (world.isEmpty(x, y + 1)) {
         world.swap(x, y, x, y + 1);
@@ -73,7 +58,9 @@ export const Cement: MaterialDef = {
   },
 };
 
-/** 湿水泥（ID=35）—— 缓慢流动，一段时间后固化成混凝土 */
+/** 湿水泥（ID=35）—— 缓慢流动，一段时间后固化成混凝土
+ * age=0: 未初始化; age=N: 固化剩余N帧
+ */
 export const WetCement: MaterialDef = {
   id: 35,
   name: '湿水泥',
@@ -86,13 +73,14 @@ export const WetCement: MaterialDef = {
   },
   density: 6,
   update(x: number, y: number, world: WorldAPI) {
-    // 固化计时
-    let timer = getTimer(x, y);
+    // 固化计时（age=0表示未初始化）
+    let timer = world.getAge(x, y);
     if (timer === 0) {
       timer = 120 + Math.floor(Math.random() * 60); // 120~180 帧后固化
+      world.setAge(x, y, timer);
     }
     timer--;
-    setTimer(x, y, timer);
+    world.setAge(x, y, timer);
 
     // 固化完成 → 变成混凝土
     if (timer <= 0) {
@@ -105,12 +93,9 @@ export const WetCement: MaterialDef = {
     if (Math.random() > 0.3) return;
 
     if (y < world.height - 1) {
-      // 下落
+      // 下落（swap 自动迁移 age）
       if (world.isEmpty(x, y + 1)) {
         world.swap(x, y, x, y + 1);
-        // 迁移计时器
-        setTimer(x, y + 1, timer);
-        setTimer(x, y, 0);
         world.markUpdated(x, y + 1);
         return;
       }
@@ -119,8 +104,6 @@ export const WetCement: MaterialDef = {
       for (const d of [dir, -dir]) {
         if (world.inBounds(x + d, y + 1) && world.isEmpty(x + d, y + 1)) {
           world.swap(x, y, x + d, y + 1);
-          setTimer(x + d, y + 1, timer);
-          setTimer(x, y, 0);
           world.markUpdated(x + d, y + 1);
           return;
         }
@@ -129,8 +112,6 @@ export const WetCement: MaterialDef = {
       for (const d of [dir, -dir]) {
         if (world.inBounds(x + d, y) && world.isEmpty(x + d, y)) {
           world.swap(x, y, x + d, y);
-          setTimer(x + d, y, timer);
-          setTimer(x, y, 0);
           world.markUpdated(x + d, y);
           return;
         }

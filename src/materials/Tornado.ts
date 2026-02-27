@@ -4,22 +4,9 @@ import { registerMaterial } from './registry';
 /**
  * 龙卷风 —— 旋转气流，吸引周围粒子向中心并向上抛射
  * 有限寿命，逐渐消散
+ * 使用 World 内置 age 替代 Map<string,number>（swap自动迁移age）
+ * age=0: 未初始化; age=N: 剩余寿命=N
  */
-
-/** 龙卷风生命值 */
-const tornadoLife = new Map<string, number>();
-
-function getLife(x: number, y: number): number {
-  return tornadoLife.get(`${x},${y}`) ?? 0;
-}
-
-function setLife(x: number, y: number, life: number): void {
-  if (life <= 0) {
-    tornadoLife.delete(`${x},${y}`);
-  } else {
-    tornadoLife.set(`${x},${y}`, life);
-  }
-}
 
 /** 不可被龙卷风移动的材质（固体/工具类） */
 const IMMOVABLE = new Set([3, 10, 14, 17, 21, 25, 29, 31, 32, 33, 36, 37, 38, 39, 41, 42, 44, 47]);
@@ -34,17 +21,18 @@ export const Tornado: MaterialDef = {
   },
   density: 0.05,
   update(x: number, y: number, world: WorldAPI) {
-    // 初始化/递减生命值
-    let life = getLife(x, y);
+    // 初始化/递减生命值（age=0表示未初始化）
+    let life = world.getAge(x, y);
     if (life === 0) {
       life = 100 + Math.floor(Math.random() * 100); // 100~200 帧
-      setLife(x, y, life);
+      world.setAge(x, y, life);
     }
     life--;
-    setLife(x, y, life);
+    world.setAge(x, y, life);
 
-    // 刷新颜色（旋转闪烁效果）
+    // 刷新颜色（旋转闪烁效果）：set()会重置age，需立即恢复
     world.set(x, y, 50);
+    world.setAge(x, y, life);
 
     // 生命耗尽消散
     if (life <= 0) {
@@ -81,17 +69,15 @@ export const Tornado: MaterialDef = {
         const destY = ny + moveY;
 
         if (world.inBounds(destX, destY) && world.isEmpty(destX, destY)) {
-          world.swap(nx, ny, destX, destY);
+          world.swap(nx, ny, destX, destY); // swap 自动迁移 age
           world.markUpdated(destX, destY);
         }
       }
     }
 
-    // 龙卷风自身缓慢向上移动
+    // 龙卷风自身缓慢向上移动（swap 自动迁移 age）
     if (y > 0 && world.isEmpty(x, y - 1) && Math.random() < 0.3) {
       world.swap(x, y, x, y - 1);
-      setLife(x, y - 1, life);
-      setLife(x, y, 0);
       world.markUpdated(x, y - 1);
     }
   },
