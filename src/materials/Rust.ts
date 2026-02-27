@@ -1,4 +1,5 @@
-import type { MaterialDef, WorldAPI } from './types';
+import { DIRS4 } from './types';
+import type { MaterialDef, WorldAPI } from './types';;
 import { registerMaterial } from './registry';
 
 /**
@@ -49,7 +50,7 @@ export const Rust: MaterialDef = {
     }
 
     // 检查邻居：腐蚀扩散
-    const dirs: [number, number][] = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+    const dirs = DIRS4;
     let hasCatalyst = false;
 
     for (const [dx, dy] of dirs) {

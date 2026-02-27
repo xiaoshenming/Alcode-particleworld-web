@@ -1,4 +1,5 @@
-import type { MaterialDef, WorldAPI } from './types';
+import { DIRS4 } from './types';
+import type { MaterialDef, WorldAPI } from './types';;
 import { registerMaterial } from './registry';
 
 /**
@@ -46,7 +47,7 @@ export const PhotoelectricMaterial: MaterialDef = {
     }
 
     let illuminated = false;
-    const dirs: [number, number][] = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+    const dirs = DIRS4;
 
     // 检测是否被光照射
     for (const [dx, dy] of dirs) {

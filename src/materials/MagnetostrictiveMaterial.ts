@@ -1,4 +1,5 @@
-import type { MaterialDef, WorldAPI } from './types';
+import { DIRS4 } from './types';
+import type { MaterialDef, WorldAPI } from './types';;
 import { registerMaterial } from './registry';
 
 /**
@@ -67,7 +68,7 @@ export const MagnetostrictiveMaterial: MaterialDef = {
     if (nearMagnet) {
       // 磁场中振动：概率与随机邻居交换
       if (Math.random() < 0.15) {
-        const dirs: [number, number][] = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+        const dirs = DIRS4;
         const [dx, dy] = dirs[Math.floor(Math.random() * dirs.length)];
         const nx = x + dx, ny = y + dy;
         if (world.inBounds(nx, ny)) {
@@ -84,7 +85,7 @@ export const MagnetostrictiveMaterial: MaterialDef = {
     }
 
     // 导热
-    const dirs: [number, number][] = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+    const dirs = DIRS4;
     for (const [dx, dy] of dirs) {
       const nx = x + dx, ny = y + dy;
       if (!world.inBounds(nx, ny)) continue;

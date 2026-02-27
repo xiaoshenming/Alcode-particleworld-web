@@ -1,4 +1,5 @@
-import type { MaterialDef, WorldAPI } from './types';
+import { DIRS4 } from './types';
+import type { MaterialDef, WorldAPI } from './types';;
 import { registerMaterial } from './registry';
 
 /**
@@ -43,7 +44,7 @@ export const PhotoelasticMaterial: MaterialDef = {
     return (0xDD << 24) | (b << 16) | (g << 8) | r; // 半透明
   },
   update(x: number, y: number, world: WorldAPI) {
-    const dirs: [number, number][] = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+    const dirs = DIRS4;
     let neighborCount = 0;
 
     for (const [dx, dy] of dirs) {

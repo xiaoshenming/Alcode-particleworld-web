@@ -1,4 +1,5 @@
-import type { MaterialDef, WorldAPI } from './types';
+import { DIRS4 } from './types';
+import type { MaterialDef, WorldAPI } from './types';;
 import { registerMaterial } from './registry';
 
 /**
@@ -100,7 +101,7 @@ export const Cloud: MaterialDef = {
     }
 
     // 吸收相邻蒸汽（蒸汽聚合为云）
-    const dirs: [number, number][] = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+    const dirs = DIRS4;
     for (const [ddx, ddy] of dirs) {
       const nx = x + ddx, ny = y + ddy;
       if (!world.inBounds(nx, ny)) continue;

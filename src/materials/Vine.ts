@@ -1,4 +1,5 @@
-import type { MaterialDef, WorldAPI } from './types';
+import { DIRS4 } from './types';
+import type { MaterialDef, WorldAPI } from './types';;
 import { registerMaterial } from './registry';
 
 /**
@@ -41,7 +42,7 @@ export const Vine: MaterialDef = {
     if (temp < -5) return;
 
     // 检查邻居
-    const dirs: [number, number][] = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+    const dirs = DIRS4;
     let hasSupport = false;
     let hasWater = false;
 

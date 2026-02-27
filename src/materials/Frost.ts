@@ -1,4 +1,5 @@
-import type { MaterialDef, WorldAPI } from './types';
+import { DIRS4 } from './types';
+import type { MaterialDef, WorldAPI } from './types';;
 import { registerMaterial } from './registry';
 
 /**
@@ -57,7 +58,7 @@ export const Frost: MaterialDef = {
       return;
     }
 
-    const dirs: [number, number][] = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+    const dirs = DIRS4;
 
     // 检查是否仍附着在表面（至少一个邻居是固体或霜）
     let attached = false;

@@ -1,4 +1,5 @@
-import type { MaterialDef, WorldAPI } from './types';
+import { DIRS4 } from './types';
+import type { MaterialDef, WorldAPI } from './types';;
 import { registerMaterial } from './registry';
 
 /**
@@ -41,7 +42,7 @@ export const GlowStick: MaterialDef = {
     const temp = world.getTemp(x, y);
     let decayRate = 0.0005;
 
-    const dirs: [number, number][] = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+    const dirs = DIRS4;
     for (const [dx, dy] of dirs) {
       const nx = x + dx, ny = y + dy;
       if (!world.inBounds(nx, ny)) continue;

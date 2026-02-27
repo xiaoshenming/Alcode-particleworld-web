@@ -1,4 +1,5 @@
-import type { MaterialDef, WorldAPI } from './types';
+import { DIRS4 } from './types';
+import type { MaterialDef, WorldAPI } from './types';;
 import { registerMaterial } from './registry';
 
 /**
@@ -65,7 +66,7 @@ export const Magnetoresistive: MaterialDef = {
       if (nearMagnet) break;
     }
 
-    const dirs: [number, number][] = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+    const dirs = DIRS4;
 
     if (nearMagnet) {
       // 受磁场影响：刷新颜色（模拟电阻变化）

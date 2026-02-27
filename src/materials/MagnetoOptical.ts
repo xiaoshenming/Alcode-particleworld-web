@@ -1,4 +1,5 @@
-import type { MaterialDef, WorldAPI } from './types';
+import { DIRS4 } from './types';
+import type { MaterialDef, WorldAPI } from './types';;
 import { registerMaterial } from './registry';
 
 /**
@@ -74,7 +75,7 @@ export const MagnetoOptical: MaterialDef = {
 
       // 有概率向周围空格发出光束(48)
       if (Math.random() < 0.02) {
-        const dirs: [number, number][] = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+        const dirs = DIRS4;
         const [dx, dy] = dirs[Math.floor(Math.random() * 4)];
         const nx = x + dx, ny = y + dy;
         if (world.inBounds(nx, ny) && world.isEmpty(nx, ny)) {
@@ -85,7 +86,7 @@ export const MagnetoOptical: MaterialDef = {
     }
 
     // 耐酸
-    const dirs: [number, number][] = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+    const dirs = DIRS4;
     for (const [dx, dy] of dirs) {
       const nx = x + dx, ny = y + dy;
       if (!world.inBounds(nx, ny)) continue;

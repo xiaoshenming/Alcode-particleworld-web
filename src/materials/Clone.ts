@@ -1,4 +1,5 @@
-import type { MaterialDef, WorldAPI } from './types';
+import { DIRS8 } from './types';
+import type { MaterialDef, WorldAPI } from './types';;
 import { registerMaterial } from './registry';
 
 /**
@@ -27,10 +28,7 @@ export const Clone: MaterialDef = {
   update(x: number, y: number, world: WorldAPI) {
     // age=0: 未记忆; age=materialId: 记忆的材质
     const memory = world.getAge(x, y);
-    const dirs = [
-      [0, -1], [0, 1], [-1, 0], [1, 0],
-      [-1, -1], [1, -1], [-1, 1], [1, 1],
-    ];
+    const dirs = [...DIRS8];
 
     // 还没记忆 → 扫描邻居，记住第一个接触到的材质
     if (memory === 0) {

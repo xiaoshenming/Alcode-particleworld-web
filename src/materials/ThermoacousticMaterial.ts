@@ -1,4 +1,5 @@
-import type { MaterialDef, WorldAPI } from './types';
+import { DIRS4 } from './types';
+import type { MaterialDef, WorldAPI } from './types';;
 import { registerMaterial } from './registry';
 
 /**
@@ -50,7 +51,7 @@ export const ThermoacousticMaterial: MaterialDef = {
     const intensity = Math.max(0, (temp - 20) / 200); // 20°以上开始有效果
     if (intensity <= 0) {
       // 低温时只导热
-      const dirs: [number, number][] = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+      const dirs = DIRS4;
       for (const [dx, dy] of dirs) {
         const nx = x + dx, ny = y + dy;
         if (!world.inBounds(nx, ny)) continue;
@@ -93,7 +94,7 @@ export const ThermoacousticMaterial: MaterialDef = {
     }
 
     // 导热
-    const dirs: [number, number][] = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+    const dirs = DIRS4;
     for (const [dx, dy] of dirs) {
       const nx = x + dx, ny = y + dy;
       if (!world.inBounds(nx, ny)) continue;

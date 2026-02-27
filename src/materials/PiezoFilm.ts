@@ -1,4 +1,5 @@
-import type { MaterialDef, WorldAPI } from './types';
+import { DIRS4 } from './types';
+import type { MaterialDef, WorldAPI } from './types';;
 import { registerMaterial } from './registry';
 
 /**
@@ -57,7 +58,7 @@ export const PiezoFilm: MaterialDef = {
 
     // 受压时的效果
     if (pressured) {
-      const dirs: [number, number][] = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+      const dirs = DIRS4;
       for (const [dx, dy] of dirs) {
         const nx = x + dx, ny = y + dy;
         if (!world.inBounds(nx, ny)) continue;
@@ -82,7 +83,7 @@ export const PiezoFilm: MaterialDef = {
     }
 
     // 导热
-    const dirs: [number, number][] = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+    const dirs = DIRS4;
     for (const [dx, dy] of dirs) {
       const nx = x + dx, ny = y + dy;
       if (!world.inBounds(nx, ny)) continue;

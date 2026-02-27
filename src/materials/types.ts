@@ -1,3 +1,15 @@
+/**
+ * 共享方向常量（模块级，避免每帧在 update() 内重新分配数组）
+ * 所有使用相同方向集合的材质应从这里导入，而非在 update() 内定义局部变量
+ */
+/** 4方向（上下左右） */
+export const DIRS4: ReadonlyArray<readonly [number, number]> = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+/** 8方向（上下左右+四个对角） */
+export const DIRS8: ReadonlyArray<readonly [number, number]> = [
+  [0, -1], [0, 1], [-1, 0], [1, 0],
+  [-1, -1], [1, -1], [-1, 1], [1, 1],
+];
+
 /** 材质分类 */
 export type MaterialCategory =
   | '粉末' | '液体' | '气体' | '固体'

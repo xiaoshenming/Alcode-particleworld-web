@@ -1,4 +1,5 @@
-import type { MaterialDef, WorldAPI } from './types';
+import { DIRS4 } from './types';
+import type { MaterialDef, WorldAPI } from './types';;
 import { registerMaterial } from './registry';
 
 /**
@@ -43,7 +44,7 @@ export const SteamEngine: MaterialDef = {
   density: Infinity,
   update(x: number, y: number, world: WorldAPI) {
     const temp = world.getTemp(x, y);
-    const dirs: [number, number][] = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+    const dirs = DIRS4;
 
     let hasHeat = temp > 80;
     let waterPos: [number, number] | null = null;

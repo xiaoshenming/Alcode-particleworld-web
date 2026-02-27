@@ -1,4 +1,5 @@
-import type { MaterialDef, WorldAPI } from './types';
+import { DIRS8 } from './types';
+import type { MaterialDef, WorldAPI } from './types';;
 import { registerMaterial } from './registry';
 
 /**
@@ -52,10 +53,7 @@ export const Virus: MaterialDef = {
     }
 
     // 检查邻居，感染或���杀
-    const dirs: [number, number][] = [
-      [0, -1], [0, 1], [-1, 0], [1, 0],
-      [-1, -1], [1, -1], [-1, 1], [1, 1],
-    ];
+    const dirs = DIRS8;
 
     for (const [dx, dy] of dirs) {
       const nx = x + dx, ny = y + dy;

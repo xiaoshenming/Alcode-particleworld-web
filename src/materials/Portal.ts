@@ -1,4 +1,5 @@
-import type { MaterialDef, WorldAPI } from './types';
+import { DIRS4 } from './types';
+import type { MaterialDef, WorldAPI } from './types';;
 import { registerMaterial } from './registry';
 
 /**
@@ -99,7 +100,7 @@ export const Portal: MaterialDef = {
     }
 
     // 检查四周邻居，传送接触到的粒子
-    const dirs: [number, number][] = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+    const dirs = DIRS4;
 
     for (const [dx, dy] of dirs) {
       const sx = x + dx, sy = y + dy;

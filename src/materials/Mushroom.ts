@@ -1,4 +1,5 @@
-import type { MaterialDef, WorldAPI } from './types';
+import { DIRS4 } from './types';
+import type { MaterialDef, WorldAPI } from './types';;
 import { registerMaterial } from './registry';
 
 /**
@@ -65,7 +66,7 @@ export const Mushroom: MaterialDef = {
     if (temp < 0) return;
 
     // 邻居交互
-    const dirs: [number, number][] = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+    const dirs = [...DIRS4];
     let hasMoisture = false;
     let hasSubstrate = false;
 

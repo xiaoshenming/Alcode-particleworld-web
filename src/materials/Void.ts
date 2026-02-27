@@ -1,4 +1,5 @@
-import type { MaterialDef, WorldAPI } from './types';
+import { DIRS8 } from './types';
+import type { MaterialDef, WorldAPI } from './types';;
 import { registerMaterial } from './registry';
 
 /**
@@ -24,10 +25,7 @@ export const Void: MaterialDef = {
   density: Infinity,
   update(x: number, y: number, world: WorldAPI) {
     // 扫描周围 8 个方向，吞噬所有非免疫材质
-    const dirs = [
-      [0, -1], [0, 1], [-1, 0], [1, 0],
-      [-1, -1], [1, -1], [-1, 1], [1, 1],
-    ];
+    const dirs = DIRS8;
 
     for (const [dx, dy] of dirs) {
       const nx = x + dx;

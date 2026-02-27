@@ -1,4 +1,5 @@
-import type { MaterialDef, WorldAPI } from './types';
+import { DIRS4 } from './types';
+import type { MaterialDef, WorldAPI } from './types';;
 import { registerMaterial } from './registry';
 
 /**
@@ -94,7 +95,7 @@ export const Thermoplastic: MaterialDef = {
       world.wakeArea(x, y);
 
       // 检查邻居：遇火着火
-      const dirs: [number, number][] = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+      const dirs = DIRS4;
       for (const [dx, dy] of dirs) {
         const nx = x + dx, ny = y + dy;
         if (!world.inBounds(nx, ny)) continue;
@@ -144,7 +145,7 @@ export const Thermoplastic: MaterialDef = {
     }
 
     // 固态：检查邻居
-    const dirs: [number, number][] = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+    const dirs = DIRS4;
     for (const [dx, dy] of dirs) {
       const nx = x + dx, ny = y + dy;
       if (!world.inBounds(nx, ny)) continue;

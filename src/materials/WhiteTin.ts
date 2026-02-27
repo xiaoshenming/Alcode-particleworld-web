@@ -1,4 +1,5 @@
-import type { MaterialDef, WorldAPI } from './types';
+import { DIRS4 } from './types';
+import type { MaterialDef, WorldAPI } from './types';;
 import { registerMaterial } from './registry';
 
 /**
@@ -58,7 +59,7 @@ export const WhiteTin: MaterialDef = {
         world.set(x, y, 146); // 干沙（灰色粉末）
         world.wakeArea(x, y);
         // 锡疫具有传染性：唤醒邻居白锡
-        const dirs: [number, number][] = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+        const dirs = DIRS4;
         for (const [dx, dy] of dirs) {
           const nx = x + dx, ny = y + dy;
           if (world.inBounds(nx, ny) && world.get(nx, ny) === 176) {
@@ -70,7 +71,7 @@ export const WhiteTin: MaterialDef = {
     }
 
     // 导热
-    const dirs: [number, number][] = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+    const dirs = DIRS4;
     for (const [dx, dy] of dirs) {
       const nx = x + dx, ny = y + dy;
       if (!world.inBounds(nx, ny)) continue;

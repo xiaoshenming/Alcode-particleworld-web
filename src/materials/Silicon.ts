@@ -1,4 +1,5 @@
-import type { MaterialDef, WorldAPI } from './types';
+import { DIRS4 } from './types';
+import type { MaterialDef, WorldAPI } from './types';;
 import { registerMaterial } from './registry';
 
 /**
@@ -42,7 +43,7 @@ export const Silicon: MaterialDef = {
 
     // 导电逻辑（age=0: 未通电; age=N: 通电剩余N帧）
     let charge = world.getAge(x, y);
-    const dirs: [number, number][] = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+    const dirs = DIRS4;
 
     if (charge <= 0) {
       // 未通电：检查是否被电弧/雷电/火花激活

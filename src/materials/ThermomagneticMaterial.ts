@@ -1,4 +1,5 @@
-import type { MaterialDef, WorldAPI } from './types';
+import { DIRS4 } from './types';
+import type { MaterialDef, WorldAPI } from './types';;
 import { registerMaterial } from './registry';
 
 /**
@@ -41,7 +42,7 @@ export const ThermomagneticMaterial: MaterialDef = {
     // 金属材质ID集合
     const metalIds = new Set([10, 31, 32, 34, 85, 86, 199, 246, 251]);
 
-    const dirs: [number, number][] = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+    const dirs = DIRS4;
 
     if (isMagnetic) {
       // 搜索范围内的金属粒子并吸引

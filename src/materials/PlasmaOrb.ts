@@ -1,4 +1,5 @@
-import type { MaterialDef, WorldAPI } from './types';
+import { DIRS4, DIRS8 } from './types';
+import type { MaterialDef, WorldAPI } from './types';;
 import { registerMaterial } from './registry';
 
 /**
@@ -47,7 +48,7 @@ export const PlasmaOrb: MaterialDef = {
     // 过载爆炸
     if (temp > 800) {
       world.set(x, y, 55); // 等离子体
-      const dirs: [number, number][] = [[0, -1], [0, 1], [-1, 0], [1, 0], [-1, -1], [1, -1], [-1, 1], [1, 1]];
+      const dirs = DIRS8;
       for (const [dx, dy] of dirs) {
         const nx = x + dx, ny = y + dy;
         if (world.inBounds(nx, ny) && (world.isEmpty(nx, ny) || world.get(nx, ny) === 7)) {
@@ -61,7 +62,7 @@ export const PlasmaOrb: MaterialDef = {
     }
 
     let hasWire = false;
-    const dirs: [number, number][] = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+    const dirs = DIRS4;
     for (const [dx, dy] of dirs) {
       const nx = x + dx, ny = y + dy;
       if (!world.inBounds(nx, ny)) continue;
