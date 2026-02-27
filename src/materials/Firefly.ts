@@ -8,26 +8,9 @@ import { registerMaterial } from './registry';
  * - 遇到水会淹死，遇到火会烧死
  * - 有限寿命，死后消失
  * - 被植物/种子吸引（偏向靠近）
+ * 使用 World 内置 age 替代 Map<string,number>（swap自动迁移age）
+ * age=0: 未初始化; age=N: 剩余寿命=N
  */
-
-/** 萤火虫寿命 */
-const fireflyLife = new Map<string, number>();
-
-function key(x: number, y: number): string {
-  return `${x},${y}`;
-}
-
-function getLife(x: number, y: number): number {
-  return fireflyLife.get(key(x, y)) ?? 0;
-}
-
-function setLife(x: number, y: number, life: number): void {
-  if (life <= 0) {
-    fireflyLife.delete(key(x, y));
-  } else {
-    fireflyLife.set(key(x, y), life);
-  }
-}
 
 /** 致命材质 */
 const DEADLY = new Set([2, 6, 9, 11, 24]); // 水、火、酸液、熔岩、盐水
@@ -48,15 +31,16 @@ export const Firefly: MaterialDef = {
   },
   density: 0.1, // 极轻，飞行
   update(x: number, y: number, world: WorldAPI) {
-    // 初始化寿命
-    let life = getLife(x, y);
+    // 初始化寿命（age=0表示未初始化）
+    let life = world.getAge(x, y);
     if (life === 0) {
       life = 200 + Math.floor(Math.random() * 300); // 200~500 帧
-      setLife(x, y, life);
+      world.setAge(x, y, life);
     }
 
-    // 刷新颜色（闪烁效果）
+    // 刷新颜色（闪烁效果）：set()会重置age，需立即恢复
     world.set(x, y, 52);
+    world.setAge(x, y, life);
 
     // 检查致命环境
     const dirs: [number, number][] = [
@@ -68,14 +52,13 @@ export const Firefly: MaterialDef = {
       if (!world.inBounds(nx, ny)) continue;
       if (DEADLY.has(world.get(nx, ny))) {
         world.set(x, y, 0); // 死亡
-        setLife(x, y, 0);
         return;
       }
     }
 
     // 寿命递减
     life--;
-    setLife(x, y, life);
+    world.setAge(x, y, life);
     if (life <= 0) {
       world.set(x, y, 0);
       return;
@@ -119,9 +102,7 @@ export const Firefly: MaterialDef = {
 
     const nx = x + moveX, ny = y + moveY;
     if (world.inBounds(nx, ny) && world.isEmpty(nx, ny)) {
-      world.swap(x, y, nx, ny);
-      setLife(nx, ny, life);
-      setLife(x, y, 0);
+      world.swap(x, y, nx, ny); // swap 自动迁移 age
       world.markUpdated(nx, ny);
     }
   },

@@ -9,31 +9,14 @@ import { registerMaterial } from './registry';
  * - 有限寿命，逐渐冷却消散
  * - 颜色在蓝白/紫白之间剧烈闪烁
  * - 接触水会产生蒸汽并加速消亡
+ * 使用 World 内置 age 替代 Map<string,number>（plasmaLife）
+ * age=0: 未初始化; age=N: 剩余寿命=N
  */
-
-/** 等离子体寿命 */
-const plasmaLife = new Map<string, number>();
-
-function key(x: number, y: number): string {
-  return `${x},${y}`;
-}
-
-function getLife(x: number, y: number): number {
-  return plasmaLife.get(key(x, y)) ?? 0;
-}
-
-function setLife(x: number, y: number, life: number): void {
-  if (life <= 0) {
-    plasmaLife.delete(key(x, y));
-  } else {
-    plasmaLife.set(key(x, y), life);
-  }
-}
 
 /** 可被等离子体点燃的材质 */
 const IGNITABLE = new Set([4, 5, 13, 22, 25, 26, 46]); // 木头、油、植物、火药、蜡、液蜡、木炭
 
-/** 可被等离子体融化的材质 */
+/** 可被等离子体融化的材质（常量 Map，用于规则存储，不是状态跟踪） */
 const MELTABLE: Map<number, number> = new Map([
   [10, 11], // 金属 → 熔岩
   [14, 2],  // 冰 → 水
@@ -72,15 +55,16 @@ export const Plasma: MaterialDef = {
   },
   density: 0.05, // 极轻
   update(x: number, y: number, world: WorldAPI) {
-    // 初始化寿命
-    let life = getLife(x, y);
+    // 初始化寿命（age=0表示未初始化）
+    let life = world.getAge(x, y);
     if (life === 0) {
       life = 40 + Math.floor(Math.random() * 60); // 40~100 帧
-      setLife(x, y, life);
+      world.setAge(x, y, life);
     }
 
-    // 刷新颜色（闪烁）
+    // 刷新颜色（闪烁）：set()会重置age，需立即恢复
     world.set(x, y, 55);
+    world.setAge(x, y, life);
 
     // 持续释放高温
     world.setTemp(x, y, 300);
@@ -124,20 +108,17 @@ export const Plasma: MaterialDef = {
 
     // 寿命递减
     life--;
-    setLife(x, y, life);
+    world.setAge(x, y, life);
 
     if (life <= 0) {
       // 消散：变成火或烟
       world.set(x, y, Math.random() < 0.3 ? 6 : 7); // 火或烟
-      setLife(x, y, 0);
       return;
     }
 
-    // 快速向上飘动
+    // 快速向上飘动（swap 自动迁移 age）
     if (y > 0 && world.isEmpty(x, y - 1)) {
       world.swap(x, y, x, y - 1);
-      setLife(x, y - 1, life);
-      setLife(x, y, 0);
       world.markUpdated(x, y - 1);
       return;
     }
@@ -148,8 +129,6 @@ export const Plasma: MaterialDef = {
       const nx = x + sd;
       if (y > 0 && world.inBounds(nx, y - 1) && world.isEmpty(nx, y - 1)) {
         world.swap(x, y, nx, y - 1);
-        setLife(nx, y - 1, life);
-        setLife(x, y, 0);
         world.markUpdated(nx, y - 1);
         return;
       }
@@ -160,8 +139,6 @@ export const Plasma: MaterialDef = {
       const nx = x + d;
       if (world.inBounds(nx, y) && world.isEmpty(nx, y)) {
         world.swap(x, y, nx, y);
-        setLife(nx, y, life);
-        setLife(x, y, 0);
         world.markUpdated(nx, y);
       }
     }
