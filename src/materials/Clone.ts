@@ -5,25 +5,12 @@ import { registerMaterial } from './registry';
  * 克隆体 —— 记忆型固体
  * 记住第一个接触到的非空材质，然后持续在周围空位生成该材质
  * 不可移动，不可燃，酸液无法腐蚀
+ * 使用 World 内置 age 替代 Map<string,number>（固体无需迁移）
+ * age=0: 未记忆; age=N: 记忆的材质ID=N
  */
-
-/** 存储每个克隆体记忆的材质 ID */
-const cloneMemory = new Map<string, number>();
 
 /** 不可克隆的材质（避免无限循环或破坏性行为） */
 const UNCLONABLE = new Set([0, 37, 38]); // 空气、克隆体自身、虚空
-
-function getMemory(x: number, y: number): number {
-  return cloneMemory.get(`${x},${y}`) ?? -1;
-}
-
-function setMemory(x: number, y: number, id: number): void {
-  if (id < 0) {
-    cloneMemory.delete(`${x},${y}`);
-  } else {
-    cloneMemory.set(`${x},${y}`, id);
-  }
-}
 
 export const Clone: MaterialDef = {
   id: 37,
@@ -38,23 +25,24 @@ export const Clone: MaterialDef = {
   },
   density: Infinity,
   update(x: number, y: number, world: WorldAPI) {
-    const memory = getMemory(x, y);
+    // age=0: 未记忆; age=materialId: 记忆的材质
+    const memory = world.getAge(x, y);
     const dirs = [
       [0, -1], [0, 1], [-1, 0], [1, 0],
       [-1, -1], [1, -1], [-1, 1], [1, 1],
     ];
 
     // 还没记忆 → 扫描邻居，记住第一个接触到的材质
-    if (memory < 0) {
+    if (memory === 0) {
       for (const [dx, dy] of dirs) {
         const nx = x + dx;
         const ny = y + dy;
         if (!world.inBounds(nx, ny)) continue;
         const nid = world.get(nx, ny);
         if (nid !== 0 && !UNCLONABLE.has(nid)) {
-          setMemory(x, y, nid);
-          // 刷新颜色以示已激活
+          // 刷新颜色以示已激活（set()会重置age，需立即恢复）
           world.set(x, y, 37);
+          world.setAge(x, y, nid); // 存储记忆的材质ID
           world.markUpdated(x, y);
           return;
         }

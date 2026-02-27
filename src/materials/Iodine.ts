@@ -9,21 +9,9 @@ import { registerMaterial } from './registry';
  * - 接触水(2) → 染色为棕色（变为毒液(19)）
  * - 有生命周期
  * - 紫色半透明
+ * 使用 World 内置 age 替代 Map<string,number>（swap自动迁移age）
+ * age=0: 未初始化; age=N: 剩余寿命=N
  */
-
-const iodineLife = new Map<string, number>();
-
-function getLife(x: number, y: number): number {
-  return iodineLife.get(`${x},${y}`) ?? 0;
-}
-
-function setLife(x: number, y: number, life: number): void {
-  if (life <= 0) {
-    iodineLife.delete(`${x},${y}`);
-  } else {
-    iodineLife.set(`${x},${y}`, life);
-  }
-}
 
 export const Iodine: MaterialDef = {
   id: 308,
@@ -38,14 +26,14 @@ export const Iodine: MaterialDef = {
     return (0x99 << 24) | (b << 16) | (g << 8) | r;
   },
   update(x: number, y: number, world: WorldAPI) {
-    let life = getLife(x, y);
+    let life = world.getAge(x, y);
     if (life === 0) {
       life = 90 + Math.floor(Math.random() * 90);
-      setLife(x, y, life);
+      world.setAge(x, y, life);
     }
 
     life--;
-    setLife(x, y, life);
+    world.setAge(x, y, life);
 
     if (life <= 0) {
       world.set(x, y, 0);
@@ -58,7 +46,6 @@ export const Iodine: MaterialDef = {
     if (temp < 50) {
       if (Math.random() < 0.02) {
         world.set(x, y, 3); // 凝华为固体
-        setLife(x, y, 0);
         world.wakeArea(x, y);
         return;
       }
@@ -86,11 +73,9 @@ export const Iodine: MaterialDef = {
       }
     }
 
-    // 缓慢上升
+    // 缓慢上升（swap 自动迁移 age）
     if (y > 0 && world.isEmpty(x, y - 1) && Math.random() < 0.35) {
       world.swap(x, y, x, y - 1);
-      setLife(x, y - 1, life);
-      setLife(x, y, 0);
       world.markUpdated(x, y - 1);
       return;
     }
@@ -101,8 +86,6 @@ export const Iodine: MaterialDef = {
       const nx = x + dir;
       if (world.inBounds(nx, y - 1) && world.isEmpty(nx, y - 1) && Math.random() < 0.25) {
         world.swap(x, y, nx, y - 1);
-        setLife(nx, y - 1, life);
-        setLife(x, y, 0);
         world.markUpdated(nx, y - 1);
         return;
       }
@@ -121,8 +104,6 @@ export const Iodine: MaterialDef = {
       const nx = x + dir;
       if (world.inBounds(nx, y) && world.isEmpty(nx, y)) {
         world.swap(x, y, nx, y);
-        setLife(nx, y, life);
-        setLife(x, y, 0);
         world.markUpdated(nx, y);
       }
     }

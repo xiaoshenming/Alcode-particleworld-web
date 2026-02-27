@@ -7,27 +7,11 @@ import { registerMaterial } from './registry';
  * - 高温(>1414°)熔化为液态硅(189)
  * - 导电：遇电弧(145)传导（类似电线但效率低，概率性传导）
  * - 深灰色带金属光泽
+ * 使用 World 内置 age 替代 Map<string,number>（固体无需迁移）
+ * age=0: 未通电; age=N: 通电剩余N帧
  */
 
-/** 硅的通电状态 */
-const siliconCharge = new Map<string, number>();
 const CHARGE_DURATION = 4;
-
-function key(x: number, y: number): string {
-  return `${x},${y}`;
-}
-
-function getCharge(x: number, y: number): number {
-  return siliconCharge.get(key(x, y)) ?? 0;
-}
-
-function setCharge(x: number, y: number, charge: number): void {
-  if (charge <= 0) {
-    siliconCharge.delete(key(x, y));
-  } else {
-    siliconCharge.set(key(x, y), charge);
-  }
-}
 
 /** 能激活硅导电的材质 */
 const ACTIVATORS = new Set([145, 16, 28]); // 电弧、雷电、火花
@@ -56,8 +40,8 @@ export const Silicon: MaterialDef = {
       return;
     }
 
-    // 导电逻辑
-    let charge = getCharge(x, y);
+    // 导电逻辑（age=0: 未通电; age=N: 通电剩余N帧）
+    let charge = world.getAge(x, y);
     const dirs: [number, number][] = [[0, -1], [0, 1], [-1, 0], [1, 0]];
 
     if (charge <= 0) {
@@ -69,38 +53,39 @@ export const Silicon: MaterialDef = {
 
         if (ACTIVATORS.has(nid)) {
           charge = CHARGE_DURATION;
-          setCharge(x, y, charge);
+          world.setAge(x, y, charge);
           break;
         }
 
         // 被相邻通电硅传导（概率性，效率低于电线）
-        if (nid === 188 && getCharge(nx, ny) === CHARGE_DURATION && Math.random() < 0.5) {
+        if (nid === 188 && world.getAge(nx, ny) === CHARGE_DURATION && Math.random() < 0.5) {
           charge = CHARGE_DURATION;
-          setCharge(x, y, charge);
+          world.setAge(x, y, charge);
           break;
         }
 
         // 被通电电线传导
         if (nid === 44 && Math.random() < 0.3) {
           charge = CHARGE_DURATION;
-          setCharge(x, y, charge);
+          world.setAge(x, y, charge);
           break;
         }
       }
     }
 
     if (charge > 0) {
-      // 通电中：升温 + 刷新颜色
+      // 通电中：升温 + 刷新颜色（set()会重置age，需立即恢复）
       world.addTemp(x, y, 2);
       world.set(x, y, 188);
+      world.setAge(x, y, charge); // 恢复 age
 
       charge--;
-      setCharge(x, y, charge);
+      world.setAge(x, y, charge);
 
       // 通电结束时：末端释放火花
       if (charge <= 0) {
         let siliconNeighbors = 0;
-        let emptyDirs: [number, number][] = [];
+        const emptyDirs: [number, number][] = [];
         for (const [dx, dy] of dirs) {
           const nx = x + dx, ny = y + dy;
           if (!world.inBounds(nx, ny)) continue;

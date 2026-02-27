@@ -9,21 +9,9 @@ import { registerMaterial } from './registry';
  * - 腐蚀有机物：木头(4)/植物(13)/藤蔓(57) → 烟(7)
  * - 有生命周期，最终消散
  * - 无色微黄绿
+ * 使用 World 内置 age 替代 Map<string,number>（swap自动迁移age）
+ * age=0: 未初始化; age=N: 剩余寿命=N
  */
-
-const nf3Life = new Map<string, number>();
-
-function getLife(x: number, y: number): number {
-  return nf3Life.get(`${x},${y}`) ?? 0;
-}
-
-function setLife(x: number, y: number, life: number): void {
-  if (life <= 0) {
-    nf3Life.delete(`${x},${y}`);
-  } else {
-    nf3Life.set(`${x},${y}`, life);
-  }
-}
 
 export const NitrogenTrifluoride: MaterialDef = {
   id: 303,
@@ -39,14 +27,14 @@ export const NitrogenTrifluoride: MaterialDef = {
     return (0xAA << 24) | (b << 16) | (g << 8) | r;
   },
   update(x: number, y: number, world: WorldAPI) {
-    let life = getLife(x, y);
+    let life = world.getAge(x, y);
     if (life === 0) {
       life = 100 + Math.floor(Math.random() * 100);
-      setLife(x, y, life);
+      world.setAge(x, y, life);
     }
 
     life--;
-    setLife(x, y, life);
+    world.setAge(x, y, life);
 
     if (life <= 0) {
       world.set(x, y, 0);
@@ -58,7 +46,6 @@ export const NitrogenTrifluoride: MaterialDef = {
     // 高温分解为氟气
     if (temp > 200) {
       world.set(x, y, 278); // 氟气
-      setLife(x, y, 0);
       world.wakeArea(x, y);
       return;
     }
@@ -73,7 +60,6 @@ export const NitrogenTrifluoride: MaterialDef = {
       // 接触高温源 → 剧烈燃烧
       if ((nid === 6 || nid === 11 || nid === 55) && Math.random() < 0.6) {
         world.set(x, y, 28); // 火花
-        setLife(x, y, 0);
         world.addTemp(x, y, 80);
         world.wakeArea(x, y);
         return;
@@ -87,12 +73,10 @@ export const NitrogenTrifluoride: MaterialDef = {
       }
     }
 
-    // 缓慢上升
+    // 缓慢上升（swap 自动迁移 age）
     if (y > 0 && world.isEmpty(x, y - 1)) {
       if (Math.random() < 0.4) {
         world.swap(x, y, x, y - 1);
-        setLife(x, y - 1, life);
-        setLife(x, y, 0);
         world.markUpdated(x, y - 1);
         return;
       }
@@ -104,8 +88,6 @@ export const NitrogenTrifluoride: MaterialDef = {
       const nx = x + dir;
       if (world.inBounds(nx, y - 1) && world.isEmpty(nx, y - 1) && Math.random() < 0.3) {
         world.swap(x, y, nx, y - 1);
-        setLife(nx, y - 1, life);
-        setLife(x, y, 0);
         world.markUpdated(nx, y - 1);
         return;
       }
@@ -124,8 +106,6 @@ export const NitrogenTrifluoride: MaterialDef = {
       const nx = x + dir;
       if (world.inBounds(nx, y) && world.isEmpty(nx, y)) {
         world.swap(x, y, nx, y);
-        setLife(nx, y, life);
-        setLife(x, y, 0);
         world.markUpdated(nx, y);
       }
     }
