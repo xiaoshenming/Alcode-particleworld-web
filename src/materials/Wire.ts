@@ -61,13 +61,12 @@ export const Wire: MaterialDef = {
     }
 
     if (charge > 0) {
-      // 通电中：显示亮色（set()会重置age，需立即恢复）
+      // 通电中：显示亮色（set()会重置age，需立即恢复为递减后的值）
       world.setTemp(x, y, 100);
       world.set(x, y, 44);
-      world.setAge(x, y, charge); // 恢复 age
+      world.setAge(x, y, charge - 1); // 恢复并递减
 
       charge--;
-      world.setAge(x, y, charge);
 
       // 通电结束时：在非电线邻居的空位释放火花
       if (charge <= 0) {

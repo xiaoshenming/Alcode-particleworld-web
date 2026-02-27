@@ -50,7 +50,10 @@ export const Clone: MaterialDef = {
       return;
     }
 
-    // 已记忆 → 在随机空位生成克隆材质（低频率，避免爆炸式增长）
+    // 已记忆 → 阻止 tickAge 递增，保持记忆的材质 ID 不变
+    world.setAge(x, y, memory);
+
+    // 在随机空位生成克隆材质（低频率，避免爆炸式增长）
     if (Math.random() > 0.15) return;
 
     // 随机选一个方向

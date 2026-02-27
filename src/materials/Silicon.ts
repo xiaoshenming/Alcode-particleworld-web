@@ -74,13 +74,12 @@ export const Silicon: MaterialDef = {
     }
 
     if (charge > 0) {
-      // 通电中：升温 + 刷新颜色（set()会重置age，需立即恢复）
+      // 通电中：升温 + 刷新颜色（set()会重置age，需立即恢复为递减后的值）
       world.addTemp(x, y, 2);
       world.set(x, y, 188);
-      world.setAge(x, y, charge); // 恢复 age
+      world.setAge(x, y, charge - 1); // 恢复并递减
 
       charge--;
-      world.setAge(x, y, charge);
 
       // 通电结束时：末端释放火花
       if (charge <= 0) {

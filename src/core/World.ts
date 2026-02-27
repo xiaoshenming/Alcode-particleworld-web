@@ -339,6 +339,7 @@ export class World implements WorldAPI {
     this._awakeNext.fill(0);
     this._temp.fill(20);
     this._age.fill(0);
+    this._ageManaged.fill(0);
     this._trail.fill(0);
     this._pressure.fill(0);
   }
