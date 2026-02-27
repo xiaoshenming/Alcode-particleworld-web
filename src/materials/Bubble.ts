@@ -9,14 +9,9 @@ import { registerMaterial } from './registry';
  * - 在水中上浮更快，出水后缓慢飘升
  * - 风力影响水平漂移
  * - 彩虹色薄膜效果
+ * 使用 World 内置 age 替代 Map<number,number>（swap自动迁移age）
+ * age=0: 未初始化; age=N: 剩余寿命=N
  */
-
-/** 泡泡寿命追踪 */
-const bubbleLife = new Map<number, number>();
-
-function lifeKey(x: number, y: number): number {
-  return y * 10000 + x;
-}
 
 /** 固体材质（碰到就破裂） */
 const SOLID = new Set([3, 4, 10, 17, 33, 34, 36, 60]); // 石头、木头、金属、玻璃、橡胶、水泥、混凝土、黑曜石
@@ -53,29 +48,25 @@ export const Bubble: MaterialDef = {
   },
   density: 0.05, // 极轻
   update(x: number, y: number, world: WorldAPI) {
-    const k = lifeKey(x, y);
-
-    // 初始化寿命
-    let life = bubbleLife.get(k) ?? 0;
+    // 初始化寿命（age=0表示未初始化）
+    let life = world.getAge(x, y);
     if (life === 0) {
       life = 60 + Math.floor(Math.random() * 140); // 60~200 帧
-      bubbleLife.set(k, life);
+      world.setAge(x, y, life);
     }
 
     // 寿命递减
     life--;
     if (life <= 0) {
       world.set(x, y, 0);
-      bubbleLife.delete(k);
       world.wakeArea(x, y);
       return;
     }
-    bubbleLife.set(k, life);
+    world.setAge(x, y, life);
 
     // 高温破裂
     if (world.getTemp(x, y) > 50) {
       world.set(x, y, 0);
-      bubbleLife.delete(k);
       world.wakeArea(x, y);
       return;
     }
@@ -89,7 +80,6 @@ export const Bubble: MaterialDef = {
 
       if (SOLID.has(nid)) {
         world.set(x, y, 0);
-        bubbleLife.delete(k);
         world.wakeArea(x, y);
         return;
       }
@@ -98,26 +88,21 @@ export const Bubble: MaterialDef = {
     // 到达顶部边界破裂
     if (y <= 0) {
       world.set(x, y, 0);
-      bubbleLife.delete(k);
       return;
     }
 
-    // 上浮
+    // 上浮（swap 自动迁移 age）
     const aboveId = world.get(x, y - 1);
     if (world.isEmpty(x, y - 1)) {
       // 空气中上浮（较慢，有概率）
       if (Math.random() < 0.6) {
-        bubbleLife.delete(k);
         world.swap(x, y, x, y - 1);
-        bubbleLife.set(lifeKey(x, y - 1), life);
         world.markUpdated(x, y - 1);
         return;
       }
     } else if (WATER_LIKE.has(aboveId)) {
       // 水中上浮（快速）
-      bubbleLife.delete(k);
       world.swap(x, y, x, y - 1);
-      bubbleLife.set(lifeKey(x, y - 1), life);
       world.markUpdated(x, y - 1);
       return;
     }
@@ -135,9 +120,7 @@ export const Bubble: MaterialDef = {
     if (drift !== 0) {
       const nx = x + drift;
       if (world.inBounds(nx, y) && world.isEmpty(nx, y)) {
-        bubbleLife.delete(k);
         world.swap(x, y, nx, y);
-        bubbleLife.set(lifeKey(nx, y), life);
         world.markUpdated(nx, y);
         return;
       }
@@ -149,9 +132,7 @@ export const Bubble: MaterialDef = {
       for (const sd of [d, -d]) {
         const nx = x + sd;
         if (world.inBounds(nx, y - 1) && world.isEmpty(nx, y - 1)) {
-          bubbleLife.delete(k);
           world.swap(x, y, nx, y - 1);
-          bubbleLife.set(lifeKey(nx, y - 1), life);
           world.markUpdated(nx, y - 1);
           return;
         }

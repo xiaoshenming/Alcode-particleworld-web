@@ -8,26 +8,9 @@ import { registerMaterial } from './registry';
  * - 有限寿命，逐渐破裂消失
  * - 火焰/高温会立即蒸发
  * - 酸液会溶解泡沫
+ * 使用 World 内置 age 替代 Map<string,number>
+ * age=0: 未初始化; age=N: 剩余寿命=N
  */
-
-/** 泡沫寿命追踪 */
-const foamLife = new Map<string, number>();
-
-function key(x: number, y: number): string {
-  return `${x},${y}`;
-}
-
-function getLife(x: number, y: number): number {
-  return foamLife.get(key(x, y)) ?? 0;
-}
-
-function setLife(x: number, y: number, life: number): void {
-  if (life <= 0) {
-    foamLife.delete(key(x, y));
-  } else {
-    foamLife.set(key(x, y), life);
-  }
-}
 
 /** 水系材质（可以起泡） */
 const WATER_LIKE = new Set([2, 24]); // 水、盐水
@@ -45,23 +28,22 @@ export const Foam: MaterialDef = {
   },
   density: 0.2, // 极轻，浮在水面
   update(x: number, y: number, world: WorldAPI) {
-    // 初始化寿命
-    let life = getLife(x, y);
+    // 初始化寿命（age=0表示未初始化）
+    let life = world.getAge(x, y);
     if (life === 0) {
       life = 80 + Math.floor(Math.random() * 120); // 80~200 帧
-      setLife(x, y, life);
+      world.setAge(x, y, life);
     }
 
     // 高温蒸发
     if (world.getTemp(x, y) > 60) {
       world.set(x, y, 8); // 蒸汽
-      setLife(x, y, 0);
       return;
     }
 
     // 寿命递减
     life--;
-    setLife(x, y, life);
+    world.setAge(x, y, life);
 
     // 寿命耗尽：破裂消失
     if (life <= 0) {
@@ -81,14 +63,12 @@ export const Foam: MaterialDef = {
       // 接触酸液溶解
       if (nid === 9) {
         world.set(x, y, 0);
-        setLife(x, y, 0);
         return;
       }
 
       // 接触火焰蒸发
       if (nid === 6) {
         world.set(x, y, 8); // 蒸汽
-        setLife(x, y, 0);
         return;
       }
 
@@ -111,7 +91,7 @@ export const Foam: MaterialDef = {
       }
     }
 
-    // 浮力：向上移动
+    // 浮力：向上移动（swap 自动迁移 age）
     if (y > 0) {
       const aboveId = world.get(x, y - 1);
       // 在水中上浮

@@ -4,25 +4,12 @@ import { registerMaterial } from './registry';
 /**
  * 火 —— 短生命周期，向上蔓延，点燃可燃物，遇水熄灭
  * 使用颜色 alpha 通道以外的随机值模拟闪烁
+ * 使用 World 内置 age 替代 Map<string,number>
+ * age=0: 未初始化; age=N: 剩余寿命=N
  */
 
 /** 可燃材质 ID 集合 */
 const FLAMMABLE = new Set([4, 5, 13, 25, 26, 46, 49]); // 木头、油、植物、蜡、液蜡、木炭、苔藓
-
-/** 火的生命值存储（用 Map 模拟，key = "x,y"） */
-const fireLife = new Map<string, number>();
-
-function getLife(x: number, y: number): number {
-  return fireLife.get(`${x},${y}`) ?? 0;
-}
-
-function setLife(x: number, y: number, life: number): void {
-  if (life <= 0) {
-    fireLife.delete(`${x},${y}`);
-  } else {
-    fireLife.set(`${x},${y}`, life);
-  }
-}
 
 export const Fire: MaterialDef = {
   id: 6,
@@ -40,19 +27,19 @@ export const Fire: MaterialDef = {
     // 火产生热量
     world.setTemp(x, y, 200);
 
-    // 获取/初始化生命值
-    let life = getLife(x, y);
+    // 获取/初始化生命值（age=0表示未初始化）
+    let life = world.getAge(x, y);
     if (life === 0) {
       life = 30 + Math.floor(Math.random() * 40); // 30~70 帧寿命
-      setLife(x, y, life);
+      world.setAge(x, y, life);
     }
 
     // 生命递减
     life--;
-    setLife(x, y, life);
 
-    // 刷新颜色（闪烁效果）
+    // 刷新颜色（闪烁效果）：set()会重置age，需立即恢复
     world.set(x, y, 6);
+    world.setAge(x, y, life);
 
     // 生命耗尽 → 变成空气（小概率变成烟）
     if (life <= 0) {
@@ -80,7 +67,6 @@ export const Fire: MaterialDef = {
       if (neighborId === 2) {
         world.set(x, y, 8); // 当前火变蒸汽
         world.set(nx, ny, 8); // 水变蒸汽
-        setLife(x, y, 0);
         return;
       }
 
@@ -96,12 +82,9 @@ export const Fire: MaterialDef = {
       }
     }
 
-    // 火焰偶尔向上飘动
+    // 火焰偶尔向上飘动（swap 自动迁移 age）
     if (y > 0 && world.isEmpty(x, y - 1) && Math.random() < 0.2) {
       world.swap(x, y, x, y - 1);
-      // 迁移生命值
-      setLife(x, y - 1, life);
-      setLife(x, y, 0);
       world.markUpdated(x, y - 1);
     }
   },

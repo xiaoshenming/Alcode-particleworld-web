@@ -8,14 +8,9 @@ import { registerMaterial } from './registry';
  * - 上升过程中左右摇摆
  * - 遇固体障碍物立即破裂
  * - 半透明白色
+ * 使用 World 内置 age 替代 Map<number,number>（swap自动迁移age）
+ * age=0: 未初始化; age=N: 剩余寿命=N
  */
-
-/** 蒸汽泡寿命追踪 */
-const bubbleLife = new Map<number, number>();
-
-function lifeKey(x: number, y: number): number {
-  return y * 10000 + x;
-}
 
 /** 固体材质（碰到就破裂） */
 const SOLID = new Set([3, 4, 10, 17, 32, 33, 34, 36, 53, 60, 174]); // 石头、木头、金属、玻璃、钻石、橡胶、水泥、混凝土、水晶、黑曜石、锆石
@@ -34,13 +29,11 @@ export const SteamBubble: MaterialDef = {
   },
   density: 0.1, // 极轻
   update(x: number, y: number, world: WorldAPI) {
-    const k = lifeKey(x, y);
-
-    // 初始化寿命（短寿命：15~40帧）
-    let life = bubbleLife.get(k) ?? 0;
+    // 初始化寿命（age=0表示未初始化���
+    let life = world.getAge(x, y);
     if (life === 0) {
-      life = 15 + Math.floor(Math.random() * 26);
-      bubbleLife.set(k, life);
+      life = 15 + Math.floor(Math.random() * 26); // 短寿命：15~40帧
+      world.setAge(x, y, life);
     }
 
     // 寿命递减
@@ -48,16 +41,14 @@ export const SteamBubble: MaterialDef = {
     if (life <= 0) {
       // 破裂变为蒸汽
       world.set(x, y, 8);
-      bubbleLife.delete(k);
       world.wakeArea(x, y);
       return;
     }
-    bubbleLife.set(k, life);
+    world.setAge(x, y, life);
 
     // 到达顶部边界破裂
     if (y <= 0) {
       world.set(x, y, 8);
-      bubbleLife.delete(k);
       world.wakeArea(x, y);
       return;
     }
@@ -71,17 +62,14 @@ export const SteamBubble: MaterialDef = {
 
       if (SOLID.has(nid)) {
         world.set(x, y, 8); // 破裂为蒸汽
-        bubbleLife.delete(k);
         world.wakeArea(x, y);
         return;
       }
     }
 
-    // 快速上升
+    // 快速上升（swap 自动迁移 age）
     if (world.isEmpty(x, y - 1)) {
-      bubbleLife.delete(k);
       world.swap(x, y, x, y - 1);
-      bubbleLife.set(lifeKey(x, y - 1), life);
       world.markUpdated(x, y - 1);
       world.wakeArea(x, y);
 
@@ -90,10 +78,7 @@ export const SteamBubble: MaterialDef = {
         const drift = Math.random() < 0.5 ? -1 : 1;
         const nx = x + drift;
         if (world.inBounds(nx, y - 1) && world.isEmpty(nx, y - 1)) {
-          const curLife = bubbleLife.get(lifeKey(x, y - 1)) ?? life;
-          bubbleLife.delete(lifeKey(x, y - 1));
           world.swap(x, y - 1, nx, y - 1);
-          bubbleLife.set(lifeKey(nx, y - 1), curLife);
           world.markUpdated(nx, y - 1);
         }
       }
@@ -105,9 +90,7 @@ export const SteamBubble: MaterialDef = {
     for (const sd of [d, -d]) {
       const nx = x + sd;
       if (world.inBounds(nx, y - 1) && world.isEmpty(nx, y - 1)) {
-        bubbleLife.delete(k);
         world.swap(x, y, nx, y - 1);
-        bubbleLife.set(lifeKey(nx, y - 1), life);
         world.markUpdated(nx, y - 1);
         world.wakeArea(x, y);
         return;
