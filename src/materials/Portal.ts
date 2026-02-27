@@ -11,8 +11,8 @@ import { registerMaterial } from './registry';
 
 /** 传送门配对关系：key → 配对 key */
 const portalPairs = new Map<string, string>();
-/** 所有未配对的传送门位置 */
-const unpaired: string[] = [];
+/** 所有未配对的传送门位置（Set 保证 O(1) 查找） */
+const unpairedSet = new Set<string>();
 
 /** 不可传送的材质 */
 const NO_TELEPORT = new Set([0, 37, 38, 39, 41]); // 空气、克隆体、虚空、喷泉、传送门自身
@@ -31,13 +31,14 @@ export function registerPortal(x: number, y: number): void {
   const k = key(x, y);
   if (portalPairs.has(k)) return; // 已配对
 
-  // 尝试与未配对列表中的第一个配对
-  if (unpaired.length > 0) {
-    const partner = unpaired.shift()!;
+  // 尝试与未配对集合中的第一个配对
+  if (unpairedSet.size > 0) {
+    const partner = unpairedSet.values().next().value!;
+    unpairedSet.delete(partner);
     portalPairs.set(k, partner);
     portalPairs.set(partner, k);
   } else {
-    unpaired.push(k);
+    unpairedSet.add(k);
   }
 }
 
@@ -49,11 +50,10 @@ export function removePortal(x: number, y: number): void {
     portalPairs.delete(k);
     portalPairs.delete(partner);
     // 配对方变为未配对
-    unpaired.push(partner);
+    unpairedSet.add(partner);
   } else {
-    // 从未配对列表移除
-    const idx = unpaired.indexOf(k);
-    if (idx >= 0) unpaired.splice(idx, 1);
+    // 从未配对集合移除
+    unpairedSet.delete(k);
   }
 }
 
@@ -73,7 +73,7 @@ export const Portal: MaterialDef = {
     const k = key(x, y);
 
     // 确保已注册
-    if (!portalPairs.has(k) && !unpaired.includes(k)) {
+    if (!portalPairs.has(k) && !unpairedSet.has(k)) {
       registerPortal(x, y);
     }
 
