@@ -105,10 +105,11 @@ export const Termite: MaterialDef = {
       return;
     }
 
-    // 随机移动（爬行）
+    // 随机移动（爬行，随机起始索引循环，避免每帧数组分配）
     if (Math.random() < 0.4) {
-      const shuffled = [...allDirs].sort(() => Math.random() - 0.5);
-      for (const [dx, dy] of shuffled) {
+      const start = Math.floor(Math.random() * allDirs.length);
+      for (let i = 0; i < allDirs.length; i++) {
+        const [dx, dy] = allDirs[(start + i) % allDirs.length];
         const nx = x + dx, ny = y + dy;
         if (world.inBounds(nx, ny) && world.isEmpty(nx, ny)) {
           world.swap(x, y, nx, ny);
