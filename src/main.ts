@@ -2276,6 +2276,10 @@ function loop() {
       world.restoreFromSnapshot(rewindBuffer[rewindHead]);
     }
   } else if (!paused) {
+    // 反重力：模拟前先翻转回正常方向（上一帧渲染后是倒置的）
+    if (antiGravity) {
+      world.flipVertical();
+    }
     // 正常模拟：记录帧到环形缓冲区
     for (let i = 0; i < simSpeed; i++) {
       // 每步模拟前记录快照
@@ -2287,9 +2291,8 @@ function loop() {
       if (rewindCount < REWIND_BUFFER_SIZE) rewindCount++;
 
       simulation.update();
-      // 反重力：模拟后翻转世界，下一帧模拟前再翻转回来
-      // 效果：粒子看起来向上运动
     }
+    // 反重力：模拟后翻转世界供渲染（粒子看起来向上运动）
     if (antiGravity) {
       world.flipVertical();
     }
