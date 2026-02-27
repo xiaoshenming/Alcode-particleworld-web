@@ -6,6 +6,10 @@ import { registerMaterial } from './registry';
  * 不可移动，但会让落在上面的粒子反弹（向上弹射）
  * 可燃（高温下熔化为烟）
  */
+
+/** 不参与弹射的材质（空气、固体、气体等） */
+const SKIP = new Set([0, 3, 6, 7, 8, 10, 14, 17, 18, 19, 21, 25, 28, 29, 30, 31, 32, 33]);
+
 export const Rubber: MaterialDef = {
   id: 33,
   name: '橡胶',
@@ -36,7 +40,6 @@ export const Rubber: MaterialDef = {
 
     const aboveId = world.get(x, y - 1);
     // 跳过空气(0)、固体(不动的)、火(6)、烟(7)、蒸汽(8)、毒气(18)、氢气(19)、火花(28)
-    const SKIP = new Set([0, 3, 6, 7, 8, 10, 14, 17, 18, 19, 21, 25, 28, 29, 30, 31, 32, 33]);
     if (SKIP.has(aboveId)) return;
 
     // 找到上方可弹射的目标位置（向上 2~4 格）
