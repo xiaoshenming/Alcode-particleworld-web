@@ -28,7 +28,6 @@ export const Tornado: MaterialDef = {
       world.setAge(x, y, life);
     }
     life--;
-    world.setAge(x, y, life);
 
     // 刷新颜色（旋转闪烁效果）：set()会重置age，需立即恢复
     world.set(x, y, 50);

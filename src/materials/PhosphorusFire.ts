@@ -53,7 +53,6 @@ export const PhosphorusFire: MaterialDef = {
       world.setAge(x, y, life);
     }
     life--;
-    world.setAge(x, y, life);
 
     // 刷新颜色（闪烁）：set()会重置age，需立即恢复
     world.set(x, y, 194);
