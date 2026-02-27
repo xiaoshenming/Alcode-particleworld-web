@@ -107,15 +107,26 @@ export const Nanobot: MaterialDef = {
 
     // 斜下滑落
     const dir = Math.random() < 0.5 ? -1 : 1;
-    for (const d of [dir, -dir]) {
+        do {
+      const d = dir;
       const nx = x + d;
-      if (!world.inBounds(nx, y)) continue;
+      if (!world.inBounds(nx, y)) break;
       if (y < world.height - 1 && world.inBounds(nx, y + 1) && world.isEmpty(nx, y + 1)) {
         world.swap(x, y, nx, y + 1);
         world.markUpdated(nx, y + 1);
         return;
       }
-    }
+    } while (false);
+    do {
+      const d = -dir;
+      const nx = x + d;
+      if (!world.inBounds(nx, y)) break;
+      if (y < world.height - 1 && world.inBounds(nx, y + 1) && world.isEmpty(nx, y + 1)) {
+        world.swap(x, y, nx, y + 1);
+        world.markUpdated(nx, y + 1);
+        return;
+      }
+    } while (false);
 
     // 随机横向移动（模拟自主运动）
     if (Math.random() < 0.15) {

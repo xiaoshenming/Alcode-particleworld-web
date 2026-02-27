@@ -130,7 +130,17 @@ export const Bubble: MaterialDef = {
     // 斜上浮
     if (y > 0) {
       const d = Math.random() < 0.5 ? -1 : 1;
-      for (const sd of [d, -d]) {
+            {
+        const sd = d;
+        const nx = x + sd;
+        if (world.inBounds(nx, y - 1) && world.isEmpty(nx, y - 1)) {
+          world.swap(x, y, nx, y - 1);
+          world.markUpdated(nx, y - 1);
+          return;
+        }
+      }
+      {
+        const sd = -d;
         const nx = x + sd;
         if (world.inBounds(nx, y - 1) && world.isEmpty(nx, y - 1)) {
           world.swap(x, y, nx, y - 1);

@@ -96,7 +96,18 @@ export const GoldDust: MaterialDef = {
 
       // 斜向滑落
       const dir = Math.random() < 0.5 ? -1 : 1;
-      for (const d of [dir, -dir]) {
+            {
+        const d = dir;
+        const sx = x + d;
+        if (world.inBounds(sx, y + 1) && world.isEmpty(sx, y + 1)) {
+          world.swap(x, y, sx, y + 1);
+          world.markUpdated(sx, y + 1);
+          world.wakeArea(sx, y + 1);
+          return;
+        }
+      }
+      {
+        const d = -dir;
         const sx = x + d;
         if (world.inBounds(sx, y + 1) && world.isEmpty(sx, y + 1)) {
           world.swap(x, y, sx, y + 1);

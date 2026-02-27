@@ -67,7 +67,17 @@ export const MoltenOsmium: MaterialDef = {
 
     // 斜下
     const dir = Math.random() < 0.5 ? -1 : 1;
-    for (const d of [dir, -dir]) {
+        {
+      const d = dir;
+      const nx = x + d;
+      if (world.inBounds(nx, y + 1) && world.isEmpty(nx, y + 1)) {
+        world.swap(x, y, nx, y + 1);
+        world.markUpdated(nx, y + 1);
+        return;
+      }
+    }
+    {
+      const d = -dir;
       const nx = x + d;
       if (world.inBounds(nx, y + 1) && world.isEmpty(nx, y + 1)) {
         world.swap(x, y, nx, y + 1);
@@ -77,7 +87,17 @@ export const MoltenOsmium: MaterialDef = {
     }
 
     // 水平流动
-    for (const d of [dir, -dir]) {
+        {
+      const d = dir;
+      const nx = x + d;
+      if (world.inBounds(nx, y) && world.isEmpty(nx, y)) {
+        world.swap(x, y, nx, y);
+        world.markUpdated(nx, y);
+        return;
+      }
+    }
+    {
+      const d = -dir;
       const nx = x + d;
       if (world.inBounds(nx, y) && world.isEmpty(nx, y)) {
         world.swap(x, y, nx, y);

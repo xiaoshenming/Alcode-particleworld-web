@@ -24,7 +24,17 @@ export const Oil: MaterialDef = {
 
     // 2. 斜下
     const dir = Math.random() < 0.5 ? -1 : 1;
-    for (const d of [dir, -dir]) {
+        {
+      const d = dir;
+      const nx = x + d;
+      if (world.inBounds(nx, y + 1) && world.isEmpty(nx, y + 1)) {
+        world.swap(x, y, nx, y + 1);
+        world.markUpdated(nx, y + 1);
+        return;
+      }
+    }
+    {
+      const d = -dir;
       const nx = x + d;
       if (world.inBounds(nx, y + 1) && world.isEmpty(nx, y + 1)) {
         world.swap(x, y, nx, y + 1);
@@ -35,7 +45,21 @@ export const Oil: MaterialDef = {
 
     // 3. 水平流动（比水流动更快）
     const spread = 4 + Math.floor(Math.random() * 3);
-    for (const d of [dir, -dir]) {
+        {
+      const d = dir;
+      for (let i = 1; i <= spread; i++) {
+        const sx = x + d * i;
+        if (!world.inBounds(sx, y)) break;
+        if (world.isEmpty(sx, y)) {
+          world.swap(x, y, sx, y);
+          world.markUpdated(sx, y);
+          return;
+        }
+        if (!world.isEmpty(sx, y)) break;
+      }
+    }
+    {
+      const d = -dir;
       for (let i = 1; i <= spread; i++) {
         const sx = x + d * i;
         if (!world.inBounds(sx, y)) break;

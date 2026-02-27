@@ -59,7 +59,16 @@ export const ShapeMemoryPolymer: MaterialDef = {
       }
       // 斜向下
       const dir = Math.random() < 0.5 ? -1 : 1;
-      for (const d of [dir, -dir]) {
+            {
+        const d = dir;
+        if (world.inBounds(x + d, y + 1) && world.isEmpty(x + d, y + 1)) {
+          world.swap(x, y, x + d, y + 1);
+          world.markUpdated(x + d, y + 1);
+          return;
+        }
+      }
+      {
+        const d = -dir;
         if (world.inBounds(x + d, y + 1) && world.isEmpty(x + d, y + 1)) {
           world.swap(x, y, x + d, y + 1);
           world.markUpdated(x + d, y + 1);
@@ -68,7 +77,16 @@ export const ShapeMemoryPolymer: MaterialDef = {
       }
       // 缓慢横向流动
       if (Math.random() < 0.3) {
-        for (const d of [dir, -dir]) {
+                {
+          const d = dir;
+          if (world.inBounds(x + d, y) && world.isEmpty(x + d, y)) {
+            world.swap(x, y, x + d, y);
+            world.markUpdated(x + d, y);
+            return;
+          }
+        }
+        {
+          const d = -dir;
           if (world.inBounds(x + d, y) && world.isEmpty(x + d, y)) {
             world.swap(x, y, x + d, y);
             world.markUpdated(x + d, y);

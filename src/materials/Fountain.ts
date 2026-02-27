@@ -31,7 +31,18 @@ export const Fountain: MaterialDef = {
 
     // 上方被占 → 尝试左上/右上
     const dir = Math.random() < 0.5 ? -1 : 1;
-    for (const d of [dir, -dir]) {
+        {
+      const d = dir;
+      const nx = x + d;
+      const ny = y - 1;
+      if (world.inBounds(nx, ny) && world.isEmpty(nx, ny)) {
+        world.set(nx, ny, 2);
+        world.markUpdated(nx, ny);
+        return;
+      }
+    }
+    {
+      const d = -dir;
       const nx = x + d;
       const ny = y - 1;
       if (world.inBounds(nx, ny) && world.isEmpty(nx, ny)) {

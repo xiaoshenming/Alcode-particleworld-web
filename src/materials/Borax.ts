@@ -75,7 +75,21 @@ export const Borax: MaterialDef = {
 
     // 斜下堆积
     const dir = Math.random() < 0.5 ? -1 : 1;
-    for (const d of [dir, -dir]) {
+        {
+      const d = dir;
+      const sx = x + d;
+      if (world.inBounds(sx, y + 1)) {
+        const sEmpty = world.isEmpty(sx, y + 1);
+        const sDensity = world.getDensity(sx, y + 1);
+        if (sEmpty || (sDensity < Borax.density && sDensity > 0)) {
+          world.swap(x, y, sx, y + 1);
+          world.markUpdated(sx, y + 1);
+          return;
+        }
+      }
+    }
+    {
+      const d = -dir;
       const sx = x + d;
       if (world.inBounds(sx, y + 1)) {
         const sEmpty = world.isEmpty(sx, y + 1);

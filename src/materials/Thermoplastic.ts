@@ -119,7 +119,19 @@ export const Thermoplastic: MaterialDef = {
       // 斜下
       if (y < world.height - 1 && Math.random() < 0.3) {
         const dir = Math.random() < 0.5 ? -1 : 1;
-        for (const d of [dir, -dir]) {
+                {
+          const d = dir;
+          const nx = x + d;
+          if (world.inBounds(nx, y + 1) && world.isEmpty(nx, y + 1)) {
+            softened.delete(k);
+            world.swap(x, y, nx, y + 1);
+            softened.add(key(nx, y + 1));
+            world.markUpdated(nx, y + 1);
+            return;
+          }
+        }
+        {
+          const d = -dir;
           const nx = x + d;
           if (world.inBounds(nx, y + 1) && world.isEmpty(nx, y + 1)) {
             softened.delete(k);

@@ -42,7 +42,17 @@ export const HighPurityLanthanumYttriumFluoride: MaterialDef = {
       }
     }
     const dir = Math.random() < 0.5 ? -1 : 1;
-    for (const d of [dir, -dir]) {
+        {
+      const d = dir;
+      const nx = x + d, ny = y + 1;
+      if (world.inBounds(nx, ny) && world.get(nx, ny) === 0 && world.get(x, y + 1) !== 0) {
+        world.swap(x, y, nx, ny);
+        world.wakeArea(nx, ny);
+        return;
+      }
+    }
+    {
+      const d = -dir;
       const nx = x + d, ny = y + 1;
       if (world.inBounds(nx, ny) && world.get(nx, ny) === 0 && world.get(x, y + 1) !== 0) {
         world.swap(x, y, nx, ny);

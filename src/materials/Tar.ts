@@ -120,7 +120,17 @@ export const Tar: MaterialDef = {
 
     // 斜下
     const dir = Math.random() < 0.5 ? -1 : 1;
-    for (const d of [dir, -dir]) {
+        {
+      const d = dir;
+      const nx = x + d;
+      if (world.inBounds(nx, y + 1) && world.isEmpty(nx, y + 1)) {
+        world.swap(x, y, nx, y + 1);
+        world.markUpdated(nx, y + 1);
+        return;
+      }
+    }
+    {
+      const d = -dir;
       const nx = x + d;
       if (world.inBounds(nx, y + 1) && world.isEmpty(nx, y + 1)) {
         world.swap(x, y, nx, y + 1);
@@ -131,7 +141,17 @@ export const Tar: MaterialDef = {
 
     // 水平流动（极缓慢）
     if (Math.random() < 0.3) {
-      for (const d of [dir, -dir]) {
+            {
+        const d = dir;
+        const sx = x + d;
+        if (world.inBounds(sx, y) && world.isEmpty(sx, y)) {
+          world.swap(x, y, sx, y);
+          world.markUpdated(sx, y);
+          return;
+        }
+      }
+      {
+        const d = -dir;
         const sx = x + d;
         if (world.inBounds(sx, y) && world.isEmpty(sx, y)) {
           world.swap(x, y, sx, y);
