@@ -1,4 +1,4 @@
-import { DIRS4, DIRS_DIAG } from './types';
+import { DIRS4, DIRS8 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -52,8 +52,7 @@ export const Termite: MaterialDef = {
 
     // 检查邻居
     const dirs = DIRS4;
-    const diag = DIRS_DIAG;
-    const allDirs = [...dirs, ...diag];
+    const allDirs = DIRS8;
 
     // 遇水淹死
     for (const [dx, dy] of dirs) {
@@ -108,7 +107,7 @@ export const Termite: MaterialDef = {
 
     // 随机移动（爬行）
     if (Math.random() < 0.4) {
-      const shuffled = allDirs.sort(() => Math.random() - 0.5);
+      const shuffled = [...allDirs].sort(() => Math.random() - 0.5);
       for (const [dx, dy] of shuffled) {
         const nx = x + dx, ny = y + dy;
         if (world.inBounds(nx, ny) && world.isEmpty(nx, ny)) {

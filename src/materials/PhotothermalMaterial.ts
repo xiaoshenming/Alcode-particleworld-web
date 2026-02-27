@@ -1,4 +1,4 @@
-import { DIRS4, DIRS_DIAG } from './types';
+import { DIRS4, DIRS8 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -53,9 +53,7 @@ export const PhotothermalMaterial: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
-    const diag = DIRS_DIAG;
-    const allDirs = [...dirs, ...diag];
+    const allDirs = DIRS8;
     let illuminated = false;
 
     // 检测周围是否有光源（激光47/光束48），扩大检测范围
@@ -85,7 +83,7 @@ export const PhotothermalMaterial: MaterialDef = {
 
     // 高温时向周围传热 + 点燃可燃物
     if (temp > 80) {
-      for (const [dx, dy] of dirs) {
+      for (const [dx, dy] of DIRS4) {
         const nx = x + dx, ny = y + dy;
         if (!world.inBounds(nx, ny)) continue;
         const nid = world.get(nx, ny);
@@ -109,7 +107,7 @@ export const PhotothermalMaterial: MaterialDef = {
     }
 
     // 耐酸中等
-    for (const [dx, dy] of dirs) {
+    for (const [dx, dy] of DIRS4) {
       const nx = x + dx, ny = y + dy;
       if (!world.inBounds(nx, ny)) continue;
       if (world.get(nx, ny) === 9 && Math.random() < 0.008) {
