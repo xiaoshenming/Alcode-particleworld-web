@@ -11,6 +11,9 @@ import { registerMaterial } from './registry';
  * - 深灰色带银色条纹
  */
 
+/** 可被磁力吸引的金属材质 */
+const METAL_IDS = new Set([10, 15, 16, 72, 426, 431, 436]);
+
 export const AcoustomagneticMaterial: MaterialDef = {
   id: 440,
   name: '声磁材料',
@@ -49,8 +52,6 @@ export const AcoustomagneticMaterial: MaterialDef = {
     }
 
     // 金属材质 ID 集合（铁、铜等常见金属）
-    const metalIds = new Set([10, 15, 16, 72, 426, 431, 436]);
-
     // 检测周围是否有运动（活跃粒子）
     let activeNeighbors = 0;
     const dirs = DIRS4;
@@ -70,7 +71,7 @@ export const AcoustomagneticMaterial: MaterialDef = {
           if (!world.inBounds(nx, ny)) continue;
           const nid = world.get(nx, ny);
 
-          if (metalIds.has(nid) && Math.random() < 0.04) {
+          if (METAL_IDS.has(nid) && Math.random() < 0.04) {
             // 向声磁材料方向移动一格
             const mx = nx + (dx > 0 ? -1 : dx < 0 ? 1 : 0);
             const my = ny + (dy > 0 ? -1 : dy < 0 ? 1 : 0);

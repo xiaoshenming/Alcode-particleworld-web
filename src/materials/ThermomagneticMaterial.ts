@@ -11,6 +11,9 @@ import { registerMaterial } from './registry';
  * - 颜色随温度变化：冷=深蓝，热=暗红
  */
 
+/** 可被磁力吸引的金属材质 */
+const METAL_IDS = new Set([10, 31, 32, 34, 85, 86, 199, 246, 251]);
+
 export const ThermomagneticMaterial: MaterialDef = {
   id: 430,
   name: '热磁材料',
@@ -39,9 +42,6 @@ export const ThermomagneticMaterial: MaterialDef = {
     const isMagnetic = temp < 350;
     const magnetRange = 4;
 
-    // 金属材质ID集合
-    const metalIds = new Set([10, 31, 32, 34, 85, 86, 199, 246, 251]);
-
     const dirs = DIRS4;
 
     if (isMagnetic) {
@@ -53,7 +53,7 @@ export const ThermomagneticMaterial: MaterialDef = {
           if (!world.inBounds(nx, ny)) continue;
           const nid = world.get(nx, ny);
 
-          if (metalIds.has(nid) && Math.random() < 0.08) {
+          if (METAL_IDS.has(nid) && Math.random() < 0.08) {
             // 向热磁材料方向移动一格
             const mx = dx > 0 ? -1 : dx < 0 ? 1 : 0;
             const my = dy > 0 ? -1 : dy < 0 ? 1 : 0;
