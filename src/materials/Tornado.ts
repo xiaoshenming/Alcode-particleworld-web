@@ -25,7 +25,6 @@ export const Tornado: MaterialDef = {
     let life = world.getAge(x, y);
     if (life === 0) {
       life = 100 + Math.floor(Math.random() * 100); // 100~200 帧
-      world.setAge(x, y, life);
     }
     life--;
 

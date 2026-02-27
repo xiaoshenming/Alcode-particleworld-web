@@ -32,7 +32,6 @@ export const Virus: MaterialDef = {
     let life = world.getAge(x, y);
     if (life === 0) {
       life = 200 + Math.floor(Math.random() * 200);
-      world.setAge(x, y, life);
     }
     life--;
 

@@ -50,7 +50,6 @@ export const PhosphorusFire: MaterialDef = {
     let life = world.getAge(x, y);
     if (life === 0) {
       life = 10 + Math.floor(Math.random() * 21); // 10~30 帧
-      world.setAge(x, y, life);
     }
     life--;
 
