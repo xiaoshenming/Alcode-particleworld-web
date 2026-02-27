@@ -62,7 +62,6 @@ export const ElectroPlasma: MaterialDef = {
     let life = world.getAge(x, y);
     if (life === 0) {
       life = 8 + Math.floor(Math.random() * 13); // 8~20 帧
-      world.setAge(x, y, life);
     }
 
     // 刷新颜色（剧烈闪烁）：set()会重置age，需立即恢复

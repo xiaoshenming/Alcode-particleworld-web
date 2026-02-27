@@ -35,7 +35,6 @@ export const Firefly: MaterialDef = {
     let life = world.getAge(x, y);
     if (life === 0) {
       life = 200 + Math.floor(Math.random() * 300); // 200~500 帧
-      world.setAge(x, y, life);
     }
 
     // 刷新颜色（闪烁效果）：set()会重置age，需立即恢复

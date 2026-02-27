@@ -38,7 +38,6 @@ export const Philosopher: MaterialDef = {
     if (ageVal === 0) {
       const energy = 15 + Math.floor(Math.random() * 10); // 15~25 次转化
       ageVal = energy + 1;
-      world.setAge(x, y, ageVal);
     }
 
     // 刷新颜色（闪烁）：set()会重置age，需立即恢复
