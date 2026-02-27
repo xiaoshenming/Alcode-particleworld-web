@@ -467,6 +467,11 @@ export class World implements WorldAPI {
           this.cells[idx++] = val;
         }
       }
+      // 重置辅助数组，避免旧状态数据残留
+      this._temp.fill(20);
+      this._age.fill(0);
+      this._trail.fill(0);
+      this._pressure.fill(0);
       // 重建颜色并唤醒所有非空粒子
       for (let i = 0; i < this.cells.length; i++) {
         const mat = getMaterial(this.cells[i]);
