@@ -53,7 +53,7 @@ export const Foam: MaterialDef = {
     }
 
     // 检查四邻
-    const dirs = [...DIRS4];
+    const dirs = DIRS4;
     let touchWater = false;
 
     for (const [dx, dy] of dirs) {
@@ -80,8 +80,9 @@ export const Foam: MaterialDef = {
 
     // 接触水时有小概率在空气邻居处生成新泡沫
     if (touchWater && Math.random() < 0.02) {
-      const shuffled = dirs.sort(() => Math.random() - 0.5);
-      for (const [dx, dy] of shuffled) {
+      const start = Math.floor(Math.random() * dirs.length);
+      for (let i = 0; i < dirs.length; i++) {
+        const [dx, dy] = dirs[(start + i) % dirs.length];
         const nx = x + dx, ny = y + dy;
         if (!world.inBounds(nx, ny)) continue;
         if (world.isEmpty(nx, ny)) {

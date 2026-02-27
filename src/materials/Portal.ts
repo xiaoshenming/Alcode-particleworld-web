@@ -113,11 +113,10 @@ export const Portal: MaterialDef = {
       // 每帧只传送一个粒子，30% 概率触发
       if (Math.random() > 0.3) continue;
 
-      // 在配对传送门周围找空位放置
-      const exitDirs = [...DIRS4];
-      const shuffled = exitDirs.sort(() => Math.random() - 0.5);
-
-      for (const [edx, edy] of shuffled) {
+      // 在配对传送门周围找空位放置（随机起始索引循环，避免每帧数组分配）
+      const start = Math.floor(Math.random() * DIRS4.length);
+      for (let i = 0; i < DIRS4.length; i++) {
+        const [edx, edy] = DIRS4[(start + i) % DIRS4.length];
         const ex = px + edx, ey = py + edy;
         if (!world.inBounds(ex, ey)) continue;
         if (!world.isEmpty(ex, ey)) continue;

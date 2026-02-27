@@ -66,7 +66,7 @@ export const Mushroom: MaterialDef = {
     if (temp < 0) return;
 
     // 邻居交互
-    const dirs = [...DIRS4];
+    const dirs = DIRS4;
     let hasMoisture = false;
     let hasSubstrate = false;
 
@@ -95,8 +95,9 @@ export const Mushroom: MaterialDef = {
 
     // 潮湿环境中生长
     if (hasMoisture && Math.random() < 0.008) {
-      const shuffled = dirs.sort(() => Math.random() - 0.5);
-      for (const [dx, dy] of shuffled) {
+      const start = Math.floor(Math.random() * dirs.length);
+      for (let i = 0; i < dirs.length; i++) {
+        const [dx, dy] = dirs[(start + i) % dirs.length];
         const nx = x + dx, ny = y + dy;
         if (!world.inBounds(nx, ny)) continue;
         if (world.isEmpty(nx, ny)) {
@@ -110,8 +111,9 @@ export const Mushroom: MaterialDef = {
 
     // 在基质旁也能缓慢生长
     if (hasSubstrate && Math.random() < 0.003) {
-      const shuffled = dirs.sort(() => Math.random() - 0.5);
-      for (const [dx, dy] of shuffled) {
+      const start2 = Math.floor(Math.random() * dirs.length);
+      for (let i = 0; i < dirs.length; i++) {
+        const [dx, dy] = dirs[(start2 + i) % dirs.length];
         const nx = x + dx, ny = y + dy;
         if (!world.inBounds(nx, ny)) continue;
         if (world.isEmpty(nx, ny)) {

@@ -51,7 +51,7 @@ export const Coral: MaterialDef = {
       return;
     }
 
-    const dirs = [...DIRS4];
+    const dirs = DIRS4;
     let waterNeighbors = 0;
 
     for (const [dx, dy] of dirs) {
@@ -72,9 +72,10 @@ export const Coral: MaterialDef = {
 
     // 只在水中生长
     if (waterNeighbors >= 2 && Math.random() < 0.003) {
-      // 随机选一个水格扩展
-      const shuffled = dirs.sort(() => Math.random() - 0.5);
-      for (const [dx, dy] of shuffled) {
+      // 随机起始索引循环，避免每帧数组分配
+      const start = Math.floor(Math.random() * dirs.length);
+      for (let i = 0; i < dirs.length; i++) {
+        const [dx, dy] = dirs[(start + i) % dirs.length];
         const nx = x + dx, ny = y + dy;
         if (!world.inBounds(nx, ny)) continue;
         const nid = world.get(nx, ny);

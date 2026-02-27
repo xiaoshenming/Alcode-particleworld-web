@@ -28,7 +28,7 @@ export const Clone: MaterialDef = {
   update(x: number, y: number, world: WorldAPI) {
     // age=0: 未记忆; age=materialId: 记忆的材质
     const memory = world.getAge(x, y);
-    const dirs = [...DIRS8];
+    const dirs = DIRS8;
 
     // 还没记忆 → 扫描邻居，记住第一个接触到的材质
     if (memory === 0) {
@@ -55,8 +55,10 @@ export const Clone: MaterialDef = {
     if (Math.random() > 0.15) return;
 
     // 随机选一个方向
-    const shuffled = dirs.sort(() => Math.random() - 0.5);
-    for (const [dx, dy] of shuffled) {
+    // 随机起始索引循环，避免每帧数组分配
+    const start = Math.floor(Math.random() * dirs.length);
+    for (let i = 0; i < dirs.length; i++) {
+      const [dx, dy] = dirs[(start + i) % dirs.length];
       const nx = x + dx;
       const ny = y + dy;
       if (!world.inBounds(nx, ny)) continue;

@@ -55,10 +55,10 @@ export const DielectricElastomer: MaterialDef = {
 
       // 接触电线/激光时弹射（电致变形）
       if ((nid === 44 || nid === 47) && Math.random() < 0.08) {
-        // 向随机方向弹射
-        const allDirs = [...DIRS8];
-        const shuffled = allDirs.sort(() => Math.random() - 0.5);
-        for (const [bx, by] of shuffled) {
+        // 向随机方向弹射（随机起始索引循环，避免每帧数组分配）
+        const start = Math.floor(Math.random() * DIRS8.length);
+        for (let i = 0; i < DIRS8.length; i++) {
+          const [bx, by] = DIRS8[(start + i) % DIRS8.length];
           const tx = x + bx, ty = y + by;
           if (world.inBounds(tx, ty) && world.isEmpty(tx, ty)) {
             world.swap(x, y, tx, ty);
