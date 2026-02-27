@@ -1,10 +1,10 @@
 {
-  "notes": "第80轮（迭代5）：纯优化，无新功能。完成最大批量Map→age迁移：\n1. Plant/Philosopher/Firework: Map→age（偏移1编码：age=0未初始化，age=N表示energy=N-1）\n2. Fire/Foam/Bubble/SteamBubble: Map→age（age=0未初始化，set()后立即恢复age）\n3. Plasma/Firefly: Map→age（同上，set()后恢复）\n4. Virus/Wire: Map→age（Wire通电状态存age，set()后恢复）\n5. Cement/WetCement/Tornado: Map→age（swap自动迁移）\n6. Clone: Map→age（固体，age=0未记忆，age=N=记忆的材质ID）\n7. Silicon/ElectroPlasma/NitrogenTrifluoride/Iodine/PhosphorusFire/Jellyfish: Map→age\n8. Ant.ts/Portal.ts: Map存储复杂对象/配对关系，保留Map\n\n关键模式：\n- 每帧调用world.set()的材质：先读age→处理→调set→立即setAge恢复\n- 不调set或调set后不需要age的：正常用age\n- swap()自动迁移age，移动时无需手动迁移\n\nbundle: 1469KB→1466KB（-3KB）",
+  "notes": "第81轮（迭代5）：纯优化+重要bug修复，无新功能。\n\n1. Portal.ts: Array→Set 优化未配对传送门查找（O(n)→O(1)）\n2. 7个材质 Map→age 迁移（BallLightning/Foxfire/Static/SteamCloud/Coke/Rocket/Phosphor）\n3. 【重要bug修复】发现 tickAge() 与手动 setAge() 的冲突：\n   - tickAge() 每帧自动递增所有活跃粒子的 age\n   - 手动 setAge() 的材质（Fire/Wire/BallLightning等）每帧：life-- → setAge(life) → tickAge(+1) → 净效果0，倒计时永不减\n   - Clay/Lightning/Smoke 等只用 getAge 不用 setAge，正确依赖 tickAge 自动递增\n   - 修复：在 World 中添加 _ageManaged: Uint8Array，setAge 时标记，tickAge 跳过已标记的格子\n   - swap 时同步交换 _ageManaged，resetUpdated 时清零\n\n这个 bug 在上一轮（第80轮）Map→age 迁移时引入，之前用 Map 存寿命的材质不受 tickAge 影响。\n\nbundle: 1465.94KB → 1465.55KB",
   "priorities": [
-    "1. 继续检查其他材质文件（新材质ID 1201~1225）的代码质量",
-    "2. 检查是否有性能热点（Simulation.ts的update循环）",
-    "3. 检查Ant.ts和Portal.ts的代码质量（逻辑bug）"
+    "1. 验证修复是否生效（Fire确实会熄灭，Clone正确记忆材质ID）",
+    "2. 检查是否有其他材质存在 age 管理问题（特别是本轮迁移的材质）",
+    "3. 检查 _ageManaged 在 resize/clear/load 等操作时是否需要重置"
   ],
-  "lessons": "1. world.set()会重置age=0，凡是每帧调set刷新颜色的材质，必须在set后立即setAge恢复。2. swap()自动迁移age，无需手动迁移（已验证：Clay/Smoke/Steam/Spark/Virus/Fire/Tornado等）。3. age偏移1编码：age=0未初始化，age=N表示实际值=N-1，避免与未初始化混淆。4. 固体不移动时（Plant/Clone/Wire/Silicon），无需考虑swap迁移。5. Map存复杂对象（Ant的AntState）或非数字类型（Portal的string→string）无法用age替换。",
-  "last_updated": "2026-02-27T19:30:00+08:00"
+  "lessons": "1. tickAge() 设计用于Clay/Lightning类依赖自动age递增的材质，但上轮Map→age迁移后，手动管理age的材质（Fire/Wire等）被tickAge干扰导致倒计时失效。\n2. 修复方案：_ageManaged 标记（每帧重置），setAge设置标记，tickAge跳过标记格子。\n3. world.set()会重置age=0，凡是每帧调set刷新颜色的材质，必须在set后立即setAge恢复。\n4. swap()自动迁移age，无需手动迁移（已验证）。\n5. age偏移1编码：age=0未初始化，age=N表示实际值=N-1，避免与未初始化混淆（Plant/Philosopher等）。\n6. 只用getAge不用setAge的材质（Clay/Lightning/Smoke/Spark/Steam/Poison）：依赖tickAge正常递增，修复后仍正常。",
+  "last_updated": "2026-02-27T21:00:00+08:00"
 }
