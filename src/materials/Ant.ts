@@ -18,7 +18,7 @@ interface AntState {
   carrying: number; // 搬运的材质 ID（0=空手）
 }
 
-const antStates = new Map<string, AntState>();
+const antStates = new Map<number, AntState>();
 
 /** 可挖掘的材质 */
 const DIGGABLE = new Set([1, 15, 20, 21, 23]); // 沙子、雪、泥土、黏土、盐
@@ -26,8 +26,11 @@ const DIGGABLE = new Set([1, 15, 20, 21, 23]); // 沙子、雪、泥土、黏土
 /** 致命材质 */
 const DEADLY = new Set([2, 6, 9, 11, 16, 18, 24]); // 水、火、酸液、熔岩、雷电、毒气、盐水
 
-function key(x: number, y: number): string {
-  return `${x},${y}`;
+/** 缓存 world.width，避免每帧字符串分配 */
+let _antWidth = 200;
+
+function key(x: number, y: number): number {
+  return y * _antWidth + x;
 }
 
 function getState(x: number, y: number): AntState {
@@ -73,6 +76,7 @@ export const Ant: MaterialDef = {
   },
   density: 2.5,
   update(x: number, y: number, world: WorldAPI) {
+    _antWidth = world.width;
     const state = getState(x, y);
 
     // 寿命递减

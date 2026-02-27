@@ -10,21 +10,23 @@ import { registerMaterial } from './registry';
  * - 传送门自身不会被传送
  */
 
-/** 传送门配对关系：key → 配对 key */
-const portalPairs = new Map<string, string>();
+/** 传送门配对关系：数字key(y*width+x) → 数字key */
+const portalPairs = new Map<number, number>();
 /** 所有未配对的传送门位置（Set 保证 O(1) 查找） */
-const unpairedSet = new Set<string>();
+const unpairedSet = new Set<number>();
 
 /** 不可传送的材质 */
 const NO_TELEPORT = new Set([0, 37, 38, 39, 41]); // 空气、克隆体、虚空、喷泉、传送门自身
 
-function key(x: number, y: number): string {
-  return `${x},${y}`;
+/** 缓存 world.width，避免每帧访问 */
+let _portalWidth = 200;
+
+function key(x: number, y: number): number {
+  return y * _portalWidth + x;
 }
 
-function parseKey(k: string): [number, number] {
-  const parts = k.split(',');
-  return [parseInt(parts[0]), parseInt(parts[1])];
+function parseKey(k: number): [number, number] {
+  return [k % _portalWidth, k / _portalWidth | 0];
 }
 
 /** 注册一个新传送门，尝试与未配对的传送门配对 */
@@ -77,6 +79,7 @@ export const Portal: MaterialDef = {
   },
   density: Infinity,
   update(x: number, y: number, world: WorldAPI) {
+    _portalWidth = world.width;
     const k = key(x, y);
 
     // 确保已注册

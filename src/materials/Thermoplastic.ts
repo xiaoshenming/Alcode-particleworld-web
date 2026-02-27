@@ -12,12 +12,9 @@ import { registerMaterial } from './registry';
  * - 多种颜色（随机）
  */
 
-/** 软化状态追踪 */
-const softened = new Set<string>();
-
-function key(x: number, y: number): string {
-  return `${x},${y}`;
-}
+/** 软化状态追踪（数字key = y * width + x，避免字符串分配） */
+const softened = new Set<number>();
+let _width = 200; // 缓存 world.width（首次 update 时更新）
 
 export const Thermoplastic: MaterialDef = {
   id: 215,
@@ -62,8 +59,9 @@ export const Thermoplastic: MaterialDef = {
   },
   density: Infinity,
   update(x: number, y: number, world: WorldAPI) {
+    _width = world.width;
     const temp = world.getTemp(x, y);
-    const k = key(x, y);
+    const k = y * _width + x;
     const isSoft = softened.has(k);
 
     // 着火：>300° 燃烧
@@ -111,7 +109,7 @@ export const Thermoplastic: MaterialDef = {
       if (y < world.height - 1 && world.isEmpty(x, y + 1) && Math.random() < 0.4) {
         softened.delete(k);
         world.swap(x, y, x, y + 1);
-        softened.add(key(x, y + 1));
+        softened.add((y + 1) * _width + x);
         world.markUpdated(x, y + 1);
         return;
       }
@@ -125,7 +123,7 @@ export const Thermoplastic: MaterialDef = {
           if (world.inBounds(nx, y + 1) && world.isEmpty(nx, y + 1)) {
             softened.delete(k);
             world.swap(x, y, nx, y + 1);
-            softened.add(key(nx, y + 1));
+            softened.add((y + 1) * _width + nx);
             world.markUpdated(nx, y + 1);
             return;
           }
@@ -136,7 +134,7 @@ export const Thermoplastic: MaterialDef = {
           if (world.inBounds(nx, y + 1) && world.isEmpty(nx, y + 1)) {
             softened.delete(k);
             world.swap(x, y, nx, y + 1);
-            softened.add(key(nx, y + 1));
+            softened.add((y + 1) * _width + nx);
             world.markUpdated(nx, y + 1);
             return;
           }
@@ -149,7 +147,7 @@ export const Thermoplastic: MaterialDef = {
         if (world.inBounds(x + dir, y) && world.isEmpty(x + dir, y)) {
           softened.delete(k);
           world.swap(x, y, x + dir, y);
-          softened.add(key(x + dir, y));
+          softened.add(y * _width + (x + dir));
           world.markUpdated(x + dir, y);
         }
       }
