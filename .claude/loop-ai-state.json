@@ -1,10 +1,11 @@
 {
-  "notes": "第81轮（迭代5）：纯优化+重要bug修复，无新功能。\n\n1. Portal.ts: Array→Set 优化未配对传送门查找（O(n)→O(1)）\n2. 7个材质 Map→age 迁移（BallLightning/Foxfire/Static/SteamCloud/Coke/Rocket/Phosphor）\n3. 【重要bug修复】发现 tickAge() 与手动 setAge() 的冲突：\n   - tickAge() 每帧自动递增所有活跃粒子的 age\n   - 手动 setAge() 的材质（Fire/Wire/BallLightning等）每帧：life-- → setAge(life) → tickAge(+1) → 净效果0，倒计时永不减\n   - Clay/Lightning/Smoke 等只用 getAge 不用 setAge，正确依赖 tickAge 自动递增\n   - 修复：在 World 中添加 _ageManaged: Uint8Array，setAge 时标记，tickAge 跳过已标记的格子\n   - swap 时同步交换 _ageManaged，resetUpdated 时清零\n\n这个 bug 在上一轮（第80轮）Map→age 迁移时引入，之前用 Map 存寿命的材质不受 tickAge 影响。\n\nbundle: 1465.94KB → 1465.55KB",
+  "notes": "第82轮（迭代6）：纯bug修复，无新功能。\n\n1. 【重要bug修复】Clone.ts 的 tickAge 漂移问题：\n   - Clone 用 age 存储记忆的材质ID（age=N表示记忆ID=N）\n   - 但每帧不调用setAge()，导致tickAge()每帧递增age，记忆的材质ID不断漂移！\n   - 修复：在已记忆状态时每帧调用 world.setAge(x, y, memory) 阻止tickAge干扰\n   - 这与第81轮修复tickAge冲突的原则一致，凡是用age存固定值的材质必须每帧setAge\n\n2. Wire.ts/Silicon.ts 冗余双写优化：\n   - 原来：setAge(charge) 恢复 → charge-- → setAge(charge)\n   - 修复：直接 setAge(charge-1)，减少一次TypedArray写入\n\n3. World.clear() 补全 _ageManaged 重置：\n   - clear() 中遗漏了 this._ageManaged.fill(0)\n   - 虽然每帧resetUpdated()会清零，但clear()的语义是完整状态重置，应该完整\n\n4. 验证了所有其他材质的age管理均正确：\n   - Foam/Bubble/SteamBubble：在swap前已调setAge，_ageManaged随swap传播，正确\n   - Foxfire/SteamCloud/BallLightning：移动后显式setAge(newPos, life)，正确\n   - Coke/Rocket/Phosphor：每帧setAge，正确\n   - Wire/Silicon：通电时setAge，非通电时age=0，tickAge不干扰（cells=0或_ageManaged=1），正确\n   - Firework：点燃后每帧setAge(state)，swap前已设置，正确\n   - Plasma/ElectroPlasma/Tornado/Jellyfish：每帧setAge，正确\n\n5. 确认不需要迁移的Map：\n   - Ant.ts: Map<string, AntState> 复杂状态，无法用age替代\n   - Portal.ts: Map<string, string> 配对关系，无法用age替代\n   - ElectroPlasma/Plasma: Map<number,number> 常量查找表，��粒子状态无关\n\nbundle: 1465.57KB（无变化，只有逻辑修复）",
   "priorities": [
-    "1. 验证修复是否生效（Fire确实会熄灭，Clone正确记忆材质ID）",
-    "2. 检查是否有其他材质存在 age 管理问题（特别是本轮迁移的材质）",
-    "3. 检查 _ageManaged 在 resize/clear/load 等操作时是否需要重置"
+    "1. 检查Ant.ts是否有内存泄漏（当蚂蚁消失时antStates是否正确清理）",
+    "2. 检查所有新材质（v66+）的颜色计算是否有越界（r/g/b > 255可能truncate）",
+    "3. 检查是否有材质在swap后需要setAge但没有设置的情况（关注hasGas/hasLiquid类移动材质）",
+    "4. 考虑为常见操作添加更多性能优化"
   ],
-  "lessons": "1. tickAge() 设计用于Clay/Lightning类依赖自动age递增的材质，但上轮Map→age迁移后，手动管理age的材质（Fire/Wire等）被tickAge干扰导致倒计时失效。\n2. 修复方案：_ageManaged 标记（每帧重置），setAge设置标记，tickAge跳过标记格子。\n3. world.set()会重置age=0，凡是每帧调set刷新颜色的材质，必须在set后立即setAge恢复。\n4. swap()自动迁移age，无需手动迁移（已验证）。\n5. age偏移1编码：age=0未初始化，age=N表示实际值=N-1，避免与未初始化混淆（Plant/Philosopher等）。\n6. 只用getAge不用setAge的材质（Clay/Lightning/Smoke/Spark/Steam/Poison）：依赖tickAge正常递增，修复后仍正常。",
-  "last_updated": "2026-02-27T21:00:00+08:00"
+  "lessons": "1. tickAge()会干扰任何没有每帧调用setAge()的age用法。只有两种安全的age使用模式：\n   (a) 只读+自动递增：只调getAge，依赖tickAge递增（Clay/Lightning/Smoke等）\n   (b) 手动管理：每帧调setAge，阻止tickAge干扰（Fire/Wire/Clone等）\n   混用两种模式（有时setAge有时不）会导致不可预期行为！\n2. Clone特殊情况：用age存材质ID（固定值），必须每帧setAge保护，否则ID漂移。\n3. swap()自动传播_ageManaged标志：如果移动前已调setAge，swap后新位置也受保护。\n4. 凡是用age存固定语义值（而非递增计数）的材质，一定要确保每帧都有setAge调用。\n5. World.clear()这类完整状态重置方法，应该包含所有内部状态数组的重置。\n6. Wire/Silicon的双次setAge是冗余的：set()→setAge(old)→setAge(new)，可合并为set()→setAge(new)。",
+  "last_updated": "2026-02-28T00:30:00+08:00"
 }
