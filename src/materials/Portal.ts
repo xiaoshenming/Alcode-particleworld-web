@@ -57,6 +57,12 @@ export function removePortal(x: number, y: number): void {
   }
 }
 
+/** 清空所有传送门状态（世界重置时调用） */
+export function clearAllPortals(): void {
+  portalPairs.clear();
+  unpairedSet.clear();
+}
+
 export const Portal: MaterialDef = {
   id: 41,
   name: '传送门',

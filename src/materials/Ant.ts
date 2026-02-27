@@ -54,6 +54,11 @@ function removeState(x: number, y: number): void {
   antStates.delete(key(x, y));
 }
 
+/** 清空所有蚂蚁状态（世界重置时调用） */
+export function clearAntStates(): void {
+  antStates.clear();
+}
+
 export const Ant: MaterialDef = {
   id: 40,
   name: '蚂蚁',

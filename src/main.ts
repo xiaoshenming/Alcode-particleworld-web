@@ -37,8 +37,8 @@ import './materials/Cement';
 import './materials/Clone';
 import './materials/Void';
 import './materials/Fountain';
-import './materials/Ant';
-import './materials/Portal';
+import { clearAntStates } from './materials/Ant';
+import { clearAllPortals } from './materials/Portal';
 import './materials/Magnet';
 import './materials/Virus';
 import './materials/Wire';
@@ -1553,7 +1553,7 @@ input.onEyedrop = (matId: number) => {
 
 const toolbar = new Toolbar(input, {
   onPause: () => { paused = !paused; },
-  onClear: () => { world.clear(); history.clear(); },
+  onClear: () => { world.clear(); history.clear(); clearAntStates(); clearAllPortals(); },
   onSave: () => {
     localStorage.setItem(SAVE_KEY, world.save());
     // 生成缩略图
@@ -1567,7 +1567,7 @@ const toolbar = new Toolbar(input, {
   },
   onLoad: () => {
     const data = localStorage.getItem(SAVE_KEY);
-    if (data) world.load(data);
+    if (data) { world.load(data); clearAntStates(); clearAllPortals(); }
   },
   onUndo: () => {
     const snapshot = history.undo();
@@ -1636,6 +1636,8 @@ const toolbar = new Toolbar(input, {
         const text = reader.result as string;
         if (world.load(text)) {
           history.clear();
+          clearAntStates();
+          clearAllPortals();
         }
       };
       reader.readAsText(file);
@@ -1759,6 +1761,8 @@ document.addEventListener('drop', (e) => {
     const text = reader.result as string;
     if (world.load(text)) {
       history.clear();
+      clearAntStates();
+      clearAllPortals();
     }
   };
   reader.readAsText(file);
