@@ -1,11 +1,10 @@
 {
-  "notes": "第79轮（迭代3）：纯修复/优化，无新功能。共6个commit（网络问题未push，下轮先push）：\n1. StatsPanel双重遍历→单次遍历；Toolbar粒子计数节流每10帧；Renderer.renderFloatingSelection循环外提取fillStyle；添加vite.config.ts消除chunk警告\n2. InputHandler: floodFill用头指针替代O(n)的shift()；getDrawMaterial缓存随机材质列表\n3. computePressure改为按需执行（needsPressure标志，默认false）\n4. Clay.ts: Map<string,number>→World内置age\n5. Smoke/Steam/Spark: Map<string,number>→World内置age（swap自动迁移）\n6. Poison/Lightning: Map<string,number>→World内置age\n剩余Map用户：Plant/Philosopher/Firework（消耗型能量，逻辑复杂，暂缓）",
+  "notes": "第80轮（迭代5）：纯优化，无新功能。完成最大批量Map→age迁移：\n1. Plant/Philosopher/Firework: Map→age（偏移1编码：age=0未初始化，age=N表示energy=N-1）\n2. Fire/Foam/Bubble/SteamBubble: Map→age（age=0未初始化，set()后立即恢复age）\n3. Plasma/Firefly: Map→age（同上，set()后恢复）\n4. Virus/Wire: Map→age（Wire通电状态存age，set()后恢复）\n5. Cement/WetCement/Tornado: Map→age（swap自动迁移）\n6. Clone: Map→age（固体，age=0未记忆，age=N=记忆的材质ID）\n7. Silicon/ElectroPlasma/NitrogenTrifluoride/Iodine/PhosphorusFire/Jellyfish: Map→age\n8. Ant.ts/Portal.ts: Map存储复杂对象/配对关系，保留Map\n\n关键模式：\n- 每帧调用world.set()的材质：先读age→处理→调set→立即setAge恢复\n- 不调set或调set后不需要age的：正常用age\n- swap()自动迁移age，移动时无需手动迁移\n\nbundle: 1469KB→1466KB（-3KB）",
   "priorities": [
-    "1. 下轮开始前先 git push origin main（本轮6个commit未推送）",
-    "2. Plant.ts/Philosopher.ts/Firework.ts 仍使用 Map<string,number>，可继续优化",
-    "3. 继续检查其他材质文件的代码质量问题",
-    "4. 每次提交前先检查main.ts无重复（用grep uniq -d命令），每轮先git pull"
+    "1. 继续检查其他材质文件（新材质ID 1201~1225）的代码质量",
+    "2. 检查是否有性能热点（Simulation.ts的update循环）",
+    "3. 检查Ant.ts和Portal.ts的代码质量（逻辑bug）"
   ],
-  "lessons": "1. computePressure每帧全量遍历但只有压力叠加层用到，改为按需执行。2. Map<string,number>用字符串key存粒子状态是反模式，应改用World内置TypedArray。3. World.swap()自动迁移age，用age替换Map后无需手动迁移。4. 对countdown型生命值，用概率死亡检查替代精确countdown（Smoke/Steam/Spark）。5. StatsPanel.refresh()原先双重遍历cells，合并为单次遍历。6. 每次开始前先git pull避免合并冲突。7. 检测重复导入：grep -n \"import './materials/\" main.ts | awk -F\"'\" '{print $2}' | sort | uniq -d",
-  "last_updated": "2026-02-27T18:30:00+08:00"
+  "lessons": "1. world.set()会重置age=0，凡是每帧调set刷新颜色的材质，必须在set后立即setAge恢复。2. swap()自动迁移age，无需手动迁移（已验证：Clay/Smoke/Steam/Spark/Virus/Fire/Tornado等）。3. age偏移1编码：age=0未初始化，age=N表示实际值=N-1，避免与未初始化混淆。4. 固体不移动时（Plant/Clone/Wire/Silicon），无需考虑swap迁移。5. Map存复杂对象（Ant的AntState）或非数字类型（Portal的string→string）无法用age替换。",
+  "last_updated": "2026-02-27T19:30:00+08:00"
 }
