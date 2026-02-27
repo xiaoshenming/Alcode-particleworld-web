@@ -1,3 +1,4 @@
+import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -34,9 +35,7 @@ export const Wire: MaterialDef = {
     let charge = world.getAge(x, y);
 
     // 检查邻居是否有激活源
-    const dirs: [number, number][] = [
-      [0, -1], [0, 1], [-1, 0], [1, 0],
-    ];
+    const dirs = DIRS4;
 
     if (charge <= 0) {
       // 未通电：检查是否被雷电/火花激活

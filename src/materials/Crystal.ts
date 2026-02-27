@@ -1,3 +1,4 @@
+import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -35,9 +36,7 @@ export const Crystal: MaterialDef = {
     }
 
     // 被雷电击碎
-    const dirs: [number, number][] = [
-      [0, -1], [0, 1], [-1, 0], [1, 0],
-    ];
+    const dirs = [...DIRS4];
     for (const [dx, dy] of dirs) {
       const nx = x + dx, ny = y + dy;
       if (!world.inBounds(nx, ny)) continue;

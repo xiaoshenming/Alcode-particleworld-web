@@ -1,3 +1,4 @@
+import { DIRS8 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -56,10 +57,7 @@ export const Meteor: MaterialDef = {
     }
 
     // 加热周围
-    const dirs8: [number, number][] = [
-      [0, -1], [0, 1], [-1, 0], [1, 0],
-      [-1, -1], [1, -1], [-1, 1], [1, 1],
-    ];
+    const dirs8 = DIRS8;
     for (const [dx, dy] of dirs8) {
       const nx = x + dx, ny = y + dy;
       if (!world.inBounds(nx, ny)) continue;

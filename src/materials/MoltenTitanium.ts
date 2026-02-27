@@ -1,4 +1,4 @@
-import { DIRS4 } from './types';
+import { DIRS4, DIRS8 } from './types';
 import type { MaterialDef, WorldAPI } from './types';;
 import { registerMaterial } from './registry';
 
@@ -50,11 +50,7 @@ export const MoltenTitanium: MaterialDef = {
         world.set(nx, ny, 8); // 水变蒸汽
         world.setTemp(nx, ny, 300);
         // 爆炸效果：周围空格产生火花/蒸汽
-        const explDirs: [number, number][] = [
-          [-1, -1], [0, -1], [1, -1],
-          [-1, 0], [1, 0],
-          [-1, 1], [0, 1], [1, 1],
-        ];
+        const explDirs = DIRS8;
         for (const [ex, ey] of explDirs) {
           const ex2 = x + ex, ey2 = y + ey;
           if (!world.inBounds(ex2, ey2)) continue;
