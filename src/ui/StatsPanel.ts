@@ -67,15 +67,21 @@ export class StatsPanel {
   }
 
   private refresh(): void {
-    // 统计各材质数量
+    // 单次遍历：同时统计材质数量、活跃粒子数、温度总和
     const counts = new Map<number, number>();
     const cells = this.world.cells;
+    const awake = (this.world as unknown as { _awake: Uint8Array })['_awake'];
+    const tempBuf = this.world.getTempBuffer();
     let total = 0;
+    let active = 0;
+    let tempSum = 0;
     for (let i = 0; i < cells.length; i++) {
       const id = cells[i];
       if (id === 0) continue;
       counts.set(id, (counts.get(id) || 0) + 1);
       total++;
+      tempSum += tempBuf[i];
+      if (awake && awake[i] === 1) active++;
     }
 
     // 记录历史
@@ -154,18 +160,18 @@ export class StatsPanel {
     totalRow.textContent = `总计: ${total} 粒子`;
     this.listEl.appendChild(totalRow);
 
-    // 活跃粒子比例 & 平均温度
-    const stats = this.world.getWorldStats();
-    const activeRatio = total > 0 ? ((stats.active / total) * 100).toFixed(1) : '0.0';
+    // 活跃粒子比例 & 平均温度（复用上方单次遍历的结果）
+    const avgTemp = total > 0 ? tempSum / total : 20;
+    const activeRatio = total > 0 ? ((active / total) * 100).toFixed(1) : '0.0';
 
     const activeRow = document.createElement('div');
     activeRow.className = 'stats-row stats-extra';
-    activeRow.textContent = `活跃: ${stats.active} (${activeRatio}%)`;
+    activeRow.textContent = `活跃: ${active} (${activeRatio}%)`;
     this.listEl.appendChild(activeRow);
 
     const tempRow = document.createElement('div');
     tempRow.className = 'stats-row stats-extra';
-    tempRow.textContent = `平均温度: ${stats.avgTemp.toFixed(1)}°`;
+    tempRow.textContent = `平均温度: ${avgTemp.toFixed(1)}°`;
     this.listEl.appendChild(tempRow);
 
     // 绘制趋势图

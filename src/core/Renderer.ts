@@ -642,12 +642,10 @@ export class Renderer {
     this.ctx.scale(this.viewZoom, this.viewZoom);
 
     // 绘制粒子（简化：用材质颜色填充像素）
+    this.ctx.fillStyle = 'rgba(200, 220, 255, 0.5)';
     for (let dy = 0; dy < fh; dy++) {
       for (let dx = 0; dx < fw; dx++) {
-        const matId = cells[dy * fw + dx];
-        if (matId === 0) continue;
-        // 用半透明白色表示有粒子
-        this.ctx.fillStyle = 'rgba(200, 220, 255, 0.5)';
+        if (cells[dy * fw + dx] === 0) continue;
         this.ctx.fillRect((fx + dx) * s, (fy + dy) * s, s, s);
       }
     }

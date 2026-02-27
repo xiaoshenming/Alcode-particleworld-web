@@ -119,6 +119,8 @@ export class Toolbar {
   private saveThumbImg!: HTMLImageElement;
   /** 材质选择回调（用于通知外部记录使用历史等） */
   onMaterialSelect?: (matId: number) => void;
+  /** 粒子计数更新帧计数器（每10帧更新一次，避免每帧全量遍历） */
+  private statsFrameCount = 0;
 
   constructor(input: InputHandler, callbacks: ToolbarCallbacks) {
     this.input = input;
@@ -136,9 +138,13 @@ export class Toolbar {
     this.build();
   }
 
-  /** 每帧调用，更新粒子计数 */
+  /** 每帧调用，更新粒子计数（粒子计数每10帧更新一次，暂停状态每帧更新） */
   updateStats(): void {
-    this.particleCountEl.textContent = String(this.callbacks.getParticleCount());
+    this.statsFrameCount++;
+    // 粒子计数遍历开销大，每10帧更新一次即可
+    if (this.statsFrameCount % 10 === 0) {
+      this.particleCountEl.textContent = String(this.callbacks.getParticleCount());
+    }
     this.pauseBtn.textContent = this.callbacks.isPaused() ? '继续' : '暂停';
     this.pauseBtn.classList.toggle('active', this.callbacks.isPaused());
   }
