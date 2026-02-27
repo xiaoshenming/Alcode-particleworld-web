@@ -41,14 +41,13 @@ export const AcoustoMagnetoThermalMaterial4: MaterialDef = {
       if (nid !== 0 && Math.random() < 0.05) {
         // 磁效应：生成火花在空位
         if (Math.random() < 0.03) {
-          const sparkPos = dirs.find(([sdx, sdy]) => {
+          for (const [sdx, sdy] of dirs) {
             const sx = x + sdx, sy = y + sdy;
-            return world.inBounds(sx, sy) && world.get(sx, sy) === 0;
-          });
-          if (sparkPos) {
-            const [sdx, sdy] = sparkPos;
-            world.set(x + sdx, y + sdy, 28);
-            world.wakeArea(x + sdx, y + sdy);
+            if (world.inBounds(sx, sy) && world.get(sx, sy) === 0) {
+              world.set(sx, sy, 28);
+              world.wakeArea(sx, sy);
+              break;
+            }
           }
         }
 
