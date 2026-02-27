@@ -1,5 +1,5 @@
-import { DIRS4 } from './types';
-import type { MaterialDef, WorldAPI } from './types';;
+import { DIRS4, DIRS8 } from './types';
+import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
 /**
@@ -56,7 +56,7 @@ export const DielectricElastomer: MaterialDef = {
       // 接触电线/激光时弹射（电致变形）
       if ((nid === 44 || nid === 47) && Math.random() < 0.08) {
         // 向随机方向弹射
-        const allDirs: [number, number][] = [[0, -1], [0, 1], [-1, 0], [1, 0], [-1, -1], [1, -1], [-1, 1], [1, 1]];
+        const allDirs = [...DIRS8];
         const shuffled = allDirs.sort(() => Math.random() - 0.5);
         for (const [bx, by] of shuffled) {
           const tx = x + bx, ty = y + by;
