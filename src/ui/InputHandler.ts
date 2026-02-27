@@ -169,6 +169,9 @@ export class InputHandler {
     return this.brushTemp;
   }
 
+  /** 随机模式可用材质缓存（懒初始化，避免每次绘制重新过滤） */
+  private _randomMatCache: number[] | null = null;
+
   /** 获取当前绘制用的材质 ID（随机模式下每次调用返回不同材质） */
   private getDrawMaterial(): number {
     if (this.erasing) return 0;
@@ -179,10 +182,15 @@ export class InputHandler {
       }
       return this.selectedMaterial;
     }
-    // 随机模式：从非空气、非工具类材质中随机选一种
-    const mats = getAllMaterials().filter(m => m.id > 0 && m.category !== '工具');
-    if (mats.length === 0) return this.selectedMaterial;
-    return mats[Math.floor(Math.random() * mats.length)].id;
+    // 随机模式：从非空气、非工具类材质中随机选一种（缓存列表避免每帧重建）
+    if (!this._randomMatCache) {
+      this._randomMatCache = getAllMaterials()
+        .filter(m => m.id > 0 && m.category !== '工具')
+        .map(m => m.id);
+    }
+    const cache = this._randomMatCache;
+    if (cache.length === 0) return this.selectedMaterial;
+    return cache[Math.floor(Math.random() * cache.length)];
   }
 
   private toGrid(clientX: number, clientY: number): [number, number] {
@@ -480,7 +488,7 @@ export class InputHandler {
     return this.painting && this.brushShape === 'line' && this.lineStartX >= 0;
   }
 
-  /** 洪水填充（BFS） */
+  /** 洪水填充（BFS，使用头指针避免 shift() 的 O(n) 开销） */
   private floodFill(startX: number, startY: number, fillMat: number): void {
     if (!this.world.inBounds(startX, startY)) return;
     const targetMat = this.world.get(startX, startY);
@@ -492,19 +500,24 @@ export class InputHandler {
     let filled = 0;
 
     const visited = new Uint8Array(w * h);
+    // 用平铺数组存坐标对，head 指针代替 shift()，避免 O(n) 开销
     const queue: number[] = [startX, startY];
+    let head = 0;
     visited[startY * w + startX] = 1;
 
-    while (queue.length > 0 && filled < maxFill) {
-      const x = queue.shift()!;
-      const y = queue.shift()!;
+    while (head < queue.length && filled < maxFill) {
+      const x = queue[head++];
+      const y = queue[head++];
 
       const mat = this.randomMode ? this.getDrawMaterial() : fillMat;
       this.world.set(x, y, mat);
       filled++;
 
-      const neighbors: [number, number][] = [[x-1, y], [x+1, y], [x, y-1], [x, y+1]];
-      for (const [nx, ny] of neighbors) {
+      const dxs = [-1, 1, 0, 0];
+      const dys = [0, 0, -1, 1];
+      for (let d = 0; d < 4; d++) {
+        const nx = x + dxs[d];
+        const ny = y + dys[d];
         if (!this.world.inBounds(nx, ny)) continue;
         const idx = ny * w + nx;
         if (visited[idx]) continue;
