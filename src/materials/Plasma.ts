@@ -1,5 +1,5 @@
 import { DIRS8 } from './types';
-import type { MaterialDef, WorldAPI } from './types';;
+import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
 /**
