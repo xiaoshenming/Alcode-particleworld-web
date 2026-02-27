@@ -4,22 +4,9 @@ import { registerMaterial } from './registry';
 /**
  * 植物 —— 固体，可燃，遇水向上/侧面生长
  * 生长有概率限制，不会无限蔓延
+ * 使用 World 内置 age 替代 Map<string,number>
+ * age=0: 未初始化; age=1: 能量耗尽; age>=2: 实际剩余能量=age-1
  */
-
-/** 植物生长计数器，限制单株最大高度 */
-const growthEnergy = new Map<string, number>();
-
-function getEnergy(x: number, y: number): number {
-  return growthEnergy.get(`${x},${y}`) ?? 0;
-}
-
-function setEnergy(x: number, y: number, energy: number): void {
-  if (energy <= 0) {
-    growthEnergy.delete(`${x},${y}`);
-  } else {
-    growthEnergy.set(`${x},${y}`, energy);
-  }
-}
 
 export const Plant: MaterialDef = {
   id: 13,
@@ -32,14 +19,18 @@ export const Plant: MaterialDef = {
   },
   density: Infinity,
   update(x: number, y: number, world: WorldAPI) {
-    // 初始化生长能量
-    let energy = getEnergy(x, y);
-    if (energy === 0) {
-      energy = 5 + Math.floor(Math.random() * 8); // 5~12 次生长机会
-      setEnergy(x, y, energy);
+    // age 偏移1存储能量：age=0未初始化，age=1能量耗尽，age=N表示剩余N-1次生长
+    let ageVal = world.getAge(x, y);
+    if (ageVal === 0) {
+      // 初始化：5~12 次生长机会，存为 age = energy+1
+      const energy = 5 + Math.floor(Math.random() * 8);
+      ageVal = energy + 1;
+      world.setAge(x, y, ageVal);
     }
 
-    if (energy <= 0) return; // 已停止生长
+    if (ageVal <= 1) return; // 能量耗尽（age=1 对应 energy=0）
+
+    const energy = ageVal - 1; // 实际剩余能量
 
     // 检查附近是否有水
     const waterDirs: [number, number][] = [];
@@ -68,14 +59,13 @@ export const Plant: MaterialDef = {
 
       // 在空位生长一格植物
       const [gx, gy] = growDirs[Math.floor(Math.random() * growDirs.length)];
-      world.set(gx, gy, 13);
-      // 新植物继承部分能量
-      setEnergy(gx, gy, energy - 1);
+      world.set(gx, gy, 13); // set() 会重置 age=0
+      // 新植物继承部分能量（energy-1，存为 (energy-1)+1 = energy）
+      world.setAge(gx, gy, energy);
       world.markUpdated(gx, gy);
 
-      // 消耗自身能量
-      energy--;
-      setEnergy(x, y, energy);
+      // 消耗自身能量（energy-1 → 存为 energy-1+1 = energy）
+      world.setAge(x, y, energy);
     }
   },
 };

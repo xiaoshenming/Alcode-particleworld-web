@@ -9,14 +9,9 @@ import { registerMaterial } from './registry';
  * - 泥土(20) → 种子(12)
  * - 转化后自身缓慢消耗（有使用次数）
  * - 发出紫色光芒
+ * 使用 World 内置 age 替代 Map<string,number>
+ * age=0: 未初始化; age=1: 能量耗尽; age=N: 剩余转化次数=N-1
  */
-
-/** 炼金石剩余能量 */
-const stoneEnergy = new Map<string, number>();
-
-function getKey(x: number, y: number): string {
-  return `${x},${y}`;
-}
 
 /** 转化规则：源材质ID → 目标材质ID */
 const TRANSMUTE: Record<number, number> = {
@@ -38,19 +33,27 @@ export const Philosopher: MaterialDef = {
   },
   density: 5,
   update(x: number, y: number, world: WorldAPI) {
-    const key = getKey(x, y);
-
-    // 初始化能量
-    let energy = stoneEnergy.get(key);
-    if (energy === undefined) {
-      energy = 15 + Math.floor(Math.random() * 10); // 15~25 次转化
-      stoneEnergy.set(key, energy);
+    // age 偏移1存储能量：age=0未初始化，age=1耗尽，age=N剩余N-1次转化
+    let ageVal = world.getAge(x, y);
+    if (ageVal === 0) {
+      const energy = 15 + Math.floor(Math.random() * 10); // 15~25 次转化
+      ageVal = energy + 1;
+      world.setAge(x, y, ageVal);
     }
 
-    // 刷新颜色（闪烁）
+    // 刷新颜色（闪烁）：set()会重置age，需立即恢复
     world.set(x, y, 30);
+    world.setAge(x, y, ageVal);
 
-    // 检查四周邻居进行转化
+    if (ageVal <= 1) {
+      // 能量耗尽，炼金石碎裂
+      world.set(x, y, 7); // 变成烟
+      return;
+    }
+
+    const energy = ageVal - 1; // 实际剩余转化次数
+
+    // 检查四周邻居进行��化
     const neighbors: [number, number][] = [
       [x, y - 1], [x, y + 1], [x - 1, y], [x + 1, y],
     ];
@@ -63,12 +66,11 @@ export const Philosopher: MaterialDef = {
       if (target !== undefined && Math.random() < 0.1) {
         world.set(nx, ny, target);
         world.markUpdated(nx, ny);
-        energy--;
-        stoneEnergy.set(key, energy);
+        // 消耗一次转化次数（存为 energy，即 energy-1+1）
+        world.setAge(x, y, energy);
 
         // 能量耗尽，炼金石碎裂
-        if (energy <= 0) {
-          stoneEnergy.delete(key);
+        if (energy <= 1) {
           world.set(x, y, 7); // 变成烟
           return;
         }
@@ -78,11 +80,8 @@ export const Philosopher: MaterialDef = {
 
     if (y >= world.height - 1) return;
 
-    // 粉末物理：下落
+    // 粉末物理：下落（world.swap() 自动迁移 age）
     if (world.isEmpty(x, y + 1)) {
-      const newKey = getKey(x, y + 1);
-      stoneEnergy.set(newKey, energy);
-      stoneEnergy.delete(key);
       world.swap(x, y, x, y + 1);
       world.markUpdated(x, y + 1);
       return;
@@ -93,9 +92,6 @@ export const Philosopher: MaterialDef = {
     for (const d of [dir, -dir]) {
       const nx = x + d;
       if (world.inBounds(nx, y + 1) && world.isEmpty(nx, y + 1)) {
-        const newKey = getKey(nx, y + 1);
-        stoneEnergy.set(newKey, energy);
-        stoneEnergy.delete(key);
         world.swap(x, y, nx, y + 1);
         world.markUpdated(nx, y + 1);
         return;
