@@ -1,3 +1,4 @@
+import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -19,8 +20,7 @@ export const Cement: MaterialDef = {
   density: 4,
   update(x: number, y: number, world: WorldAPI) {
     // 检查邻居是否有水
-    const dirs = [[0, 1], [0, -1], [1, 0], [-1, 0]];
-    for (const [dx, dy] of dirs) {
+    for (const [dx, dy] of DIRS4) {
       const nx = x + dx;
       const ny = y + dy;
       if (!world.inBounds(nx, ny)) continue;
@@ -101,20 +101,26 @@ export const WetCement: MaterialDef = {
       }
       // 侧向流动
       const dir = Math.random() < 0.5 ? -1 : 1;
-      for (const d of [dir, -dir]) {
-        if (world.inBounds(x + d, y + 1) && world.isEmpty(x + d, y + 1)) {
-          world.swap(x, y, x + d, y + 1);
-          world.markUpdated(x + d, y + 1);
-          return;
-        }
+      if (world.inBounds(x + dir, y + 1) && world.isEmpty(x + dir, y + 1)) {
+        world.swap(x, y, x + dir, y + 1);
+        world.markUpdated(x + dir, y + 1);
+        return;
+      }
+      if (world.inBounds(x - dir, y + 1) && world.isEmpty(x - dir, y + 1)) {
+        world.swap(x, y, x - dir, y + 1);
+        world.markUpdated(x - dir, y + 1);
+        return;
       }
       // 水平流动
-      for (const d of [dir, -dir]) {
-        if (world.inBounds(x + d, y) && world.isEmpty(x + d, y)) {
-          world.swap(x, y, x + d, y);
-          world.markUpdated(x + d, y);
-          return;
-        }
+      if (world.inBounds(x + dir, y) && world.isEmpty(x + dir, y)) {
+        world.swap(x, y, x + dir, y);
+        world.markUpdated(x + dir, y);
+        return;
+      }
+      if (world.inBounds(x - dir, y) && world.isEmpty(x - dir, y)) {
+        world.swap(x, y, x - dir, y);
+        world.markUpdated(x - dir, y);
+        return;
       }
     }
   },

@@ -1,3 +1,4 @@
+import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -30,13 +31,9 @@ export const Moss: MaterialDef = {
     }
 
     // 检查邻居
-    const neighbors: [number, number][] = [
-      [x, y - 1], [x, y + 1],
-      [x - 1, y], [x + 1, y],
-    ];
-
     let hasMoisture = false;
-    for (const [nx, ny] of neighbors) {
+    for (const [dx, dy] of DIRS4) {
+      const nx = x + dx, ny = y + dy;
       if (!world.inBounds(nx, ny)) continue;
       if (MOISTURE.has(world.get(nx, ny))) {
         hasMoisture = true;
@@ -50,15 +47,18 @@ export const Moss: MaterialDef = {
     // 缓慢蔓延：向邻近的空气格子生长（前提是该空气格子旁边有基底）
     if (Math.random() > 0.01) return; // 1% 概率尝试生长
 
-    // 随机选一个方向
-    const shuffled = neighbors.sort(() => Math.random() - 0.5);
-    for (const [nx, ny] of shuffled) {
+    // 随机起始索引循环，避免每帧数组分配
+    const start = Math.floor(Math.random() * DIRS4.length);
+    for (let i = 0; i < DIRS4.length; i++) {
+      const [dx, dy] = DIRS4[(start + i) % DIRS4.length];
+      const nx = x + dx, ny = y + dy;
       if (!world.inBounds(nx, ny)) continue;
       if (world.get(nx, ny) !== 0) continue; // 只能长到空气位置
 
       // 检查目标位置是否邻近基底
       let nearSubstrate = false;
-      for (const [sx, sy] of [[nx, ny - 1], [nx, ny + 1], [nx - 1, ny], [nx + 1, ny]] as [number, number][]) {
+      for (const [sdx, sdy] of DIRS4) {
+        const sx = nx + sdx, sy = ny + sdy;
         if (!world.inBounds(sx, sy)) continue;
         if (SUBSTRATE.has(world.get(sx, sy))) {
           nearSubstrate = true;

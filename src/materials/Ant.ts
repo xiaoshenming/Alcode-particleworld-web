@@ -1,3 +1,4 @@
+import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -83,7 +84,7 @@ export const Ant: MaterialDef = {
     }
 
     // 检查是否接触致命材质
-    for (const [dx, dy] of [[0, -1], [0, 1], [-1, 0], [1, 0]]) {
+    for (const [dx, dy] of DIRS4) {
       const nx = x + dx, ny = y + dy;
       if (world.inBounds(nx, ny) && DEADLY.has(world.get(nx, ny))) {
         world.set(x, y, 0); // 死亡消失

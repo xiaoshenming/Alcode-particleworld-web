@@ -14,6 +14,9 @@ import { registerMaterial } from './registry';
 /** 可点燃焦油砂的材质 */
 const IGNITER = new Set([6, 11, 55, 28]); // 火、熔岩、等离子体、火花
 
+/** 上方两侧对角方向（释放烟用） */
+const DIRS_UPPER_DIAG: ReadonlyArray<readonly [number, number]> = [[-1, -1], [1, -1]];
+
 export const OilSand: MaterialDef = {
   id: 74,
   name: '焦油砂',
@@ -70,7 +73,7 @@ export const OilSand: MaterialDef = {
           world.markUpdated(x, y - 1);
         }
         // 侧面释放烟
-        for (const [sdx, sdy] of [[-1, -1], [1, -1]] as [number, number][]) {
+        for (const [sdx, sdy] of DIRS_UPPER_DIAG) {
           const sx = x + sdx, sy = y + sdy;
           if (world.inBounds(sx, sy) && world.isEmpty(sx, sy) && Math.random() < 0.5) {
             world.set(sx, sy, 7); // 烟
