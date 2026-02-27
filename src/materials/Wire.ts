@@ -8,32 +8,15 @@ import { registerMaterial } from './registry';
  * - 电流沿相邻电线传导，每帧扩展一格
  * - 通电状态持续数帧后恢复，末端释放火花
  * - 通电时颜色变亮（铜黄→亮黄）
+ * 使用 World 内置 age 替代 Map<string,number>（wireCharge）
+ * age=0: 未通电; age=N: 通电剩余N帧
  */
-
-/** 电线通电状态：剩余通电帧数 */
-const wireCharge = new Map<string, number>();
 
 /** 通电持续帧数 */
 const CHARGE_DURATION = 6;
 
 /** 能激活电线的材质 */
 const ACTIVATORS = new Set([16, 28]); // 雷电、火花
-
-function key(x: number, y: number): string {
-  return `${x},${y}`;
-}
-
-function getCharge(x: number, y: number): number {
-  return wireCharge.get(key(x, y)) ?? 0;
-}
-
-function setCharge(x: number, y: number, charge: number): void {
-  if (charge <= 0) {
-    wireCharge.delete(key(x, y));
-  } else {
-    wireCharge.set(key(x, y), charge);
-  }
-}
 
 export const Wire: MaterialDef = {
   id: 44,
@@ -48,7 +31,7 @@ export const Wire: MaterialDef = {
   },
   density: Infinity,
   update(x: number, y: number, world: WorldAPI) {
-    let charge = getCharge(x, y);
+    let charge = world.getAge(x, y);
 
     // 检查邻居是否有激活源
     const dirs: [number, number][] = [
@@ -64,38 +47,36 @@ export const Wire: MaterialDef = {
 
         if (ACTIVATORS.has(nid)) {
           charge = CHARGE_DURATION;
-          setCharge(x, y, charge);
+          world.setAge(x, y, charge);
           break;
         }
 
         // 被相邻通电电线传导
-        if (nid === 44 && getCharge(nx, ny) === CHARGE_DURATION) {
+        if (nid === 44 && world.getAge(nx, ny) === CHARGE_DURATION) {
           charge = CHARGE_DURATION;
-          setCharge(x, y, charge);
+          world.setAge(x, y, charge);
           break;
         }
       }
     }
 
     if (charge > 0) {
-      // 通电中：显示亮色
-      // 通过 set 刷新颜色（color() 会被调用，但我们需要亮色）
-      // 用温度标记通电状态，让颜色函数区分
+      // 通电中：显示亮色（set()会重置age，需立即恢复）
       world.setTemp(x, y, 100);
       world.set(x, y, 44);
+      world.setAge(x, y, charge); // 恢复 age
 
       charge--;
-      setCharge(x, y, charge);
+      world.setAge(x, y, charge);
 
       // 通电结束时：在非电线邻居的空位释放火花
       if (charge <= 0) {
         world.setTemp(x, y, 20);
-        // 刷新为未通电颜色
-        world.set(x, y, 44);
+        world.set(x, y, 44); // 刷新为未通电颜色（age已为0，无需恢复）
 
         // 检查是否是末端（只有一侧有电线）
         let wireNeighbors = 0;
-        let emptyDirs: [number, number][] = [];
+        const emptyDirs: [number, number][] = [];
         for (const [dx, dy] of dirs) {
           const nx = x + dx, ny = y + dy;
           if (!world.inBounds(nx, ny)) continue;

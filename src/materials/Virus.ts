@@ -8,32 +8,12 @@ import { registerMaterial } from './registry';
  * - 火焰和高温可以杀死病毒
  * - 酸液可以溶解病毒
  * - 不能感染金属、石头、玻璃等无机物
+ * 使用 World 内置 age 替代 Map<string,number>（swap自动迁移age）
+ * age=0: 未初始化; age=N: 剩余寿命=N
  */
-
-/** 病毒生命值 */
-const virusLife = new Map<string, number>();
 
 /** 可感染的材质（有机物） */
 const INFECTABLE = new Set([4, 12, 13, 20, 21, 25, 26, 29, 40]); // 木头、种子、植物、泥土、黏土、蜡、液蜡、橡皮泥、蚂蚁
-
-/** 免疫材质（无机物、特殊材质） */
-// 不在 INFECTABLE 中的都免疫
-
-function key(x: number, y: number): string {
-  return `${x},${y}`;
-}
-
-function getLife(x: number, y: number): number {
-  return virusLife.get(key(x, y)) ?? 0;
-}
-
-function setLife(x: number, y: number, life: number): void {
-  if (life <= 0) {
-    virusLife.delete(key(x, y));
-  } else {
-    virusLife.set(key(x, y), life);
-  }
-}
 
 export const Virus: MaterialDef = {
   id: 43,
@@ -48,22 +28,22 @@ export const Virus: MaterialDef = {
   },
   density: 1.5,
   update(x: number, y: number, world: WorldAPI) {
-    // 初始化/递减生命值
-    let life = getLife(x, y);
+    // 初始化/递减生命值（age=0表示未初始化）
+    let life = world.getAge(x, y);
     if (life === 0) {
       life = 200 + Math.floor(Math.random() * 200);
-      setLife(x, y, life);
+      world.setAge(x, y, life);
     }
     life--;
-    setLife(x, y, life);
+    world.setAge(x, y, life);
 
-    // 刷新颜色（脉动效果）
+    // 刷新颜色（脉动效果）：set()会重置age，需立即恢复
     world.set(x, y, 43);
+    world.setAge(x, y, life);
 
     // 高温杀死病毒
     if (world.getTemp(x, y) > 60) {
       world.set(x, y, 0);
-      setLife(x, y, 0);
       return;
     }
 
@@ -73,7 +53,7 @@ export const Virus: MaterialDef = {
       return;
     }
 
-    // 检查邻居，感染或被杀
+    // 检查邻居，感染或���杀
     const dirs: [number, number][] = [
       [0, -1], [0, 1], [-1, 0], [1, 0],
       [-1, -1], [1, -1], [-1, 1], [1, 1],
@@ -87,14 +67,12 @@ export const Virus: MaterialDef = {
       // 遇火/熔岩 → 死亡
       if (nid === 6 || nid === 11) {
         world.set(x, y, 0);
-        setLife(x, y, 0);
         return;
       }
 
       // 遇酸液 → 溶解
       if (nid === 9) {
         world.set(x, y, 0);
-        setLife(x, y, 0);
         return;
       }
 
@@ -105,13 +83,10 @@ export const Virus: MaterialDef = {
       }
     }
 
-    // 重力下落
+    // 重力下落（swap 自动迁移 age）
     if (y < world.height - 1 && world.isEmpty(x, y + 1)) {
       world.swap(x, y, x, y + 1);
       world.markUpdated(x, y + 1);
-      // 迁移生命值
-      setLife(x, y + 1, life);
-      setLife(x, y, 0);
       return;
     }
 
@@ -120,8 +95,6 @@ export const Virus: MaterialDef = {
     if (world.inBounds(x + dir, y + 1) && world.isEmpty(x + dir, y + 1)) {
       world.swap(x, y, x + dir, y + 1);
       world.markUpdated(x + dir, y + 1);
-      setLife(x + dir, y + 1, life);
-      setLife(x, y, 0);
       return;
     }
 
@@ -131,8 +104,6 @@ export const Virus: MaterialDef = {
       if (world.inBounds(nx, y) && world.isEmpty(nx, y)) {
         world.swap(x, y, nx, y);
         world.markUpdated(nx, y);
-        setLife(nx, y, life);
-        setLife(x, y, 0);
       }
     }
   },
