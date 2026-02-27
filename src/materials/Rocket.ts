@@ -9,9 +9,9 @@ import { registerMaterial } from './registry';
  * - 到达一定高度或碰到固体后爆炸
  * - 爆炸产生大量彩色火花(28)和烟(7)
  * - 视觉上呈深红色圆柱体
+ * 使用 World 内置 age 替代 Map<string,number>（swap自动迁移age）
+ * age=0: 未点燃; age=N: 剩余燃料=N（已点燃飞行中）
  */
-
-let rockets: Map<string, number> = new Map();
 
 export const Rocket: MaterialDef = {
   id: 119,
@@ -39,15 +39,13 @@ export const Rocket: MaterialDef = {
   },
   density: 2.0,
   update(x: number, y: number, world: WorldAPI) {
-    const key = `${x},${y}`;
-    const fuel = rockets.get(key);
+    const fuel = world.getAge(x, y);
 
-    // 已点燃状态：向上飞行
-    if (fuel !== undefined) {
-      rockets.delete(key);
-
+    // 已点燃状态（age > 0）：向上飞行
+    if (fuel > 0) {
       // 燃料耗尽或碰到顶部 → 爆炸
-      if (fuel <= 0 || y <= 2) {
+      if (fuel <= 1 || y <= 2) {
+        world.setAge(x, y, 0); // 清除燃料
         rocketExplode(x, y, world);
         return;
       }
@@ -59,7 +57,7 @@ export const Rocket: MaterialDef = {
         world.wakeArea(x, y + 1);
       }
 
-      // 向上移动 1~2 格
+      // 向上移动 1~2 格（swap 自动迁移 age）
       const speed = fuel > 10 ? 2 : 1;
       let ny = y;
       for (let i = 0; i < speed; i++) {
@@ -67,22 +65,25 @@ export const Rocket: MaterialDef = {
           const above = world.get(x, ny - 1);
           if (above === 0 || above === 7 || above === 8) {
             if (above !== 0) world.set(x, ny - 1, 0);
-            world.swap(x, ny, x, ny - 1);
+            world.swap(x, ny, x, ny - 1); // age 迁移到 (x, ny-1)
             world.markUpdated(x, ny - 1);
             world.wakeArea(x, ny);
             ny = ny - 1;
           } else {
             // 碰到固体 → 爆炸
+            world.setAge(x, ny, 0);
             rocketExplode(x, ny, world);
             return;
           }
         } else {
+          world.setAge(x, ny, 0);
           rocketExplode(x, ny, world);
           return;
         }
       }
 
-      rockets.set(`${x},${ny}`, fuel - 1);
+      // 在最终位置更新剩余燃料
+      world.setAge(x, ny, fuel - 1);
       world.wakeArea(x, ny);
       return;
     }
@@ -96,7 +97,7 @@ export const Rocket: MaterialDef = {
 
       if ((nid === 6 || nid === 28 || nid === 11 || nid === 16) && Math.random() < 0.5) {
         // 点燃！设置燃料
-        rockets.set(key, 20 + Math.floor(Math.random() * 15));
+        world.setAge(x, y, 20 + Math.floor(Math.random() * 15));
         world.wakeArea(x, y);
         return;
       }
@@ -104,12 +105,12 @@ export const Rocket: MaterialDef = {
 
     // 高温自燃
     if (world.getTemp(x, y) > 100) {
-      rockets.set(key, 20 + Math.floor(Math.random() * 15));
+      world.setAge(x, y, 20 + Math.floor(Math.random() * 15));
       world.wakeArea(x, y);
       return;
     }
 
-    // 粉末下落
+    // 粉末下落（swap 自动迁移 age）
     if (world.inBounds(x, y + 1)) {
       const below = world.get(x, y + 1);
       if (below === 0) {

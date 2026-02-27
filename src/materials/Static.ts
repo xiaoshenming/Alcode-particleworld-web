@@ -10,9 +10,9 @@ import { registerMaterial } from './registry';
  * - 积累到一定密度时放电为雷电(16)
  * - 有限寿命，自然消散
  * - 视觉上呈淡蓝色闪烁
+ * 使用 World 内置 age 替代 Map<string,number>（swap自动迁移age）
+ * age=0: 未初始化; age=N: 剩余寿命=N
  */
-
-let charges: Map<string, number> = new Map();
 
 export const Static: MaterialDef = {
   id: 121,
@@ -40,17 +40,17 @@ export const Static: MaterialDef = {
   },
   density: 0.05,
   update(x: number, y: number, world: WorldAPI) {
-    const key = `${x},${y}`;
-    if (!charges.has(key)) {
-      charges.set(key, 15 + Math.floor(Math.random() * 20));
+    // 初始化寿命（age=0表示未初始化）
+    let life = world.getAge(x, y);
+    if (life === 0) {
+      life = 15 + Math.floor(Math.random() * 20);
+      world.setAge(x, y, life);
     }
 
-    let life = charges.get(key)!;
     life--;
 
     // 寿命耗尽消散
     if (life <= 0) {
-      charges.delete(key);
       world.set(x, y, 0);
       world.wakeArea(x, y);
       return;
@@ -66,7 +66,6 @@ export const Static: MaterialDef = {
 
       // 接触导体产生火花
       if ((nid === 10 || nid === 85 || nid === 44) && Math.random() < 0.15) {
-        charges.delete(key);
         world.set(x, y, 28); // 火花
         world.wakeArea(x, y);
         return;
@@ -74,16 +73,15 @@ export const Static: MaterialDef = {
 
       // 接触水/盐水消散
       if ((nid === 2 || nid === 24) && Math.random() < 0.4) {
-        charges.delete(key);
         world.set(x, y, 0);
         world.wakeArea(x, y);
         return;
       }
 
-      // 吸引轻质粒子
+      // 吸引轻质粒子（swap 自动迁移 age）
       if ((nid === 114 || nid === 91 || nid === 93) && Math.random() < 0.1) {
-        world.swap(nx, ny, x, y);
-        charges.delete(key);
+        world.swap(nx, ny, x, y); // 静电移到 (nx,ny)，轻质粒子到 (x,y)
+        world.setAge(nx, ny, life); // 静电现在在 (nx,ny)，更新 life
         world.wakeArea(x, y);
         world.wakeArea(nx, ny);
         return;
@@ -95,15 +93,12 @@ export const Static: MaterialDef = {
 
     // 高密度放电为雷电
     if (neighborStatic >= 3 && Math.random() < 0.2) {
-      charges.delete(key);
       world.set(x, y, 16); // 雷电
       world.wakeArea(x, y);
       return;
     }
 
-    charges.delete(key);
-
-    // 随机漂移
+    // 随机漂移（swap 自动迁移 age）
     const moveDir: [number, number][] = [];
     for (const [dx, dy] of dirs) {
       const nx = x + dx, ny = y + dy;
@@ -116,11 +111,11 @@ export const Static: MaterialDef = {
       const [mx, my] = moveDir[Math.floor(Math.random() * moveDir.length)];
       const nx = x + mx, ny = y + my;
       world.swap(x, y, nx, ny);
+      world.setAge(nx, ny, life);
       world.markUpdated(nx, ny);
       world.wakeArea(nx, ny);
-      charges.set(`${nx},${ny}`, life);
     } else {
-      charges.set(key, life);
+      world.setAge(x, y, life);
       world.wakeArea(x, y);
     }
   },

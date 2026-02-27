@@ -9,9 +9,9 @@ import { registerMaterial } from './registry';
  * - 燃烧产生烟(7)，最终变为灰烬（沙子1）
  * - 遇水(2)不熄灭（与木炭不同）
  * - 视觉上呈深灰黑色多孔块状
+ * 使用 World 内置 age 替代 Map<string,number>（swap自动迁移age）
+ * age=0: 未燃烧; age=N: 燃烧剩余N帧
  */
-
-let cokeStates: Map<string, number> = new Map();
 
 export const Cite: MaterialDef = {
   id: 129,
@@ -39,16 +39,13 @@ export const Cite: MaterialDef = {
   },
   density: 2.2,
   update(x: number, y: number, world: WorldAPI) {
-    const key = `${x},${y}`;
-    const burnLife = cokeStates.get(key);
+    const burnLife = world.getAge(x, y);
 
-    // 燃烧状态
-    if (burnLife !== undefined) {
-      cokeStates.delete(key);
-
-      if (burnLife <= 0) {
+    // 燃烧状态（age > 0）
+    if (burnLife > 0) {
+      if (burnLife <= 1) {
         // 燃尽变灰烬
-        world.set(x, y, 1); // 沙子
+        world.set(x, y, 1); // 沙子（age自动重置为0）
         world.wakeArea(x, y);
         return;
       }
@@ -58,8 +55,8 @@ export const Cite: MaterialDef = {
 
       // 产生烟
       if (Math.random() < 0.08) {
-        const dirs: [number, number][] = [[0, -1], [-1, -1], [1, -1]];
-        for (const [dx, dy] of dirs) {
+        const smokeDir: [number, number][] = [[0, -1], [-1, -1], [1, -1]];
+        for (const [dx, dy] of smokeDir) {
           const nx = x + dx, ny = y + dy;
           if (world.inBounds(nx, ny) && world.isEmpty(nx, ny)) {
             world.set(nx, ny, 7); // 烟
@@ -76,9 +73,9 @@ export const Cite: MaterialDef = {
         const nx = x + dx, ny = y + dy;
         if (!world.inBounds(nx, ny)) continue;
         const nid = world.get(nx, ny);
-        // 点燃相邻焦炭
-        if (nid === 129 && !cokeStates.has(`${nx},${ny}`) && Math.random() < 0.02) {
-          cokeStates.set(`${nx},${ny}`, 80 + Math.floor(Math.random() * 40));
+        // 点燃相邻未燃烧的焦炭
+        if (nid === 129 && world.getAge(nx, ny) === 0 && Math.random() < 0.02) {
+          world.setAge(nx, ny, 80 + Math.floor(Math.random() * 40));
           world.wakeArea(nx, ny);
         }
         // 点燃木头/油
@@ -89,7 +86,7 @@ export const Cite: MaterialDef = {
         }
       }
 
-      cokeStates.set(key, burnLife - 1);
+      world.setAge(x, y, burnLife - 1);
       world.wakeArea(x, y);
       return;
     }
@@ -102,7 +99,7 @@ export const Cite: MaterialDef = {
       const nid = world.get(nx, ny);
 
       if ((nid === 6 || nid === 28 || nid === 11) && Math.random() < 0.05) {
-        cokeStates.set(key, 100 + Math.floor(Math.random() * 50));
+        world.setAge(x, y, 100 + Math.floor(Math.random() * 50));
         world.wakeArea(x, y);
         return;
       }
@@ -110,12 +107,12 @@ export const Cite: MaterialDef = {
 
     // 高温自燃
     if (world.getTemp(x, y) > 200) {
-      cokeStates.set(key, 100 + Math.floor(Math.random() * 50));
+      world.setAge(x, y, 100 + Math.floor(Math.random() * 50));
       world.wakeArea(x, y);
       return;
     }
 
-    // 粉末下落
+    // 粉末下落（swap 自动迁移 age）
     if (world.inBounds(x, y + 1)) {
       const below = world.get(x, y + 1);
       if (below === 0) {

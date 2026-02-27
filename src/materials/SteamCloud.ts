@@ -10,9 +10,9 @@ import { registerMaterial } from './registry';
  * - 吸收更多蒸汽(8)后体积增大
  * - 遇风力横向移动
  * - 视觉上呈浓白色半透明
+ * 使用 World 内置 age 替代 Map<string,number>（swap自动迁移age）
+ * age=0: 未初始化; age=N: 剩余寿命=N
  */
-
-let steamLife: Map<string, number> = new Map();
 
 export const SteamCloud: MaterialDef = {
   id: 123,
@@ -40,18 +40,18 @@ export const SteamCloud: MaterialDef = {
   },
   density: 0.15,
   update(x: number, y: number, world: WorldAPI) {
-    const key = `${x},${y}`;
-    if (!steamLife.has(key)) {
-      steamLife.set(key, 150 + Math.floor(Math.random() * 100));
+    // 初始化寿命（age=0表示未初始化）
+    let life = world.getAge(x, y);
+    if (life === 0) {
+      life = 150 + Math.floor(Math.random() * 100);
+      world.setAge(x, y, life);
     }
 
-    let life = steamLife.get(key)!;
     life--;
     const temp = world.getTemp(x, y);
 
     // 寿命耗尽消散
     if (life <= 0) {
-      steamLife.delete(key);
       world.set(x, y, 0);
       world.wakeArea(x, y);
       return;
@@ -59,13 +59,11 @@ export const SteamCloud: MaterialDef = {
 
     // 遇冷凝结
     if (temp < -20 && Math.random() < 0.1) {
-      steamLife.delete(key);
       world.set(x, y, 15); // 雪
       world.wakeArea(x, y);
       return;
     }
     if (temp < 5 && Math.random() < 0.05) {
-      steamLife.delete(key);
       world.set(x, y, 2); // 水
       world.wakeArea(x, y);
       return;
@@ -86,48 +84,46 @@ export const SteamCloud: MaterialDef = {
       }
     }
 
-    steamLife.delete(key);
-
-    // 风力影响
+    // 风力影响（swap 自动迁移 age）
     const wind = world.getWind();
     const windStr = world.getWindStrength();
     if (wind !== 0 && Math.random() < windStr * 0.4) {
       const nx = x + wind;
       if (world.inBounds(nx, y) && world.isEmpty(nx, y)) {
         world.swap(x, y, nx, y);
+        world.setAge(nx, y, life);
         world.markUpdated(nx, y);
         world.wakeArea(nx, y);
-        steamLife.set(`${nx},${y}`, life);
         return;
       }
     }
 
-    // 缓慢上升
+    // 缓慢上升（swap 自动迁移 age）
     if (world.inBounds(x, y - 1) && Math.random() < 0.25) {
       const above = world.get(x, y - 1);
       if (above === 0) {
         world.swap(x, y, x, y - 1);
+        world.setAge(x, y - 1, life);
         world.markUpdated(x, y - 1);
         world.wakeArea(x, y - 1);
-        steamLife.set(`${x},${y - 1}`, life);
         return;
       }
     }
 
-    // 水平漂移
+    // 水平漂移（swap 自动迁移 age）
     if (Math.random() < 0.15) {
       const dir = Math.random() < 0.5 ? -1 : 1;
       const nx = x + dir;
       if (world.inBounds(nx, y) && world.isEmpty(nx, y)) {
         world.swap(x, y, nx, y);
+        world.setAge(nx, y, life);
         world.markUpdated(nx, y);
         world.wakeArea(nx, y);
-        steamLife.set(`${nx},${y}`, life);
         return;
       }
     }
 
-    steamLife.set(key, life);
+    world.setAge(x, y, life);
     world.wakeArea(x, y);
   },
 };

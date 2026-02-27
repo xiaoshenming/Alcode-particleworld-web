@@ -9,9 +9,9 @@ import { registerMaterial } from './registry';
  * - 遇水(2)溶解为荧光液(80)
  * - 高温(>400)分解为烟(7)
  * - 视觉上呈黄绿色粉末
+ * 使用 World 内置 age 替代 Map<string,number>（swap自动迁移age）
+ * age=0: 未发光; age=N: 剩余发光帧=N
  */
-
-let glowStates: Map<string, number> = new Map();
 
 export const Phosphor: MaterialDef = {
   id: 133,
@@ -43,13 +43,12 @@ export const Phosphor: MaterialDef = {
 
     // 高温分解
     if (temp > 400) {
-      glowStates.delete(`${x},${y}`);
-      world.set(x, y, 7); // 烟
+      world.set(x, y, 7); // 烟（age自动重置）
       world.wakeArea(x, y);
       return;
     }
 
-    const key = `${x},${y}`;
+    let glow = world.getAge(x, y);
     const dirs: [number, number][] = [[0, -1], [0, 1], [-1, 0], [1, 0]];
 
     for (const [dx, dy] of dirs) {
@@ -59,42 +58,31 @@ export const Phosphor: MaterialDef = {
 
       // 遇水溶解为荧光液
       if (nid === 2 && Math.random() < 0.06) {
-        glowStates.delete(key);
-        world.set(x, y, 80); // 荧光液
+        world.set(x, y, 80); // 荧光液（age自动重置）
         world.wakeArea(x, y);
         return;
       }
 
-      // 被光源激发
+      // 被光源激发（覆盖/延长发光时间）
       if ((nid === 47 || nid === 48 || nid === 16 || nid === 28) && Math.random() < 0.2) {
-        glowStates.set(key, 30 + Math.floor(Math.random() * 20));
+        glow = 30 + Math.floor(Math.random() * 20);
+        world.setAge(x, y, glow);
       }
     }
 
     // 发光衰减
-    const glow = glowStates.get(key);
-    if (glow !== undefined) {
-      if (glow <= 0) {
-        glowStates.delete(key);
-      } else {
-        glowStates.set(key, glow - 1);
-      }
+    if (glow > 0) {
+      world.setAge(x, y, glow - 1);
       world.wakeArea(x, y);
     }
 
-    // 粉末下落
+    // 粉末下落（swap 自动迁移 age）
     if (world.inBounds(x, y + 1)) {
       const below = world.get(x, y + 1);
       if (below === 0) {
-        const oldKey = key;
         world.swap(x, y, x, y + 1);
         world.markUpdated(x, y + 1);
         world.wakeArea(x, y + 1);
-        const g = glowStates.get(oldKey);
-        if (g !== undefined) {
-          glowStates.delete(oldKey);
-          glowStates.set(`${x},${y + 1}`, g);
-        }
         return;
       }
 
@@ -102,15 +90,9 @@ export const Phosphor: MaterialDef = {
       for (const d of [dir, -dir]) {
         const sx = x + d;
         if (world.inBounds(sx, y + 1) && world.isEmpty(sx, y + 1)) {
-          const oldKey = key;
           world.swap(x, y, sx, y + 1);
           world.markUpdated(sx, y + 1);
           world.wakeArea(sx, y + 1);
-          const g = glowStates.get(oldKey);
-          if (g !== undefined) {
-            glowStates.delete(oldKey);
-            glowStates.set(`${sx},${y + 1}`, g);
-          }
           return;
         }
       }
