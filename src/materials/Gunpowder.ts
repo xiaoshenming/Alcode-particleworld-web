@@ -1,3 +1,4 @@
+import { DIRS8 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -61,12 +62,8 @@ export const Gunpowder: MaterialDef = {
   density: 2.5,
   update(x: number, y: number, world: WorldAPI) {
     // 检查邻居：遇到点火源则爆炸
-    const neighbors: [number, number][] = [
-      [x, y - 1], [x, y + 1], [x - 1, y], [x + 1, y],
-      [x - 1, y - 1], [x + 1, y - 1], [x - 1, y + 1], [x + 1, y + 1],
-    ];
-
-    for (const [nx, ny] of neighbors) {
+    for (const [dx, dy] of DIRS8) {
+      const nx = x + dx, ny = y + dy;
       if (!world.inBounds(nx, ny)) continue;
       if (IGNITORS.has(world.get(nx, ny))) {
         // 爆炸！

@@ -1,3 +1,4 @@
+import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -26,11 +27,9 @@ export const Firework: MaterialDef = {
 
     // 未点燃状态：检查是否被点燃
     if (state === 0) {
-      const neighbors: [number, number][] = [
-        [x, y - 1], [x, y + 1], [x - 1, y], [x + 1, y],
-      ];
       let ignited = false;
-      for (const [nx, ny] of neighbors) {
+      for (const [dx, dy] of DIRS4) {
+        const nx = x + dx, ny = y + dy;
         if (!world.inBounds(nx, ny)) continue;
         const nid = world.get(nx, ny);
         if (nid === 6 || nid === 11) { // 火或熔岩

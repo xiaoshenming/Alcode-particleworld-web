@@ -1,3 +1,4 @@
+import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -21,11 +22,8 @@ export const Acid: MaterialDef = {
   density: 2.5, // 比水重一点
   update(x: number, y: number, world: WorldAPI) {
     // 先尝试腐蚀周围材质
-    const neighbors: [number, number][] = [
-      [x, y + 1], [x - 1, y], [x + 1, y], [x, y - 1],
-    ];
-
-    for (const [nx, ny] of neighbors) {
+    for (const [dx, dy] of DIRS4) {
+      const nx = x + dx, ny = y + dy;
       if (!world.inBounds(nx, ny)) continue;
       const neighborId = world.get(nx, ny);
       if (neighborId === 0 || ACID_IMMUNE.has(neighborId)) continue;

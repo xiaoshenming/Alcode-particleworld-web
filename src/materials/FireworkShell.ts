@@ -1,4 +1,5 @@
 import type { MaterialDef, WorldAPI } from './types';
+import { DIRS4 } from './types';
 import { registerMaterial } from './registry';
 
 /** 检查目标位置是否可以被当前密度的粒子穿过 */
@@ -98,10 +99,8 @@ export const FireworkShell: MaterialDef = {
     // === 未点燃状态 ===
 
     // 检查邻居是否有点燃源
-    const neighbors: [number, number][] = [
-      [x, y - 1], [x, y + 1], [x - 1, y], [x + 1, y],
-    ];
-    for (const [nx, ny] of neighbors) {
+    for (const [dx, dy] of DIRS4) {
+      const nx = x + dx, ny = y + dy;
       if (!world.inBounds(nx, ny)) continue;
       if (IGNITE.has(world.get(nx, ny))) {
         // 点燃！设置温度进入飞行状态

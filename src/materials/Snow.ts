@@ -1,4 +1,5 @@
 import type { MaterialDef, WorldAPI } from './types';
+import { DIRS4 } from './types';
 import { registerMaterial } from './registry';
 
 /** 热源材质 ID */
@@ -19,10 +20,8 @@ export const Snow: MaterialDef = {
   density: 1.5, // 比水轻，比空气重
   update(x: number, y: number, world: WorldAPI) {
     // 检查邻居：遇热融化
-    const neighbors: [number, number][] = [
-      [x, y - 1], [x, y + 1], [x - 1, y], [x + 1, y],
-    ];
-    for (const [nx, ny] of neighbors) {
+    for (const [dx, dy] of DIRS4) {
+      const nx = x + dx, ny = y + dy;
       if (!world.inBounds(nx, ny)) continue;
       const nid = world.get(nx, ny);
 

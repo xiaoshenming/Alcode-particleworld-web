@@ -1,3 +1,4 @@
+import { DIRS8 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -64,14 +65,8 @@ export const PhosphorusFire: MaterialDef = {
     }
 
     // 检查邻居进行反应
-    const neighbors: [number, number][] = [
-      [x, y - 1], [x, y + 1],
-      [x - 1, y], [x + 1, y],
-      [x - 1, y - 1], [x + 1, y - 1],
-      [x - 1, y + 1], [x + 1, y + 1],
-    ];
-
-    for (const [nx, ny] of neighbors) {
+    for (const [dx, dy] of DIRS8) {
+      const nx = x + dx, ny = y + dy;
       if (!world.inBounds(nx, ny)) continue;
       const nid = world.get(nx, ny);
 

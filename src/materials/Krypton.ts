@@ -1,3 +1,4 @@
+import { DIRS8 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -34,11 +35,8 @@ export const Krypton: MaterialDef = {
     }
 
     // 通电发光：接触电源时刷新自身颜色
-    const neighbors: [number, number][] = [
-      [x, y - 1], [x, y + 1], [x - 1, y], [x + 1, y],
-      [x - 1, y - 1], [x + 1, y - 1], [x - 1, y + 1], [x + 1, y + 1],
-    ];
-    for (const [nx, ny] of neighbors) {
+    for (const [dx, dy] of DIRS8) {
+      const nx = x + dx, ny = y + dy;
       if (!world.inBounds(nx, ny)) continue;
       if (ELECTRIC.has(world.get(nx, ny))) {
         // 重新 set 自身 ID，触发颜色刷新（发光闪烁）

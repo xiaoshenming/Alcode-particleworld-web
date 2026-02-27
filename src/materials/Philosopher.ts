@@ -1,4 +1,5 @@
 import type { MaterialDef, WorldAPI } from './types';
+import { DIRS4 } from './types';
 import { registerMaterial } from './registry';
 
 /**
@@ -53,11 +54,8 @@ export const Philosopher: MaterialDef = {
     const energy = ageVal - 1; // 实际剩余转化次数
 
     // 检查四周邻居进行��化
-    const neighbors: [number, number][] = [
-      [x, y - 1], [x, y + 1], [x - 1, y], [x + 1, y],
-    ];
-
-    for (const [nx, ny] of neighbors) {
+    for (const [dx, dy] of DIRS4) {
+      const nx = x + dx, ny = y + dy;
       if (!world.inBounds(nx, ny)) continue;
       const nid = world.get(nx, ny);
       const target = TRANSMUTE[nid];

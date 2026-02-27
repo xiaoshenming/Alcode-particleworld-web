@@ -1,3 +1,4 @@
+import { DIRS8 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -51,14 +52,8 @@ export const Fire: MaterialDef = {
     }
 
     // 检查四周邻居，进行化学反应
-    const neighbors = [
-      [x, y - 1], [x, y + 1],
-      [x - 1, y], [x + 1, y],
-      [x - 1, y - 1], [x + 1, y - 1],
-      [x - 1, y + 1], [x + 1, y + 1],
-    ];
-
-    for (const [nx, ny] of neighbors) {
+    for (const [dx, dy] of DIRS8) {
+      const nx = x + dx, ny = y + dy;
       if (!world.inBounds(nx, ny)) continue;
       const neighborId = world.get(nx, ny);
 

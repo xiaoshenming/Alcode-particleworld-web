@@ -1,4 +1,5 @@
 import type { MaterialDef, WorldAPI } from './types';
+import { DIRS4 } from './types';
 import { registerMaterial } from './registry';
 
 /**
@@ -24,10 +25,8 @@ export const Dirt: MaterialDef = {
   density: 3.5,
   update(x: number, y: number, world: WorldAPI) {
     // 检查邻居：遇水变黏土
-    const neighbors: [number, number][] = [
-      [x, y - 1], [x, y + 1], [x - 1, y], [x + 1, y],
-    ];
-    for (const [nx, ny] of neighbors) {
+    for (const [dx, dy] of DIRS4) {
+      const nx = x + dx, ny = y + dy;
       if (!world.inBounds(nx, ny)) continue;
       if (world.get(nx, ny) === 2 && Math.random() < 0.08) {
         world.set(x, y, 21); // 变黏土
