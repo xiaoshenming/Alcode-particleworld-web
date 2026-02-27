@@ -1,12 +1,11 @@
 {
-  "notes": "第78轮：重大bug修复 - 发现并修复main.ts中15处错位重复导入。\n问题：不同轮次的材质文件被插入到错误的ID区域（比如ID=639的PyroxeneGneiss被插入到ID~595的区域），导致同一材质被registerMaterial()注册两次。\n修复：删除了以下错位的重复导入（保留正确ID区域的导入）：\n1. Diabase(439)从v27区域删除\n2. Phyllite(344)从v29区域删除\n3. Indium/MoltenIndium(431/432)从v25区域删除\n4. Pyroxenite(434)从v25区域删除\n5. NiobiumRutheniumAlloy/MoltenNiobiumRuthenium(641/642)从v41区域删除\n6. NiobiumScandiumAlloy/MoltenNiobiumScandium(646/647)从v41区域删除\n7. PyroxeneGneiss(639)从v42区域删除\n8. MagnetoThermoElectricMaterial(725)从v42区域删除\n9. ChloriteGneiss(719)从v43区域删除\n10. TalcGneiss(714)从v43区域删除\n11. ElectroAcoustoMagneticMaterial(715)从v44区域删除\n12. DiopsideGneiss2(779)从v46.3区域删除\n验证：tsc通过，构建成功，无重复导入，无重复ID，1232个材质全部正确注册。",
+  "notes": "第79轮（迭代3）：纯修复/优化，无新功能。共6个commit（网络问题未push，下轮先push）：\n1. StatsPanel双重遍历→单次遍历；Toolbar粒子计数节流每10帧；Renderer.renderFloatingSelection循环外提取fillStyle；添加vite.config.ts消除chunk警告\n2. InputHandler: floodFill用头指针替代O(n)的shift()；getDrawMaterial缓存随机材质列表\n3. computePressure改为按需执行（needsPressure标志，默认false）\n4. Clay.ts: Map<string,number>→World内置age\n5. Smoke/Steam/Spark: Map<string,number>→World内置age（swap自动迁移）\n6. Poison/Lightning: Map<string,number>→World内置age\n剩余Map用户：Plant/Philosopher/Firework（消耗型能量，逻辑复杂，暂缓）",
   "priorities": [
-    "1. 继续钯Pd+稀土合金体系：已完成镧/镨/钕/钆/镝5种，下一批需铥/铒/钬/铕/钐各2个文件（合金+液态）共10个文件",
-    "2. 继续铒Er基二元氟化物系列：已完成铥/镱/镥/钪/钇5种，下一批需铈/镧/镨/钕/钆各1个文件共5个文件",
-    "3. 片麻岩系列：继续推进后缀编号（方解石(7)/红柱石(7)/硅灰石(5)/透闪石(5)/滑石(6)后继续）",
-    "4. 多场耦合材料：继续新增（当前最高为(5)编号）",
-    "5. 每次提交前先检查main.ts无重复（用grep uniq -d命令），每轮先git pull"
+    "1. 下轮开始前先 git push origin main（本轮6个commit未推送）",
+    "2. Plant.ts/Philosopher.ts/Firework.ts 仍使用 Map<string,number>，可继续优化",
+    "3. 继续检查其他材质文件的代码质量问题",
+    "4. 每次提交前先检查main.ts无重复（用grep uniq -d命令），每轮先git pull"
   ],
-  "lessons": "1. 每次开始前先git pull避免合并冲突。2. 重复导入bug的根源：AI在添加材质时将导入插入到错误的文件位置（错误的ID区域），而非追加到文件末尾。3. 检测重复的命令：grep -n \"import './materials/\" main.ts | awk -F\"'\" '{print $2}' | sort | uniq -d 4. 确认哪个是正确位置：查看周围材质的ID，对比材质文件的实际ID。5. 如遇添加/添加冲突（AA），使用git checkout --ours批量解决。6. 钯Pd合金体系密度约12.0（液态），熔点>1550°。7. 铒Er基氟化物：HighPurityXxxErbiumFluoride格式，ID从1228开始。8. 材质总数1250种，1232个正确注册（2个基础文件registry.ts/types.ts不导入）。",
-  "last_updated": "2026-02-27T16:00:00+08:00"
+  "lessons": "1. computePressure每帧全量遍历但只有压力叠加层用到，改为按需执行。2. Map<string,number>用字符串key存粒子状态是反模式，应改用World内置TypedArray。3. World.swap()自动迁移age，用age替换Map后无需手动迁移。4. 对countdown型生命值，用概率死亡检查替代精确countdown（Smoke/Steam/Spark）。5. StatsPanel.refresh()原先双重遍历cells，合并为单次遍历。6. 每次开始前先git pull避免合并冲突。7. 检测重复导入：grep -n \"import './materials/\" main.ts | awk -F\"'\" '{print $2}' | sort | uniq -d",
+  "last_updated": "2026-02-27T18:30:00+08:00"
 }
