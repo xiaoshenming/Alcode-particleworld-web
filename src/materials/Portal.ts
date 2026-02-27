@@ -114,7 +114,7 @@ export const Portal: MaterialDef = {
       if (Math.random() > 0.3) continue;
 
       // 在配对传送门周围找空位放置
-      const exitDirs: [number, number][] = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+      const exitDirs = [...DIRS4];
       const shuffled = exitDirs.sort(() => Math.random() - 0.5);
 
       for (const [edx, edy] of shuffled) {

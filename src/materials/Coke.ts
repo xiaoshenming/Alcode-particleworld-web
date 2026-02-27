@@ -69,7 +69,7 @@ export const Cite: MaterialDef = {
       }
 
       // 点燃相邻可燃物
-      const dirs4: [number, number][] = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+      const dirs4 = DIRS4;
       for (const [dx, dy] of dirs4) {
         const nx = x + dx, ny = y + dy;
         if (!world.inBounds(nx, ny)) continue;

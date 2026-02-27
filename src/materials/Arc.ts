@@ -87,7 +87,7 @@ export const Arc: MaterialDef = {
 
     // 随机移动（闪电般跳跃）
     const moveDir = Math.floor(Math.random() * 4);
-    const moves: [number, number][] = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+    const moves = DIRS4;
     const [mx, my] = moves[moveDir];
     const nx = x + mx, ny = y + my;
     if (world.inBounds(nx, ny) && world.isEmpty(nx, ny)) {
