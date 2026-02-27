@@ -1365,6 +1365,66 @@ import './materials/MoltenRhodiumDysprosium';
 import './materials/HighPurityScandiumHolmiumFluoride';
 import './materials/ChloriteGneiss4';
 import './materials/ThermoAcoustoElectricMaterial6';
+// v65.0 (ID 1201~1205)
+import './materials/RhodiumThuliumAlloy';
+import './materials/MoltenRhodiumThulium';
+import './materials/HighPurityLanthanumErbiumFluoride';
+import './materials/SerpentineGneiss4';
+import './materials/MagnetoPhotoElectricMaterial4';
+// v65.1 (ID 1206~1210)
+import './materials/RhodiumErbiumAlloy';
+import './materials/MoltenRhodiumErbium';
+import './materials/HighPurityPraseodymiumErbiumFluoride';
+import './materials/OlivineGneiss6';
+import './materials/ThermoAcoustoMagneticMaterial4';
+// v65.2 (ID 1211~1215)
+import './materials/RhodiumHolmiumAlloy';
+import './materials/MoltenRhodiumHolmium';
+import './materials/HighPurityNeodymiumErbiumFluoride';
+import './materials/ScapolitGneiss8';
+import './materials/ElectroPhotoMagneticMaterial4';
+// v65.3 (ID 1216~1220)
+import './materials/RhodiumEuropiumAlloy';
+import './materials/MoltenRhodiumEuropium';
+import './materials/HighPurityGadoliniumErbiumFluoride';
+import './materials/SpinelGneiss7';
+import './materials/AcoustoThermoElectricMaterial5';
+// v65.4 (ID 1221~1225)
+import './materials/RhodiumSamariumAlloy';
+import './materials/MoltenRhodiumSamarium';
+import './materials/HighPurityDysprosiumErbiumFluoride';
+import './materials/ZoisiteGneiss7';
+import './materials/PhotoMagnetoThermalMaterial4';
+// v66.0 (ID 1226~1230)
+import './materials/PalladiumLanthanumAlloy';
+import './materials/MoltenPalladiumLanthanum';
+import './materials/HighPurityThuliumErbiumFluoride';
+import './materials/CalciteGneiss7';
+import './materials/ThermoElectroAcousticMaterial4';
+// v66.1 (ID 1231~1235)
+import './materials/PalladiumPraseodymiumAlloy';
+import './materials/MoltenPalladiumPraseodymium';
+import './materials/HighPurityYtterbiumErbiumFluoride';
+import './materials/AndalusiteGneiss7';
+import './materials/MagnetoAcoustoPhotoMaterial4';
+// v66.2 (ID 1236~1240)
+import './materials/PalladiumNeodymiumAlloy';
+import './materials/MoltenPalladiumNeodymium';
+import './materials/HighPurityLutetiumErbiumFluoride';
+import './materials/WollastoniteGneiss5';
+import './materials/ElectroThermoAcousticMaterial5';
+// v66.3 (ID 1241~1245)
+import './materials/PalladiumGadoliniumAlloy';
+import './materials/MoltenPalladiumGadolinium';
+import './materials/HighPurityScandiumErbiumFluoride';
+import './materials/TremoliteGneiss5';
+import './materials/PhotoAcoustoMagneticMaterial3';
+// v66.4 (ID 1246~1250)
+import './materials/PalladiumDysprosiumAlloy';
+import './materials/MoltenPalladiumDysprosium';
+import './materials/HighPurityYttriumErbiumFluoride';
+import './materials/TalcGneiss6';
+import './materials/AcoustoMagnetoThermalMaterial4';
 
 import { World } from './core/World';
 import { Simulation } from './core/Simulation';
