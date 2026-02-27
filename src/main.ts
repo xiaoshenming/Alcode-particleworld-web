@@ -2140,6 +2140,7 @@ document.addEventListener('keydown', (e) => {
   // O 键切换压力叠加层
   if (e.code === 'KeyO') {
     renderer.showPressureOverlay = !renderer.showPressureOverlay;
+    simulation.needsPressure = renderer.showPressureOverlay;
     return;
   }
 

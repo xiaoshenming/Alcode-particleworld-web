@@ -40,6 +40,8 @@ export class Simulation {
   private _weather: WeatherType = 'clear';
   /** 当前边界模式 */
   private _boundary: BoundaryMode = 'wall';
+  /** 是否需要计算压力（仅压力叠加层开启时为 true） */
+  needsPressure = false;
 
   constructor(world: World) {
     this.world = world;
@@ -114,8 +116,10 @@ export class Simulation {
     // 温度扩散
     this.world.diffuseTemperature();
 
-    // 压力计算
-    this.world.computePressure();
+    // 压力计算（仅压力叠加层开启时执行，避免每帧全量遍历）
+    if (this.needsPressure) {
+      this.world.computePressure();
+    }
 
     // 粒子年龄递增
     this.world.tickAge();
