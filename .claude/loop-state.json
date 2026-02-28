@@ -2,12 +2,12 @@
   "project_name": "Particle World",
   "project_dir": "/home/ming/data/Project/AIcode/particleworld-web",
   "active": true,
-  "iteration": 9,
+  "iteration": 3,
   "max_iterations": 100,
   "feishu_group": "oc_49bda2372f7cea593a0358f450b315c7",
   "created_at": "2026-02-26T00:35:27+08:00",
-  "custom_prompt": "仅做修复、优化和测试，严禁新增任何功能。\\n\\n📋 本轮任务：\\n1. git log --oneline -10 检查当前状态\\n2. 阅读 .claude/loop-ai-state.json 了解上轮笔记\\n3. 运行类型检查、构建、测试，找出所有错误\\n4. 修复 bug、性能问题、代码质量问题\\n5. 优化现有代码（重构、简化、消除技术债）\\n6. 确保所有测试通过\\n7. 每修复一个问题就 git commit + git push\\n\\n🔴 铁律：\\n- 严禁新增功能\\n- 只修复、优化、测试\\n- 类型检查必须通过\\n- 构建必须成功\\n- 每次 commit 后 git push origin main",
-  "last_updated": "2026-02-28T01:01:12+08:00",
+  "custom_prompt": "🔧 修复与测试模式（第一阶段）\n\n📋 本轮任务：\n1. git log --oneline -10 检查当前状态\n2. 阅读 .claude/loop-ai-state.json 了解上轮笔记\n3. 运行类型检查、构建、测试，找出所有错误\n4. 修复 bug、性能问题、代码质量问题\n5. 优化现有代码（重构、简化、消除技术债）\n6. 确保所有测试通过\n7. 每修复一个问题就 git commit + git push\n\n🎯 阶段切换：\n- 当前阶段：修复与测试\n- 当代码质量达到完美（无 bug、测试通过、构建成功、代码整洁）时，自动切换到【新功能迭代模式】\n- 切换标准：连续 3 轮没有发现任何需要修复的问题时，更新 custom_prompt 为新功能模式\n\n🔴 铁律：\n- 类型检查必须通过\n- 构建必须成功\n- 每次 commit 后 git push origin main",
+  "last_updated": "2026-03-01T04:17:02+08:00",
   "stopped_reason": null,
   "mode": "v2"
 }

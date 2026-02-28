@@ -19,17 +19,16 @@
 - 构建必须成功
 - 每次 commit 后 git push origin main
 
-🧠 AI 上轮笔记：第176轮（迭代100）：全面验证通过，代码库第86轮连续清洁！
+🧠 AI 上轮笔记：第177轮（迭代101）：全面验证通过，代码库第87轮连续清洁！网络已恢复，push成功！
 
 1. 【验证上轮工作】
-   - git log: 最新提交 5380812（第175轮记录），连续多轮无问题
+   - git log: 最新提交 ec0c809（第176轮记录），连续多轮无问题
    - git status -s：仅 .claude/ 系统文件被修改（正常）
-   - 关键确认：实际git status -s无??文件（教训#24/25第56次连续验证）
+   - 关键确认：实际git status -s无??文件（教训#24/25第57次连续验证）
 
 2. 【git push 状态】
-   - 本轮直连push PUSH:128（无法连接github.com port 443，网络中断）
-   - 代理push PUSH:128（代理也无法解决）
-   - 代码已在本地安全保存，等待网络恢复（参考教训#35）
+   - 本轮直连push PUSH:0（"Everything up-to-date"）→ 网络已恢复！
+   - 之前积压的多轮提交（ec0c809等）已同步到远程（参考教训#36）
 
 3. 【新材质检查】
    - 材质文件总数：1234个（与上轮相同，连续多轮无变化）
@@ -37,12 +36,12 @@
    - ID 1251+批次尚未出现 → 等待下一批
 
 4. 【高阶函数审计】
-   - materials/（排除registry.ts）：0个命中 ✓（第41轮连续确认）
-   - registry.ts：8个命中（均为材质分类初始化逻辑，教训#28第41轮连续确认）✓
+   - materials/（排除registry.ts）：0个命中 ✓（第42轮连续确认）
+   - registry.ts：8个命中（均为材质分类初始化逻辑，教训#28第42轮连续确认）✓
 
 5. 【其他性能检查】
    - spread 操作符（...）：0个 ✓
-   - 字符串模板 key：0个 ✓
+   - 字符串模板 key：0个（grep -v '//' 过滤后为空）✓
    - new Map/Set/Array（非模块级const）：0个 ✓
 
 6. 【构建验证】
@@ -52,18 +51,19 @@
 
 7. 【结论】
    - 代码库质量良好，无待处理问题
+   - 网络恢复，push成功（PUSH:0，Everything up-to-date）
    - v66批次（ID 1226~1250）已全部提交且审计通过（历史记录）
-   - 连续多轮（96~176轮）全面验证均通过，代码库稳定（86轮连续清洁！）
-   - HOF审计：排除registry.ts后直接比较，结果为0（第41轮连续确认）
+   - 连续多轮（96~177轮）全面验证均通过，代码库稳定（87轮连续清洁！）
+   - HOF审计：排除registry.ts后直接比较，结���为0（第42轮连续确认）
    - new Map/Set/Array：grep -v 'const ' 过滤后结果为0 ✓
-   - push：PUSH:128（网络完全中断，直连和代理均失败，等待恢复）
+   - push：PUSH:0（网络已恢复，直连成功）
 
 bundle: 1464.92KB
 🎯 AI 自定优先级：[
-  "1. 下轮优先重试git push（网络中断，直连和代理均失败，代码已在本地安全保存）",
-  "2. 监控新材质批次（ID 1251+）的添加，重点检查dirs.find()/filter()等高阶函数，确保不在update()内使用",
-  "3. 新材质审计清单：(a)DIRS4/DIRS8共享常量 (b)无内联数组 (c)无高阶函数 (d)无字符串key (e)无spread操作符",
-  "4. 定期检查 git status -s（非系统提示快照），及时提交新材质文件（尤其检查main.ts是否已导入）"
+  "1. 监控新材质批次（ID 1251+）的添加，重点检查dirs.find()/filter()等高阶函数，确保不在update()内使用",
+  "2. 新材质审计清单：(a)DIRS4/DIRS8共享常量 (b)无内联数组 (c)无高阶函数 (d)无字符串key (e)无spread操作符",
+  "3. 定期检查 git status -s（非系统提示快照），及时提交新材质文件（尤其检查main.ts是否已导入）",
+  "4. 保持每轮验证节奏：tsc + vite build + 各类grep审计"
 ]
 💡 AI 积累经验：1. tickAge()会干扰任何没有每帧调用setAge()的age用法。只有两种安全的age使用模式：
    (a) 只读+自动递增：只调getAge，依赖tickAge递增（Clay/Lightning/Smoke等）
@@ -78,7 +78,7 @@ bundle: 1464.92KB
 5. 共享常量应标注 ReadonlyArray 类型，防止意外修改共享状态。
 6. update()内的临时对象创建（new Set/Map/Array）应移到模块级别。
 7. DIRS4 + DIRS_DIAG = DIRS8，可以直接用DIRS8替代 [...DIRS4, ...DIRS_DIAG] 的spread合并
-8. 随机方向遍历：随机起始索引+循环 比 sort() 更高效（无数组分配）
+8. 随机方向遍历：随机起始索引+循环 比 sort() 更高效（无数组分��）
 9. for(const d of [dir, -dir]) 每帧创建2元素数组，应展开为两个独立块
 10. do...while(false) 是 TypeScript 中实现「块级 continue」的标准模式
 11. 检查spread操作符的方法：grep -rn '\.\.\.' src/materials/ --include='*.ts' | grep -v 'const [A-Z_]* = \[' | grep -v '//'
@@ -98,18 +98,18 @@ bundle: 1464.92KB
 25. 【迭代34新增】session-start的gitStatus快照可能显示已提交文件为??状态（session前后提交了多批材质），不应直接信任；必须运行实际git status -s确认
 26. 【迭代35新增】exit code捕获可靠方法：使用分号（;）而非&&分隔echo "EXIT:$?"，确保捕获tsc/vite的exit code而非pipeline的exit code
 27. 【迭代53新增】loop-ai-state.json可能出现mojibake（字符腐化），导致Edit工具无法匹配字符串；发现此情况应直接使用Write工具完整重写文件
-28. 【迭代60新增】HOF审计grep命中数>0时需详查位置：registry.ts中的.some()是材质注册分类逻辑（一次性调用），属合法用法；只有在update()内部的HOF才需要修复（第41轮连续确认）
+28. 【迭代60新增】HOF审计grep命中数>0时需详查位置：registry.ts中的.some()是材质注册分类逻辑（一次性调用），属合法用法；只有在update()内部的HOF才需要修复（第42轮连续确认）
 29. 【迭代61新增】new Map/Set/Array审计时，grep统计数量受命令写法影响（不同轮次可能不同），关键是过滤出非模块级const定义的命中（grep -v 'const '），然后逐一检查是否在热路径中；getMaterialsByCategory()这类UI查询函数内的new Map是合法的
-30. 【迭代62新增】HOF审计优化：在grep命令中直接排除registry.ts（| grep -v 'registry.ts'），则materials目录下应得0命中；registry.ts的8个命中已连续41轮确认为合法，无需每轮重复详查
+30. 【迭代62新增】HOF审计优化：在grep命令中直接排除registry.ts（| grep -v 'registry.ts'），则materials目录下应得0命中；registry.ts的8个命中已连续42轮确认为合法，无需每轮重复详查
 31. 【迭代68新增】git push显示"Everything up-to-date"时，说明本地与远程已同步；TLS错误可能是临时网络波动，重试即可成功
-32. 【迭代70新增】会话启动gitStatus快照显示大量??文件时，务必运行实际git status -s确认——本轮快照显示25个??材质文件和src/main.ts修改，但实际git status -s显示无??文件（第56次连续验证教训#24/25！）
+32. 【迭代70新增】会话启动gitStatus快照显示大量??文件时，务必运行实际git status -s确认——本轮快照显示25个??材质文件和src/main.ts修改，但实际git status -s显示无??文件（第57次连续验证教训#24/25！）
 33. 【迭代71新增】TLS错误连续3次失败时，可能是较长时间的网络中断而非瞬时波动；此时应记录状态、完成本轮工作，下轮优先重试push；本轮代码库已验证清洁，push失败不影响代码质量
-34. 【迭代72新增】git push遇到TLS错误时，使用代理（http_proxy=http://127.0.0.1:8979 HTTPS_PROXY=http://127.0.0.1:8979）可以绕过网络问题成功推送；下次遇到TLS错误应立即尝试代理
+34. 【迭代72新增】git push遇到TLS错误时，使用代理（http_proxy=http://127.0.0.1:8979 HTTPS_PROXY=http://127.0.0.1:8979）可以���过网络问题成功推送；下次遇到TLS错误应立即尝试代理
 35. 【迭代78新增】git push连续多轮失败（非TLS错误，而是无法连接到github.com port 443）时，说明网络层面完全中断；代理也无法解决；此时只能等待网络恢复，不影响代码质量，提交已在本地安全保存
 36. 【迭代79新增】网络完全中断后自动恢复：第155轮push显示"Everything up-to-date"（PUSH:0），说明之前未推送的提交已在网络恢复后自动同步，或远程已有这些提交；网络中断是临时的，无需特殊处理
 37. 【迭代85新增】网络中断多轮后恢复时，使用代理push成功（PUSH:0），推送范围包含多轮积压提交；代理是解决网络问题的可靠方案
 
-迭代轮次: 2/100
+迭代轮次: 3/100
 
 
 🔄 自我进化（每轮必做）：
@@ -118,6 +118,6 @@ bundle: 1464.92KB
   "notes": "本轮做了什么、发现了什么问题、下轮应该做什么",
   "priorities": "根据当前项目状态，你认为最重要的 3-5 个待办事项",
   "lessons": "积累的经验教训，比如哪些方法有效、哪些坑要避开",
-  "last_updated": "2026-03-01T04:13:10+08:00"
+  "last_updated": "2026-03-01T04:17:02+08:00"
 }
 这个文件是你的记忆，下一轮的你会读到它。写有价值的内容，帮助未来的自己更高效。
