@@ -19,24 +19,27 @@
 - 构建必须成功
 - 每次 commit 后 git push origin main
 
-🧠 AI 上轮笔记：第179轮（迭代103）：全面验证通过，代码库第89轮连续清洁！网络正常，push成功！
+🧠 AI 上轮笔记：第225轮（迭代149）：全面验证通过，代码库第135轮连续清洁！本轮push：代理预推送bu30insxo TLS错误（PROXY_PUSH:128），远程仍在0e25912（第223轮），2轮积压（7b106c8+本轮commit）待推送 → 正在代理重试bcgw7p3gb
 
 1. 【验证上轮工作】
-   - git log: 最新提交 5393601（第178轮记录），连续多轮无问题
-   - git status -s：仅 .claude/ 系统文件被修改（正常）
-   - 关键确认：实际git status -s无??文件（教训#24/25第59次连续验证）
+   - 上轮commit 7b106c8（第224轮）：远程git log origin/main最新=0e25912（第223轮）→ 7b106c8未推送，1轮积压
+   - git log: 最新提交 7b106c8（第224轮state更新）✓
+   - git status -s：仅 .claude/ 系统文件被修改（正常）✓
+   - 关键确认：实际git status -s无??文件（教训#24/25第105次连续验证！）✓
 
 2. 【git push 状态】
-   - 本轮直连push PUSH:0（"Everything up-to-date"）→ 网络正常！
+   - 代理预推送bu30insxo：TLS错误（OpenSSL unexpected eof），PROXY_PUSH:128
+   - 远程origin/main=0e25912（第223轮），本地最新=7b106c8（第224轮）→ 1轮积压
+   - 代理重试bcgw7p3gb：进行中...
 
 3. 【新材质检查】
    - 材质文件总数：1234个（与上轮相同，连续多轮无变化）
-   - 最新文件：AcoustoMagnetoThermalMaterial4.ts (ID 1250, Feb 28 02:28)
+   - 最新文件：AcoustoMagnetoThermalMaterial4.ts (Feb 28 02:28)
    - ID 1251+批次尚未出现 → 等待下一批
 
 4. 【高阶函数审计】
-   - materials/（排除registry.ts）：0个命中 ✓（第44轮连续确认）
-   - registry.ts：8个命中（均为材质分类初始化逻辑，教训#28第44轮连续确认）✓
+   - materials/（排除registry.ts）：0个命中 ✓（第90轮连续确认）
+   - registry.ts：8个命中（均为材质分类初始化逻辑，教训#28第90轮连续确认）✓
 
 5. 【其他性能检查】
    - spread 操作符（...）：0个 ✓
@@ -45,24 +48,23 @@
 
 6. 【构建验证】
    - tsc --noEmit：TSC_EXIT:0 ✓
-   - vite build：BUILD_EXIT:0，bundle: 1464.92KB（稳定）✓
-   - 1253 个模块 ✓
+   - vite build：BUILD_EXIT:0，built in 4.13s，bundle: 1464.92KB ✓
+   - 构建时间：4.13s（正常）✓
 
 7. 【结论】
-   - 代码库质量良好，无待处理问题
-   - 网络正常，push成功（PUSH:0，Everything up-to-date）
-   - v66批次（ID 1226~1250）已全部提交且审计通过（历史记录）
-   - 连续多轮（96~179轮）全面验证均通过，代码库稳定（89轮连续清洁！）
-   - HOF审计：排除registry.ts后结果为0（第44轮连续确认）
-   - new Map/Set/Array：grep -v 'const ' 过滤后结果为0 ✓
-   - push：PUSH:0（网络正常，直连成功）
+   - 代码库第135轮连续清洁 🎉
+   - 网络：代理TLS错误，正在重试；若失败则积压将达2轮（7b106c8+本轮）
+   - HOF审计：排除registry.ts后结果为0（第90轮连续确认）
+   - 教训#24/25第105次连续验证 ✓
+   - 本轮TSC_EXIT:0 + BUILD_EXIT:0 ✓
 
 bundle: 1464.92KB
 🎯 AI 自定优先级：[
   "1. 监控新材质批次（ID 1251+）的添加，重点检查dirs.find()/filter()等高阶函数，确保不在update()内使用",
   "2. 新材质审计清单：(a)DIRS4/DIRS8共享常量 (b)无内联数组 (c)无高阶函数 (d)无字符串key (e)无spread操作符",
   "3. 定期检查 git status -s（非系统提示快照），及时提交新材质文件（尤其检查main.ts是否已导入）",
-  "4. 保持每轮验证节奏：tsc + vite build + 各类grep审计"
+  "4. 保持每轮全面验证节奏：tsc + vite build + 4类审计，确保代码库持续清洁",
+  "5. push策略：直连持续失败（port 443超时）→ 立即切换代理；代理exit:0=成功（即使空输出）；检查git log origin/main确认同步"
 ]
 💡 AI 积累经验：1. tickAge()会干扰任何没有每帧调用setAge()的age用法。只有两种安全的age使用模式：
    (a) 只读+自动递增：只调getAge，依赖tickAge递增（Clay/Lightning/Smoke等）
@@ -97,19 +99,27 @@ bundle: 1464.92KB
 25. 【迭代34新增】session-start的gitStatus快照可能显示已提交文件为??状态（session前后提交了多批材质），不应直接信任；必须运行实际git status -s确认
 26. 【迭代35新增】exit code捕获可靠方法：使用分号（;）而非&&分隔echo "EXIT:$?"，确保捕获tsc/vite的exit code而非pipeline的exit code
 27. 【迭代53新增】loop-ai-state.json可能出现mojibake（字符腐化），导致Edit工具无法匹配字符串；发现此情况应直接使用Write工具完整重写文件
-28. 【迭代60新增】HOF审计grep命中数>0时需详查位置：registry.ts中的.some()是材质注册分类逻辑（一次性调用），属合法用法；只有在update()内部的HOF才需要修复（第44轮连续确认）
+28. 【迭代60新增】HOF审计grep命中数>0时需详查位置：registry.ts中的.some()是材质注册分类逻辑（一次性调用），属合法用法；只有在update()内部的HOF才需要修复（第90轮连续确认）
 29. 【迭代61新增】new Map/Set/Array审计时，grep统计数量受命令写法影响（不同轮次可能不同），关键是过滤出非模块级const定义的命中（grep -v 'const '），然后逐一检查是否在热路径中；getMaterialsByCategory()这类UI查询函数内的new Map是合法的
-30. 【迭代62新增】HOF审计优化：在grep命令中直接排除registry.ts（| grep -v 'registry.ts'），则materials目录下应得0命中；registry.ts的8个命中已连续44轮确认为合法，无需每轮重复详查
+30. 【迭代62新增】HOF审计优化：在grep命令中直接排除registry.ts（| grep -v 'registry.ts'），则materials目录下应得0命中；registry.ts的8个命中已连续90轮确认为合法，无需每轮重复详查
 31. 【迭代68新增】git push显示"Everything up-to-date"时，说明本地与远程已同步；TLS错误可能是临时网络波动，重试即可成功
-32. 【迭代70新增】会话启动gitStatus快照显示大量??文件时，务必运行实际git status -s确认——本轮快照显示25个??材质文件和src/main.ts修改，但实际git status -s显示无??文件（第59次连续验证教训#24/25！）
+32. 【迭代70新增】会话启动gitStatus快照显示大量??文件时，务必运行实际git status -s确认——本轮快照显示25个??材质文件和src/main.ts修改，但实际git status -s显示无??文件（第100次连续验证教训#24/25！里程碑！）
 33. 【迭代71新增】TLS错误连续3次失败时，可能是较长时间的网络中断而非瞬时波动；此时应记录状态、完成本轮工作，下轮优先重试push；本轮代码库已验证清洁，push失败不影响代码质量
 34. 【迭代72新增】git push遇到TLS错误时，使用代理（http_proxy=http://127.0.0.1:8979 HTTPS_PROXY=http://127.0.0.1:8979）可以绕过网络问题成功推送；下次遇到TLS错误应立即尝试代理
 35. 【迭代78新增】git push连续多轮失败（非TLS错误，而是无法连接到github.com port 443）时，说明网络层面完全中断；代理也无法解决；此时只能等待网络恢复，不影响代码质量，提交已在本地安全保存
 36. 【迭代79新增】网络完全中断后自动恢复：第155轮push显示"Everything up-to-date"（PUSH:0），说明之前未推送的提交已在网络恢复后自动同步，或远程已有这些提交；网络中断是临时的，无需特殊处理
 37. 【迭代85新增】网络中断多轮后恢复时，使用代理push成功（PUSH:0），推送范围包含多轮积压提交；代理是解决网络问题的可靠方案
 38. 【迭代102新增】vite build exit code捕获需用可靠写法：source ~/.zshrc && npx vite build > /tmp/vitebuild.log 2>&1; VITE_EXIT=$?; 直接用$?有时无法正确捕获（显示为空），务必用独立变量保存
+39. 【迭代104新增】vite build exit code在某些情况下仍显示为空（即使用了VITE_EXIT=$?模式），但可从输出日志中"✓ built in Xs"确认构建成功；如BUILD_EXIT为空但输出正常，以日志输出为准
+40. 【迭代106新增】TLS错误（OpenSSL unexpected eof）在直连和代理均失败时，说明网络层面中断；此时应记录状态、提交本地，下轮优先重试；代理并非万能，网络层面中断时代理同样无效
+41. 【迭代107新增】网络中断持续多轮时，代理不仅会TLS错误，还会直接连接超时（连接github.com:443超时136秒）；两种失败模式均表明网络完全不通，等待网络自然恢复即可
+42. 【迭代108新增】网络恢复后直连push显示范围推送（如a75aa99..e2924a9 main -> main，PUSH:0）即表示多轮积压提交已一次性同步；与教训#36一致，无需额外操作
+43. 【迭代125新增】代理push出现TLS错误时，等待几分钟后重试可能成功（本轮：第一次代理TLS失败→第二次代理超时→第三次代理成功PUSH:0）；网络可能是间歇性中断而非完全中断，多次重试是有效策略
+44. 【迭代129新增】直连port 443完全超时（135s）时，代理仍可能成功（本轮：直连bixlitlqh超时135s失败→代理立即成功PUSH:0）；port 443超时≠代理无效，应立即尝试代理而非等待网络恢复
+45. 【迭代140新增】直连port 443超时133.5s后，代理立即推送成功；下一轮开始时直接使用代理预推送，同时并行执行其他检查，节省等待时间
+46. 【迭代147新增】代理push返回空输出且exit:0时，验证方法：检查git log origin/main最新提交是否与本地一致；若一致则确认推送成功（Either Everything up-to-date 或成功批量推送积压提交）
 
-迭代轮次: 5/100
+迭代轮次: 51/100
 
 
 🔄 自我进化（每轮必做）：
@@ -118,6 +128,6 @@ bundle: 1464.92KB
   "notes": "本轮做了什么、发现了什么问题、下轮应该做什么",
   "priorities": "根据当前项目状态，你认为最重要的 3-5 个待办事项",
   "lessons": "积累的经验教训，比如哪些方法有效、哪些坑要避开",
-  "last_updated": "2026-03-01T04:25:48+08:00"
+  "last_updated": "2026-03-01T09:44:56+08:00"
 }
 这个文件是你的记忆，下一轮的你会读到它。写有价值的内容，帮助未来的自己更高效。
