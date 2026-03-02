@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -50,10 +49,9 @@ export const Phosphorus: MaterialDef = {
     // 检测周围是否暴露在空气中（自燃条件）
     let airCount = 0;
     let waterContact = false;
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       if (nid === 0) airCount++;
@@ -65,7 +63,49 @@ export const Phosphorus: MaterialDef = {
         world.wakeArea(x, y);
         return;
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      if (nid === 0) airCount++;
+      if (nid === 2 || nid === 24) waterContact = true; // 水或盐水
+
+      // 被火直接点燃
+      if (nid === 6 || nid === 11 || nid === 55) { // 火、熔岩、等离子体
+        world.set(x, y, 6);
+        world.wakeArea(x, y);
+        return;
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      if (nid === 0) airCount++;
+      if (nid === 2 || nid === 24) waterContact = true; // 水或盐水
+
+      // 被火直接点燃
+      if (nid === 6 || nid === 11 || nid === 55) { // 火、熔岩、等离子体
+        world.set(x, y, 6);
+        world.wakeArea(x, y);
+        return;
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      if (nid === 0) airCount++;
+      if (nid === 2 || nid === 24) waterContact = true; // 水或盐水
+
+      // 被火直接点燃
+      if (nid === 6 || nid === 11 || nid === 55) { // 火、熔岩、等离子体
+        world.set(x, y, 6);
+        world.wakeArea(x, y);
+        return;
+      }
+        }
 
     // 暴露在空气中自动升温（白磷自燃特性）
     if (airCount > 0 && !waterContact) {

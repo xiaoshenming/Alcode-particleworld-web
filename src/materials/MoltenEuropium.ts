@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -97,15 +96,35 @@ export const MoltenEuropium: MaterialDef = {
     }
 
     // 接触水 → 剧烈反应
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       if (world.get(nx, ny) === 2 && Math.random() < 0.8) {
         world.set(nx, ny, Math.random() < 0.3 ? 19 : 8); // 氢气或蒸汽
         world.addTemp(x, y, -40);
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      if (world.get(nx, ny) === 2 && Math.random() < 0.8) {
+        world.set(nx, ny, Math.random() < 0.3 ? 19 : 8); // 氢气或蒸汽
+        world.addTemp(x, y, -40);
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      if (world.get(nx, ny) === 2 && Math.random() < 0.8) {
+        world.set(nx, ny, Math.random() < 0.3 ? 19 : 8); // 氢气或蒸汽
+        world.addTemp(x, y, -40);
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      if (world.get(nx, ny) === 2 && Math.random() < 0.8) {
+        world.set(nx, ny, Math.random() < 0.3 ? 19 : 8); // 氢气或蒸汽
+        world.addTemp(x, y, -40);
+      }
+        }
   },
 };
 

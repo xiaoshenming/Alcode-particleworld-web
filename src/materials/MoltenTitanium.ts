@@ -1,4 +1,4 @@
-import { DIRS4, DIRS8 } from './types';
+import { DIRS8 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -39,10 +39,9 @@ export const MoltenTitanium: MaterialDef = {
     }
 
     // 检查邻居进行反应
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇水蒸汽爆炸：水变蒸汽，周围产生火花和蒸汽
@@ -73,7 +72,106 @@ export const MoltenTitanium: MaterialDef = {
         world.set(nx, ny, 6); // 着火
         world.markUpdated(nx, ny);
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇水蒸汽爆炸：水变蒸汽，周围产生火花和蒸汽
+      if (nid === 2) {
+        world.set(nx, ny, 8); // 水变蒸汽
+        world.setTemp(nx, ny, 300);
+        // 爆炸效果：周围空格产生火花/蒸汽
+        const explDirs = DIRS8;
+        for (const [ex, ey] of explDirs) {
+          const ex2 = x + ex, ey2 = y + ey;
+          if (!world.inBounds(ex2, ey2)) continue;
+          if (world.isEmpty(ex2, ey2)) {
+            world.set(ex2, ey2, Math.random() < 0.5 ? 8 : 28); // 蒸汽或火花
+            world.setTemp(ex2, ey2, 400);
+            world.markUpdated(ex2, ey2);
+          } else if (world.get(ex2, ey2) === 2) {
+            world.set(ex2, ey2, 8); // 附近的水也蒸发
+            world.setTemp(ex2, ey2, 200);
+            world.markUpdated(ex2, ey2);
+          }
+        }
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 点燃可燃物
+      if ((nid === 4 || nid === 5 || nid === 13 || nid === 25 || nid === 46) && Math.random() < 0.2) {
+        world.set(nx, ny, 6); // 着火
+        world.markUpdated(nx, ny);
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水蒸汽爆炸：水变蒸汽，周围产生火花和蒸汽
+      if (nid === 2) {
+        world.set(nx, ny, 8); // 水变蒸汽
+        world.setTemp(nx, ny, 300);
+        // 爆炸效果：周围空格产生火花/蒸汽
+        const explDirs = DIRS8;
+        for (const [ex, ey] of explDirs) {
+          const ex2 = x + ex, ey2 = y + ey;
+          if (!world.inBounds(ex2, ey2)) continue;
+          if (world.isEmpty(ex2, ey2)) {
+            world.set(ex2, ey2, Math.random() < 0.5 ? 8 : 28); // 蒸汽或火花
+            world.setTemp(ex2, ey2, 400);
+            world.markUpdated(ex2, ey2);
+          } else if (world.get(ex2, ey2) === 2) {
+            world.set(ex2, ey2, 8); // 附近的水也蒸发
+            world.setTemp(ex2, ey2, 200);
+            world.markUpdated(ex2, ey2);
+          }
+        }
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 点燃可燃物
+      if ((nid === 4 || nid === 5 || nid === 13 || nid === 25 || nid === 46) && Math.random() < 0.2) {
+        world.set(nx, ny, 6); // 着火
+        world.markUpdated(nx, ny);
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水蒸汽爆炸：水变蒸汽，周围产生火花和蒸汽
+      if (nid === 2) {
+        world.set(nx, ny, 8); // 水变蒸汽
+        world.setTemp(nx, ny, 300);
+        // 爆炸效果：周围空格产生火花/蒸汽
+        const explDirs = DIRS8;
+        for (const [ex, ey] of explDirs) {
+          const ex2 = x + ex, ey2 = y + ey;
+          if (!world.inBounds(ex2, ey2)) continue;
+          if (world.isEmpty(ex2, ey2)) {
+            world.set(ex2, ey2, Math.random() < 0.5 ? 8 : 28); // 蒸汽或火花
+            world.setTemp(ex2, ey2, 400);
+            world.markUpdated(ex2, ey2);
+          } else if (world.get(ex2, ey2) === 2) {
+            world.set(ex2, ey2, 8); // 附近的水也蒸发
+            world.setTemp(ex2, ey2, 200);
+            world.markUpdated(ex2, ey2);
+          }
+        }
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 点燃可燃物
+      if ((nid === 4 || nid === 5 || nid === 13 || nid === 25 || nid === 46) && Math.random() < 0.2) {
+        world.set(nx, ny, 6); // 着火
+        world.markUpdated(nx, ny);
+      }
+        }
 
     // 极小概率自然冷却
     if (Math.random() < 0.0005) {

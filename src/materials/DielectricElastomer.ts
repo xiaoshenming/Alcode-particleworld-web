@@ -1,4 +1,4 @@
-import { DIRS4, DIRS8 } from './types';
+import { DIRS8 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -39,11 +39,9 @@ export const DielectricElastomer: MaterialDef = {
     return (0xFF << 24) | (b << 16) | (g << 8) | r;
   },
   update(x: number, y: number, world: WorldAPI) {
-    const dirs = DIRS4;
-
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 接触火燃烧变为烟
@@ -79,7 +77,121 @@ export const DielectricElastomer: MaterialDef = {
           return;
         }
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 接触火燃烧变为烟
+      if (nid === 6 && Math.random() < 0.12) {
+        world.set(x, y, 7); // 烟
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 接触电线/激光时弹射（电致变形）
+      if ((nid === 44 || nid === 47) && Math.random() < 0.08) {
+        // 向随机方向弹射（随机起始索引循环，避免每帧数组分配）
+        const start = Math.floor(Math.random() * DIRS8.length);
+        for (let i = 0; i < DIRS8.length; i++) {
+          const [bx, by] = DIRS8[(start + i) % DIRS8.length];
+          const tx = x + bx, ty = y + by;
+          if (world.inBounds(tx, ty) && world.isEmpty(tx, ty)) {
+            world.swap(x, y, tx, ty);
+            world.markUpdated(tx, ty);
+            world.wakeArea(tx, ty);
+            return;
+          }
+        }
+      }
+
+      // 弹性：被挤压时和非固体邻居交换位置
+      if (nid !== 0 && nid !== 390 && Math.random() < 0.02) {
+        const nDensity = world.getDensity(nx, ny);
+        if (nDensity !== Infinity && nDensity > 0) {
+          world.swap(x, y, nx, ny);
+          world.markUpdated(nx, ny);
+          world.wakeArea(x, y);
+          return;
+        }
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 接触火燃烧变为烟
+      if (nid === 6 && Math.random() < 0.12) {
+        world.set(x, y, 7); // 烟
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 接触电线/激光时弹射（电致变形）
+      if ((nid === 44 || nid === 47) && Math.random() < 0.08) {
+        // 向随机方向弹射（随机起始索引循环，避免每帧数组分配）
+        const start = Math.floor(Math.random() * DIRS8.length);
+        for (let i = 0; i < DIRS8.length; i++) {
+          const [bx, by] = DIRS8[(start + i) % DIRS8.length];
+          const tx = x + bx, ty = y + by;
+          if (world.inBounds(tx, ty) && world.isEmpty(tx, ty)) {
+            world.swap(x, y, tx, ty);
+            world.markUpdated(tx, ty);
+            world.wakeArea(tx, ty);
+            return;
+          }
+        }
+      }
+
+      // 弹性：被挤压时和非固体邻居交换位置
+      if (nid !== 0 && nid !== 390 && Math.random() < 0.02) {
+        const nDensity = world.getDensity(nx, ny);
+        if (nDensity !== Infinity && nDensity > 0) {
+          world.swap(x, y, nx, ny);
+          world.markUpdated(nx, ny);
+          world.wakeArea(x, y);
+          return;
+        }
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 接触火燃烧变为烟
+      if (nid === 6 && Math.random() < 0.12) {
+        world.set(x, y, 7); // 烟
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 接触电线/激光时弹射（电致变形）
+      if ((nid === 44 || nid === 47) && Math.random() < 0.08) {
+        // 向随机方向弹射（随机起始索引循环，避免每帧数组分配）
+        const start = Math.floor(Math.random() * DIRS8.length);
+        for (let i = 0; i < DIRS8.length; i++) {
+          const [bx, by] = DIRS8[(start + i) % DIRS8.length];
+          const tx = x + bx, ty = y + by;
+          if (world.inBounds(tx, ty) && world.isEmpty(tx, ty)) {
+            world.swap(x, y, tx, ty);
+            world.markUpdated(tx, ty);
+            world.wakeArea(tx, ty);
+            return;
+          }
+        }
+      }
+
+      // 弹性：被挤压时和非固体邻居交换位置
+      if (nid !== 0 && nid !== 390 && Math.random() < 0.02) {
+        const nDensity = world.getDensity(nx, ny);
+        if (nDensity !== Infinity && nDensity > 0) {
+          world.swap(x, y, nx, ny);
+          world.markUpdated(nx, ny);
+          world.wakeArea(x, y);
+          return;
+        }
+      }
+        }
 
     // === 轻固体运动（受重力下落） ===
     if (y < world.height - 1) {

@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -52,10 +51,9 @@ export const MoltenSodium: MaterialDef = {
     }
 
     // 检查邻居交互
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇水剧烈爆炸（比固态钠更猛烈）
@@ -73,7 +71,67 @@ export const MoltenSodium: MaterialDef = {
         world.wakeArea(nx, ny);
         return;
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇水剧烈爆炸（比固态钠更猛烈）
+      if (WATER_LIKE.has(nid)) {
+        explode(x, y, world);
+        return;
+      }
+
+      // 遇酸液反应
+      if (nid === 9 && Math.random() < 0.4) {
+        world.set(x, y, 19); // 氢气
+        world.set(nx, ny, 6); // 火
+        world.setTemp(nx, ny, 200);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水剧烈爆炸（比固态钠更猛烈）
+      if (WATER_LIKE.has(nid)) {
+        explode(x, y, world);
+        return;
+      }
+
+      // 遇酸液反应
+      if (nid === 9 && Math.random() < 0.4) {
+        world.set(x, y, 19); // 氢气
+        world.set(nx, ny, 6); // 火
+        world.setTemp(nx, ny, 200);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水剧烈爆炸（比固态钠更猛烈）
+      if (WATER_LIKE.has(nid)) {
+        explode(x, y, world);
+        return;
+      }
+
+      // 遇酸液反应
+      if (nid === 9 && Math.random() < 0.4) {
+        world.set(x, y, 19); // 氢气
+        world.set(nx, ny, 6); // 火
+        world.setTemp(nx, ny, 200);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+        }
 
     // 自身持续散热（维持高温发光）
     world.addTemp(x, y, -0.5);

@@ -93,10 +93,9 @@ export const Cite: MaterialDef = {
     }
 
     // 未燃烧：检查点燃
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       if ((nid === 6 || nid === 28 || nid === 11) && Math.random() < 0.05) {
@@ -104,7 +103,37 @@ export const Cite: MaterialDef = {
         world.wakeArea(x, y);
         return;
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      if ((nid === 6 || nid === 28 || nid === 11) && Math.random() < 0.05) {
+        world.setAge(x, y, 100 + Math.floor(Math.random() * 50));
+        world.wakeArea(x, y);
+        return;
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      if ((nid === 6 || nid === 28 || nid === 11) && Math.random() < 0.05) {
+        world.setAge(x, y, 100 + Math.floor(Math.random() * 50));
+        world.wakeArea(x, y);
+        return;
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      if ((nid === 6 || nid === 28 || nid === 11) && Math.random() < 0.05) {
+        world.setAge(x, y, 100 + Math.floor(Math.random() * 50));
+        world.wakeArea(x, y);
+        return;
+      }
+        }
 
     // 高温自燃
     if (world.getTemp(x, y) > 200) {

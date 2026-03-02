@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -48,10 +47,9 @@ export const Mud: MaterialDef = {
 
     // 检查周围环境
     let hasWater = false;
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
       if (nid === 2 || nid === 24) hasWater = true; // 水或盐水
 
@@ -62,7 +60,46 @@ export const Mud: MaterialDef = {
           return;
         }
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+      if (nid === 2 || nid === 24) hasWater = true; // 水或盐水
+
+      // 高温蒸发水分变为泥土
+      if (nid === 6 || nid === 11) { // 火或熔岩
+        if (Math.random() < 0.05) {
+          world.set(x, y, 20); // 泥土
+          return;
+        }
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+      if (nid === 2 || nid === 24) hasWater = true; // 水或盐水
+
+      // 高温蒸发水分变为泥土
+      if (nid === 6 || nid === 11) { // 火或熔岩
+        if (Math.random() < 0.05) {
+          world.set(x, y, 20); // 泥土
+          return;
+        }
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+      if (nid === 2 || nid === 24) hasWater = true; // 水或盐水
+
+      // 高温蒸发水分变为泥土
+      if (nid === 6 || nid === 11) { // 火或熔岩
+        if (Math.random() < 0.05) {
+          world.set(x, y, 20); // 泥土
+          return;
+        }
+      }
+        }
 
     // 干燥环境缓慢变为泥土
     if (!hasWater && temp > 30 && Math.random() < 0.002) {

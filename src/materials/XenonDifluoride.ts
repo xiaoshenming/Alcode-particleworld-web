@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -48,10 +47,9 @@ export const XenonDifluoride: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 接触水分解
@@ -79,7 +77,97 @@ export const XenonDifluoride: MaterialDef = {
         world.wakeArea(nx, ny);
         return;
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 接触水分解
+      if (nid === 2 && Math.random() < 0.08) {
+        world.set(x, y, 263); // 氙气
+        world.set(nx, ny, 208); // 氟化氢
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 强氧化性腐蚀金属
+      if (nid === 10 && Math.random() < 0.03) {
+        world.set(nx, ny, 72); // 铁锈
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 腐蚀木头
+      if (nid === 4 && Math.random() < 0.02) {
+        world.set(nx, ny, 6); // 点燃
+        world.set(x, y, 0);
+        world.wakeArea(nx, ny);
+        return;
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 接触水分解
+      if (nid === 2 && Math.random() < 0.08) {
+        world.set(x, y, 263); // 氙气
+        world.set(nx, ny, 208); // 氟化氢
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 强氧化性腐蚀金属
+      if (nid === 10 && Math.random() < 0.03) {
+        world.set(nx, ny, 72); // 铁锈
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 腐蚀木头
+      if (nid === 4 && Math.random() < 0.02) {
+        world.set(nx, ny, 6); // 点燃
+        world.set(x, y, 0);
+        world.wakeArea(nx, ny);
+        return;
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 接触水分解
+      if (nid === 2 && Math.random() < 0.08) {
+        world.set(x, y, 263); // 氙气
+        world.set(nx, ny, 208); // 氟化氢
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 强氧化性腐蚀金属
+      if (nid === 10 && Math.random() < 0.03) {
+        world.set(nx, ny, 72); // 铁锈
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 腐蚀木头
+      if (nid === 4 && Math.random() < 0.02) {
+        world.set(nx, ny, 6); // 点燃
+        world.set(x, y, 0);
+        world.wakeArea(nx, ny);
+        return;
+      }
+        }
 
     // === 气体运动（上浮） ===
     if (y > 0) {

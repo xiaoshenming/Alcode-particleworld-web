@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -53,10 +52,9 @@ export const Fiber: MaterialDef = {
     }
 
     // 邻居交互
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇火极易燃烧
@@ -102,7 +100,151 @@ export const Fiber: MaterialDef = {
         world.wakeArea(x, y);
         return;
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇火极易燃烧
+      if (nid === 6 && Math.random() < 0.25) {
+        world.set(x, y, 6); // 着火
+        world.setTemp(x, y, 130);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇熔岩燃烧
+      if (nid === 11 && Math.random() < 0.3) {
+        world.set(x, y, 6);
+        world.setTemp(x, y, 150);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇水：有概率变为湿纤维（用木头代替，不易燃）
+      if (nid === 2 && Math.random() < WET_CHANCE * 0.02) {
+        world.set(x, y, 4); // 变为木头（湿纤维近似）
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 酸液溶解
+      if (nid === 9 && Math.random() < 0.08) {
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 蚂蚁/白蚁吃掉
+      if ((nid === 40 || nid === 81) && Math.random() < 0.06) {
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 等离子体烧毁
+      if (nid === 55 && Math.random() < 0.4) {
+        world.set(x, y, 7); // 烟
+        world.wakeArea(x, y);
+        return;
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇火极易燃烧
+      if (nid === 6 && Math.random() < 0.25) {
+        world.set(x, y, 6); // 着火
+        world.setTemp(x, y, 130);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇熔岩燃烧
+      if (nid === 11 && Math.random() < 0.3) {
+        world.set(x, y, 6);
+        world.setTemp(x, y, 150);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇水：有概率变为湿纤维（用木头代替，不易燃）
+      if (nid === 2 && Math.random() < WET_CHANCE * 0.02) {
+        world.set(x, y, 4); // 变为木头（湿纤维近似）
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 酸液溶解
+      if (nid === 9 && Math.random() < 0.08) {
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 蚂蚁/白蚁吃掉
+      if ((nid === 40 || nid === 81) && Math.random() < 0.06) {
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 等离子体烧毁
+      if (nid === 55 && Math.random() < 0.4) {
+        world.set(x, y, 7); // 烟
+        world.wakeArea(x, y);
+        return;
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇火极易燃烧
+      if (nid === 6 && Math.random() < 0.25) {
+        world.set(x, y, 6); // 着火
+        world.setTemp(x, y, 130);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇熔岩燃烧
+      if (nid === 11 && Math.random() < 0.3) {
+        world.set(x, y, 6);
+        world.setTemp(x, y, 150);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇水：有概率变为湿纤维（用木头代替，不易燃）
+      if (nid === 2 && Math.random() < WET_CHANCE * 0.02) {
+        world.set(x, y, 4); // 变为木头（湿纤维近似）
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 酸液溶解
+      if (nid === 9 && Math.random() < 0.08) {
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 蚂蚁/白蚁吃掉
+      if ((nid === 40 || nid === 81) && Math.random() < 0.06) {
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 等离子体烧毁
+      if (nid === 55 && Math.random() < 0.4) {
+        world.set(x, y, 7); // 烟
+        world.wakeArea(x, y);
+        return;
+      }
+        }
 
     // 重力下落（粉末状堆积）
     if (y + 1 < world.height) {

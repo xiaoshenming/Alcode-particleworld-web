@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -53,10 +52,9 @@ export const GlowLiquid: MaterialDef = {
     }
 
     // 邻居交互
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 接触酸液 → 闪光消失
@@ -74,7 +72,67 @@ export const GlowLiquid: MaterialDef = {
         world.markUpdated(nx, ny);
         world.wakeArea(nx, ny);
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 接触酸液 → 闪光消失
+      if (nid === 9) {
+        world.set(x, y, 28); // 火花（闪光效果）
+        world.set(nx, ny, 7); // 烟
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 接触水 → 扩散（水变荧光液）
+      if (nid === 2 && Math.random() < 0.01) {
+        world.set(nx, ny, 80);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 接触酸液 → 闪光消失
+      if (nid === 9) {
+        world.set(x, y, 28); // 火花（闪光效果）
+        world.set(nx, ny, 7); // 烟
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 接触水 → 扩散（水变荧光液）
+      if (nid === 2 && Math.random() < 0.01) {
+        world.set(nx, ny, 80);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 接触酸液 → 闪光消失
+      if (nid === 9) {
+        world.set(x, y, 28); // 火花（闪光效果）
+        world.set(nx, ny, 7); // 烟
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 接触水 → 扩散（水变荧光液）
+      if (nid === 2 && Math.random() < 0.01) {
+        world.set(nx, ny, 80);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
 
     // 重力下落
     if (y + 1 < world.height) {

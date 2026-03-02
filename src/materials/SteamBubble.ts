@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -55,10 +54,9 @@ export const SteamBubble: MaterialDef = {
     }
 
     // 检查邻居：碰到固体立即破裂
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       if (SOLID.has(nid)) {
@@ -66,7 +64,37 @@ export const SteamBubble: MaterialDef = {
         world.wakeArea(x, y);
         return;
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      if (SOLID.has(nid)) {
+        world.set(x, y, 8); // 破裂为蒸汽
+        world.wakeArea(x, y);
+        return;
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      if (SOLID.has(nid)) {
+        world.set(x, y, 8); // 破裂为蒸汽
+        world.wakeArea(x, y);
+        return;
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      if (SOLID.has(nid)) {
+        world.set(x, y, 8); // 破裂为蒸汽
+        world.wakeArea(x, y);
+        return;
+      }
+        }
 
     // 快速上升（swap 自动迁移 age）
     if (world.isEmpty(x, y - 1)) {

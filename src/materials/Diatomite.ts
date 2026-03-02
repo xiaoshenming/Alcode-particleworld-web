@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -53,10 +52,9 @@ export const Diatomite: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 吸水变泥浆
@@ -83,7 +81,94 @@ export const Diatomite: MaterialDef = {
       if (temp > 50 && Math.random() < 0.05) {
         world.addTemp(x, y, -2);
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 吸水变泥浆
+      if (nid === 2 && Math.random() < 0.1) {
+        world.set(nx, ny, 0);
+        world.set(x, y, 63); // 泥浆
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 吸油变焦油砂
+      if (nid === 5 && Math.random() < 0.08) {
+        world.set(nx, ny, 0);
+        world.set(x, y, 74); // 焦油砂
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 隔热：吸收邻居热量
+      if (temp > 50 && Math.random() < 0.05) {
+        world.addTemp(x, y, -2);
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 吸水变泥浆
+      if (nid === 2 && Math.random() < 0.1) {
+        world.set(nx, ny, 0);
+        world.set(x, y, 63); // 泥浆
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 吸油变焦油砂
+      if (nid === 5 && Math.random() < 0.08) {
+        world.set(nx, ny, 0);
+        world.set(x, y, 74); // 焦油砂
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 隔热：吸收邻居热量
+      if (temp > 50 && Math.random() < 0.05) {
+        world.addTemp(x, y, -2);
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 吸水变泥浆
+      if (nid === 2 && Math.random() < 0.1) {
+        world.set(nx, ny, 0);
+        world.set(x, y, 63); // 泥浆
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 吸油变焦油砂
+      if (nid === 5 && Math.random() < 0.08) {
+        world.set(nx, ny, 0);
+        world.set(x, y, 74); // 焦油砂
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 隔热：吸收邻居热量
+      if (temp > 50 && Math.random() < 0.05) {
+        world.addTemp(x, y, -2);
+      }
+        }
 
     // 粉末下落
     if (world.inBounds(x, y + 1)) {

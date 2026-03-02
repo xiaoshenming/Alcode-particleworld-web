@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -55,10 +54,9 @@ export const OilSand: MaterialDef = {
     }
 
     // 检查邻居
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇火燃烧：释放油+火，残留沙子
@@ -91,7 +89,112 @@ export const OilSand: MaterialDef = {
         world.wakeArea(x, y);
         return;
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇火燃烧：释放油+火，残留沙子
+      if (IGNITER.has(nid) && Math.random() < 0.25) {
+        world.set(x, y, 1); // 残留沙子
+        // 释放火焰和烟
+        if (y > 0 && world.isEmpty(x, y - 1)) {
+          world.set(x, y - 1, 6); // 火
+          world.markUpdated(x, y - 1);
+        }
+        // 侧面释放烟（显式2方向：左上/右上，无HOF）
+        if (world.inBounds(x - 1, y - 1) && world.isEmpty(x - 1, y - 1) && Math.random() < 0.5) { world.set(x - 1, y - 1, 7); world.markUpdated(x - 1, y - 1); }
+        if (world.inBounds(x + 1, y - 1) && world.isEmpty(x + 1, y - 1) && Math.random() < 0.5) { world.set(x + 1, y - 1, 7); world.markUpdated(x + 1, y - 1); }
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇水缓慢分离油
+      if ((nid === 2 || nid === 24) && Math.random() < 0.01) {
+        world.set(x, y, 1); // 变沙子
+        world.set(nx, ny, 5); // 水变油
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 酸液溶解
+      if (nid === 9 && Math.random() < 0.06) {
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇火燃烧：释放油+火，残留沙子
+      if (IGNITER.has(nid) && Math.random() < 0.25) {
+        world.set(x, y, 1); // 残留沙子
+        // 释放火焰和烟
+        if (y > 0 && world.isEmpty(x, y - 1)) {
+          world.set(x, y - 1, 6); // 火
+          world.markUpdated(x, y - 1);
+        }
+        // 侧面释放烟（显式2方向：左上/右上，无HOF）
+        if (world.inBounds(x - 1, y - 1) && world.isEmpty(x - 1, y - 1) && Math.random() < 0.5) { world.set(x - 1, y - 1, 7); world.markUpdated(x - 1, y - 1); }
+        if (world.inBounds(x + 1, y - 1) && world.isEmpty(x + 1, y - 1) && Math.random() < 0.5) { world.set(x + 1, y - 1, 7); world.markUpdated(x + 1, y - 1); }
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇水缓慢分离油
+      if ((nid === 2 || nid === 24) && Math.random() < 0.01) {
+        world.set(x, y, 1); // 变沙子
+        world.set(nx, ny, 5); // 水变油
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 酸液溶解
+      if (nid === 9 && Math.random() < 0.06) {
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇火燃烧：释放油+火，残留沙子
+      if (IGNITER.has(nid) && Math.random() < 0.25) {
+        world.set(x, y, 1); // 残留沙子
+        // 释放火焰和烟
+        if (y > 0 && world.isEmpty(x, y - 1)) {
+          world.set(x, y - 1, 6); // 火
+          world.markUpdated(x, y - 1);
+        }
+        // 侧面释放烟（显式2方向：左上/右上，无HOF）
+        if (world.inBounds(x - 1, y - 1) && world.isEmpty(x - 1, y - 1) && Math.random() < 0.5) { world.set(x - 1, y - 1, 7); world.markUpdated(x - 1, y - 1); }
+        if (world.inBounds(x + 1, y - 1) && world.isEmpty(x + 1, y - 1) && Math.random() < 0.5) { world.set(x + 1, y - 1, 7); world.markUpdated(x + 1, y - 1); }
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇水缓慢分离油
+      if ((nid === 2 || nid === 24) && Math.random() < 0.01) {
+        world.set(x, y, 1); // 变沙子
+        world.set(nx, ny, 5); // 水变油
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 酸液溶解
+      if (nid === 9 && Math.random() < 0.06) {
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+        }
 
     if (y >= world.height - 1) return;
 

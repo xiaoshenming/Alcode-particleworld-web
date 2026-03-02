@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -54,10 +53,9 @@ export const Resin: MaterialDef = {
     }
 
     // 检查邻居
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇火源燃烧
@@ -83,7 +81,91 @@ export const Resin: MaterialDef = {
         world.wakeArea(x, y);
         return; // 粘住不动
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇火源燃烧
+      if (IGNITER.has(nid) && Math.random() < 0.2) {
+        world.set(x, y, 6); // 火
+        if (y > 0 && world.isEmpty(x, y - 1)) {
+          world.set(x, y - 1, 7); // 烟
+          world.markUpdated(x, y - 1);
+        }
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 酸液溶解
+      if (nid === 9 && Math.random() < 0.08) {
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 接触木质材质时粘附（停止流动）
+      if (WOOD_LIKE.has(nid) && Math.random() < 0.15) {
+        world.wakeArea(x, y);
+        return; // 粘住不动
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇火源燃烧
+      if (IGNITER.has(nid) && Math.random() < 0.2) {
+        world.set(x, y, 6); // 火
+        if (y > 0 && world.isEmpty(x, y - 1)) {
+          world.set(x, y - 1, 7); // 烟
+          world.markUpdated(x, y - 1);
+        }
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 酸液溶解
+      if (nid === 9 && Math.random() < 0.08) {
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 接触木质材质时粘附（停止流动）
+      if (WOOD_LIKE.has(nid) && Math.random() < 0.15) {
+        world.wakeArea(x, y);
+        return; // 粘住不动
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇火源燃烧
+      if (IGNITER.has(nid) && Math.random() < 0.2) {
+        world.set(x, y, 6); // 火
+        if (y > 0 && world.isEmpty(x, y - 1)) {
+          world.set(x, y - 1, 7); // 烟
+          world.markUpdated(x, y - 1);
+        }
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 酸液溶解
+      if (nid === 9 && Math.random() < 0.08) {
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 接触木质材质时粘附（停止流动）
+      if (WOOD_LIKE.has(nid) && Math.random() < 0.15) {
+        world.wakeArea(x, y);
+        return; // 粘住不动
+      }
+        }
 
     // 粘度控制：常温下约 40% 概率移动
     const moveChance = Math.min(0.7, 0.4 + (temp - 20) * 0.004);

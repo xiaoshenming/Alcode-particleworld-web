@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -49,10 +48,9 @@ export const HydrogenPeroxide: MaterialDef = {
     }
 
     // 检查四邻进行化学反应
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇火(6)/火花(28)：氧化分解 → 水 + 蒸汽泡
@@ -86,7 +84,115 @@ export const HydrogenPeroxide: MaterialDef = {
         world.wakeArea(x, y);
         return;
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇火(6)/火花(28)：氧化分解 → 水 + 蒸汽泡
+      if (nid === 6 || nid === 28) {
+        world.set(x, y, 2); // 变为水
+        // 向上释放蒸汽泡（模拟氧气释放）
+        if (y > 0 && world.isEmpty(x, y - 1)) {
+          world.set(x, y - 1, 175); // 蒸汽泡
+          world.markUpdated(x, y - 1);
+        }
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇血液(87)：起泡反应 → 产生泡沫
+      if (nid === 87 && Math.random() < 0.15) {
+        world.set(nx, ny, 51); // 血液变泡沫
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        // 自身有概率也消耗
+        if (Math.random() < 0.3) {
+          world.set(x, y, 51); // 变泡沫
+          return;
+        }
+      }
+
+      // 遇铁锈(72)：催化分解 → 产生蒸汽
+      if (nid === 72 && Math.random() < 0.1) {
+        world.set(x, y, 8); // 变蒸汽
+        // 铁锈不消耗（催化剂）
+        world.wakeArea(x, y);
+        return;
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇火(6)/火花(28)：氧化分解 → 水 + 蒸汽泡
+      if (nid === 6 || nid === 28) {
+        world.set(x, y, 2); // 变为水
+        // 向上释放蒸汽泡（模拟氧气释放）
+        if (y > 0 && world.isEmpty(x, y - 1)) {
+          world.set(x, y - 1, 175); // 蒸汽泡
+          world.markUpdated(x, y - 1);
+        }
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇血液(87)：起泡反应 → 产生泡沫
+      if (nid === 87 && Math.random() < 0.15) {
+        world.set(nx, ny, 51); // 血液变泡沫
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        // 自身有概率也消耗
+        if (Math.random() < 0.3) {
+          world.set(x, y, 51); // 变泡沫
+          return;
+        }
+      }
+
+      // 遇铁锈(72)：催化分解 → 产生蒸汽
+      if (nid === 72 && Math.random() < 0.1) {
+        world.set(x, y, 8); // 变蒸汽
+        // 铁锈不消耗（催化剂）
+        world.wakeArea(x, y);
+        return;
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇火(6)/火花(28)：氧化分解 → 水 + 蒸汽泡
+      if (nid === 6 || nid === 28) {
+        world.set(x, y, 2); // 变为水
+        // 向上释放蒸汽泡（模拟氧气释放）
+        if (y > 0 && world.isEmpty(x, y - 1)) {
+          world.set(x, y - 1, 175); // 蒸汽泡
+          world.markUpdated(x, y - 1);
+        }
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇血液(87)：起泡反应 → 产生泡沫
+      if (nid === 87 && Math.random() < 0.15) {
+        world.set(nx, ny, 51); // 血液变泡沫
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        // 自身有概率也消耗
+        if (Math.random() < 0.3) {
+          world.set(x, y, 51); // 变泡沫
+          return;
+        }
+      }
+
+      // 遇铁锈(72)：催化分解 → 产生蒸汽
+      if (nid === 72 && Math.random() < 0.1) {
+        world.set(x, y, 8); // 变蒸汽
+        // 铁锈不消耗（催化剂）
+        world.wakeArea(x, y);
+        return;
+      }
+        }
 
     // 自然微泡：极小概率在上方产生蒸汽泡
     if (Math.random() < 0.003 && y > 0 && world.isEmpty(x, y - 1)) {

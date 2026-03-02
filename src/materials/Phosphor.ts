@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -50,11 +49,9 @@ export const Phosphor: MaterialDef = {
     }
 
     let glow = world.getAge(x, y);
-    const dirs = DIRS4;
-
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇水溶解为荧光液
@@ -69,7 +66,58 @@ export const Phosphor: MaterialDef = {
         glow = 30 + Math.floor(Math.random() * 20);
         world.setAge(x, y, glow);
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇水溶解为荧光液
+      if (nid === 2 && Math.random() < 0.06) {
+        world.set(x, y, 80); // 荧光液（age自动重置）
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 被光源激发（覆盖/延长发光时间）
+      if ((nid === 47 || nid === 48 || nid === 16 || nid === 28) && Math.random() < 0.2) {
+        glow = 30 + Math.floor(Math.random() * 20);
+        world.setAge(x, y, glow);
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水溶解为荧光液
+      if (nid === 2 && Math.random() < 0.06) {
+        world.set(x, y, 80); // 荧光液（age自动重置）
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 被光源激发（覆盖/延长发光时间）
+      if ((nid === 47 || nid === 48 || nid === 16 || nid === 28) && Math.random() < 0.2) {
+        glow = 30 + Math.floor(Math.random() * 20);
+        world.setAge(x, y, glow);
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水溶解为荧光液
+      if (nid === 2 && Math.random() < 0.06) {
+        world.set(x, y, 80); // 荧光液（age自动重置）
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 被光源激发（覆盖/延长发光时间）
+      if ((nid === 47 || nid === 48 || nid === 16 || nid === 28) && Math.random() < 0.2) {
+        glow = 30 + Math.floor(Math.random() * 20);
+        world.setAge(x, y, glow);
+      }
+        }
 
     // 发光衰减
     if (glow > 0) {

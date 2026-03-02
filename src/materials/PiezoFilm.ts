@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -58,10 +57,9 @@ export const PiezoFilm: MaterialDef = {
 
     // 受压时的效果
     if (pressured) {
-      const dirs = DIRS4;
-      for (const [dx, dy] of dirs) {
-        const nx = x + dx, ny = y + dy;
-        if (!world.inBounds(nx, ny)) continue;
+      // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+        const nx = x, ny = y - 1;
         const nid = world.get(nx, ny);
 
         // 向邻近电线传递能量（唤醒电线）
@@ -74,7 +72,52 @@ export const PiezoFilm: MaterialDef = {
         if (nid === 111 || nid === 145) {
           world.wakeArea(nx, ny);
         }
-      }
+          }
+    if (world.inBounds(x, y + 1)) {
+        const nx = x, ny = y + 1;
+        const nid = world.get(nx, ny);
+
+        // 向邻近电线传递能量（唤醒电线）
+        if (nid === 44) {
+          world.wakeArea(nx, ny);
+          world.addTemp(nx, ny, 1);
+        }
+
+        // 向邻近闪电球/电弧传递能量
+        if (nid === 111 || nid === 145) {
+          world.wakeArea(nx, ny);
+        }
+          }
+    if (world.inBounds(x - 1, y)) {
+        const nx = x - 1, ny = y;
+        const nid = world.get(nx, ny);
+
+        // 向邻近电线传递能量（唤醒电线）
+        if (nid === 44) {
+          world.wakeArea(nx, ny);
+          world.addTemp(nx, ny, 1);
+        }
+
+        // 向邻近闪电球/电弧传递能量
+        if (nid === 111 || nid === 145) {
+          world.wakeArea(nx, ny);
+        }
+          }
+    if (world.inBounds(x + 1, y)) {
+        const nx = x + 1, ny = y;
+        const nid = world.get(nx, ny);
+
+        // 向邻近电线传递能量（唤醒电线）
+        if (nid === 44) {
+          world.wakeArea(nx, ny);
+          world.addTemp(nx, ny, 1);
+        }
+
+        // 向邻近闪电球/电弧传递能量
+        if (nid === 111 || nid === 145) {
+          world.wakeArea(nx, ny);
+        }
+          }
 
       // 受压闪光：刷新颜色
       if (Math.random() < 0.3) {
@@ -83,10 +126,9 @@ export const PiezoFilm: MaterialDef = {
     }
 
     // 导热
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       if (nid !== 0 && Math.random() < 0.05) {
@@ -97,7 +139,46 @@ export const PiezoFilm: MaterialDef = {
           world.addTemp(nx, ny, -diff);
         }
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      if (nid !== 0 && Math.random() < 0.05) {
+        const nt = world.getTemp(nx, ny);
+        if (Math.abs(temp - nt) > 5) {
+          const diff = (nt - temp) * 0.06;
+          world.addTemp(x, y, diff);
+          world.addTemp(nx, ny, -diff);
+        }
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      if (nid !== 0 && Math.random() < 0.05) {
+        const nt = world.getTemp(nx, ny);
+        if (Math.abs(temp - nt) > 5) {
+          const diff = (nt - temp) * 0.06;
+          world.addTemp(x, y, diff);
+          world.addTemp(nx, ny, -diff);
+        }
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      if (nid !== 0 && Math.random() < 0.05) {
+        const nt = world.getTemp(nx, ny);
+        if (Math.abs(temp - nt) > 5) {
+          const diff = (nt - temp) * 0.06;
+          world.addTemp(x, y, diff);
+          world.addTemp(nx, ny, -diff);
+        }
+      }
+        }
   },
 };
 

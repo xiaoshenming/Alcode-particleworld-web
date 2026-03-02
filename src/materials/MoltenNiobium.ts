@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -53,10 +52,9 @@ export const MoltenNiobium: MaterialDef = {
     }
 
     // 检查四邻
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 接触水 → 蒸汽
@@ -70,7 +68,55 @@ export const MoltenNiobium: MaterialDef = {
       if (nid !== 0) {
         world.addTemp(nx, ny, 20);
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 接触水 → 蒸汽
+      if (nid === 2 && Math.random() < 0.3) {
+        world.set(nx, ny, 8);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 加热邻居
+      if (nid !== 0) {
+        world.addTemp(nx, ny, 20);
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 接触水 → 蒸汽
+      if (nid === 2 && Math.random() < 0.3) {
+        world.set(nx, ny, 8);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 加热邻居
+      if (nid !== 0) {
+        world.addTemp(nx, ny, 20);
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 接触水 → 蒸汽
+      if (nid === 2 && Math.random() < 0.3) {
+        world.set(nx, ny, 8);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 加热邻居
+      if (nid !== 0) {
+        world.addTemp(nx, ny, 20);
+      }
+        }
 
     // === 液体流动 ===
     if (y < world.height - 1) {

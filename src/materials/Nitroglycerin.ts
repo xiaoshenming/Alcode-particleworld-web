@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -46,10 +45,9 @@ export const Nitroglycerin: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇火/熔岩/雷电/火花/等离子体立即爆炸
@@ -66,7 +64,64 @@ export const Nitroglycerin: MaterialDef = {
           return;
         }
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇火/熔岩/雷电/火花/等离子体立即爆炸
+      if ((nid === 6 || nid === 11 || nid === 16 || nid === 28 || nid === 55) && Math.random() < 0.8) {
+        explode(x, y, world);
+        return;
+      }
+
+      // 遇其他硝化甘油爆炸时连锁
+      if (nid === 109) {
+        const nTemp = world.getTemp(nx, ny);
+        if (nTemp > 200) {
+          explode(x, y, world);
+          return;
+        }
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇火/熔岩/雷电/火花/等离子体立即爆炸
+      if ((nid === 6 || nid === 11 || nid === 16 || nid === 28 || nid === 55) && Math.random() < 0.8) {
+        explode(x, y, world);
+        return;
+      }
+
+      // 遇其他硝化甘油爆炸时连锁
+      if (nid === 109) {
+        const nTemp = world.getTemp(nx, ny);
+        if (nTemp > 200) {
+          explode(x, y, world);
+          return;
+        }
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇火/熔岩/雷电/火花/等离子体立即爆炸
+      if ((nid === 6 || nid === 11 || nid === 16 || nid === 28 || nid === 55) && Math.random() < 0.8) {
+        explode(x, y, world);
+        return;
+      }
+
+      // 遇其他硝化甘油爆炸时连锁
+      if (nid === 109) {
+        const nTemp = world.getTemp(nx, ny);
+        if (nTemp > 200) {
+          explode(x, y, world);
+          return;
+        }
+      }
+        }
 
     // 液体流动：下落
     if (world.inBounds(x, y + 1)) {

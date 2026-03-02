@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -37,10 +36,9 @@ export const CarbonMonoxide: MaterialDef = {
     }
 
     // 检查四邻
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇火燃烧
@@ -65,7 +63,88 @@ export const CarbonMonoxide: MaterialDef = {
         world.set(x, y, 0); // CO被氧化消失
         return;
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇火燃烧
+      if ((nid === 6 || nid === 28 || nid === 55) && Math.random() < 0.4) {
+        world.set(x, y, 6); // 短暂火焰
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 毒杀生物
+      if (TOXIC_TARGETS.has(nid) && Math.random() < 0.04) {
+        world.set(nx, ny, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 还原铁锈为金属
+      if (nid === 72 && Math.random() < 0.01) {
+        world.set(nx, ny, 10); // 金属
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        world.set(x, y, 0); // CO被氧化消失
+        return;
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇火燃烧
+      if ((nid === 6 || nid === 28 || nid === 55) && Math.random() < 0.4) {
+        world.set(x, y, 6); // 短暂火焰
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 毒杀生物
+      if (TOXIC_TARGETS.has(nid) && Math.random() < 0.04) {
+        world.set(nx, ny, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 还原铁锈为金属
+      if (nid === 72 && Math.random() < 0.01) {
+        world.set(nx, ny, 10); // 金属
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        world.set(x, y, 0); // CO被氧化消失
+        return;
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇火燃烧
+      if ((nid === 6 || nid === 28 || nid === 55) && Math.random() < 0.4) {
+        world.set(x, y, 6); // 短暂火焰
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 毒杀生物
+      if (TOXIC_TARGETS.has(nid) && Math.random() < 0.04) {
+        world.set(nx, ny, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 还原铁锈为金属
+      if (nid === 72 && Math.random() < 0.01) {
+        world.set(nx, ny, 10); // 金属
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        world.set(x, y, 0); // CO被氧化消失
+        return;
+      }
+        }
 
     // === 气体上升 ===
     if (y > 0 && world.isEmpty(x, y - 1) && Math.random() < 0.3) {

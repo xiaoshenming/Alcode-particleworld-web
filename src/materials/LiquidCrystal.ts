@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -56,10 +55,9 @@ export const LiquidCrystal: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇电线/雷电闪烁（重新着色）
@@ -78,7 +76,70 @@ export const LiquidCrystal: MaterialDef = {
       if (nid === 14 || nid === 68) {
         world.addTemp(x, y, -5);
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇电线/雷电闪烁（重新着色）
+      if ((nid === 44 || nid === 16) && Math.random() < 0.2) {
+        // 温度变化模拟电场效应
+        world.addTemp(x, y, 5);
+        world.wakeArea(x, y);
+      }
+
+      // 遇火加热
+      if (nid === 6 || nid === 11) {
+        world.addTemp(x, y, 8);
+      }
+
+      // 遇冰/液氮冷却
+      if (nid === 14 || nid === 68) {
+        world.addTemp(x, y, -5);
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇电线/雷电闪烁（重新着色）
+      if ((nid === 44 || nid === 16) && Math.random() < 0.2) {
+        // 温度变化模拟电场效应
+        world.addTemp(x, y, 5);
+        world.wakeArea(x, y);
+      }
+
+      // 遇火加热
+      if (nid === 6 || nid === 11) {
+        world.addTemp(x, y, 8);
+      }
+
+      // 遇冰/液氮冷却
+      if (nid === 14 || nid === 68) {
+        world.addTemp(x, y, -5);
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇电线/雷电闪烁（重新着色）
+      if ((nid === 44 || nid === 16) && Math.random() < 0.2) {
+        // 温度变化模拟电场效应
+        world.addTemp(x, y, 5);
+        world.wakeArea(x, y);
+      }
+
+      // 遇火加热
+      if (nid === 6 || nid === 11) {
+        world.addTemp(x, y, 8);
+      }
+
+      // 遇冰/液氮冷却
+      if (nid === 14 || nid === 68) {
+        world.addTemp(x, y, -5);
+      }
+        }
 
     // 根据温度保持活跃（颜色在 color() 中随机生成）
     world.wakeArea(x, y);

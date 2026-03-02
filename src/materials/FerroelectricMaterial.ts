@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -46,17 +45,36 @@ export const FerroelectricMaterial: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
-
-    // 温度变化时产生电荷效应
+    // 温度变化时产生电荷效应（4方向显式展开，无HOF）
     const tempDiff = Math.abs(temp - 20);
     if (tempDiff > 10) {
-      for (const [dx, dy] of dirs) {
-        const nx = x + dx, ny = y + dy;
-        if (!world.inBounds(nx, ny)) continue;
+      if (world.inBounds(x, y - 1)) {
+        const nx = x, ny = y - 1;
         const nid = world.get(nx, ny);
-
-        // 激活相邻导线为电弧
+        if (nid === 43 && Math.random() < 0.03 * Math.min(1, tempDiff / 100)) {
+          world.set(nx, ny, 145);
+          world.wakeArea(nx, ny);
+        }
+      }
+      if (world.inBounds(x, y + 1)) {
+        const nx = x, ny = y + 1;
+        const nid = world.get(nx, ny);
+        if (nid === 43 && Math.random() < 0.03 * Math.min(1, tempDiff / 100)) {
+          world.set(nx, ny, 145);
+          world.wakeArea(nx, ny);
+        }
+      }
+      if (world.inBounds(x - 1, y)) {
+        const nx = x - 1, ny = y;
+        const nid = world.get(nx, ny);
+        if (nid === 43 && Math.random() < 0.03 * Math.min(1, tempDiff / 100)) {
+          world.set(nx, ny, 145);
+          world.wakeArea(nx, ny);
+        }
+      }
+      if (world.inBounds(x + 1, y)) {
+        const nx = x + 1, ny = y;
+        const nid = world.get(nx, ny);
         if (nid === 43 && Math.random() < 0.03 * Math.min(1, tempDiff / 100)) {
           world.set(nx, ny, 145);
           world.wakeArea(nx, ny);
@@ -64,19 +82,70 @@ export const FerroelectricMaterial: MaterialDef = {
       }
     }
 
-    // 导热和耐酸
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 导热和耐酸（4方向显式展开，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
-
       if (nid === 9 && Math.random() < 0.01) {
         world.set(x, y, 0);
         world.set(nx, ny, 7);
         world.wakeArea(x, y);
         return;
       }
-
+      if (nid !== 0 && Math.random() < 0.04) {
+        const nt = world.getTemp(nx, ny);
+        if (Math.abs(temp - nt) > 5) {
+          const diff = (nt - temp) * 0.1;
+          world.addTemp(x, y, diff);
+          world.addTemp(nx, ny, -diff);
+        }
+      }
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+      if (nid === 9 && Math.random() < 0.01) {
+        world.set(x, y, 0);
+        world.set(nx, ny, 7);
+        world.wakeArea(x, y);
+        return;
+      }
+      if (nid !== 0 && Math.random() < 0.04) {
+        const nt = world.getTemp(nx, ny);
+        if (Math.abs(temp - nt) > 5) {
+          const diff = (nt - temp) * 0.1;
+          world.addTemp(x, y, diff);
+          world.addTemp(nx, ny, -diff);
+        }
+      }
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+      if (nid === 9 && Math.random() < 0.01) {
+        world.set(x, y, 0);
+        world.set(nx, ny, 7);
+        world.wakeArea(x, y);
+        return;
+      }
+      if (nid !== 0 && Math.random() < 0.04) {
+        const nt = world.getTemp(nx, ny);
+        if (Math.abs(temp - nt) > 5) {
+          const diff = (nt - temp) * 0.1;
+          world.addTemp(x, y, diff);
+          world.addTemp(nx, ny, -diff);
+        }
+      }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+      if (nid === 9 && Math.random() < 0.01) {
+        world.set(x, y, 0);
+        world.set(nx, ny, 7);
+        world.wakeArea(x, y);
+        return;
+      }
       if (nid !== 0 && Math.random() < 0.04) {
         const nt = world.getTemp(nx, ny);
         if (Math.abs(temp - nt) > 5) {

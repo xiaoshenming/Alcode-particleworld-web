@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -45,10 +44,9 @@ export const Cesium: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇水爆炸
@@ -78,7 +76,103 @@ export const Cesium: MaterialDef = {
           world.addTemp(nx, ny, -diff);
         }
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇水爆炸
+      if (nid === 2 && Math.random() < 0.8) {
+        world.set(x, y, 6); // 火
+        world.set(nx, ny, 8); // 蒸汽
+        world.addTemp(x, y, 600);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 遇酸反应
+      if (nid === 9 && Math.random() < 0.3) {
+        world.set(x, y, 0);
+        world.set(nx, ny, 7); // 烟
+        world.addTemp(nx, ny, 200);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      if (nid !== 0 && Math.random() < 0.08) {
+        const nt = world.getTemp(nx, ny);
+        if (Math.abs(temp - nt) > 3) {
+          const diff = (nt - temp) * 0.1;
+          world.addTemp(x, y, diff);
+          world.addTemp(nx, ny, -diff);
+        }
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水爆炸
+      if (nid === 2 && Math.random() < 0.8) {
+        world.set(x, y, 6); // 火
+        world.set(nx, ny, 8); // 蒸汽
+        world.addTemp(x, y, 600);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 遇酸反应
+      if (nid === 9 && Math.random() < 0.3) {
+        world.set(x, y, 0);
+        world.set(nx, ny, 7); // 烟
+        world.addTemp(nx, ny, 200);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      if (nid !== 0 && Math.random() < 0.08) {
+        const nt = world.getTemp(nx, ny);
+        if (Math.abs(temp - nt) > 3) {
+          const diff = (nt - temp) * 0.1;
+          world.addTemp(x, y, diff);
+          world.addTemp(nx, ny, -diff);
+        }
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水爆炸
+      if (nid === 2 && Math.random() < 0.8) {
+        world.set(x, y, 6); // 火
+        world.set(nx, ny, 8); // 蒸汽
+        world.addTemp(x, y, 600);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 遇酸反应
+      if (nid === 9 && Math.random() < 0.3) {
+        world.set(x, y, 0);
+        world.set(nx, ny, 7); // 烟
+        world.addTemp(nx, ny, 200);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      if (nid !== 0 && Math.random() < 0.08) {
+        const nt = world.getTemp(nx, ny);
+        if (Math.abs(temp - nt) > 3) {
+          const diff = (nt - temp) * 0.1;
+          world.addTemp(x, y, diff);
+          world.addTemp(nx, ny, -diff);
+        }
+      }
+        }
   },
 };
 

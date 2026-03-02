@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -51,10 +50,9 @@ export const DistilledWater: MaterialDef = {
     }
 
     // 邻居交互
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 溶解盐 → 盐水
@@ -73,7 +71,70 @@ export const DistilledWater: MaterialDef = {
         world.wakeArea(x, y);
         world.wakeArea(nx, ny);
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 溶解盐 → 盐水
+      if (nid === 23 && Math.random() < 0.08) {
+        world.set(x, y, 24); // 盐水
+        world.set(nx, ny, 0);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 溶解干冰 → 产生泡泡 + 降温
+      if (nid === 65 && Math.random() < 0.05) {
+        world.set(nx, ny, 73); // 泡泡
+        world.addTemp(x, y, -30);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 溶解盐 → 盐水
+      if (nid === 23 && Math.random() < 0.08) {
+        world.set(x, y, 24); // 盐水
+        world.set(nx, ny, 0);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 溶解干冰 → 产生泡泡 + 降温
+      if (nid === 65 && Math.random() < 0.05) {
+        world.set(nx, ny, 73); // 泡泡
+        world.addTemp(x, y, -30);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 溶解盐 → 盐水
+      if (nid === 23 && Math.random() < 0.08) {
+        world.set(x, y, 24); // 盐水
+        world.set(nx, ny, 0);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 溶解干冰 → 产生泡泡 + 降温
+      if (nid === 65 && Math.random() < 0.05) {
+        world.set(nx, ny, 73); // 泡泡
+        world.addTemp(x, y, -30);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+      }
+        }
 
     if (y >= world.height - 1) return;
 

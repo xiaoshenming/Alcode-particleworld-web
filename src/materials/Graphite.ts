@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -45,10 +44,9 @@ export const Graphite: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇火缓慢燃烧
@@ -66,7 +64,67 @@ export const Graphite: MaterialDef = {
           world.addTemp(nx, ny, 1);
         }
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇火缓慢燃烧
+      if (nid === 6 && Math.random() < 0.005) {
+        world.set(x, y, 6);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 导热
+      if (nid !== 0 && temp > 25 && Math.random() < 0.1) {
+        const nTemp = world.getTemp(nx, ny);
+        if (nTemp < temp - 3) {
+          world.addTemp(x, y, -1);
+          world.addTemp(nx, ny, 1);
+        }
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇火缓慢燃烧
+      if (nid === 6 && Math.random() < 0.005) {
+        world.set(x, y, 6);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 导热
+      if (nid !== 0 && temp > 25 && Math.random() < 0.1) {
+        const nTemp = world.getTemp(nx, ny);
+        if (nTemp < temp - 3) {
+          world.addTemp(x, y, -1);
+          world.addTemp(nx, ny, 1);
+        }
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇火缓慢燃烧
+      if (nid === 6 && Math.random() < 0.005) {
+        world.set(x, y, 6);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 导热
+      if (nid !== 0 && temp > 25 && Math.random() < 0.1) {
+        const nTemp = world.getTemp(nx, ny);
+        if (nTemp < temp - 3) {
+          world.addTemp(x, y, -1);
+          world.addTemp(nx, ny, 1);
+        }
+      }
+        }
 
     // 粉末下落
     if (world.inBounds(x, y + 1)) {

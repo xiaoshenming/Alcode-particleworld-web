@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -26,10 +25,9 @@ export const Alcohol: MaterialDef = {
   density: 1.3, // 比水(2.0)轻，浮在水面
   update(x: number, y: number, world: WorldAPI) {
     // 1. 检查邻居：点燃 / 混合
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇火源立即点燃
@@ -46,7 +44,64 @@ export const Alcohol: MaterialDef = {
         world.wakeArea(x, y);
         return;
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇火源立即点燃
+      if (IGNITORS.has(nid)) {
+        world.set(x, y, 6); // 变为火
+        world.setTemp(x, y, 200);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇水混合（概率性变为水）
+      if (nid === 2 && Math.random() < 0.02) {
+        world.set(x, y, 2);
+        world.wakeArea(x, y);
+        return;
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇火源立即点燃
+      if (IGNITORS.has(nid)) {
+        world.set(x, y, 6); // 变为火
+        world.setTemp(x, y, 200);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇水混合（概率性变为水）
+      if (nid === 2 && Math.random() < 0.02) {
+        world.set(x, y, 2);
+        world.wakeArea(x, y);
+        return;
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇火源立即点燃
+      if (IGNITORS.has(nid)) {
+        world.set(x, y, 6); // 变为火
+        world.setTemp(x, y, 200);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇水混合（概率性变为水）
+      if (nid === 2 && Math.random() < 0.02) {
+        world.set(x, y, 2);
+        world.wakeArea(x, y);
+        return;
+      }
+        }
 
     // 2. 高温自燃（温度 > 200°）
     if (world.getTemp(x, y) > 200) {

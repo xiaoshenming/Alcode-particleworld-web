@@ -1,4 +1,3 @@
-import { DIRS8 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -43,15 +42,63 @@ export const Firefly: MaterialDef = {
     world.setAge(x, y, life);
 
     // 检查致命环境
-    const dirs = DIRS8;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 8方向显式展开（无HOF）
+    if (world.inBounds(x - 1, y - 1)) {
+      const nx = x - 1, ny = y - 1;
       if (DEADLY.has(world.get(nx, ny))) {
         world.set(x, y, 0); // 死亡
         return;
       }
-    }
+        }
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
+      if (DEADLY.has(world.get(nx, ny))) {
+        world.set(x, y, 0); // 死亡
+        return;
+      }
+        }
+    if (world.inBounds(x + 1, y - 1)) {
+      const nx = x + 1, ny = y - 1;
+      if (DEADLY.has(world.get(nx, ny))) {
+        world.set(x, y, 0); // 死亡
+        return;
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      if (DEADLY.has(world.get(nx, ny))) {
+        world.set(x, y, 0); // 死亡
+        return;
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      if (DEADLY.has(world.get(nx, ny))) {
+        world.set(x, y, 0); // 死亡
+        return;
+      }
+        }
+    if (world.inBounds(x - 1, y + 1)) {
+      const nx = x - 1, ny = y + 1;
+      if (DEADLY.has(world.get(nx, ny))) {
+        world.set(x, y, 0); // 死亡
+        return;
+      }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      if (DEADLY.has(world.get(nx, ny))) {
+        world.set(x, y, 0); // 死亡
+        return;
+      }
+        }
+    if (world.inBounds(x + 1, y + 1)) {
+      const nx = x + 1, ny = y + 1;
+      if (DEADLY.has(world.get(nx, ny))) {
+        world.set(x, y, 0); // 死亡
+        return;
+      }
+        }
 
     // 寿命递减
     life--;

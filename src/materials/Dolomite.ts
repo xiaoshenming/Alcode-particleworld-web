@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -58,10 +57,9 @@ export const Dolomite: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇酸液反应产生泡泡
@@ -90,7 +88,100 @@ export const Dolomite: MaterialDef = {
         world.wakeArea(x, y);
         return;
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇酸液反应产生泡泡
+      if (nid === 9 && Math.random() < 0.04) {
+        world.set(nx, ny, 73); // 泡泡
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        // 自身缓慢溶解
+        if (Math.random() < 0.3) {
+          world.set(x, y, 0);
+          world.wakeArea(x, y);
+          return;
+        }
+      }
+
+      // 遇熔岩直接分解
+      if (nid === 11 && Math.random() < 0.08) {
+        world.set(x, y, 1); // 沙子
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇水缓慢风化
+      if (nid === 2 && Math.random() < 0.001) {
+        world.set(x, y, 1); // 风化为沙子
+        world.wakeArea(x, y);
+        return;
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇酸液反应产生泡泡
+      if (nid === 9 && Math.random() < 0.04) {
+        world.set(nx, ny, 73); // 泡泡
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        // 自身缓慢溶解
+        if (Math.random() < 0.3) {
+          world.set(x, y, 0);
+          world.wakeArea(x, y);
+          return;
+        }
+      }
+
+      // 遇熔岩直接分解
+      if (nid === 11 && Math.random() < 0.08) {
+        world.set(x, y, 1); // 沙子
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇水缓慢风化
+      if (nid === 2 && Math.random() < 0.001) {
+        world.set(x, y, 1); // 风化为沙子
+        world.wakeArea(x, y);
+        return;
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇酸液反应产生泡泡
+      if (nid === 9 && Math.random() < 0.04) {
+        world.set(nx, ny, 73); // 泡泡
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        // 自身缓慢溶解
+        if (Math.random() < 0.3) {
+          world.set(x, y, 0);
+          world.wakeArea(x, y);
+          return;
+        }
+      }
+
+      // 遇熔岩直接分解
+      if (nid === 11 && Math.random() < 0.08) {
+        world.set(x, y, 1); // 沙子
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇水缓慢风化
+      if (nid === 2 && Math.random() < 0.001) {
+        world.set(x, y, 1); // 风化为沙子
+        world.wakeArea(x, y);
+        return;
+      }
+        }
 
     // 自然散热
     if (temp > 20 && Math.random() < 0.03) {

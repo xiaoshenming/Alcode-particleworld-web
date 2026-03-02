@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -58,10 +57,9 @@ export const FlexCircuit: MaterialDef = {
       world.addTemp(x, y, -0.3);
     }
 
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 导电：传导电线信号
@@ -94,7 +92,112 @@ export const FlexCircuit: MaterialDef = {
           world.addTemp(nx, ny, -diff);
         }
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 导电：传导电线信号
+      if (nid === 44 && Math.random() < 0.3) {
+        world.wakeArea(nx, ny);
+        world.addTemp(x, y, 1);
+      }
+
+      // 光激发
+      if ((nid === 47 || nid === 48) && Math.random() < 0.6) {
+        world.addTemp(x, y, 20);
+        world.wakeArea(x, y);
+      }
+
+      // 水短路
+      if (nid === 2 && Math.random() < 0.1) {
+        world.set(nx, ny, 28); // 火花
+        world.setTemp(nx, ny, 150);
+        world.addTemp(x, y, 30);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+      }
+
+      // 导热
+      if (nid !== 0 && Math.random() < 0.05) {
+        const nt = world.getTemp(nx, ny);
+        if (Math.abs(temp - nt) > 5) {
+          const diff = (nt - temp) * 0.06;
+          world.addTemp(x, y, diff);
+          world.addTemp(nx, ny, -diff);
+        }
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 导电：传导电线信号
+      if (nid === 44 && Math.random() < 0.3) {
+        world.wakeArea(nx, ny);
+        world.addTemp(x, y, 1);
+      }
+
+      // 光激发
+      if ((nid === 47 || nid === 48) && Math.random() < 0.6) {
+        world.addTemp(x, y, 20);
+        world.wakeArea(x, y);
+      }
+
+      // 水短路
+      if (nid === 2 && Math.random() < 0.1) {
+        world.set(nx, ny, 28); // 火花
+        world.setTemp(nx, ny, 150);
+        world.addTemp(x, y, 30);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+      }
+
+      // 导热
+      if (nid !== 0 && Math.random() < 0.05) {
+        const nt = world.getTemp(nx, ny);
+        if (Math.abs(temp - nt) > 5) {
+          const diff = (nt - temp) * 0.06;
+          world.addTemp(x, y, diff);
+          world.addTemp(nx, ny, -diff);
+        }
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 导电：传导电线信号
+      if (nid === 44 && Math.random() < 0.3) {
+        world.wakeArea(nx, ny);
+        world.addTemp(x, y, 1);
+      }
+
+      // 光激发
+      if ((nid === 47 || nid === 48) && Math.random() < 0.6) {
+        world.addTemp(x, y, 20);
+        world.wakeArea(x, y);
+      }
+
+      // 水短路
+      if (nid === 2 && Math.random() < 0.1) {
+        world.set(nx, ny, 28); // 火花
+        world.setTemp(nx, ny, 150);
+        world.addTemp(x, y, 30);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+      }
+
+      // 导热
+      if (nid !== 0 && Math.random() < 0.05) {
+        const nt = world.getTemp(nx, ny);
+        if (Math.abs(temp - nt) > 5) {
+          const diff = (nt - temp) * 0.06;
+          world.addTemp(x, y, diff);
+          world.addTemp(nx, ny, -diff);
+        }
+      }
+        }
   },
 };
 

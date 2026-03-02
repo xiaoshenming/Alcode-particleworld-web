@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -55,10 +54,9 @@ export const PhotovoltaicMaterial: MaterialDef = {
       world.addTemp(x, y, -0.5);
     }
 
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 光源 → 升温
@@ -89,7 +87,106 @@ export const PhotovoltaicMaterial: MaterialDef = {
           world.addTemp(nx, ny, -diff);
         }
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 光源 → 升温
+      if ((nid === 47 || nid === 48 || nid === 16) && Math.random() < 0.8) {
+        world.addTemp(x, y, 30);
+        world.wakeArea(x, y);
+      }
+
+      // 火 → 升温
+      if (nid === 6 && Math.random() < 0.5) {
+        world.addTemp(x, y, 15);
+        world.wakeArea(x, y);
+      }
+
+      // 水冷却：加速散热并加热水
+      if (nid === 2 && temp > 30) {
+        const transfer = Math.min(15, (temp - 20) * 0.1);
+        world.addTemp(x, y, -transfer);
+        world.addTemp(nx, ny, transfer * 0.8);
+      }
+
+      // 普通导热
+      if (nid !== 0 && Math.random() < 0.06) {
+        const nt = world.getTemp(nx, ny);
+        if (Math.abs(temp - nt) > 5) {
+          const diff = (nt - temp) * 0.07;
+          world.addTemp(x, y, diff);
+          world.addTemp(nx, ny, -diff);
+        }
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 光源 → 升温
+      if ((nid === 47 || nid === 48 || nid === 16) && Math.random() < 0.8) {
+        world.addTemp(x, y, 30);
+        world.wakeArea(x, y);
+      }
+
+      // 火 → 升温
+      if (nid === 6 && Math.random() < 0.5) {
+        world.addTemp(x, y, 15);
+        world.wakeArea(x, y);
+      }
+
+      // 水冷却：加速散热并加热水
+      if (nid === 2 && temp > 30) {
+        const transfer = Math.min(15, (temp - 20) * 0.1);
+        world.addTemp(x, y, -transfer);
+        world.addTemp(nx, ny, transfer * 0.8);
+      }
+
+      // 普通导热
+      if (nid !== 0 && Math.random() < 0.06) {
+        const nt = world.getTemp(nx, ny);
+        if (Math.abs(temp - nt) > 5) {
+          const diff = (nt - temp) * 0.07;
+          world.addTemp(x, y, diff);
+          world.addTemp(nx, ny, -diff);
+        }
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 光源 → 升温
+      if ((nid === 47 || nid === 48 || nid === 16) && Math.random() < 0.8) {
+        world.addTemp(x, y, 30);
+        world.wakeArea(x, y);
+      }
+
+      // 火 → 升温
+      if (nid === 6 && Math.random() < 0.5) {
+        world.addTemp(x, y, 15);
+        world.wakeArea(x, y);
+      }
+
+      // 水冷却：加速散热并加热水
+      if (nid === 2 && temp > 30) {
+        const transfer = Math.min(15, (temp - 20) * 0.1);
+        world.addTemp(x, y, -transfer);
+        world.addTemp(nx, ny, transfer * 0.8);
+      }
+
+      // 普通导热
+      if (nid !== 0 && Math.random() < 0.06) {
+        const nt = world.getTemp(nx, ny);
+        if (Math.abs(temp - nt) > 5) {
+          const diff = (nt - temp) * 0.07;
+          world.addTemp(x, y, diff);
+          world.addTemp(nx, ny, -diff);
+        }
+      }
+        }
   },
 };
 

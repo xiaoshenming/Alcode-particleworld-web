@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -37,10 +36,9 @@ export const ThermoMagnetoAcousticMaterial: MaterialDef = {
   update(x: number, y: number, world: WorldAPI) {
     const temp = world.getTemp(x, y);
 
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 高温时产生磁效应（吸引附近金属粒子）
@@ -81,7 +79,136 @@ export const ThermoMagnetoAcousticMaterial: MaterialDef = {
           world.addTemp(nx, ny, -diff);
         }
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 高温时产生磁效应（吸引附近金属粒子）
+      if (temp > 380 && Math.random() < 0.02) {
+        // 搜索附近范围内的金属粒子并吸引
+        for (let sx = -3; sx <= 3; sx++) {
+          for (let sy = -3; sy <= 3; sy++) {
+            const tx = x + sx, ty = y + sy;
+            if (!world.inBounds(tx, ty)) continue;
+            const tid = world.get(tx, ty);
+            // 金属类材质: 10=金属, 85=铜, 86=锡, 169=液态铁
+            if ((tid === 10 || tid === 85 || tid === 86 || tid === 169) && Math.random() < 0.1) {
+              const mx = tx + (tx > x ? -1 : tx < x ? 1 : 0);
+              const my = ty + (ty > y ? -1 : ty < y ? 1 : 0);
+              if (world.inBounds(mx, my) && world.get(mx, my) === 0) {
+                world.swap(tx, ty, mx, my);
+                world.wakeArea(mx, my);
+              }
+            }
+          }
+        }
+      }
+
+      // 遇磁铁产生声效应（生成龙卷风碎片）
+      if (nid === 42 && Math.random() < 0.02) {
+        const fy = y - 1;
+        if (world.inBounds(x, fy) && world.get(x, fy) === 0) {
+          world.set(x, fy, 50);
+          world.wakeArea(x, fy);
+        }
+      }
+
+      if (nid !== 0 && Math.random() < 0.06) {
+        const nt = world.getTemp(nx, ny);
+        if (Math.abs(temp - nt) > 5) {
+          const diff = (nt - temp) * 0.07;
+          world.addTemp(x, y, diff);
+          world.addTemp(nx, ny, -diff);
+        }
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 高温时产生磁效应（吸引附近金属粒子）
+      if (temp > 380 && Math.random() < 0.02) {
+        // 搜索附近范围内的金属粒子并吸引
+        for (let sx = -3; sx <= 3; sx++) {
+          for (let sy = -3; sy <= 3; sy++) {
+            const tx = x + sx, ty = y + sy;
+            if (!world.inBounds(tx, ty)) continue;
+            const tid = world.get(tx, ty);
+            // 金属类材质: 10=金属, 85=铜, 86=锡, 169=液态铁
+            if ((tid === 10 || tid === 85 || tid === 86 || tid === 169) && Math.random() < 0.1) {
+              const mx = tx + (tx > x ? -1 : tx < x ? 1 : 0);
+              const my = ty + (ty > y ? -1 : ty < y ? 1 : 0);
+              if (world.inBounds(mx, my) && world.get(mx, my) === 0) {
+                world.swap(tx, ty, mx, my);
+                world.wakeArea(mx, my);
+              }
+            }
+          }
+        }
+      }
+
+      // 遇磁铁产生声效应（生成龙卷风碎片）
+      if (nid === 42 && Math.random() < 0.02) {
+        const fy = y - 1;
+        if (world.inBounds(x, fy) && world.get(x, fy) === 0) {
+          world.set(x, fy, 50);
+          world.wakeArea(x, fy);
+        }
+      }
+
+      if (nid !== 0 && Math.random() < 0.06) {
+        const nt = world.getTemp(nx, ny);
+        if (Math.abs(temp - nt) > 5) {
+          const diff = (nt - temp) * 0.07;
+          world.addTemp(x, y, diff);
+          world.addTemp(nx, ny, -diff);
+        }
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 高温时产生磁效应（吸引附近金属粒子）
+      if (temp > 380 && Math.random() < 0.02) {
+        // 搜索附近范围内的金属粒子并吸引
+        for (let sx = -3; sx <= 3; sx++) {
+          for (let sy = -3; sy <= 3; sy++) {
+            const tx = x + sx, ty = y + sy;
+            if (!world.inBounds(tx, ty)) continue;
+            const tid = world.get(tx, ty);
+            // 金属类材质: 10=金属, 85=铜, 86=锡, 169=液态铁
+            if ((tid === 10 || tid === 85 || tid === 86 || tid === 169) && Math.random() < 0.1) {
+              const mx = tx + (tx > x ? -1 : tx < x ? 1 : 0);
+              const my = ty + (ty > y ? -1 : ty < y ? 1 : 0);
+              if (world.inBounds(mx, my) && world.get(mx, my) === 0) {
+                world.swap(tx, ty, mx, my);
+                world.wakeArea(mx, my);
+              }
+            }
+          }
+        }
+      }
+
+      // 遇磁铁产生声效应（生成龙卷风碎片）
+      if (nid === 42 && Math.random() < 0.02) {
+        const fy = y - 1;
+        if (world.inBounds(x, fy) && world.get(x, fy) === 0) {
+          world.set(x, fy, 50);
+          world.wakeArea(x, fy);
+        }
+      }
+
+      if (nid !== 0 && Math.random() < 0.06) {
+        const nt = world.getTemp(nx, ny);
+        if (Math.abs(temp - nt) > 5) {
+          const diff = (nt - temp) * 0.07;
+          world.addTemp(x, y, diff);
+          world.addTemp(nx, ny, -diff);
+        }
+      }
+        }
   },
 };
 

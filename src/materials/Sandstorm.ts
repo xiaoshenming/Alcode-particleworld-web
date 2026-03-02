@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -52,10 +51,9 @@ export const Sandstorm: MaterialDef = {
     const windStr = world.getWindStrength();
 
     // 邻居交互
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇水变泥浆
@@ -71,7 +69,61 @@ export const Sandstorm: MaterialDef = {
         world.markUpdated(nx, ny);
         world.wakeArea(nx, ny);
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇水变泥浆
+      if (nid === 2) {
+        world.set(x, y, 63); // 泥浆
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 卷起沙子/泥土
+      if (LIFTABLE.has(nid) && Math.random() < 0.04) {
+        world.set(nx, ny, 84); // 变为沙尘暴
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水变泥浆
+      if (nid === 2) {
+        world.set(x, y, 63); // 泥浆
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 卷起沙子/泥土
+      if (LIFTABLE.has(nid) && Math.random() < 0.04) {
+        world.set(nx, ny, 84); // 变为沙尘暴
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水变泥浆
+      if (nid === 2) {
+        world.set(x, y, 63); // 泥浆
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 卷起沙子/泥土
+      if (LIFTABLE.has(nid) && Math.random() < 0.04) {
+        world.set(nx, ny, 84); // 变为沙尘暴
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
 
     // 向上飘浮
     if (y - 1 >= 0 && world.isEmpty(x, y - 1) && Math.random() < 0.4) {

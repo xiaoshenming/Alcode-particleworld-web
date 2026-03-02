@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -48,10 +47,9 @@ export const IndustrialMoltenSalt: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇水剧烈反应
@@ -67,7 +65,61 @@ export const IndustrialMoltenSalt: MaterialDef = {
         world.addTemp(nx, ny, 15);
         world.addTemp(x, y, -5);
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇水剧烈反应
+      if (nid === 2 && Math.random() < 0.2) {
+        world.set(nx, ny, 8); // 蒸汽
+        world.addTemp(x, y, -30);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 遇金属/铜传热
+      if ((nid === 10 || nid === 85) && Math.random() < 0.1) {
+        world.addTemp(nx, ny, 15);
+        world.addTemp(x, y, -5);
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水剧烈反应
+      if (nid === 2 && Math.random() < 0.2) {
+        world.set(nx, ny, 8); // 蒸汽
+        world.addTemp(x, y, -30);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 遇金属/铜传热
+      if ((nid === 10 || nid === 85) && Math.random() < 0.1) {
+        world.addTemp(nx, ny, 15);
+        world.addTemp(x, y, -5);
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水剧烈反应
+      if (nid === 2 && Math.random() < 0.2) {
+        world.set(nx, ny, 8); // 蒸汽
+        world.addTemp(x, y, -30);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 遇金属/铜传热
+      if ((nid === 10 || nid === 85) && Math.random() < 0.1) {
+        world.addTemp(nx, ny, 15);
+        world.addTemp(x, y, -5);
+      }
+        }
 
     // 缓慢散热
     if (Math.random() < 0.02) {

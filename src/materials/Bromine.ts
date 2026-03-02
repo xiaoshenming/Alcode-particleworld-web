@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -30,10 +29,9 @@ export const Bromine: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 接触水 → 酸
@@ -62,7 +60,100 @@ export const Bromine: MaterialDef = {
         world.wakeArea(nx, ny);
         return;
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 接触水 → 酸
+      if (nid === 2 && Math.random() < 0.1) {
+        world.set(nx, ny, 9);
+        world.set(x, y, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 腐蚀有机物（木、植物）
+      if ((nid === 4 || nid === 13 || nid === 49 || nid === 12) && Math.random() < 0.06) {
+        world.set(nx, ny, 7); // 烟
+        world.set(x, y, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 腐蚀金属（较弱）
+      if (nid === 10 && Math.random() < 0.015) {
+        world.set(nx, ny, 7);
+        world.set(x, y, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        return;
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 接触水 → 酸
+      if (nid === 2 && Math.random() < 0.1) {
+        world.set(nx, ny, 9);
+        world.set(x, y, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 腐蚀有机物（木、植物）
+      if ((nid === 4 || nid === 13 || nid === 49 || nid === 12) && Math.random() < 0.06) {
+        world.set(nx, ny, 7); // 烟
+        world.set(x, y, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 腐蚀金属（较弱）
+      if (nid === 10 && Math.random() < 0.015) {
+        world.set(nx, ny, 7);
+        world.set(x, y, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        return;
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 接触水 → 酸
+      if (nid === 2 && Math.random() < 0.1) {
+        world.set(nx, ny, 9);
+        world.set(x, y, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 腐蚀有机物（木、植物）
+      if ((nid === 4 || nid === 13 || nid === 49 || nid === 12) && Math.random() < 0.06) {
+        world.set(nx, ny, 7); // 烟
+        world.set(x, y, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 腐蚀金属（较弱）
+      if (nid === 10 && Math.random() < 0.015) {
+        world.set(nx, ny, 7);
+        world.set(x, y, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        return;
+      }
+        }
 
     // === 气体运动：较重，缓慢下沉 ===
     if (y < world.height - 1 && world.isEmpty(x, y + 1) && Math.random() < 0.15) {

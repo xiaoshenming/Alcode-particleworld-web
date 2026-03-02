@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -52,10 +51,9 @@ export const Calcite: MaterialDef = {
     }
 
     // 检查四邻
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇酸冒泡溶解
@@ -66,7 +64,46 @@ export const Calcite: MaterialDef = {
         world.wakeArea(x, y);
         return;
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇酸冒泡溶解
+      if ((nid === 9 || nid === 173 || nid === 183 || nid === 159) && Math.random() < 0.04) {
+        world.set(x, y, 51); // 变泡沫
+        world.set(nx, ny, 7); // 酸变烟（CO₂）
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        return;
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇酸冒泡溶解
+      if ((nid === 9 || nid === 173 || nid === 183 || nid === 159) && Math.random() < 0.04) {
+        world.set(x, y, 51); // 变泡沫
+        world.set(nx, ny, 7); // 酸变烟（CO₂）
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        return;
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇酸冒泡溶解
+      if ((nid === 9 || nid === 173 || nid === 183 || nid === 159) && Math.random() < 0.04) {
+        world.set(x, y, 51); // 变泡沫
+        world.set(nx, ny, 7); // 酸变烟（CO₂）
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        return;
+      }
+        }
   },
 };
 

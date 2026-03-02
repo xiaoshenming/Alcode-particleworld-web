@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -33,10 +32,9 @@ export const Fluorine: MaterialDef = {
     }
 
     // 检查四邻
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 接触水 → 产生酸
@@ -83,7 +81,154 @@ export const Fluorine: MaterialDef = {
         world.wakeArea(nx, ny);
         return;
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 接触水 → 产生酸
+      if (nid === 2 && Math.random() < 0.15) {
+        world.set(nx, ny, 9);
+        world.set(x, y, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 接触有机物 → 起火
+      if ((nid === 4 || nid === 13 || nid === 49 || nid === 12) && Math.random() < 0.1) {
+        world.set(nx, ny, 6); // 火
+        world.set(x, y, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 腐蚀金属
+      if ((nid === 10 || nid === 17) && Math.random() < 0.03) {
+        world.set(nx, ny, 7); // 烟
+        world.set(x, y, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 腐蚀玻璃
+      if (nid === 17 && Math.random() < 0.04) {
+        world.set(nx, ny, 1); // 沙
+        world.set(x, y, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 腐蚀石头
+      if (nid === 3 && Math.random() < 0.01) {
+        world.set(nx, ny, 7);
+        world.set(x, y, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        return;
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 接触水 → 产生酸
+      if (nid === 2 && Math.random() < 0.15) {
+        world.set(nx, ny, 9);
+        world.set(x, y, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 接触有机物 → 起火
+      if ((nid === 4 || nid === 13 || nid === 49 || nid === 12) && Math.random() < 0.1) {
+        world.set(nx, ny, 6); // 火
+        world.set(x, y, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 腐蚀金属
+      if ((nid === 10 || nid === 17) && Math.random() < 0.03) {
+        world.set(nx, ny, 7); // 烟
+        world.set(x, y, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 腐蚀玻璃
+      if (nid === 17 && Math.random() < 0.04) {
+        world.set(nx, ny, 1); // 沙
+        world.set(x, y, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 腐蚀石头
+      if (nid === 3 && Math.random() < 0.01) {
+        world.set(nx, ny, 7);
+        world.set(x, y, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        return;
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 接触水 → 产生酸
+      if (nid === 2 && Math.random() < 0.15) {
+        world.set(nx, ny, 9);
+        world.set(x, y, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 接触有机物 → 起火
+      if ((nid === 4 || nid === 13 || nid === 49 || nid === 12) && Math.random() < 0.1) {
+        world.set(nx, ny, 6); // 火
+        world.set(x, y, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 腐蚀金属
+      if ((nid === 10 || nid === 17) && Math.random() < 0.03) {
+        world.set(nx, ny, 7); // 烟
+        world.set(x, y, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 腐蚀玻璃
+      if (nid === 17 && Math.random() < 0.04) {
+        world.set(nx, ny, 1); // 沙
+        world.set(x, y, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 腐蚀石头
+      if (nid === 3 && Math.random() < 0.01) {
+        world.set(nx, ny, 7);
+        world.set(x, y, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        return;
+      }
+        }
 
     // === 气体运动：略重于空气，缓慢下沉 ===
     if (y < world.height - 1 && world.isEmpty(x, y + 1) && Math.random() < 0.1) {

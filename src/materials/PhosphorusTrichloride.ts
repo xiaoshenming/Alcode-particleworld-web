@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -33,10 +32,9 @@ export const PhosphorusTrichloride: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇水剧烈反应
@@ -53,7 +51,64 @@ export const PhosphorusTrichloride: MaterialDef = {
         world.set(nx, ny, 72); // 铁锈
         world.wakeArea(nx, ny);
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇水剧烈反应
+      if (nid === 2 && Math.random() < 0.3) {
+        world.set(x, y, 9); // 酸液
+        world.set(nx, ny, 7); // 烟
+        world.addTemp(x, y, 30);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 腐蚀金属
+      if (nid === 10 && Math.random() < 0.02) {
+        world.set(nx, ny, 72); // 铁锈
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水剧烈反应
+      if (nid === 2 && Math.random() < 0.3) {
+        world.set(x, y, 9); // 酸液
+        world.set(nx, ny, 7); // 烟
+        world.addTemp(x, y, 30);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 腐蚀金属
+      if (nid === 10 && Math.random() < 0.02) {
+        world.set(nx, ny, 72); // 铁锈
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水剧烈反应
+      if (nid === 2 && Math.random() < 0.3) {
+        world.set(x, y, 9); // 酸液
+        world.set(nx, ny, 7); // 烟
+        world.addTemp(x, y, 30);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 腐蚀金属
+      if (nid === 10 && Math.random() < 0.02) {
+        world.set(nx, ny, 72); // 铁锈
+        world.wakeArea(nx, ny);
+      }
+        }
 
     if (y >= world.height - 1) return;
 

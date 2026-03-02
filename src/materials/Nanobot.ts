@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -55,10 +54,9 @@ export const Nanobot: MaterialDef = {
     }
 
     // 检查四邻
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇水短路
@@ -88,7 +86,103 @@ export const Nanobot: MaterialDef = {
         world.markUpdated(nx, ny);
         world.wakeArea(nx, ny);
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇水短路
+      if (nid === 2 && Math.random() < 0.1) {
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇雷电被摧毁
+      if (nid === 16 && Math.random() < 0.5) {
+        world.set(x, y, 7); // 烟
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 消耗金属自复制
+      if (CONSUME_METALS.has(nid) && Math.random() < 0.02) {
+        world.set(nx, ny, 255); // 复制
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 分解有机物
+      if (ORGANIC_TARGETS.has(nid) && Math.random() < 0.04) {
+        world.set(nx, ny, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水短路
+      if (nid === 2 && Math.random() < 0.1) {
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇雷电被摧毁
+      if (nid === 16 && Math.random() < 0.5) {
+        world.set(x, y, 7); // 烟
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 消耗金属自复制
+      if (CONSUME_METALS.has(nid) && Math.random() < 0.02) {
+        world.set(nx, ny, 255); // 复制
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 分解有机物
+      if (ORGANIC_TARGETS.has(nid) && Math.random() < 0.04) {
+        world.set(nx, ny, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水短路
+      if (nid === 2 && Math.random() < 0.1) {
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇雷电被摧毁
+      if (nid === 16 && Math.random() < 0.5) {
+        world.set(x, y, 7); // 烟
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 消耗金属自复制
+      if (CONSUME_METALS.has(nid) && Math.random() < 0.02) {
+        world.set(nx, ny, 255); // 复制
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 分解有机物
+      if (ORGANIC_TARGETS.has(nid) && Math.random() < 0.04) {
+        world.set(nx, ny, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
 
     // === 粉末下落 ===
     if (y < world.height - 1) {

@@ -49,14 +49,35 @@ export const Sodium: MaterialDef = {
       world.setTemp(x, y, 300);
       world.wakeArea(x, y);
       // 周围产生火花
-      const dirs = DIRS4;
-      for (const [dx, dy] of dirs) {
-        const nx = x + dx, ny = y + dy;
+      // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+        const nx = x, ny = y - 1;
         if (world.inBounds(nx, ny) && world.isEmpty(nx, ny) && Math.random() < 0.3) {
           world.set(nx, ny, 28); // 火花
           world.wakeArea(nx, ny);
         }
-      }
+          }
+    if (world.inBounds(x, y + 1)) {
+        const nx = x, ny = y + 1;
+        if (world.inBounds(nx, ny) && world.isEmpty(nx, ny) && Math.random() < 0.3) {
+          world.set(nx, ny, 28); // 火花
+          world.wakeArea(nx, ny);
+        }
+          }
+    if (world.inBounds(x - 1, y)) {
+        const nx = x - 1, ny = y;
+        if (world.inBounds(nx, ny) && world.isEmpty(nx, ny) && Math.random() < 0.3) {
+          world.set(nx, ny, 28); // 火花
+          world.wakeArea(nx, ny);
+        }
+          }
+    if (world.inBounds(x + 1, y)) {
+        const nx = x + 1, ny = y;
+        if (world.inBounds(nx, ny) && world.isEmpty(nx, ny) && Math.random() < 0.3) {
+          world.set(nx, ny, 28); // 火花
+          world.wakeArea(nx, ny);
+        }
+          }
       return;
     }
 

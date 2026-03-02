@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -45,10 +44,9 @@ export const VolcanicAsh: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇水变湿水泥
@@ -67,7 +65,70 @@ export const VolcanicAsh: MaterialDef = {
         world.markUpdated(nx, ny);
         world.wakeArea(nx, ny);
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇水变湿水泥
+      if (nid === 2 && Math.random() < 0.02) {
+        world.set(x, y, 35); // 湿水泥
+        world.set(nx, ny, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 窒息植物
+      if ((nid === 13 || nid === 12) && Math.random() < 0.005) {
+        world.set(nx, ny, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水变湿水泥
+      if (nid === 2 && Math.random() < 0.02) {
+        world.set(x, y, 35); // 湿水泥
+        world.set(nx, ny, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 窒息植物
+      if ((nid === 13 || nid === 12) && Math.random() < 0.005) {
+        world.set(nx, ny, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水变湿水泥
+      if (nid === 2 && Math.random() < 0.02) {
+        world.set(x, y, 35); // 湿水泥
+        world.set(nx, ny, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 窒息植物
+      if ((nid === 13 || nid === 12) && Math.random() < 0.005) {
+        world.set(nx, ny, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
 
     // 受风力影响
     const wind = world.getWind();

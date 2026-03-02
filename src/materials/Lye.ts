@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -25,10 +24,9 @@ export const Lye: MaterialDef = {
   density: 2.2,
   update(x: number, y: number, world: WorldAPI) {
     // 1. 化学反应检查
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇酸中和：双方都变为盐水
@@ -62,7 +60,115 @@ export const Lye: MaterialDef = {
           return;
         }
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇酸中和：双方都变为盐水
+      if (nid === 9) {
+        world.set(x, y, 24);  // 碱液→盐水
+        world.set(nx, ny, 24); // 酸液→盐水
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 遇油皂化：油变泡沫
+      if (nid === 5 && Math.random() < 0.05) {
+        world.set(nx, ny, 51); // 油→泡沫
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        // 碱液自身有概率消耗
+        if (Math.random() < 0.3) {
+          world.set(x, y, 0);
+          return;
+        }
+      }
+
+      // 腐蚀有机物
+      if (ORGANIC.has(nid) && Math.random() < 0.04) {
+        world.set(nx, ny, 0); // 溶解目标
+        world.wakeArea(nx, ny);
+        // 碱液自身 40% 概率消耗
+        if (Math.random() < 0.4) {
+          world.set(x, y, 7); // 产生烟
+          return;
+        }
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇酸中和：双方都变为盐水
+      if (nid === 9) {
+        world.set(x, y, 24);  // 碱液→盐水
+        world.set(nx, ny, 24); // 酸液→盐水
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 遇油皂化：油变泡沫
+      if (nid === 5 && Math.random() < 0.05) {
+        world.set(nx, ny, 51); // 油→泡沫
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        // 碱液自身有概率消耗
+        if (Math.random() < 0.3) {
+          world.set(x, y, 0);
+          return;
+        }
+      }
+
+      // 腐蚀有机物
+      if (ORGANIC.has(nid) && Math.random() < 0.04) {
+        world.set(nx, ny, 0); // 溶解目标
+        world.wakeArea(nx, ny);
+        // 碱液自身 40% 概率消耗
+        if (Math.random() < 0.4) {
+          world.set(x, y, 7); // 产生烟
+          return;
+        }
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇酸中和：双方都变为盐水
+      if (nid === 9) {
+        world.set(x, y, 24);  // 碱液→盐水
+        world.set(nx, ny, 24); // 酸液→盐水
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 遇油皂化：油变泡沫
+      if (nid === 5 && Math.random() < 0.05) {
+        world.set(nx, ny, 51); // 油→泡沫
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        // 碱液自身有概率消耗
+        if (Math.random() < 0.3) {
+          world.set(x, y, 0);
+          return;
+        }
+      }
+
+      // 腐蚀有机物
+      if (ORGANIC.has(nid) && Math.random() < 0.04) {
+        world.set(nx, ny, 0); // 溶解目标
+        world.wakeArea(nx, ny);
+        // 碱液自身 40% 概率消耗
+        if (Math.random() < 0.4) {
+          world.set(x, y, 7); // 产生烟
+          return;
+        }
+      }
+        }
 
     if (y >= world.height - 1) return;
 

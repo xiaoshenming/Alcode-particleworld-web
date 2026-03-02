@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -59,22 +58,39 @@ export const WhiteTin: MaterialDef = {
         world.set(x, y, 146); // 干沙（灰色粉末）
         world.wakeArea(x, y);
         // 锡疫具有传染性：唤醒邻居白锡
-        const dirs = DIRS4;
-        for (const [dx, dy] of dirs) {
-          const nx = x + dx, ny = y + dy;
+        // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+          const nx = x, ny = y - 1;
           if (world.inBounds(nx, ny) && world.get(nx, ny) === 176) {
             world.wakeArea(nx, ny);
           }
-        }
+            }
+    if (world.inBounds(x, y + 1)) {
+          const nx = x, ny = y + 1;
+          if (world.inBounds(nx, ny) && world.get(nx, ny) === 176) {
+            world.wakeArea(nx, ny);
+          }
+            }
+    if (world.inBounds(x - 1, y)) {
+          const nx = x - 1, ny = y;
+          if (world.inBounds(nx, ny) && world.get(nx, ny) === 176) {
+            world.wakeArea(nx, ny);
+          }
+            }
+    if (world.inBounds(x + 1, y)) {
+          const nx = x + 1, ny = y;
+          if (world.inBounds(nx, ny) && world.get(nx, ny) === 176) {
+            world.wakeArea(nx, ny);
+          }
+            }
         return;
       }
     }
 
     // 导热
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nTemp = world.getTemp(nx, ny);
       const diff = temp - nTemp;
       if (Math.abs(diff) > 1) {
@@ -82,7 +98,37 @@ export const WhiteTin: MaterialDef = {
         world.addTemp(nx, ny, transfer);
         world.addTemp(x, y, -transfer);
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nTemp = world.getTemp(nx, ny);
+      const diff = temp - nTemp;
+      if (Math.abs(diff) > 1) {
+        const transfer = diff * 0.12;
+        world.addTemp(nx, ny, transfer);
+        world.addTemp(x, y, -transfer);
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nTemp = world.getTemp(nx, ny);
+      const diff = temp - nTemp;
+      if (Math.abs(diff) > 1) {
+        const transfer = diff * 0.12;
+        world.addTemp(nx, ny, transfer);
+        world.addTemp(x, y, -transfer);
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nTemp = world.getTemp(nx, ny);
+      const diff = temp - nTemp;
+      if (Math.abs(diff) > 1) {
+        const transfer = diff * 0.12;
+        world.addTemp(nx, ny, transfer);
+        world.addTemp(x, y, -transfer);
+      }
+        }
 
     // 重力下落
     if (y + 1 < world.height) {

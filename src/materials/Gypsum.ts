@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -28,10 +27,9 @@ export const Gypsum: MaterialDef = {
     }
 
     // 检查邻居
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇水缓慢软化
@@ -40,7 +38,40 @@ export const Gypsum: MaterialDef = {
         world.wakeArea(x, y);
         return;
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇水缓慢软化
+      if (nid === 2 && Math.random() < 0.002) {
+        world.set(x, y, 20); // 变为泥土
+        world.wakeArea(x, y);
+        return;
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水缓慢软化
+      if (nid === 2 && Math.random() < 0.002) {
+        world.set(x, y, 20); // 变为泥土
+        world.wakeArea(x, y);
+        return;
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水缓慢软化
+      if (nid === 2 && Math.random() < 0.002) {
+        world.set(x, y, 20); // 变为泥土
+        world.wakeArea(x, y);
+        return;
+      }
+        }
   },
 };
 

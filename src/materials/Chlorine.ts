@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -47,10 +46,9 @@ export const Chlorine: MaterialDef = {
     }
 
     // 检查四邻
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇水生成酸液
@@ -86,7 +84,121 @@ export const Chlorine: MaterialDef = {
         world.markUpdated(nx, ny);
         world.wakeArea(nx, ny);
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇水生成酸液
+      if (nid === 2 && Math.random() < 0.08) {
+        world.set(nx, ny, 9); // 酸液
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        world.set(x, y, 0);
+        return;
+      }
+
+      // 遇氨气反应生成白烟
+      if (nid === 223 && Math.random() < 0.15) {
+        world.set(nx, ny, 7); // 烟
+        world.markUpdated(nx, ny);
+        world.set(x, y, 7);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 腐蚀金属
+      if (CORRODE_TARGETS.has(nid) && Math.random() < 0.02) {
+        world.set(nx, ny, 72); // 铁锈
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        world.set(x, y, 0);
+        return;
+      }
+
+      // 毒杀生物
+      if (TOXIC_TARGETS.has(nid) && Math.random() < 0.06) {
+        world.set(nx, ny, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水生成酸液
+      if (nid === 2 && Math.random() < 0.08) {
+        world.set(nx, ny, 9); // 酸液
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        world.set(x, y, 0);
+        return;
+      }
+
+      // 遇氨气反应生成白烟
+      if (nid === 223 && Math.random() < 0.15) {
+        world.set(nx, ny, 7); // 烟
+        world.markUpdated(nx, ny);
+        world.set(x, y, 7);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 腐蚀金属
+      if (CORRODE_TARGETS.has(nid) && Math.random() < 0.02) {
+        world.set(nx, ny, 72); // 铁锈
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        world.set(x, y, 0);
+        return;
+      }
+
+      // 毒杀生物
+      if (TOXIC_TARGETS.has(nid) && Math.random() < 0.06) {
+        world.set(nx, ny, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水生成酸液
+      if (nid === 2 && Math.random() < 0.08) {
+        world.set(nx, ny, 9); // 酸液
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        world.set(x, y, 0);
+        return;
+      }
+
+      // 遇氨气反应生成白烟
+      if (nid === 223 && Math.random() < 0.15) {
+        world.set(nx, ny, 7); // 烟
+        world.markUpdated(nx, ny);
+        world.set(x, y, 7);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 腐蚀金属
+      if (CORRODE_TARGETS.has(nid) && Math.random() < 0.02) {
+        world.set(nx, ny, 72); // 铁锈
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        world.set(x, y, 0);
+        return;
+      }
+
+      // 毒杀生物
+      if (TOXIC_TARGETS.has(nid) && Math.random() < 0.06) {
+        world.set(nx, ny, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
 
     // === 气体运动（比空气重，倾向下沉） ===
     // 下沉

@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -47,23 +46,46 @@ export const Zeolite: MaterialDef = {
 
     // 高温释放气体（再生）
     if (temp > 600) {
-      const dirs = DIRS4;
-      for (const [dx, dy] of dirs) {
-        const nx = x + dx, ny = y + dy;
+      // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+        const nx = x, ny = y - 1;
         if (world.inBounds(nx, ny) && world.isEmpty(nx, ny) && Math.random() < 0.1) {
           world.set(nx, ny, 7); // 释放烟
           world.markUpdated(nx, ny);
           world.wakeArea(nx, ny);
         }
-      }
+          }
+    if (world.inBounds(x, y + 1)) {
+        const nx = x, ny = y + 1;
+        if (world.inBounds(nx, ny) && world.isEmpty(nx, ny) && Math.random() < 0.1) {
+          world.set(nx, ny, 7); // 释放烟
+          world.markUpdated(nx, ny);
+          world.wakeArea(nx, ny);
+        }
+          }
+    if (world.inBounds(x - 1, y)) {
+        const nx = x - 1, ny = y;
+        if (world.inBounds(nx, ny) && world.isEmpty(nx, ny) && Math.random() < 0.1) {
+          world.set(nx, ny, 7); // 释放烟
+          world.markUpdated(nx, ny);
+          world.wakeArea(nx, ny);
+        }
+          }
+    if (world.inBounds(x + 1, y)) {
+        const nx = x + 1, ny = y;
+        if (world.inBounds(nx, ny) && world.isEmpty(nx, ny) && Math.random() < 0.1) {
+          world.set(nx, ny, 7); // 释放烟
+          world.markUpdated(nx, ny);
+          world.wakeArea(nx, ny);
+        }
+          }
       world.addTemp(x, y, -10);
       return;
     }
 
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 吸附毒气/沼气/烟
@@ -84,7 +106,76 @@ export const Zeolite: MaterialDef = {
         world.wakeArea(x, y);
         return;
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 吸附毒气/沼气/烟
+      if ((nid === 18 || nid === 95 || nid === 7) && Math.random() < 0.08) {
+        world.set(nx, ny, 0); // 吸附消除
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 吸附水后微量加热
+      if (nid === 2 && Math.random() < 0.01) {
+        world.addTemp(x, y, 2);
+      }
+
+      // 酸液腐蚀
+      if (nid === 9 && Math.random() < 0.02) {
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 吸附毒气/沼气/烟
+      if ((nid === 18 || nid === 95 || nid === 7) && Math.random() < 0.08) {
+        world.set(nx, ny, 0); // 吸附消除
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 吸附水后微量加热
+      if (nid === 2 && Math.random() < 0.01) {
+        world.addTemp(x, y, 2);
+      }
+
+      // 酸液腐蚀
+      if (nid === 9 && Math.random() < 0.02) {
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 吸附毒气/沼气/烟
+      if ((nid === 18 || nid === 95 || nid === 7) && Math.random() < 0.08) {
+        world.set(nx, ny, 0); // 吸附消除
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 吸附水后微量加热
+      if (nid === 2 && Math.random() < 0.01) {
+        world.addTemp(x, y, 2);
+      }
+
+      // 酸液腐蚀
+      if (nid === 9 && Math.random() < 0.02) {
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+        }
 
     // 自然散热
     if (temp > 20 && Math.random() < 0.03) {

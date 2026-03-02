@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -39,10 +38,9 @@ export const Formaldehyde: MaterialDef = {
     }
 
     // 检查四邻
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇火燃烧
@@ -65,7 +63,82 @@ export const Formaldehyde: MaterialDef = {
         world.markUpdated(nx, ny);
         world.wakeArea(nx, ny);
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇火燃烧
+      if ((nid === 6 || nid === 28) && Math.random() < 0.3) {
+        world.set(x, y, 6); // 着火
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇水溶解
+      if (nid === 2 && Math.random() < 0.1) {
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 毒害生物材质
+      if ((nid === 13 || nid === 49 || nid === 57 || nid === 100) && Math.random() < 0.05) {
+        world.set(nx, ny, 7); // 枯萎为烟
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇火燃烧
+      if ((nid === 6 || nid === 28) && Math.random() < 0.3) {
+        world.set(x, y, 6); // 着火
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇水溶解
+      if (nid === 2 && Math.random() < 0.1) {
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 毒害生物材质
+      if ((nid === 13 || nid === 49 || nid === 57 || nid === 100) && Math.random() < 0.05) {
+        world.set(nx, ny, 7); // 枯萎为烟
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇火燃烧
+      if ((nid === 6 || nid === 28) && Math.random() < 0.3) {
+        world.set(x, y, 6); // 着火
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇水溶解
+      if (nid === 2 && Math.random() < 0.1) {
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 毒害生物材质
+      if ((nid === 13 || nid === 49 || nid === 57 || nid === 100) && Math.random() < 0.05) {
+        world.set(nx, ny, 7); // 枯萎为烟
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
 
     // === 气体上升逻辑 ===
     if (y > 0 && world.isEmpty(x, y - 1) && Math.random() < 0.35) {

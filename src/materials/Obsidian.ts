@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -49,17 +48,43 @@ export const Obsidian: MaterialDef = {
     // 黑曜石几乎不需要更新，非常稳定
     // 只做温度传导
     if (temp > 30) {
-      const dirs = DIRS4;
-      for (const [dx, dy] of dirs) {
-        const nx = x + dx, ny = y + dy;
-        if (!world.inBounds(nx, ny)) continue;
+      // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+        const nx = x, ny = y - 1;
         // 缓慢散热
         const nTemp = world.getTemp(nx, ny);
         if (nTemp < temp - 5) {
           world.addTemp(nx, ny, 1);
           world.addTemp(x, y, -1);
         }
-      }
+          }
+    if (world.inBounds(x, y + 1)) {
+        const nx = x, ny = y + 1;
+        // 缓慢散热
+        const nTemp = world.getTemp(nx, ny);
+        if (nTemp < temp - 5) {
+          world.addTemp(nx, ny, 1);
+          world.addTemp(x, y, -1);
+        }
+          }
+    if (world.inBounds(x - 1, y)) {
+        const nx = x - 1, ny = y;
+        // 缓慢散热
+        const nTemp = world.getTemp(nx, ny);
+        if (nTemp < temp - 5) {
+          world.addTemp(nx, ny, 1);
+          world.addTemp(x, y, -1);
+        }
+          }
+    if (world.inBounds(x + 1, y)) {
+        const nx = x + 1, ny = y;
+        // 缓慢散热
+        const nTemp = world.getTemp(nx, ny);
+        if (nTemp < temp - 5) {
+          world.addTemp(nx, ny, 1);
+          world.addTemp(x, y, -1);
+        }
+          }
     }
   },
 };

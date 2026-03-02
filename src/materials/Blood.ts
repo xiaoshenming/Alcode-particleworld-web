@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -57,10 +56,9 @@ export const Blood: MaterialDef = {
     }
 
     // 邻居交互
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇火蒸发为烟
@@ -97,7 +95,124 @@ export const Blood: MaterialDef = {
         world.wakeArea(x, y);
         return;
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇火蒸发为烟
+      if (nid === 6 && Math.random() < 0.15) {
+        world.set(x, y, 7); // 烟
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇熔岩迅速气化为蒸汽（血液含水分，极高温下沸腾）
+      if (nid === 11 && Math.random() < 0.2) {
+        world.set(x, y, 8); // 蒸汽
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 酸液分解
+      if (nid === 9 && Math.random() < 0.06) {
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 促进种子发芽
+      if (nid === 12 && Math.random() < 0.05) {
+        world.set(nx, ny, 13); // 植物
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 病毒在血液中快速传播
+      if (nid === 43 && Math.random() < 0.1) {
+        world.set(x, y, 43); // 被感染
+        world.wakeArea(x, y);
+        return;
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇火蒸发为烟
+      if (nid === 6 && Math.random() < 0.15) {
+        world.set(x, y, 7); // 烟
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇熔岩迅速气化为蒸汽（血液含水分，极高温下沸腾）
+      if (nid === 11 && Math.random() < 0.2) {
+        world.set(x, y, 8); // 蒸汽
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 酸液分解
+      if (nid === 9 && Math.random() < 0.06) {
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 促进种子发芽
+      if (nid === 12 && Math.random() < 0.05) {
+        world.set(nx, ny, 13); // 植物
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 病毒在血液中快速传播
+      if (nid === 43 && Math.random() < 0.1) {
+        world.set(x, y, 43); // 被感染
+        world.wakeArea(x, y);
+        return;
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇火蒸发为烟
+      if (nid === 6 && Math.random() < 0.15) {
+        world.set(x, y, 7); // 烟
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇熔岩迅速气化为蒸汽（血液含水分，极高温下沸腾）
+      if (nid === 11 && Math.random() < 0.2) {
+        world.set(x, y, 8); // 蒸汽
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 酸液分解
+      if (nid === 9 && Math.random() < 0.06) {
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 促进种子发芽
+      if (nid === 12 && Math.random() < 0.05) {
+        world.set(nx, ny, 13); // 植物
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 病毒在血液中快速传播
+      if (nid === 43 && Math.random() < 0.1) {
+        world.set(x, y, 43); // 被感染
+        world.wakeArea(x, y);
+        return;
+      }
+        }
 
     // 重力下落
     if (y + 1 < world.height) {

@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -61,10 +60,9 @@ export const MoltenSalt: MaterialDef = {
     }
 
     // 向周围传热
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 传热给邻居
@@ -93,7 +91,100 @@ export const MoltenSalt: MaterialDef = {
         world.markUpdated(nx, ny);
         world.wakeArea(nx, ny);
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 传热给邻居
+      if (world.getTemp(nx, ny) < temp) {
+        world.addTemp(nx, ny, 1.5);
+        world.addTemp(x, y, -0.5);
+      }
+
+      // 接触水 → 剧烈反应
+      if (nid === 2) {
+        world.set(nx, ny, 8); // 蒸汽
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        // 自身有概率变盐水
+        if (Math.random() < 0.15) {
+          world.set(x, y, 24); // 盐水
+          world.setTemp(x, y, 50);
+          world.wakeArea(x, y);
+          return;
+        }
+      }
+
+      // 腐蚀金属（缓慢）
+      if (nid === 10 && Math.random() < 0.003) {
+        world.set(nx, ny, 72); // 铁锈
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 传热给邻居
+      if (world.getTemp(nx, ny) < temp) {
+        world.addTemp(nx, ny, 1.5);
+        world.addTemp(x, y, -0.5);
+      }
+
+      // 接触水 → 剧烈反应
+      if (nid === 2) {
+        world.set(nx, ny, 8); // 蒸汽
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        // 自身有概率变盐水
+        if (Math.random() < 0.15) {
+          world.set(x, y, 24); // 盐水
+          world.setTemp(x, y, 50);
+          world.wakeArea(x, y);
+          return;
+        }
+      }
+
+      // 腐蚀金属（缓慢）
+      if (nid === 10 && Math.random() < 0.003) {
+        world.set(nx, ny, 72); // 铁锈
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 传热给邻居
+      if (world.getTemp(nx, ny) < temp) {
+        world.addTemp(nx, ny, 1.5);
+        world.addTemp(x, y, -0.5);
+      }
+
+      // 接触水 → 剧烈反应
+      if (nid === 2) {
+        world.set(nx, ny, 8); // 蒸汽
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        // 自身有概率变盐水
+        if (Math.random() < 0.15) {
+          world.set(x, y, 24); // 盐水
+          world.setTemp(x, y, 50);
+          world.wakeArea(x, y);
+          return;
+        }
+      }
+
+      // 腐蚀金属（缓慢）
+      if (nid === 10 && Math.random() < 0.003) {
+        world.set(nx, ny, 72); // 铁锈
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
 
     // 重力下落
     if (y + 1 < world.height) {

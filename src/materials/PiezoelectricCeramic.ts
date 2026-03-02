@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -62,10 +61,9 @@ export const PiezoelectricCeramic: MaterialDef = {
     if (!hasPressure) return;
 
     // 有压力时，激活邻近电线
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 激活电线
@@ -73,7 +71,37 @@ export const PiezoelectricCeramic: MaterialDef = {
         world.addTemp(nx, ny, 5);
         world.wakeArea(nx, ny);
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 激活电线
+      if (nid === 44) {
+        world.addTemp(nx, ny, 5);
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 激活电线
+      if (nid === 44) {
+        world.addTemp(nx, ny, 5);
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 激活电线
+      if (nid === 44) {
+        world.addTemp(nx, ny, 5);
+        world.wakeArea(nx, ny);
+      }
+        }
 
     // 周期性唤醒以持续检测
     if (Math.random() < 0.3) {

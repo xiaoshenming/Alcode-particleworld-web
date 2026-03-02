@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -48,10 +47,9 @@ export const PhosphorusPentafluoride: MaterialDef = {
     }
 
     // 检查四邻
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇水剧烈反应 → 氟化氢(208) + 磷酸(159)
@@ -80,7 +78,100 @@ export const PhosphorusPentafluoride: MaterialDef = {
         world.markUpdated(nx, ny);
         world.wakeArea(nx, ny);
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇水剧烈反应 → 氟化氢(208) + 磷酸(159)
+      if (nid === 2 && Math.random() < 0.15) {
+        world.set(nx, ny, 208); // 氟化氢
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        world.set(x, y, 159); // 磷酸
+        world.markUpdated(x, y);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 腐蚀金属
+      if (CORRODE_TARGETS.has(nid) && Math.random() < 0.02) {
+        world.set(nx, ny, 72); // 铁锈
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        world.set(x, y, 0);
+        return;
+      }
+
+      // 毒杀生物
+      if (TOXIC_TARGETS.has(nid) && Math.random() < 0.06) {
+        world.set(nx, ny, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水剧烈反应 → 氟化氢(208) + 磷酸(159)
+      if (nid === 2 && Math.random() < 0.15) {
+        world.set(nx, ny, 208); // 氟化氢
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        world.set(x, y, 159); // 磷酸
+        world.markUpdated(x, y);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 腐蚀金属
+      if (CORRODE_TARGETS.has(nid) && Math.random() < 0.02) {
+        world.set(nx, ny, 72); // 铁锈
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        world.set(x, y, 0);
+        return;
+      }
+
+      // 毒杀生物
+      if (TOXIC_TARGETS.has(nid) && Math.random() < 0.06) {
+        world.set(nx, ny, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水剧烈反应 → 氟化氢(208) + 磷酸(159)
+      if (nid === 2 && Math.random() < 0.15) {
+        world.set(nx, ny, 208); // 氟化氢
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        world.set(x, y, 159); // 磷酸
+        world.markUpdated(x, y);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 腐蚀金属
+      if (CORRODE_TARGETS.has(nid) && Math.random() < 0.02) {
+        world.set(nx, ny, 72); // 铁锈
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        world.set(x, y, 0);
+        return;
+      }
+
+      // 毒杀生物
+      if (TOXIC_TARGETS.has(nid) && Math.random() < 0.06) {
+        world.set(nx, ny, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
 
     // === 气体运动（负密度，向上飘） ===
     // 上升

@@ -50,16 +50,43 @@ export const Magnesium: MaterialDef = {
       world.setTemp(x, y, 3200);
       world.wakeArea(x, y);
       // 周围产生火花（极亮白光效果）
-      const dirs = DIRS4;
-      for (const [dx, dy] of dirs) {
-        const nx = x + dx, ny = y + dy;
+      // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+        const nx = x, ny = y - 1;
         if (world.inBounds(nx, ny) && world.isEmpty(nx, ny) && Math.random() < 0.5) {
           world.set(nx, ny, 28); // 火花
           world.setTemp(nx, ny, 3000);
           world.markUpdated(nx, ny);
           world.wakeArea(nx, ny);
         }
-      }
+          }
+    if (world.inBounds(x, y + 1)) {
+        const nx = x, ny = y + 1;
+        if (world.inBounds(nx, ny) && world.isEmpty(nx, ny) && Math.random() < 0.5) {
+          world.set(nx, ny, 28); // 火花
+          world.setTemp(nx, ny, 3000);
+          world.markUpdated(nx, ny);
+          world.wakeArea(nx, ny);
+        }
+          }
+    if (world.inBounds(x - 1, y)) {
+        const nx = x - 1, ny = y;
+        if (world.inBounds(nx, ny) && world.isEmpty(nx, ny) && Math.random() < 0.5) {
+          world.set(nx, ny, 28); // 火花
+          world.setTemp(nx, ny, 3000);
+          world.markUpdated(nx, ny);
+          world.wakeArea(nx, ny);
+        }
+          }
+    if (world.inBounds(x + 1, y)) {
+        const nx = x + 1, ny = y;
+        if (world.inBounds(nx, ny) && world.isEmpty(nx, ny) && Math.random() < 0.5) {
+          world.set(nx, ny, 28); // 火花
+          world.setTemp(nx, ny, 3000);
+          world.markUpdated(nx, ny);
+          world.wakeArea(nx, ny);
+        }
+          }
       return;
     }
 

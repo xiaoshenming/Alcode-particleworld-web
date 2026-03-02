@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -48,10 +47,9 @@ export const Pollen: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇火/火花瞬间燃烧
@@ -67,7 +65,61 @@ export const Pollen: MaterialDef = {
         world.wakeArea(x, y);
         return;
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇火/火花瞬间燃烧
+      if ((nid === 6 || nid === 28 || nid === 55) && Math.random() < 0.8) {
+        world.set(x, y, 6); // 火
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇熔岩燃烧
+      if (nid === 11) {
+        world.set(x, y, 6);
+        world.wakeArea(x, y);
+        return;
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇火/火花瞬间燃烧
+      if ((nid === 6 || nid === 28 || nid === 55) && Math.random() < 0.8) {
+        world.set(x, y, 6); // 火
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇熔岩燃烧
+      if (nid === 11) {
+        world.set(x, y, 6);
+        world.wakeArea(x, y);
+        return;
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇火/火花瞬间燃烧
+      if ((nid === 6 || nid === 28 || nid === 55) && Math.random() < 0.8) {
+        world.set(x, y, 6); // 火
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇熔岩燃烧
+      if (nid === 11) {
+        world.set(x, y, 6);
+        world.wakeArea(x, y);
+        return;
+      }
+        }
 
     // 检查下方
     if (world.inBounds(x, y + 1)) {

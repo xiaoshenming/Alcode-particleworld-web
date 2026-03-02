@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -52,10 +51,9 @@ export const ChlorineTrifluoride: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 点燃可燃物
@@ -89,7 +87,115 @@ export const ChlorineTrifluoride: MaterialDef = {
         world.set(nx, ny, 0);
         world.wakeArea(nx, ny);
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 点燃可燃物
+      if (FLAMMABLE.has(nid) && Math.random() < 0.15) {
+        world.set(nx, ny, 6); // 火
+        world.wakeArea(nx, ny);
+        // 自身消耗
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 接触水剧烈反应
+      if (nid === 2 && Math.random() < 0.12) {
+        world.set(nx, ny, 18); // 毒气
+        world.set(x, y, 0);
+        world.addTemp(nx, ny, 120);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 腐蚀金属
+      if (METAL_TARGETS.has(nid) && Math.random() < 0.01) {
+        world.set(nx, ny, 72); // 铁锈
+        world.wakeArea(nx, ny);
+      }
+
+      // 腐蚀玻璃（三氟化氯的特性）
+      if (nid === 17 && Math.random() < 0.008) {
+        world.set(nx, ny, 0);
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 点燃可燃物
+      if (FLAMMABLE.has(nid) && Math.random() < 0.15) {
+        world.set(nx, ny, 6); // 火
+        world.wakeArea(nx, ny);
+        // 自身消耗
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 接触水剧烈反应
+      if (nid === 2 && Math.random() < 0.12) {
+        world.set(nx, ny, 18); // 毒气
+        world.set(x, y, 0);
+        world.addTemp(nx, ny, 120);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 腐蚀金属
+      if (METAL_TARGETS.has(nid) && Math.random() < 0.01) {
+        world.set(nx, ny, 72); // 铁锈
+        world.wakeArea(nx, ny);
+      }
+
+      // 腐蚀玻璃（三氟化氯的特性）
+      if (nid === 17 && Math.random() < 0.008) {
+        world.set(nx, ny, 0);
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 点燃可燃物
+      if (FLAMMABLE.has(nid) && Math.random() < 0.15) {
+        world.set(nx, ny, 6); // 火
+        world.wakeArea(nx, ny);
+        // 自身消耗
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 接触水剧烈反应
+      if (nid === 2 && Math.random() < 0.12) {
+        world.set(nx, ny, 18); // 毒气
+        world.set(x, y, 0);
+        world.addTemp(nx, ny, 120);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 腐蚀金属
+      if (METAL_TARGETS.has(nid) && Math.random() < 0.01) {
+        world.set(nx, ny, 72); // 铁锈
+        world.wakeArea(nx, ny);
+      }
+
+      // 腐蚀玻璃（三氟化氯的特性）
+      if (nid === 17 && Math.random() < 0.008) {
+        world.set(nx, ny, 0);
+        world.wakeArea(nx, ny);
+      }
+        }
 
     // === 液体运动 ===
     if (y < world.height - 1) {

@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -52,10 +51,9 @@ export const LiquidHelium: MaterialDef = {
 
     // 持续降温自身和周围
     world.setTemp(x, y, -270);
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       world.addTemp(nx, ny, -15);
       const nid = world.get(nx, ny);
 
@@ -79,7 +77,85 @@ export const LiquidHelium: MaterialDef = {
         world.markUpdated(nx, ny);
         world.wakeArea(nx, ny);
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      world.addTemp(nx, ny, -15);
+      const nid = world.get(nx, ny);
+
+      // 遇火/熔岩立即蒸发
+      if ((nid === 6 || nid === 11) && Math.random() < 0.5) {
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇水冻结为冰
+      if (nid === 2 && Math.random() < 0.3) {
+        world.set(nx, ny, 14); // 冰
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 遇蒸汽冻结为雪
+      if (nid === 8 && Math.random() < 0.4) {
+        world.set(nx, ny, 15); // 雪
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      world.addTemp(nx, ny, -15);
+      const nid = world.get(nx, ny);
+
+      // 遇火/熔岩立即蒸发
+      if ((nid === 6 || nid === 11) && Math.random() < 0.5) {
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇水冻结为冰
+      if (nid === 2 && Math.random() < 0.3) {
+        world.set(nx, ny, 14); // 冰
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 遇蒸汽冻结为雪
+      if (nid === 8 && Math.random() < 0.4) {
+        world.set(nx, ny, 15); // 雪
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      world.addTemp(nx, ny, -15);
+      const nid = world.get(nx, ny);
+
+      // 遇火/熔岩立即蒸发
+      if ((nid === 6 || nid === 11) && Math.random() < 0.5) {
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇水冻结为冰
+      if (nid === 2 && Math.random() < 0.3) {
+        world.set(nx, ny, 14); // 冰
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 遇蒸汽冻结为雪
+      if (nid === 8 && Math.random() < 0.4) {
+        world.set(nx, ny, 15); // 雪
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
 
     // 超流体特性：有概率向上移动（攀爬容器壁）
     if (world.inBounds(x, y - 1)) {

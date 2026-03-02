@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -44,10 +43,9 @@ export const AmmoniumFluoride: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 接触水溶解为酸液
@@ -83,7 +81,121 @@ export const AmmoniumFluoride: MaterialDef = {
           world.addTemp(nx, ny, -diff);
         }
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 接触水溶解为酸液
+      if (nid === 2 && Math.random() < 0.12) {
+        world.set(x, y, 9);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 蚀刻玻璃(23)
+      if (nid === 23 && Math.random() < 0.02) {
+        world.set(nx, ny, 0);
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 腐蚀石头(3)
+      if (nid === 3 && Math.random() < 0.008) {
+        world.set(nx, ny, 0);
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      if (nid !== 0 && Math.random() < 0.04) {
+        const nt = world.getTemp(nx, ny);
+        if (Math.abs(temp - nt) > 5) {
+          const diff = (nt - temp) * 0.06;
+          world.addTemp(x, y, diff);
+          world.addTemp(nx, ny, -diff);
+        }
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 接触水溶解为酸液
+      if (nid === 2 && Math.random() < 0.12) {
+        world.set(x, y, 9);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 蚀刻玻璃(23)
+      if (nid === 23 && Math.random() < 0.02) {
+        world.set(nx, ny, 0);
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 腐蚀石头(3)
+      if (nid === 3 && Math.random() < 0.008) {
+        world.set(nx, ny, 0);
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      if (nid !== 0 && Math.random() < 0.04) {
+        const nt = world.getTemp(nx, ny);
+        if (Math.abs(temp - nt) > 5) {
+          const diff = (nt - temp) * 0.06;
+          world.addTemp(x, y, diff);
+          world.addTemp(nx, ny, -diff);
+        }
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 接触水溶解为酸液
+      if (nid === 2 && Math.random() < 0.12) {
+        world.set(x, y, 9);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 蚀刻玻璃(23)
+      if (nid === 23 && Math.random() < 0.02) {
+        world.set(nx, ny, 0);
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 腐蚀石头(3)
+      if (nid === 3 && Math.random() < 0.008) {
+        world.set(nx, ny, 0);
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      if (nid !== 0 && Math.random() < 0.04) {
+        const nt = world.getTemp(nx, ny);
+        if (Math.abs(temp - nt) > 5) {
+          const diff = (nt - temp) * 0.06;
+          world.addTemp(x, y, diff);
+          world.addTemp(nx, ny, -diff);
+        }
+      }
+        }
 
     // === 粉末运动 ===
     if (y < world.height - 1) {

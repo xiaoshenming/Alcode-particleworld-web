@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -66,10 +65,9 @@ export const LiquidNitrogen: MaterialDef = {
     if (temp > 50) evapChance = 0.3;
 
     // 检查邻居：冷冻一切
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 冷冻
@@ -92,7 +90,82 @@ export const LiquidNitrogen: MaterialDef = {
 
       // 降低邻居温度
       world.addTemp(nx, ny, -15);
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 冷冻
+      const freezeTo = FREEZABLE[nid];
+      if (freezeTo !== undefined && freezeTo !== nid && Math.random() < 0.15) {
+        world.set(nx, ny, freezeTo);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        // 冷冻消耗自身
+        evapChance += 0.05;
+      }
+
+      // 接触火/熔岩：剧烈蒸发
+      if ((nid === 6 || nid === 11 || nid === 55) && Math.random() < 0.5) {
+        // 自身蒸发
+        world.set(x, y, 8); // 蒸汽
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 降低邻居温度
+      world.addTemp(nx, ny, -15);
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 冷冻
+      const freezeTo = FREEZABLE[nid];
+      if (freezeTo !== undefined && freezeTo !== nid && Math.random() < 0.15) {
+        world.set(nx, ny, freezeTo);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        // 冷冻消耗自身
+        evapChance += 0.05;
+      }
+
+      // 接触火/熔岩：剧烈蒸发
+      if ((nid === 6 || nid === 11 || nid === 55) && Math.random() < 0.5) {
+        // 自身蒸发
+        world.set(x, y, 8); // 蒸汽
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 降低邻居温度
+      world.addTemp(nx, ny, -15);
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 冷冻
+      const freezeTo = FREEZABLE[nid];
+      if (freezeTo !== undefined && freezeTo !== nid && Math.random() < 0.15) {
+        world.set(nx, ny, freezeTo);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        // 冷冻消耗自身
+        evapChance += 0.05;
+      }
+
+      // 接触火/熔岩：剧烈蒸发
+      if ((nid === 6 || nid === 11 || nid === 55) && Math.random() < 0.5) {
+        // 自身蒸发
+        world.set(x, y, 8); // 蒸汽
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 降低邻居温度
+      world.addTemp(nx, ny, -15);
+        }
 
     // 蒸发
     if (Math.random() < evapChance) {

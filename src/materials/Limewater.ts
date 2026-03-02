@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -39,10 +38,9 @@ export const Limewater: MaterialDef = {
   density: 1.6,
   update(x: number, y: number, world: WorldAPI) {
     // 检查邻居交互
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇酸液中和 → 盐水
@@ -71,7 +69,100 @@ export const Limewater: MaterialDef = {
         world.wakeArea(nx, ny);
         return;
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇酸液中和 → 盐水
+      if (nid === 9) {
+        world.set(x, y, 24); // 盐水
+        world.set(nx, ny, 24); // 酸也变盐水
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 遇烟(CO2) → 变浑浊，生成石灰沉淀
+      if (nid === 7 && Math.random() < 0.08) {
+        world.set(x, y, 124); // 石灰（CaCO3沉淀）
+        world.set(nx, ny, 0); // 烟消失
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 遇蒸汽 → 弱反应（蒸汽中可能含CO2）
+      if (nid === 8 && Math.random() < 0.02) {
+        world.set(x, y, 124); // 石灰沉淀
+        world.set(nx, ny, 0); // 蒸汽消失
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇酸液中和 → 盐水
+      if (nid === 9) {
+        world.set(x, y, 24); // 盐水
+        world.set(nx, ny, 24); // 酸也变盐水
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 遇烟(CO2) → 变浑浊，生成石灰沉淀
+      if (nid === 7 && Math.random() < 0.08) {
+        world.set(x, y, 124); // 石灰（CaCO3沉淀）
+        world.set(nx, ny, 0); // 烟消失
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 遇蒸汽 → 弱反应（蒸汽中可能含CO2）
+      if (nid === 8 && Math.random() < 0.02) {
+        world.set(x, y, 124); // 石灰沉淀
+        world.set(nx, ny, 0); // 蒸汽消失
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇酸液中和 → 盐水
+      if (nid === 9) {
+        world.set(x, y, 24); // 盐水
+        world.set(nx, ny, 24); // 酸也变盐水
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 遇烟(CO2) → 变浑浊，生成石灰沉淀
+      if (nid === 7 && Math.random() < 0.08) {
+        world.set(x, y, 124); // 石灰（CaCO3沉淀）
+        world.set(nx, ny, 0); // 烟消失
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 遇蒸汽 → 弱反应（蒸汽中可能含CO2）
+      if (nid === 8 && Math.random() < 0.02) {
+        world.set(x, y, 124); // 石灰沉淀
+        world.set(nx, ny, 0); // 蒸汽消失
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+        }
 
     // 液体流动逻辑
     if (y >= world.height - 1) return;

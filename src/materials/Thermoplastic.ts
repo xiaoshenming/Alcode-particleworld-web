@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -93,17 +92,43 @@ export const Thermoplastic: MaterialDef = {
       world.wakeArea(x, y);
 
       // 检查邻居：遇火着火
-      const dirs = DIRS4;
-      for (const [dx, dy] of dirs) {
-        const nx = x + dx, ny = y + dy;
-        if (!world.inBounds(nx, ny)) continue;
+      // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+        const nx = x, ny = y - 1;
         if (world.get(nx, ny) === 6 && Math.random() < 0.1) {
           softened.delete(k);
           world.set(x, y, 6);
           world.wakeArea(x, y);
           return;
         }
-      }
+          }
+    if (world.inBounds(x, y + 1)) {
+        const nx = x, ny = y + 1;
+        if (world.get(nx, ny) === 6 && Math.random() < 0.1) {
+          softened.delete(k);
+          world.set(x, y, 6);
+          world.wakeArea(x, y);
+          return;
+        }
+          }
+    if (world.inBounds(x - 1, y)) {
+        const nx = x - 1, ny = y;
+        if (world.get(nx, ny) === 6 && Math.random() < 0.1) {
+          softened.delete(k);
+          world.set(x, y, 6);
+          world.wakeArea(x, y);
+          return;
+        }
+          }
+    if (world.inBounds(x + 1, y)) {
+        const nx = x + 1, ny = y;
+        if (world.get(nx, ny) === 6 && Math.random() < 0.1) {
+          softened.delete(k);
+          world.set(x, y, 6);
+          world.wakeArea(x, y);
+          return;
+        }
+          }
 
       // 液体流动
       if (y < world.height - 1 && world.isEmpty(x, y + 1) && Math.random() < 0.4) {
@@ -155,10 +180,9 @@ export const Thermoplastic: MaterialDef = {
     }
 
     // 固态：检查邻居
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇火着火
@@ -167,7 +191,40 @@ export const Thermoplastic: MaterialDef = {
         world.wakeArea(x, y);
         return;
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇火着火
+      if (nid === 6 && Math.random() < 0.05) {
+        world.set(x, y, 6);
+        world.wakeArea(x, y);
+        return;
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇火着火
+      if (nid === 6 && Math.random() < 0.05) {
+        world.set(x, y, 6);
+        world.wakeArea(x, y);
+        return;
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇火着火
+      if (nid === 6 && Math.random() < 0.05) {
+        world.set(x, y, 6);
+        world.wakeArea(x, y);
+        return;
+      }
+        }
   },
 };
 

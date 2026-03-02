@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -48,10 +47,9 @@ export const Aerogel: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇水碎裂为泡沫
@@ -73,7 +71,79 @@ export const Aerogel: MaterialDef = {
         world.addTemp(nx, ny, temp > world.getTemp(nx, ny) ? -3 : 3);
         world.addTemp(x, y, temp > world.getTemp(nx, ny) ? 3 : -3);
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇水碎裂为泡沫
+      if (nid === 2 && Math.random() < 0.01) {
+        world.set(x, y, 51); // 泡沫
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇酸液溶解
+      if (nid === 9 && Math.random() < 0.02) {
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 隔热：吸收邻居温度差
+      if (Math.abs(world.getTemp(nx, ny) - temp) > 20 && Math.random() < 0.1) {
+        world.addTemp(nx, ny, temp > world.getTemp(nx, ny) ? -3 : 3);
+        world.addTemp(x, y, temp > world.getTemp(nx, ny) ? 3 : -3);
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水碎裂为泡沫
+      if (nid === 2 && Math.random() < 0.01) {
+        world.set(x, y, 51); // 泡沫
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇酸液溶解
+      if (nid === 9 && Math.random() < 0.02) {
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 隔热：吸收邻居温度差
+      if (Math.abs(world.getTemp(nx, ny) - temp) > 20 && Math.random() < 0.1) {
+        world.addTemp(nx, ny, temp > world.getTemp(nx, ny) ? -3 : 3);
+        world.addTemp(x, y, temp > world.getTemp(nx, ny) ? 3 : -3);
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水碎裂为泡沫
+      if (nid === 2 && Math.random() < 0.01) {
+        world.set(x, y, 51); // 泡沫
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇酸液溶解
+      if (nid === 9 && Math.random() < 0.02) {
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 隔热：吸收邻居温度差
+      if (Math.abs(world.getTemp(nx, ny) - temp) > 20 && Math.random() < 0.1) {
+        world.addTemp(nx, ny, temp > world.getTemp(nx, ny) ? -3 : 3);
+        world.addTemp(x, y, temp > world.getTemp(nx, ny) ? 3 : -3);
+      }
+        }
 
     // 极缓慢散热
     if (temp > 20 && Math.random() < 0.01) {

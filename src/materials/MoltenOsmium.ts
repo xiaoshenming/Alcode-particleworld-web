@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -107,17 +106,43 @@ export const MoltenOsmium: MaterialDef = {
     }
 
     // 接触水产生剧烈蒸发
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
       if (nid === 2 && Math.random() < 0.9) {
         world.set(nx, ny, 8); // 蒸汽
         world.setTemp(nx, ny, 200);
         world.addTemp(x, y, -50);
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+      if (nid === 2 && Math.random() < 0.9) {
+        world.set(nx, ny, 8); // 蒸汽
+        world.setTemp(nx, ny, 200);
+        world.addTemp(x, y, -50);
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+      if (nid === 2 && Math.random() < 0.9) {
+        world.set(nx, ny, 8); // 蒸汽
+        world.setTemp(nx, ny, 200);
+        world.addTemp(x, y, -50);
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+      if (nid === 2 && Math.random() < 0.9) {
+        world.set(nx, ny, 8); // 蒸汽
+        world.setTemp(nx, ny, 200);
+        world.addTemp(x, y, -50);
+      }
+        }
   },
 };
 

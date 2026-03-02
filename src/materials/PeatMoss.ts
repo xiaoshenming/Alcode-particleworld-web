@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -38,11 +37,9 @@ export const PeatMoss: MaterialDef = {
   },
   density: Infinity,
   update(x: number, y: number, world: WorldAPI) {
-    const dirs = DIRS4;
-
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 强吸水：遇水吸收，水消失
@@ -77,7 +74,118 @@ export const PeatMoss: MaterialDef = {
           return;
         }
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 强吸水：遇水吸收，水消失
+      if (nid === 2) {
+        world.set(nx, ny, 0); // 水消失
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+
+        // 用温度字段计数吸水量，每次+10
+        world.addTemp(x, y, 10);
+        world.wakeArea(x, y);
+
+        // 吸水饱和（>100）变为泥炭
+        if (world.getTemp(x, y) > 100) {
+          world.set(x, y, 142); // 泥炭
+          world.wakeArea(x, y);
+          return;
+        }
+
+        // 刷新颜色（吸水后颜色略变深）
+        world.set(x, y, 203);
+        return;
+      }
+
+      // 可燃：遇火缓慢燃烧
+      if (nid === 6 && Math.random() < 0.03) {
+        // 干燥时更易燃（温度低=吸水少=更干）
+        const moisture = world.getTemp(x, y);
+        if (moisture < 50 || Math.random() < 0.01) {
+          world.set(x, y, 6); // 着火
+          world.wakeArea(x, y);
+          return;
+        }
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 强吸水：遇水吸收，水消失
+      if (nid === 2) {
+        world.set(nx, ny, 0); // 水消失
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+
+        // 用温度字段计数吸水量，每次+10
+        world.addTemp(x, y, 10);
+        world.wakeArea(x, y);
+
+        // 吸水饱和（>100）变为泥炭
+        if (world.getTemp(x, y) > 100) {
+          world.set(x, y, 142); // 泥炭
+          world.wakeArea(x, y);
+          return;
+        }
+
+        // 刷新颜色（吸水后颜色略变深）
+        world.set(x, y, 203);
+        return;
+      }
+
+      // 可燃：遇火缓慢燃烧
+      if (nid === 6 && Math.random() < 0.03) {
+        // 干燥时更易燃（温度低=吸水少=更干）
+        const moisture = world.getTemp(x, y);
+        if (moisture < 50 || Math.random() < 0.01) {
+          world.set(x, y, 6); // 着火
+          world.wakeArea(x, y);
+          return;
+        }
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 强吸水：遇水吸收，水消失
+      if (nid === 2) {
+        world.set(nx, ny, 0); // 水消失
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+
+        // 用温度字段计数吸水量，每次+10
+        world.addTemp(x, y, 10);
+        world.wakeArea(x, y);
+
+        // 吸水饱和（>100）变为泥炭
+        if (world.getTemp(x, y) > 100) {
+          world.set(x, y, 142); // 泥炭
+          world.wakeArea(x, y);
+          return;
+        }
+
+        // 刷新颜色（吸水后颜色略变深）
+        world.set(x, y, 203);
+        return;
+      }
+
+      // 可燃：遇火缓慢燃烧
+      if (nid === 6 && Math.random() < 0.03) {
+        // 干燥时更易燃（温度低=吸水少=更干）
+        const moisture = world.getTemp(x, y);
+        if (moisture < 50 || Math.random() < 0.01) {
+          world.set(x, y, 6); // 着火
+          world.wakeArea(x, y);
+          return;
+        }
+      }
+        }
   },
 };
 

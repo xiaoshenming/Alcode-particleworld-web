@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -41,10 +40,9 @@ export const NitrousOxide: MaterialDef = {
     }
 
     // 检查四邻
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 助燃：遇火时在自身位置也生成火
@@ -60,7 +58,61 @@ export const NitrousOxide: MaterialDef = {
         world.markUpdated(nx, ny);
         world.wakeArea(nx, ny);
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 助燃：遇火时在自身位置也生成火
+      if ((nid === 6 || nid === 28) && Math.random() < 0.3) {
+        world.set(x, y, 6);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 麻醉生物
+      if ((nid === 40 || nid === 52) && Math.random() < 0.03) {
+        world.set(nx, ny, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 助燃：遇火时在自身位置也生成火
+      if ((nid === 6 || nid === 28) && Math.random() < 0.3) {
+        world.set(x, y, 6);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 麻醉生物
+      if ((nid === 40 || nid === 52) && Math.random() < 0.03) {
+        world.set(nx, ny, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 助燃：遇火时在自身位置也生成火
+      if ((nid === 6 || nid === 28) && Math.random() < 0.3) {
+        world.set(x, y, 6);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 麻醉生物
+      if ((nid === 40 || nid === 52) && Math.random() < 0.03) {
+        world.set(nx, ny, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
 
     // === 气体运动 ===
     // 略重于空气，缓慢下沉

@@ -1,4 +1,3 @@
-import { DIRS8 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -53,11 +52,9 @@ export const Virus: MaterialDef = {
     }
 
     // 检查邻居，感染或���杀
-    const dirs = DIRS8;
-
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 8方向显式展开（无HOF）
+    if (world.inBounds(x - 1, y - 1)) {
+      const nx = x - 1, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇火/熔岩 → 死亡
@@ -77,7 +74,161 @@ export const Virus: MaterialDef = {
         world.set(nx, ny, 43);
         world.markUpdated(nx, ny);
       }
-    }
+        }
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
+      const nid = world.get(nx, ny);
+
+      // 遇火/熔岩 → 死亡
+      if (nid === 6 || nid === 11) {
+        world.set(x, y, 0);
+        return;
+      }
+
+      // 遇酸液 → 溶解
+      if (nid === 9) {
+        world.set(x, y, 0);
+        return;
+      }
+
+      // 感染有机物（低概率，避免瞬间扩散）
+      if (INFECTABLE.has(nid) && Math.random() < 0.03) {
+        world.set(nx, ny, 43);
+        world.markUpdated(nx, ny);
+      }
+        }
+    if (world.inBounds(x + 1, y - 1)) {
+      const nx = x + 1, ny = y - 1;
+      const nid = world.get(nx, ny);
+
+      // 遇火/熔岩 → 死亡
+      if (nid === 6 || nid === 11) {
+        world.set(x, y, 0);
+        return;
+      }
+
+      // 遇酸液 → 溶解
+      if (nid === 9) {
+        world.set(x, y, 0);
+        return;
+      }
+
+      // 感染有机物（低概率，避免瞬间扩散）
+      if (INFECTABLE.has(nid) && Math.random() < 0.03) {
+        world.set(nx, ny, 43);
+        world.markUpdated(nx, ny);
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇火/熔岩 → 死亡
+      if (nid === 6 || nid === 11) {
+        world.set(x, y, 0);
+        return;
+      }
+
+      // 遇酸液 → 溶解
+      if (nid === 9) {
+        world.set(x, y, 0);
+        return;
+      }
+
+      // 感染有机物（低概率，避免瞬间扩散）
+      if (INFECTABLE.has(nid) && Math.random() < 0.03) {
+        world.set(nx, ny, 43);
+        world.markUpdated(nx, ny);
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇火/熔岩 → 死亡
+      if (nid === 6 || nid === 11) {
+        world.set(x, y, 0);
+        return;
+      }
+
+      // 遇酸液 → 溶解
+      if (nid === 9) {
+        world.set(x, y, 0);
+        return;
+      }
+
+      // 感染有机物（低概率，避免瞬间扩散）
+      if (INFECTABLE.has(nid) && Math.random() < 0.03) {
+        world.set(nx, ny, 43);
+        world.markUpdated(nx, ny);
+      }
+        }
+    if (world.inBounds(x - 1, y + 1)) {
+      const nx = x - 1, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇火/熔岩 → 死亡
+      if (nid === 6 || nid === 11) {
+        world.set(x, y, 0);
+        return;
+      }
+
+      // 遇酸液 → 溶解
+      if (nid === 9) {
+        world.set(x, y, 0);
+        return;
+      }
+
+      // 感染有机物（低概率，避免瞬间扩散）
+      if (INFECTABLE.has(nid) && Math.random() < 0.03) {
+        world.set(nx, ny, 43);
+        world.markUpdated(nx, ny);
+      }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇火/熔岩 → 死亡
+      if (nid === 6 || nid === 11) {
+        world.set(x, y, 0);
+        return;
+      }
+
+      // 遇酸液 → 溶解
+      if (nid === 9) {
+        world.set(x, y, 0);
+        return;
+      }
+
+      // 感染有机物（低概率，避免瞬间扩散）
+      if (INFECTABLE.has(nid) && Math.random() < 0.03) {
+        world.set(nx, ny, 43);
+        world.markUpdated(nx, ny);
+      }
+        }
+    if (world.inBounds(x + 1, y + 1)) {
+      const nx = x + 1, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇火/熔岩 → 死亡
+      if (nid === 6 || nid === 11) {
+        world.set(x, y, 0);
+        return;
+      }
+
+      // 遇酸液 → 溶解
+      if (nid === 9) {
+        world.set(x, y, 0);
+        return;
+      }
+
+      // 感染有机物（低概率，避免瞬间扩散）
+      if (INFECTABLE.has(nid) && Math.random() < 0.03) {
+        world.set(nx, ny, 43);
+        world.markUpdated(nx, ny);
+      }
+        }
 
     // 重力下落（swap 自动迁移 age）
     if (y < world.height - 1 && world.isEmpty(x, y + 1)) {

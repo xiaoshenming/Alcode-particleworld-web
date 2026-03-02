@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -41,10 +40,9 @@ export const ElectrorheologicalFluid: MaterialDef = {
   update(x: number, y: number, world: WorldAPI) {
     // 检测周围是否有电场源（电线44 或 激光47）
     let nearElectric = false;
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 接触火蒸发为烟
@@ -58,7 +56,55 @@ export const ElectrorheologicalFluid: MaterialDef = {
       if (nid === 44 || nid === 47) {
         nearElectric = true;
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 接触火蒸发为烟
+      if (nid === 6 && Math.random() < 0.15) {
+        world.set(x, y, 7); // 烟
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 检测电场源
+      if (nid === 44 || nid === 47) {
+        nearElectric = true;
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 接触火蒸发为烟
+      if (nid === 6 && Math.random() < 0.15) {
+        world.set(x, y, 7); // 烟
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 检测电场源
+      if (nid === 44 || nid === 47) {
+        nearElectric = true;
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 接触火蒸发为烟
+      if (nid === 6 && Math.random() < 0.15) {
+        world.set(x, y, 7); // 烟
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 检测电场源
+      if (nid === 44 || nid === 47) {
+        nearElectric = true;
+      }
+        }
 
     // 电场效应：半固态，不流动
     if (nearElectric) {

@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -53,10 +52,9 @@ export const Silver: MaterialDef = {
     }
 
     // 检查四邻
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 硝酸溶解
@@ -90,7 +88,115 @@ export const Silver: MaterialDef = {
         world.addTemp(nx, ny, 3);
         world.wakeArea(nx, ny);
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 硝酸溶解
+      if (nid === 183 && Math.random() < 0.02) {
+        world.set(x, y, 0);
+        world.set(nx, ny, 7);
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇硫磺变黑
+      if (nid === 66 && Math.random() < 0.01) {
+        world.set(x, y, 72); // 表面氧化（铁锈代替）
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 超导热：极快均温
+      if (nid !== 0 && Math.random() < 0.3) {
+        const nt = world.getTemp(nx, ny);
+        if (Math.abs(temp - nt) > 2) {
+          const avg = (temp + nt) / 2;
+          world.setTemp(x, y, avg);
+          world.setTemp(nx, ny, avg);
+        }
+      }
+
+      // 增强电线
+      if (nid === 44) {
+        world.addTemp(nx, ny, 3);
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 硝酸溶解
+      if (nid === 183 && Math.random() < 0.02) {
+        world.set(x, y, 0);
+        world.set(nx, ny, 7);
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇硫磺变黑
+      if (nid === 66 && Math.random() < 0.01) {
+        world.set(x, y, 72); // 表面氧化（铁锈代替）
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 超导热：极快均温
+      if (nid !== 0 && Math.random() < 0.3) {
+        const nt = world.getTemp(nx, ny);
+        if (Math.abs(temp - nt) > 2) {
+          const avg = (temp + nt) / 2;
+          world.setTemp(x, y, avg);
+          world.setTemp(nx, ny, avg);
+        }
+      }
+
+      // 增强电线
+      if (nid === 44) {
+        world.addTemp(nx, ny, 3);
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 硝酸溶解
+      if (nid === 183 && Math.random() < 0.02) {
+        world.set(x, y, 0);
+        world.set(nx, ny, 7);
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇硫磺变黑
+      if (nid === 66 && Math.random() < 0.01) {
+        world.set(x, y, 72); // 表面氧化（铁锈代替）
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 超导热：极快均温
+      if (nid !== 0 && Math.random() < 0.3) {
+        const nt = world.getTemp(nx, ny);
+        if (Math.abs(temp - nt) > 2) {
+          const avg = (temp + nt) / 2;
+          world.setTemp(x, y, avg);
+          world.setTemp(nx, ny, avg);
+        }
+      }
+
+      // 增强电线
+      if (nid === 44) {
+        world.addTemp(nx, ny, 3);
+        world.wakeArea(nx, ny);
+      }
+        }
   },
 };
 

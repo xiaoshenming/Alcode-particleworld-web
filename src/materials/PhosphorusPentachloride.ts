@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -51,10 +50,9 @@ export const PhosphorusPentachloride: MaterialDef = {
     }
 
     // 检查四邻
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇水剧烈反应 → 毒气 + 产生热量
@@ -74,7 +72,73 @@ export const PhosphorusPentachloride: MaterialDef = {
         world.markUpdated(nx, ny);
         world.wakeArea(nx, ny);
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇水剧烈反应 → 毒气 + 产生热量
+      if (nid === 2 && Math.random() < 0.15) {
+        world.set(nx, ny, 18); // 毒气
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        world.set(x, y, 0);
+        world.addTemp(nx, ny, 80); // 放热
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 腐蚀金属（微弱）
+      if (CORRODE_TARGETS.has(nid) && Math.random() < 0.008) {
+        world.set(nx, ny, 72); // 铁锈
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水剧烈反应 → 毒气 + 产生热量
+      if (nid === 2 && Math.random() < 0.15) {
+        world.set(nx, ny, 18); // 毒气
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        world.set(x, y, 0);
+        world.addTemp(nx, ny, 80); // 放热
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 腐蚀金属（微弱）
+      if (CORRODE_TARGETS.has(nid) && Math.random() < 0.008) {
+        world.set(nx, ny, 72); // 铁锈
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水剧烈反应 → 毒气 + 产生热量
+      if (nid === 2 && Math.random() < 0.15) {
+        world.set(nx, ny, 18); // 毒气
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        world.set(x, y, 0);
+        world.addTemp(nx, ny, 80); // 放热
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 腐蚀金属（微弱）
+      if (CORRODE_TARGETS.has(nid) && Math.random() < 0.008) {
+        world.set(nx, ny, 72); // 铁锈
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
 
     // === 粉末运动（受重力下落，可堆积） ===
     if (y < world.height - 1) {

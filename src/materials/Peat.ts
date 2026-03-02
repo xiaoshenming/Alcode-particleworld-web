@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -44,10 +43,9 @@ export const Peat: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇火燃烧（产生大量烟）
@@ -66,7 +64,70 @@ export const Peat: MaterialDef = {
         world.wakeArea(nx, ny);
         return;
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇火燃烧（产生大量烟）
+      if (nid === 6 && Math.random() < 0.02) {
+        world.set(x, y, Math.random() < 0.3 ? 6 : 7);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 吸水变沼泽
+      if (nid === 2 && Math.random() < 0.01) {
+        world.set(x, y, 54); // 沼泽
+        world.set(nx, ny, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇火燃烧（产生大量烟）
+      if (nid === 6 && Math.random() < 0.02) {
+        world.set(x, y, Math.random() < 0.3 ? 6 : 7);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 吸水变沼泽
+      if (nid === 2 && Math.random() < 0.01) {
+        world.set(x, y, 54); // 沼泽
+        world.set(nx, ny, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇火燃烧（产生大量烟）
+      if (nid === 6 && Math.random() < 0.02) {
+        world.set(x, y, Math.random() < 0.3 ? 6 : 7);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 吸水变沼泽
+      if (nid === 2 && Math.random() < 0.01) {
+        world.set(x, y, 54); // 沼泽
+        world.set(nx, ny, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+        }
 
     // 粉末下落
     if (world.inBounds(x, y + 1)) {

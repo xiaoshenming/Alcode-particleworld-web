@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -37,10 +36,9 @@ export const MagnetoElectroOpticMaterial: MaterialDef = {
   update(x: number, y: number, world: WorldAPI) {
     const temp = world.getTemp(x, y);
 
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇磁铁产生闪电
@@ -70,7 +68,103 @@ export const MagnetoElectroOpticMaterial: MaterialDef = {
           world.addTemp(nx, ny, -diff);
         }
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇磁铁产生闪电
+      if (nid === 42 && Math.random() < 0.04) {
+        const fy = y - 1;
+        if (world.inBounds(x, fy) && world.get(x, fy) === 0) {
+          world.set(x, fy, 16);
+          world.wakeArea(x, fy);
+        }
+      }
+
+      // 遇电线/闪电产生荧光
+      if ((nid === 44 || nid === 16) && Math.random() < 0.06) {
+        const sdx = Math.random() < 0.5 ? -1 : 1;
+        const sy = y - 1;
+        if (world.inBounds(x + sdx, sy) && world.get(x + sdx, sy) === 0) {
+          world.set(x + sdx, sy, 133);
+          world.wakeArea(x + sdx, sy);
+        }
+      }
+
+      if (nid !== 0 && Math.random() < 0.06) {
+        const nt = world.getTemp(nx, ny);
+        if (Math.abs(temp - nt) > 5) {
+          const diff = (nt - temp) * 0.07;
+          world.addTemp(x, y, diff);
+          world.addTemp(nx, ny, -diff);
+        }
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇磁铁产生闪电
+      if (nid === 42 && Math.random() < 0.04) {
+        const fy = y - 1;
+        if (world.inBounds(x, fy) && world.get(x, fy) === 0) {
+          world.set(x, fy, 16);
+          world.wakeArea(x, fy);
+        }
+      }
+
+      // 遇电线/闪电产生荧光
+      if ((nid === 44 || nid === 16) && Math.random() < 0.06) {
+        const sdx = Math.random() < 0.5 ? -1 : 1;
+        const sy = y - 1;
+        if (world.inBounds(x + sdx, sy) && world.get(x + sdx, sy) === 0) {
+          world.set(x + sdx, sy, 133);
+          world.wakeArea(x + sdx, sy);
+        }
+      }
+
+      if (nid !== 0 && Math.random() < 0.06) {
+        const nt = world.getTemp(nx, ny);
+        if (Math.abs(temp - nt) > 5) {
+          const diff = (nt - temp) * 0.07;
+          world.addTemp(x, y, diff);
+          world.addTemp(nx, ny, -diff);
+        }
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇磁铁产生闪电
+      if (nid === 42 && Math.random() < 0.04) {
+        const fy = y - 1;
+        if (world.inBounds(x, fy) && world.get(x, fy) === 0) {
+          world.set(x, fy, 16);
+          world.wakeArea(x, fy);
+        }
+      }
+
+      // 遇电线/闪电产生荧光
+      if ((nid === 44 || nid === 16) && Math.random() < 0.06) {
+        const sdx = Math.random() < 0.5 ? -1 : 1;
+        const sy = y - 1;
+        if (world.inBounds(x + sdx, sy) && world.get(x + sdx, sy) === 0) {
+          world.set(x + sdx, sy, 133);
+          world.wakeArea(x + sdx, sy);
+        }
+      }
+
+      if (nid !== 0 && Math.random() < 0.06) {
+        const nt = world.getTemp(nx, ny);
+        if (Math.abs(temp - nt) > 5) {
+          const diff = (nt - temp) * 0.07;
+          world.addTemp(x, y, diff);
+          world.addTemp(nx, ny, -diff);
+        }
+      }
+        }
   },
 };
 

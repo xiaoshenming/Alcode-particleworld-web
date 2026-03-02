@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -59,10 +58,9 @@ export const MoltenMetal: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 加热周围
@@ -97,7 +95,118 @@ export const MoltenMetal: MaterialDef = {
         world.markUpdated(nx, ny);
         world.wakeArea(nx, ny);
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 加热周围
+      world.addTemp(nx, ny, 8);
+
+      // 遇水产生蒸汽并冷却
+      if (nid === 2 && Math.random() < 0.3) {
+        world.set(nx, ny, 8); // 蒸汽
+        world.addTemp(x, y, -50);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 遇冰/雪瞬间蒸发
+      if ((nid === 14 || nid === 15) && Math.random() < 0.4) {
+        world.set(nx, ny, 8); // 蒸汽
+        world.addTemp(x, y, -30);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 点燃可燃物
+      if ((nid === 4 || nid === 5 || nid === 22 || nid === 25) && Math.random() < 0.15) {
+        world.set(nx, ny, 6); // 火
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 熔化金属
+      if (nid === 10 && Math.random() < 0.02) {
+        world.set(nx, ny, 113); // 液态金属
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 加热周围
+      world.addTemp(nx, ny, 8);
+
+      // 遇水产生蒸汽并冷却
+      if (nid === 2 && Math.random() < 0.3) {
+        world.set(nx, ny, 8); // 蒸汽
+        world.addTemp(x, y, -50);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 遇冰/雪瞬间蒸发
+      if ((nid === 14 || nid === 15) && Math.random() < 0.4) {
+        world.set(nx, ny, 8); // 蒸汽
+        world.addTemp(x, y, -30);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 点燃可燃物
+      if ((nid === 4 || nid === 5 || nid === 22 || nid === 25) && Math.random() < 0.15) {
+        world.set(nx, ny, 6); // 火
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 熔化金属
+      if (nid === 10 && Math.random() < 0.02) {
+        world.set(nx, ny, 113); // 液态金属
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 加热周围
+      world.addTemp(nx, ny, 8);
+
+      // 遇水产生蒸汽并冷却
+      if (nid === 2 && Math.random() < 0.3) {
+        world.set(nx, ny, 8); // 蒸汽
+        world.addTemp(x, y, -50);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 遇冰/雪瞬间蒸发
+      if ((nid === 14 || nid === 15) && Math.random() < 0.4) {
+        world.set(nx, ny, 8); // 蒸汽
+        world.addTemp(x, y, -30);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 点燃可燃物
+      if ((nid === 4 || nid === 5 || nid === 22 || nid === 25) && Math.random() < 0.15) {
+        world.set(nx, ny, 6); // 火
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 熔化金属
+      if (nid === 10 && Math.random() < 0.02) {
+        world.set(nx, ny, 113); // 液态金属
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
 
     // 缓慢自然冷却
     if (Math.random() < 0.02) {

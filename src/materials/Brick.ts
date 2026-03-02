@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -53,11 +52,9 @@ export const Brick: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
-
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 酸液极缓慢腐蚀
@@ -76,7 +73,70 @@ export const Brick: MaterialDef = {
       if (nid === 6) {
         world.addTemp(x, y, 3);
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 酸液极缓慢腐蚀
+      if (nid === 9 && Math.random() < 0.01) {
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 熔岩接触加热
+      if (nid === 11) {
+        world.addTemp(x, y, 8);
+      }
+
+      // 火接触加热
+      if (nid === 6) {
+        world.addTemp(x, y, 3);
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 酸液极缓慢腐蚀
+      if (nid === 9 && Math.random() < 0.01) {
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 熔岩接触加热
+      if (nid === 11) {
+        world.addTemp(x, y, 8);
+      }
+
+      // 火接触加热
+      if (nid === 6) {
+        world.addTemp(x, y, 3);
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 酸液极缓慢腐蚀
+      if (nid === 9 && Math.random() < 0.01) {
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 熔岩接触加热
+      if (nid === 11) {
+        world.addTemp(x, y, 8);
+      }
+
+      // 火接触加热
+      if (nid === 6) {
+        world.addTemp(x, y, 3);
+      }
+        }
 
     // 自然散热
     if (temp > 20 && Math.random() < 0.05) {

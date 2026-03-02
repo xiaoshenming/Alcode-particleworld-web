@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -39,10 +38,9 @@ export const MoltenCesium: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇水剧烈爆炸
@@ -76,7 +74,115 @@ export const MoltenCesium: MaterialDef = {
         world.addTemp(x, y, diff);
         world.addTemp(nx, ny, -diff);
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇水剧烈爆炸
+      if (nid === 2 && Math.random() < 0.9) {
+        world.set(x, y, 6);
+        world.set(nx, ny, 8);
+        world.addTemp(x, y, 800);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 遇酸反应
+      if (nid === 9 && Math.random() < 0.4) {
+        world.set(x, y, 0);
+        world.set(nx, ny, 7);
+        world.addTemp(nx, ny, 300);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 点燃可燃物
+      if ((nid === 4 || nid === 5) && temp > 50 && Math.random() < 0.2) {
+        world.set(nx, ny, 6);
+        world.wakeArea(nx, ny);
+      }
+
+      if (nid !== 0 && Math.random() < 0.1) {
+        const nt = world.getTemp(nx, ny);
+        const diff = (nt - temp) * 0.12;
+        world.addTemp(x, y, diff);
+        world.addTemp(nx, ny, -diff);
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水剧烈爆炸
+      if (nid === 2 && Math.random() < 0.9) {
+        world.set(x, y, 6);
+        world.set(nx, ny, 8);
+        world.addTemp(x, y, 800);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 遇酸反应
+      if (nid === 9 && Math.random() < 0.4) {
+        world.set(x, y, 0);
+        world.set(nx, ny, 7);
+        world.addTemp(nx, ny, 300);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 点燃可燃物
+      if ((nid === 4 || nid === 5) && temp > 50 && Math.random() < 0.2) {
+        world.set(nx, ny, 6);
+        world.wakeArea(nx, ny);
+      }
+
+      if (nid !== 0 && Math.random() < 0.1) {
+        const nt = world.getTemp(nx, ny);
+        const diff = (nt - temp) * 0.12;
+        world.addTemp(x, y, diff);
+        world.addTemp(nx, ny, -diff);
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水剧烈爆炸
+      if (nid === 2 && Math.random() < 0.9) {
+        world.set(x, y, 6);
+        world.set(nx, ny, 8);
+        world.addTemp(x, y, 800);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 遇酸反应
+      if (nid === 9 && Math.random() < 0.4) {
+        world.set(x, y, 0);
+        world.set(nx, ny, 7);
+        world.addTemp(nx, ny, 300);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 点燃可燃物
+      if ((nid === 4 || nid === 5) && temp > 50 && Math.random() < 0.2) {
+        world.set(nx, ny, 6);
+        world.wakeArea(nx, ny);
+      }
+
+      if (nid !== 0 && Math.random() < 0.1) {
+        const nt = world.getTemp(nx, ny);
+        const diff = (nt - temp) * 0.12;
+        world.addTemp(x, y, diff);
+        world.addTemp(nx, ny, -diff);
+      }
+        }
 
     // 重力下落
     if (world.inBounds(x, y + 1)) {

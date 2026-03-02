@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -53,10 +52,9 @@ export const RockSalt: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇水缓慢溶解为盐水
@@ -92,7 +90,121 @@ export const RockSalt: MaterialDef = {
         world.wakeArea(x, y);
         return;
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇水缓慢溶解为盐水
+      if (nid === 2 && Math.random() < 0.008) {
+        world.set(x, y, 24); // 盐水
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇酸液产生毒气并溶解
+      if (nid === 9 && Math.random() < 0.03) {
+        world.set(x, y, 18); // 毒气
+        world.set(nx, ny, 0); // 酸液消耗
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 遇熔岩直接熔化
+      if (nid === 11 && Math.random() < 0.1) {
+        world.set(x, y, 83); // 熔盐
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 阻挡苔藓和藤蔓（它们不会蔓延到岩盐上）
+      // 这是被动效果，不需要主动处理
+
+      // 遇蒸馏水溶解更慢
+      if (nid === 97 && Math.random() < 0.004) {
+        world.set(x, y, 24); // 盐水
+        world.wakeArea(x, y);
+        return;
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水缓慢溶解为盐水
+      if (nid === 2 && Math.random() < 0.008) {
+        world.set(x, y, 24); // 盐水
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇酸液产生毒气并溶解
+      if (nid === 9 && Math.random() < 0.03) {
+        world.set(x, y, 18); // 毒气
+        world.set(nx, ny, 0); // 酸液消耗
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 遇熔岩直接熔化
+      if (nid === 11 && Math.random() < 0.1) {
+        world.set(x, y, 83); // 熔盐
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 阻挡苔藓和藤蔓（它们不会蔓延到岩盐上）
+      // 这是被动效果，不需要主动处理
+
+      // 遇蒸馏水溶解更慢
+      if (nid === 97 && Math.random() < 0.004) {
+        world.set(x, y, 24); // 盐水
+        world.wakeArea(x, y);
+        return;
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水缓慢溶解为盐水
+      if (nid === 2 && Math.random() < 0.008) {
+        world.set(x, y, 24); // 盐水
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇酸液产生毒气并溶解
+      if (nid === 9 && Math.random() < 0.03) {
+        world.set(x, y, 18); // 毒气
+        world.set(nx, ny, 0); // 酸液消耗
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 遇熔岩直接熔化
+      if (nid === 11 && Math.random() < 0.1) {
+        world.set(x, y, 83); // 熔盐
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 阻挡苔藓和藤蔓（它们不会蔓延到岩盐上）
+      // 这是被动效果，不需要主动处理
+
+      // 遇蒸馏水溶解更慢
+      if (nid === 97 && Math.random() < 0.004) {
+        world.set(x, y, 24); // 盐水
+        world.wakeArea(x, y);
+        return;
+      }
+        }
 
     // 自然散热
     if (temp > 20 && Math.random() < 0.03) {

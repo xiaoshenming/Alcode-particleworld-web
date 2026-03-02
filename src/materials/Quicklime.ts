@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -47,10 +46,9 @@ export const Quickite: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇水剧烈放热
@@ -78,7 +76,97 @@ export const Quickite: MaterialDef = {
       if (nid === 11) {
         world.addTemp(x, y, 10);
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇水剧烈放热
+      if (nid === 2 && Math.random() < 0.1) {
+        world.set(nx, ny, 8); // 蒸汽
+        world.set(x, y, 35); // 湿水泥
+        world.addTemp(x, y, 50);
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 遇酸液中和
+      if (nid === 9 && Math.random() < 0.08) {
+        world.set(nx, ny, 0); // 酸液消耗
+        world.set(x, y, 23); // 盐
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 遇熔岩加热
+      if (nid === 11) {
+        world.addTemp(x, y, 10);
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水剧烈放热
+      if (nid === 2 && Math.random() < 0.1) {
+        world.set(nx, ny, 8); // 蒸汽
+        world.set(x, y, 35); // 湿水泥
+        world.addTemp(x, y, 50);
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 遇酸液中和
+      if (nid === 9 && Math.random() < 0.08) {
+        world.set(nx, ny, 0); // 酸液消耗
+        world.set(x, y, 23); // 盐
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 遇熔岩加热
+      if (nid === 11) {
+        world.addTemp(x, y, 10);
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水剧烈放热
+      if (nid === 2 && Math.random() < 0.1) {
+        world.set(nx, ny, 8); // 蒸汽
+        world.set(x, y, 35); // 湿水泥
+        world.addTemp(x, y, 50);
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 遇酸液中和
+      if (nid === 9 && Math.random() < 0.08) {
+        world.set(nx, ny, 0); // 酸液消耗
+        world.set(x, y, 23); // 盐
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 遇熔岩加热
+      if (nid === 11) {
+        world.addTemp(x, y, 10);
+      }
+        }
 
     // 粉末下落
     if (world.inBounds(x, y + 1)) {

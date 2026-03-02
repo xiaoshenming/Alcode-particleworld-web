@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -43,10 +42,9 @@ export const MoltenAluminum: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇水爆炸产生氢气
@@ -73,7 +71,94 @@ export const MoltenAluminum: MaterialDef = {
           world.addTemp(nx, ny, 2);
         }
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇水爆炸产生氢气
+      if (nid === 2 && Math.random() < 0.15) {
+        world.set(nx, ny, Math.random() < 0.5 ? 19 : 8); // 氢气或蒸汽
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 遇铁锈铝热反应
+      if (nid === 72 && Math.random() < 0.05) {
+        world.set(nx, ny, 113); // 熔融金属
+        world.addTemp(x, y, 200);
+        world.addTemp(nx, ny, 500);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 导热
+      if (nid !== 0 && Math.random() < 0.15) {
+        const nTemp = world.getTemp(nx, ny);
+        if (nTemp < temp - 5) {
+          world.addTemp(x, y, -2);
+          world.addTemp(nx, ny, 2);
+        }
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水爆炸产生氢气
+      if (nid === 2 && Math.random() < 0.15) {
+        world.set(nx, ny, Math.random() < 0.5 ? 19 : 8); // 氢气或蒸汽
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 遇铁锈铝热反应
+      if (nid === 72 && Math.random() < 0.05) {
+        world.set(nx, ny, 113); // 熔融金属
+        world.addTemp(x, y, 200);
+        world.addTemp(nx, ny, 500);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 导热
+      if (nid !== 0 && Math.random() < 0.15) {
+        const nTemp = world.getTemp(nx, ny);
+        if (nTemp < temp - 5) {
+          world.addTemp(x, y, -2);
+          world.addTemp(nx, ny, 2);
+        }
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水爆炸产生氢气
+      if (nid === 2 && Math.random() < 0.15) {
+        world.set(nx, ny, Math.random() < 0.5 ? 19 : 8); // 氢气或蒸汽
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 遇铁锈铝热反应
+      if (nid === 72 && Math.random() < 0.05) {
+        world.set(nx, ny, 113); // 熔融金属
+        world.addTemp(x, y, 200);
+        world.addTemp(nx, ny, 500);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 导热
+      if (nid !== 0 && Math.random() < 0.15) {
+        const nTemp = world.getTemp(nx, ny);
+        if (nTemp < temp - 5) {
+          world.addTemp(x, y, -2);
+          world.addTemp(nx, ny, 2);
+        }
+      }
+        }
 
     // 散热
     if (Math.random() < 0.02) {

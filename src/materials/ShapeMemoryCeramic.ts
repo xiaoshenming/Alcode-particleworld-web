@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -65,10 +64,9 @@ export const ShapeMemoryCeramic: MaterialDef = {
     }
 
     // 检查四邻
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 高温软化时酸腐蚀加速
@@ -104,7 +102,121 @@ export const ShapeMemoryCeramic: MaterialDef = {
           world.addTemp(nx, ny, -diff);
         }
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 高温软化时酸腐蚀加速
+      if (nid === 9) {
+        const rate = temp > 300 ? 0.04 : 0.005;
+        if (Math.random() < rate) {
+          world.set(x, y, 0);
+          world.set(nx, ny, 7);
+          world.markUpdated(nx, ny);
+          world.wakeArea(x, y);
+          return;
+        }
+      }
+
+      // 强酸
+      if ((nid === 173 || nid === 183)) {
+        const rate = temp > 300 ? 0.08 : 0.01;
+        if (Math.random() < rate) {
+          world.set(x, y, 0);
+          world.set(nx, ny, 7);
+          world.markUpdated(nx, ny);
+          world.wakeArea(x, y);
+          return;
+        }
+      }
+
+      // 导热（中等）
+      if (nid !== 0 && Math.random() < 0.06) {
+        const nt = world.getTemp(nx, ny);
+        if (Math.abs(temp - nt) > 5) {
+          const diff = (nt - temp) * 0.06;
+          world.addTemp(x, y, diff);
+          world.addTemp(nx, ny, -diff);
+        }
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 高温软化时酸腐蚀加速
+      if (nid === 9) {
+        const rate = temp > 300 ? 0.04 : 0.005;
+        if (Math.random() < rate) {
+          world.set(x, y, 0);
+          world.set(nx, ny, 7);
+          world.markUpdated(nx, ny);
+          world.wakeArea(x, y);
+          return;
+        }
+      }
+
+      // 强酸
+      if ((nid === 173 || nid === 183)) {
+        const rate = temp > 300 ? 0.08 : 0.01;
+        if (Math.random() < rate) {
+          world.set(x, y, 0);
+          world.set(nx, ny, 7);
+          world.markUpdated(nx, ny);
+          world.wakeArea(x, y);
+          return;
+        }
+      }
+
+      // 导热（中等）
+      if (nid !== 0 && Math.random() < 0.06) {
+        const nt = world.getTemp(nx, ny);
+        if (Math.abs(temp - nt) > 5) {
+          const diff = (nt - temp) * 0.06;
+          world.addTemp(x, y, diff);
+          world.addTemp(nx, ny, -diff);
+        }
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 高温软化时酸腐蚀加速
+      if (nid === 9) {
+        const rate = temp > 300 ? 0.04 : 0.005;
+        if (Math.random() < rate) {
+          world.set(x, y, 0);
+          world.set(nx, ny, 7);
+          world.markUpdated(nx, ny);
+          world.wakeArea(x, y);
+          return;
+        }
+      }
+
+      // 强酸
+      if ((nid === 173 || nid === 183)) {
+        const rate = temp > 300 ? 0.08 : 0.01;
+        if (Math.random() < rate) {
+          world.set(x, y, 0);
+          world.set(nx, ny, 7);
+          world.markUpdated(nx, ny);
+          world.wakeArea(x, y);
+          return;
+        }
+      }
+
+      // 导热（中等）
+      if (nid !== 0 && Math.random() < 0.06) {
+        const nt = world.getTemp(nx, ny);
+        if (Math.abs(temp - nt) > 5) {
+          const diff = (nt - temp) * 0.06;
+          world.addTemp(x, y, diff);
+          world.addTemp(nx, ny, -diff);
+        }
+      }
+        }
 
     // 受热变色：刷新颜色
     if (temp > 200 && Math.random() < 0.1) {

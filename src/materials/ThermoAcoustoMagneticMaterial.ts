@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -37,10 +36,9 @@ export const ThermoAcoustoMagneticMaterial: MaterialDef = {
   update(x: number, y: number, world: WorldAPI) {
     const temp = world.getTemp(x, y);
 
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 高温产生声效应（模拟热→声）
@@ -63,7 +61,82 @@ export const ThermoAcoustoMagneticMaterial: MaterialDef = {
           world.addTemp(nx, ny, -diff);
         }
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 高温产生声效应（模拟热→声）
+      if (temp > 500 && nid === 0 && Math.random() < 0.025) {
+        world.set(nx, ny, 50);
+        world.wakeArea(nx, ny);
+      }
+
+      // 遇声波产生磁效应（模拟声→磁）
+      if (nid === 50 && Math.random() < 0.04) {
+        world.set(nx, ny, 42);
+        world.wakeArea(nx, ny);
+      }
+
+      if (nid !== 0 && Math.random() < 0.06) {
+        const nt = world.getTemp(nx, ny);
+        if (Math.abs(temp - nt) > 5) {
+          const diff = (nt - temp) * 0.07;
+          world.addTemp(x, y, diff);
+          world.addTemp(nx, ny, -diff);
+        }
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 高温产生声效应（模拟热→声）
+      if (temp > 500 && nid === 0 && Math.random() < 0.025) {
+        world.set(nx, ny, 50);
+        world.wakeArea(nx, ny);
+      }
+
+      // 遇声波产生磁效应（模拟声→磁）
+      if (nid === 50 && Math.random() < 0.04) {
+        world.set(nx, ny, 42);
+        world.wakeArea(nx, ny);
+      }
+
+      if (nid !== 0 && Math.random() < 0.06) {
+        const nt = world.getTemp(nx, ny);
+        if (Math.abs(temp - nt) > 5) {
+          const diff = (nt - temp) * 0.07;
+          world.addTemp(x, y, diff);
+          world.addTemp(nx, ny, -diff);
+        }
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 高温产生声效应（模拟热→声）
+      if (temp > 500 && nid === 0 && Math.random() < 0.025) {
+        world.set(nx, ny, 50);
+        world.wakeArea(nx, ny);
+      }
+
+      // 遇声波产生磁效应（模拟声→磁）
+      if (nid === 50 && Math.random() < 0.04) {
+        world.set(nx, ny, 42);
+        world.wakeArea(nx, ny);
+      }
+
+      if (nid !== 0 && Math.random() < 0.06) {
+        const nt = world.getTemp(nx, ny);
+        if (Math.abs(temp - nt) > 5) {
+          const diff = (nt - temp) * 0.07;
+          world.addTemp(x, y, diff);
+          world.addTemp(nx, ny, -diff);
+        }
+      }
+        }
   },
 };
 

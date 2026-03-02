@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -43,10 +42,9 @@ export const MoltenQuartz: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇水急冷为玻璃
@@ -74,7 +72,97 @@ export const MoltenQuartz: MaterialDef = {
           world.addTemp(nx, ny, 2);
         }
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇水急冷为玻璃
+      if (nid === 2 && Math.random() < 0.1) {
+        world.set(x, y, 17); // 玻璃
+        world.set(nx, ny, 8); // 蒸汽
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 点燃可燃物
+      if ((nid === 4 || nid === 5) && Math.random() < 0.02) {
+        world.set(nx, ny, 6);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 导热
+      if (nid !== 0 && Math.random() < 0.1) {
+        const nTemp = world.getTemp(nx, ny);
+        if (nTemp < temp - 10) {
+          world.addTemp(x, y, -2);
+          world.addTemp(nx, ny, 2);
+        }
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水急冷为玻璃
+      if (nid === 2 && Math.random() < 0.1) {
+        world.set(x, y, 17); // 玻璃
+        world.set(nx, ny, 8); // 蒸汽
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 点燃可燃物
+      if ((nid === 4 || nid === 5) && Math.random() < 0.02) {
+        world.set(nx, ny, 6);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 导热
+      if (nid !== 0 && Math.random() < 0.1) {
+        const nTemp = world.getTemp(nx, ny);
+        if (nTemp < temp - 10) {
+          world.addTemp(x, y, -2);
+          world.addTemp(nx, ny, 2);
+        }
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水急冷为玻璃
+      if (nid === 2 && Math.random() < 0.1) {
+        world.set(x, y, 17); // 玻璃
+        world.set(nx, ny, 8); // 蒸汽
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 点燃可燃物
+      if ((nid === 4 || nid === 5) && Math.random() < 0.02) {
+        world.set(nx, ny, 6);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 导热
+      if (nid !== 0 && Math.random() < 0.1) {
+        const nTemp = world.getTemp(nx, ny);
+        if (nTemp < temp - 10) {
+          world.addTemp(x, y, -2);
+          world.addTemp(nx, ny, 2);
+        }
+      }
+        }
 
     // 散热
     if (Math.random() < 0.02) {

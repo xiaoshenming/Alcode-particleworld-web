@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -39,10 +38,9 @@ export const SilicaGel: MaterialDef = {
   update(x: number, y: number, world: WorldAPI) {
     const temp = world.getTemp(x, y);
 
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 吸收水
@@ -66,7 +64,85 @@ export const SilicaGel: MaterialDef = {
         world.wakeArea(nx, ny);
         world.addTemp(x, y, -10);
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 吸收水
+      if (nid === 2 && Math.random() < 0.05) {
+        world.set(nx, ny, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 吸收蒸汽
+      if (nid === 8 && Math.random() < 0.08) {
+        world.set(nx, ny, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 高温释放蒸汽
+      if (temp > 300 && nid === 0 && Math.random() < 0.03) {
+        world.set(nx, ny, 8); // 蒸汽
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        world.addTemp(x, y, -10);
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 吸收水
+      if (nid === 2 && Math.random() < 0.05) {
+        world.set(nx, ny, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 吸收蒸汽
+      if (nid === 8 && Math.random() < 0.08) {
+        world.set(nx, ny, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 高温释放蒸汽
+      if (temp > 300 && nid === 0 && Math.random() < 0.03) {
+        world.set(nx, ny, 8); // 蒸汽
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        world.addTemp(x, y, -10);
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 吸收水
+      if (nid === 2 && Math.random() < 0.05) {
+        world.set(nx, ny, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 吸收蒸汽
+      if (nid === 8 && Math.random() < 0.08) {
+        world.set(nx, ny, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 高温释放蒸汽
+      if (temp > 300 && nid === 0 && Math.random() < 0.03) {
+        world.set(nx, ny, 8); // 蒸汽
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        world.addTemp(x, y, -10);
+      }
+        }
   },
 };
 

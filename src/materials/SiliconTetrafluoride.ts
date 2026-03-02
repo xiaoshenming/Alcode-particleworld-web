@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -34,10 +33,9 @@ export const SiliconTetrafluoride: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇水分解为酸
@@ -55,7 +53,67 @@ export const SiliconTetrafluoride: MaterialDef = {
         world.wakeArea(x, y);
         return;
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇水分解为酸
+      if (nid === 2 && Math.random() < 0.15) {
+        world.set(x, y, 9); // 酸液
+        world.set(nx, ny, 7); // 烟
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 腐蚀玻璃
+      if (nid === 17 && Math.random() < 0.05) {
+        world.set(nx, ny, 0);
+        world.set(x, y, 7);
+        world.wakeArea(x, y);
+        return;
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水分解为酸
+      if (nid === 2 && Math.random() < 0.15) {
+        world.set(x, y, 9); // 酸液
+        world.set(nx, ny, 7); // 烟
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 腐蚀玻璃
+      if (nid === 17 && Math.random() < 0.05) {
+        world.set(nx, ny, 0);
+        world.set(x, y, 7);
+        world.wakeArea(x, y);
+        return;
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水分解为酸
+      if (nid === 2 && Math.random() < 0.15) {
+        world.set(x, y, 9); // 酸液
+        world.set(nx, ny, 7); // 烟
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 腐蚀玻璃
+      if (nid === 17 && Math.random() < 0.05) {
+        world.set(nx, ny, 0);
+        world.set(x, y, 7);
+        world.wakeArea(x, y);
+        return;
+      }
+        }
 
     // 气体上升（较慢）
     if (y <= 0) return;

@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -42,10 +41,9 @@ export const TungstenHexafluoride: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇水反应 → 氟化氢 + 钨
@@ -66,7 +64,76 @@ export const TungstenHexafluoride: MaterialDef = {
         world.markUpdated(nx, ny);
         world.wakeArea(nx, ny);
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇水反应 → 氟化氢 + 钨
+      if (nid === 2 && Math.random() < 0.1) {
+        world.set(nx, ny, 208); // 氟化氢
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        // 自身变为钨沉淀
+        world.set(x, y, 199); // 钨
+        world.markUpdated(x, y);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 毒杀生物
+      if (TOXIC_TARGETS.has(nid) && Math.random() < 0.05) {
+        world.set(nx, ny, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水反应 → 氟化氢 + 钨
+      if (nid === 2 && Math.random() < 0.1) {
+        world.set(nx, ny, 208); // 氟化氢
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        // 自身变为钨沉淀
+        world.set(x, y, 199); // 钨
+        world.markUpdated(x, y);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 毒杀生物
+      if (TOXIC_TARGETS.has(nid) && Math.random() < 0.05) {
+        world.set(nx, ny, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水反应 → 氟化氢 + 钨
+      if (nid === 2 && Math.random() < 0.1) {
+        world.set(nx, ny, 208); // 氟化氢
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        // 自身变为钨沉淀
+        world.set(x, y, 199); // 钨
+        world.markUpdated(x, y);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 毒杀生物
+      if (TOXIC_TARGETS.has(nid) && Math.random() < 0.05) {
+        world.set(nx, ny, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
 
     // === 气体运动（较重气体，缓慢上升） ===
     if (y > 0 && world.isEmpty(x, y - 1) && Math.random() < 0.2) {

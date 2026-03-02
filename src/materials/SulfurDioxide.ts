@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -37,10 +36,9 @@ export const SulfurDioxide: MaterialDef = {
     }
 
     // 检查四邻
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇水生成酸液
@@ -74,7 +72,115 @@ export const SulfurDioxide: MaterialDef = {
         world.markUpdated(nx, ny);
         world.wakeArea(nx, ny);
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇水生成酸液
+      if (nid === 2 && Math.random() < 0.06) {
+        world.set(nx, ny, 9); // 酸液
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        world.set(x, y, 0);
+        return;
+      }
+
+      // 遇火/高温氧化消散
+      if ((nid === 6 || nid === 28 || nid === 55) && Math.random() < 0.2) {
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 被臭氧氧化
+      if (nid === 228 && Math.random() < 0.1) {
+        world.set(x, y, 0);
+        world.set(nx, ny, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 毒杀生物
+      if (TOXIC_TARGETS.has(nid) && Math.random() < 0.04) {
+        world.set(nx, ny, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水生成酸液
+      if (nid === 2 && Math.random() < 0.06) {
+        world.set(nx, ny, 9); // 酸液
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        world.set(x, y, 0);
+        return;
+      }
+
+      // 遇火/高温氧化消散
+      if ((nid === 6 || nid === 28 || nid === 55) && Math.random() < 0.2) {
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 被臭氧氧化
+      if (nid === 228 && Math.random() < 0.1) {
+        world.set(x, y, 0);
+        world.set(nx, ny, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 毒杀生物
+      if (TOXIC_TARGETS.has(nid) && Math.random() < 0.04) {
+        world.set(nx, ny, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水生成酸液
+      if (nid === 2 && Math.random() < 0.06) {
+        world.set(nx, ny, 9); // 酸液
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+        world.set(x, y, 0);
+        return;
+      }
+
+      // 遇火/高温氧化消散
+      if ((nid === 6 || nid === 28 || nid === 55) && Math.random() < 0.2) {
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 被臭氧氧化
+      if (nid === 228 && Math.random() < 0.1) {
+        world.set(x, y, 0);
+        world.set(nx, ny, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 毒杀生物
+      if (TOXIC_TARGETS.has(nid) && Math.random() < 0.04) {
+        world.set(nx, ny, 0);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
 
     // === 气体运动（略重于空气，倾向下沉扩散） ===
     if (y < world.height - 1 && world.isEmpty(x, y + 1) && Math.random() < 0.15) {

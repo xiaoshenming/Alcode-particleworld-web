@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -53,10 +52,9 @@ export const Zinc: MaterialDef = {
     }
 
     // 检查四邻
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇酸反应产生氢气
@@ -67,7 +65,46 @@ export const Zinc: MaterialDef = {
         world.wakeArea(x, y);
         return;
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇酸反应产生氢气
+      if (ACIDS.has(nid) && Math.random() < 0.02) {
+        world.set(x, y, 0); // 锌溶解
+        world.set(nx, ny, 19); // 酸变氢气
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        return;
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇酸反应产生氢气
+      if (ACIDS.has(nid) && Math.random() < 0.02) {
+        world.set(x, y, 0); // 锌溶解
+        world.set(nx, ny, 19); // 酸变氢气
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        return;
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇酸反应产生氢气
+      if (ACIDS.has(nid) && Math.random() < 0.02) {
+        world.set(x, y, 0); // 锌溶解
+        world.set(nx, ny, 19); // 酸变氢气
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        return;
+      }
+        }
   },
 };
 

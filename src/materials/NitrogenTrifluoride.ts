@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -52,10 +51,9 @@ export const NitrogenTrifluoride: MaterialDef = {
     }
 
     // 邻居交互
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 接触高温源 → 剧烈燃烧
@@ -72,7 +70,64 @@ export const NitrogenTrifluoride: MaterialDef = {
         world.markUpdated(nx, ny);
         world.wakeArea(nx, ny);
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 接触高温源 → 剧烈燃烧
+      if ((nid === 6 || nid === 11 || nid === 55) && Math.random() < 0.6) {
+        world.set(x, y, 28); // 火花
+        world.addTemp(x, y, 80);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 腐蚀有机物
+      if ((nid === 4 || nid === 13 || nid === 57) && Math.random() < 0.05) {
+        world.set(nx, ny, 7); // 烟
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 接触高温源 → 剧烈燃烧
+      if ((nid === 6 || nid === 11 || nid === 55) && Math.random() < 0.6) {
+        world.set(x, y, 28); // 火花
+        world.addTemp(x, y, 80);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 腐蚀有机物
+      if ((nid === 4 || nid === 13 || nid === 57) && Math.random() < 0.05) {
+        world.set(nx, ny, 7); // 烟
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 接触高温源 → 剧烈燃烧
+      if ((nid === 6 || nid === 11 || nid === 55) && Math.random() < 0.6) {
+        world.set(x, y, 28); // 火花
+        world.addTemp(x, y, 80);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 腐蚀有机物
+      if ((nid === 4 || nid === 13 || nid === 57) && Math.random() < 0.05) {
+        world.set(nx, ny, 7); // 烟
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
 
     // 缓慢上升（swap 自动迁移 age）
     if (y > 0 && world.isEmpty(x, y - 1)) {

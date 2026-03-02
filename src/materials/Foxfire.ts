@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -62,10 +61,9 @@ export const Foxfire: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇水熄灭
@@ -79,7 +77,55 @@ export const Foxfire: MaterialDef = {
       if ((nid === 54 || nid === 95) && Math.random() < 0.1) {
         life += 5;
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇水熄灭
+      if ((nid === 2 || nid === 24) && Math.random() < 0.3) {
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 沼泽/沼气附近延长寿命
+      if ((nid === 54 || nid === 95) && Math.random() < 0.1) {
+        life += 5;
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水熄灭
+      if ((nid === 2 || nid === 24) && Math.random() < 0.3) {
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 沼泽/沼气附近延长寿命
+      if ((nid === 54 || nid === 95) && Math.random() < 0.1) {
+        life += 5;
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水熄灭
+      if ((nid === 2 || nid === 24) && Math.random() < 0.3) {
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 沼泽/沼气附近延长寿命
+      if ((nid === 54 || nid === 95) && Math.random() < 0.1) {
+        life += 5;
+      }
+        }
 
     // 风力影响（swap 自动迁移 age）
     const wind = world.getWind();

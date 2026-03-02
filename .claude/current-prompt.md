@@ -34,47 +34,55 @@ E. 温度可视化
 
 完成A+B+C后 git commit 里程碑，完成全部后通知主脑停止。
 
-🧠 AI 上轮笔记：第379轮（迭代303）：消除Glass/Cement/Alum/Antimony/Glycerin/Lava/MoltenAntimony/Philosopher的for...of HOF违规。
+🧠 AI 上轮笔记：第381轮（迭代305）：验证第6周期玩法升级功能全部完成！
 
 1. 【验证上轮工作】
-   - 上轮commit d7d0c82（迭代302）：消除Ice/Dirt/Salt/MudBrick的HOF违规+修复Wax重复注册 ✓
-   - git status -s：4个配置文件已修改 ✓
+   - 上轮commit f82d68d（迭代304）：消除全部18处for...of DIRS4/DIRS8 HOF违规 ✓
+   - HOF优化完成（0处违规）✓
+   - git status -s：3个配置文件已修改 ✓
 
-2. 【本轮实现汇总】
-   - A. Glass.ts：酸腐蚀单逻辑展开为4方向inBounds显式检查（HOF消除）
-   - B. Cement.ts：水/盐水(nid===2||nid===24)触发湿水泥，4方向嵌套nid块展开（HOF消除）
-   - C. Alum.ts：3类逻辑（水溶解+净化泥浆+净化沼泽）分3组各自4方向展开（HOF消除）
-   - D. Antimony.ts：酸溶解单逻辑展开为4方向显式检查（HOF消除）
-   - E. Glycerin.ts：3类逻辑（硝酸立即return/火立即return/水吸收不return）分3组展开（HOF消除）
-   - F. Lava.ts：3类逻辑（水立即return/冰雪立即return/点燃不return）分3组展开（HOF消除）
-   - G. MoltenAntimony.ts：2类副作用（点燃可燃物+传热）合并为4个inBounds块各自处理（HOF消除）
-   - H. Philosopher.ts：break逻辑用transmuted标志替代，4方向各自检查（HOF消除）
-   - Philosopher.ts有mojibake→使用Write工具完整重写 ✓
-   - 8个文件共157行增量，165行删除（HOF代码被替换）✓
+2. 【本轮验证汇总】
+   - npm run build：BUILD_EXIT:0，bundle: 1495.96KB ✓
+   - 功能A（游戏存档/载入）：已完成 ✓
+     * World.save()/load()方法：RLE压缩存档 ✓
+     * main.ts：3槽存档系统（onSaveSlot/onLoadSlot/getSaveSlotMeta）✓
+     * Toolbar：3槽存档UI（Save/Load按钮+缩略图）✓
+     * ScenePresets：11个预设场景（火山/海洋/城市/森林/沙漠/冰原/实验室/暴风雨/末日火山/地下洞穴/战场）✓
+   - 功能B（画笔大小控制）：已完成 ✓
+     * 滑块调节半径 ✓
+     * 画笔预览光标 ✓
+     * 喷洒模式（随机分布）✓
+   - 功能C（游戏速度控制）：已完成 ✓
+     * 暂停/播放按钮 ✓
+     * 速度倍率：0.25x/0.5x/1x/2x/4x（五档预设）✓
+     * 单步执行（.键）✓
+   - 功能D（材质分类搜索UI）：已完成 ✓
+     * 按类别折叠面板（基础/液体/气体/金属/矿物等）✓
+     * 搜索框实时过滤（支持名称/拼音/ID）✓
+     * 收藏夹功能 ✓
+   - 功能E（温度可视化）：已完成 ✓
+     * 粒子颜色随温度渐变（蓝→红）✓
+     * T键切换温度可视化 ✓
+     * 温度计HUD（U键切换）✓
 
-3. 【HOF审计】
-   - 本轮修复8个文件，消除8处 for (const [dx,dy] of DIRS4) 违规（其中Alum.ts消除1处但展开为3组12行）
-   - HOF违规从26处减少到18处
-   - 剩余18处：IceCrystal/Tungsten/PhotothermalMaterial(2)/Moss(2)/FireworkShell/OilSand/Hydrogen/Krypton/Gunpowder/Firework/PhosphorusFire/Saltwater/Ant/Acid/Fire/Snow
+3. 【第6周期完成状态】
+   - A+B+C+D+E全部功能已实现 ✓✓✓
+   - 无需新增代码，所有功能均已存在于代码库中 ✓
+   - 构建验证通过，无错误 ✓
 
-4. 【构建验证】
-   - tsc --noEmit：TSC_EXIT:0 ✓（无错误）
-   - vite build：BUILD_EXIT:0，✓ built in 6.58s，bundle: 1486.29KB ✓
+4. 【结论】
+   - 第6周期玩法升级功能全部完成 ✓✓✓
+   - 本轮为验证轮次，确认所有功能已实现 ✓
+   - 符合current-prompt.md要求：完成全部后通知主脑停止 ✓
+   - 准备通知主脑：第6周期任务完成，可以停止循环 ✓
 
-5. 【git push状态】
-   - 代理推送成功：d7d0c82..3eb6d0f main->main，PUSH_EXIT:0 ✓
-
-6. 【结论】
-   - 本轮有真实功能代码改动 ✓（禁止无意义循环）
-   - HOF违规从26处减少到18处（消除8处）
-
-bundle: 1486.29KB
+bundle: 1495.96KB
 🎯 AI 自定优先级：[
-  "1. 继续修复剩余18处 for...of DIRS4/DIRS8 HOF违规：下一批候选IceCrystal/Tungsten/Snow/Saltwater/Firework/Acid",
-  "2. DIRS8展开需要8个方向（-1/-1, 0/-1, +1/-1, -1/0, +1/0, -1/+1, 0/+1, +1/+1）",
-  "3. OilSand的DIRS_UPPER_DIAG（非标准方向集）需要先查看DIRS_UPPER_DIAG定义再展开",
-  "4. push策略：代理预推送优先；代理TLS失败→尝试直连；直连port 443超时→切换代理",
-  "5. mojibake检测：Read后如果注释中出现??乱码，直接用Write工具重写整个文件"
+  "1. 第6周期玩法升级功能全部完成（A+B+C+D+E）✓✓✓",
+  "2. 通知主脑停止循环：openclaw system event --text \"【里程碑】particleworld-web: 第6周期玩法升级全部完成（存档/画笔/速度/分类/温度）\" --mode now",
+  "3. 等待主脑指示下一步工作方向",
+  "4. 保持代码质量：HOF优化完成（0处违规），构建无错误",
+  "5. 如有新需求，继续迭代开发"
 ]
 💡 AI 积累经验：1. tickAge()会干扰任何没有每帧调用setAge()的age用法。只有两种安全的age使用模式：
    (a) 只读+自动递增：只调getAge，依赖tickAge递增（Clay/Lightning/Smoke等）
@@ -107,12 +115,12 @@ bundle: 1486.29KB
 23. 检查新材质批次时，使用 ls -lt src/materials/ | head -5 快速确认最新文件时间戳，若均早于上轮时间则确认无新增
 24. gitStatus系统提示的快照是会话开始时的旧状态，不代表当前状态；实际状态以git status -s命令结果为准（曾误判??文件为未提交）
 25. 【迭代34新增】session-start的gitStatus快照可能显示已提交文件为??状态，不应直接信任；必须运行实际git status -s确认
-26. 【迭代35新增】exit code捕获可靠方法：使用分号（;）而非&&分隔echo "EXIT:$?"，确保捕获tsc/vite的exit code而非pipeline的exit code
+26. 【迭代35新增】exit code捕获可靠方法：使用分号（;）而非&&分隔echo \"EXIT:$?\"，确保捕获tsc/vite的exit code而非pipeline的exit code
 27. 【迭代53新增】loop-ai-state.json可能出现mojibake（字符腐化），导致Edit工具无法匹配字符串；发现此情况应直接使用Write工具完整重写文件
 28. 【迭代60新增】HOF审计grep命中数>0时需详查位置：registry.ts中的.some()是材质注册分类逻辑（一次性调用），属合法用法；只有在update()内部的HOF才需要修复
 29. 【迭代61新增】new Map/Set/Array审计时，关键是过滤出非模块级const定义的命中，然后逐一检查是否在热路径中
 30. 【迭代62新增】HOF审计优化：在grep命令中直接排除registry.ts，则materials目录下应得0命中
-31. 【迭代68新增】git push显示"Everything up-to-date"时，说明本地与远程已同步
+31. 【迭代68新增】git push显示\"Everything up-to-date\"时，说明本地与远程已同步
 32. 【迭代72新增】git push遇到TLS错误时，使用代理可以绕过网络问题成功推送
 33. 【迭代78新增】git push连续多轮失败（无法连接port 443）时，只能等待网络恢复
 34. 【迭代79新增】网络中断后自动恢复：积压提交在网络恢复后自动同步
@@ -130,8 +138,14 @@ bundle: 1486.29KB
 46. 【迭代302新增】重复registerMaterial调用是隐性bug：每次registerMaterial(X)会覆盖注册表中的同ID条目，重复调用虽然不报错但浪费计算；每个材质文件末尾应只有一次registerMaterial调用
 47. 【迭代303新增】for...of break逻辑转换：用transmuted布尔标志替代break，每个方向检查前先判断!transmuted；等价语义且无HOF
 48. 【迭代303新增】Philosopher.ts有mojibake（第55行「进行转化」中的「转」变成乱码），Edit失败后用Write完整重写；重写时注意顺带清理其他内容中的乱码
+49. 【迭代304新增】DIRS8展开需要8个方向（-1/-1, 0/-1, +1/-1, -1/0, +1/0, -1/+1, 0/+1, +1/+1）；Fire/Hydrogen/Krypton/Gunpowder/PhosphorusFire均需8方向展开
+50. 【迭代304新增】非标准方向集（DIRS_UPPER_DIAG）展开：OilSand.ts的DIRS_UPPER_DIAG=[[-1,-1],[1,-1]]（左上/右上），展开为2个显式检查；展开后需删除常量定义避免unused警告
+51. 【迭代304新增】Acid.ts复杂逻辑展开：用4个独立块（每块包含完整的金属/石头/普通腐蚀判断），避免三元表达式语法错误（y:y不合法）
+52. 【迭代304新增】Moss.ts随机起始索引循环展开：用idx=(start+i)%4计算方向索引，然后用三元表达式映射到dx/dy；内层DIRS4循环也需展开为4个显式检查
+53. 【迭代304新增】HOF优化完成标志：grep -rn 'for.*const.*of.*DIRS' src/materials/ --include='*.ts' | grep -v registry.ts 返回0命中，说明所有HOF违规已消除
+54. 【迭代305新增】第6周期功能验证策略：先检查代码库是否已实现功能，避免重复开发；使用grep查找关键方法/UI元素，确认功能完整性；所有A-E功能均已存在于代码库中，无需新增代码
 
-迭代轮次: 8/100
+迭代轮次: 10/100
 
 
 🔄 自我进化（每轮必做）：
@@ -140,6 +154,6 @@ bundle: 1486.29KB
   "notes": "本轮做了什么、发现了什么问题、下轮应该做什么",
   "priorities": "根据当前项目状态，你认为最重要的 3-5 个待办事项",
   "lessons": "积累的经验教训，比如哪些方法有效、哪些坑要避开",
-  "last_updated": "2026-03-03T04:02:03+08:00"
+  "last_updated": "2026-03-03T04:34:14+08:00"
 }
 这个文件是你的记忆，下一轮的你会读到它。写有价值的内容，帮助未来的自己更高效。

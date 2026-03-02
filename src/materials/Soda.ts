@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -53,10 +52,9 @@ export const Soda: MaterialDef = {
     }
 
     // 邻居交互
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇酸剧烈反应：产生泡泡 + 盐
@@ -83,7 +81,94 @@ export const Soda: MaterialDef = {
         world.wakeArea(x, y);
         return;
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇酸剧烈反应：产生泡泡 + 盐
+      if (ACIDS.has(nid) && Math.random() < 0.3) {
+        world.set(x, y, 73); // 泡泡
+        world.set(nx, ny, 23); // 盐
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 遇水溶解为盐水
+      if (WATERS.has(nid) && Math.random() < 0.06) {
+        world.set(x, y, 24); // 盐水（近似碱性溶液）
+        world.set(nx, ny, 0);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 遇熔岩熔化为液态玻璃
+      if (nid === 11 && Math.random() < 0.04) {
+        world.set(x, y, 92); // 液态玻璃
+        world.wakeArea(x, y);
+        return;
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇酸剧烈反应：产生泡泡 + 盐
+      if (ACIDS.has(nid) && Math.random() < 0.3) {
+        world.set(x, y, 73); // 泡泡
+        world.set(nx, ny, 23); // 盐
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 遇水溶解为盐水
+      if (WATERS.has(nid) && Math.random() < 0.06) {
+        world.set(x, y, 24); // 盐水（近似碱性溶液）
+        world.set(nx, ny, 0);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 遇熔岩熔化为液态玻璃
+      if (nid === 11 && Math.random() < 0.04) {
+        world.set(x, y, 92); // 液态玻璃
+        world.wakeArea(x, y);
+        return;
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇酸剧烈反应：产生泡泡 + 盐
+      if (ACIDS.has(nid) && Math.random() < 0.3) {
+        world.set(x, y, 73); // 泡泡
+        world.set(nx, ny, 23); // 盐
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 遇水溶解为盐水
+      if (WATERS.has(nid) && Math.random() < 0.06) {
+        world.set(x, y, 24); // 盐水（近似碱性溶液）
+        world.set(nx, ny, 0);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 遇熔岩熔化为液态玻璃
+      if (nid === 11 && Math.random() < 0.04) {
+        world.set(x, y, 92); // 液态玻璃
+        world.wakeArea(x, y);
+        return;
+      }
+        }
 
     if (y >= world.height - 1) return;
 

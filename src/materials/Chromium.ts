@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -52,10 +51,9 @@ export const Chromium: MaterialDef = {
     }
 
     // 检查四邻
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 仅硝酸+硫酸同时存在时才极缓慢腐蚀（简化：硝酸缓慢腐蚀）
@@ -71,7 +69,61 @@ export const Chromium: MaterialDef = {
         world.markUpdated(nx, ny);
         world.wakeArea(nx, ny);
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 仅硝酸+硫酸同时存在时才极缓慢腐蚀（简化：硝酸缓慢腐蚀）
+      if (nid === 183 && Math.random() < 0.003) {
+        world.set(nx, ny, 7); // 酸蒸发为烟
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 其他酸完全无效，酸自身缓慢消耗
+      if (ACIDS.has(nid) && nid !== 183 && Math.random() < 0.008) {
+        world.set(nx, ny, 7);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 仅硝酸+硫酸同时存在时才极缓慢腐蚀（简化：硝酸缓慢腐蚀）
+      if (nid === 183 && Math.random() < 0.003) {
+        world.set(nx, ny, 7); // 酸蒸发为烟
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 其他酸完全无效，酸自身缓慢消耗
+      if (ACIDS.has(nid) && nid !== 183 && Math.random() < 0.008) {
+        world.set(nx, ny, 7);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 仅硝酸+硫酸同时存在时才极缓慢腐蚀（简化：硝酸缓慢腐蚀）
+      if (nid === 183 && Math.random() < 0.003) {
+        world.set(nx, ny, 7); // 酸蒸发为烟
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 其他酸完全无效，酸自身缓慢消耗
+      if (ACIDS.has(nid) && nid !== 183 && Math.random() < 0.008) {
+        world.set(nx, ny, 7);
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+        }
   },
 };
 

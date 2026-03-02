@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -100,10 +99,9 @@ export const MoltenPraseodymium: MaterialDef = {
     }
 
     // 化学反应
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇水剧烈反应
@@ -117,7 +115,55 @@ export const MoltenPraseodymium: MaterialDef = {
         world.set(nx, ny, 7);
         world.wakeArea(nx, ny);
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇水剧烈反应
+      if (nid === 2 && Math.random() < 0.8) {
+        world.set(nx, ny, 8); // 蒸汽
+        world.addTemp(x, y, -40);
+      }
+
+      // 氧化产烟
+      if (nid === 0 && Math.random() < 0.01) {
+        world.set(nx, ny, 7);
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水剧烈反应
+      if (nid === 2 && Math.random() < 0.8) {
+        world.set(nx, ny, 8); // 蒸汽
+        world.addTemp(x, y, -40);
+      }
+
+      // 氧化产烟
+      if (nid === 0 && Math.random() < 0.01) {
+        world.set(nx, ny, 7);
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇水剧烈反应
+      if (nid === 2 && Math.random() < 0.8) {
+        world.set(nx, ny, 8); // 蒸汽
+        world.addTemp(x, y, -40);
+      }
+
+      // 氧化产烟
+      if (nid === 0 && Math.random() < 0.01) {
+        world.set(nx, ny, 7);
+        world.wakeArea(nx, ny);
+      }
+        }
   },
 };
 

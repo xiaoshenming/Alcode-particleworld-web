@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -56,10 +55,9 @@ export const Marble: MaterialDef = {
     }
 
     // 检查四邻
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 遇酸溶解
@@ -79,7 +77,73 @@ export const Marble: MaterialDef = {
         world.wakeArea(x, y);
         return;
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇酸溶解
+      if ((nid === 9 || nid === 173 || nid === 183) && Math.random() < 0.025) {
+        world.set(x, y, 0);
+        world.set(nx, ny, 7); // 产生气泡/烟
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇氟化氢快速腐蚀
+      if (nid === 208 && Math.random() < 0.05) {
+        world.set(x, y, 0);
+        world.set(nx, ny, 7);
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        return;
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇酸溶解
+      if ((nid === 9 || nid === 173 || nid === 183) && Math.random() < 0.025) {
+        world.set(x, y, 0);
+        world.set(nx, ny, 7); // 产生气泡/烟
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇氟化氢快速腐蚀
+      if (nid === 208 && Math.random() < 0.05) {
+        world.set(x, y, 0);
+        world.set(nx, ny, 7);
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        return;
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇酸溶解
+      if ((nid === 9 || nid === 173 || nid === 183) && Math.random() < 0.025) {
+        world.set(x, y, 0);
+        world.set(nx, ny, 7); // 产生气泡/烟
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇氟化氢快速腐蚀
+      if (nid === 208 && Math.random() < 0.05) {
+        world.set(x, y, 0);
+        world.set(nx, ny, 7);
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        return;
+      }
+        }
   },
 };
 

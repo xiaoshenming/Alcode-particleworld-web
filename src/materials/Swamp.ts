@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -46,10 +45,9 @@ export const Swamp: MaterialDef = {
     }
 
     // 检查四邻交互
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 接触种子：小概率催生植物
@@ -57,7 +55,37 @@ export const Swamp: MaterialDef = {
         world.set(nx, ny, 13); // 植物
         world.markUpdated(nx, ny);
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 接触种子：小概率催生植物
+      if (nid === 12 && Math.random() < 0.03) {
+        world.set(nx, ny, 13); // 植物
+        world.markUpdated(nx, ny);
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 接触种子：小概率催生植物
+      if (nid === 12 && Math.random() < 0.03) {
+        world.set(nx, ny, 13); // 植物
+        world.markUpdated(nx, ny);
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 接触种子：小概率催生植物
+      if (nid === 12 && Math.random() < 0.03) {
+        world.set(nx, ny, 13); // 植物
+        world.markUpdated(nx, ny);
+      }
+        }
 
     // 吞噬上方沉入的沙子/泥土
     if (y > 0) {

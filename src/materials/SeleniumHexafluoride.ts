@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -45,10 +44,9 @@ export const SeleniumHexafluoride: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 接触水分解
@@ -63,7 +61,58 @@ export const SeleniumHexafluoride: MaterialDef = {
         world.set(nx, ny, 0);
         world.wakeArea(nx, ny);
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 接触水分解
+      if (nid === 2 && Math.random() < 0.08) {
+        world.set(x, y, 18); // 毒气
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 毒杀有机物
+      if (ORGANIC_TARGETS.has(nid) && Math.random() < 0.06) {
+        world.set(nx, ny, 0);
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 接触水分解
+      if (nid === 2 && Math.random() < 0.08) {
+        world.set(x, y, 18); // 毒气
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 毒杀有机物
+      if (ORGANIC_TARGETS.has(nid) && Math.random() < 0.06) {
+        world.set(nx, ny, 0);
+        world.wakeArea(nx, ny);
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 接触水分解
+      if (nid === 2 && Math.random() < 0.08) {
+        world.set(x, y, 18); // 毒气
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 毒杀有机物
+      if (ORGANIC_TARGETS.has(nid) && Math.random() < 0.06) {
+        world.set(nx, ny, 0);
+        world.wakeArea(nx, ny);
+      }
+        }
 
     // === 气体运动（向上飘动） ===
     if (y > 0 && world.isEmpty(x, y - 1)) {

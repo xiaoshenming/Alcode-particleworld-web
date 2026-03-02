@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -90,10 +89,9 @@ export const Rocket: MaterialDef = {
     }
 
     // 未点燃状态：检查是否被点燃
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       if ((nid === 6 || nid === 28 || nid === 11 || nid === 16) && Math.random() < 0.5) {
@@ -102,7 +100,40 @@ export const Rocket: MaterialDef = {
         world.wakeArea(x, y);
         return;
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      if ((nid === 6 || nid === 28 || nid === 11 || nid === 16) && Math.random() < 0.5) {
+        // 点燃！设置燃料
+        world.setAge(x, y, 20 + Math.floor(Math.random() * 15));
+        world.wakeArea(x, y);
+        return;
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      if ((nid === 6 || nid === 28 || nid === 11 || nid === 16) && Math.random() < 0.5) {
+        // 点燃！设置燃料
+        world.setAge(x, y, 20 + Math.floor(Math.random() * 15));
+        world.wakeArea(x, y);
+        return;
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      if ((nid === 6 || nid === 28 || nid === 11 || nid === 16) && Math.random() < 0.5) {
+        // 点燃！设置燃料
+        world.setAge(x, y, 20 + Math.floor(Math.random() * 15));
+        world.wakeArea(x, y);
+        return;
+      }
+        }
 
     // 高温自燃
     if (world.getTemp(x, y) > 100) {

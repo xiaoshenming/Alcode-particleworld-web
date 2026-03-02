@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -34,10 +33,9 @@ export const PalladiumNeodymiumAlloy: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 4方向显式展开（上下左右，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
 
       // 酸液(9)溶解率 0.001
@@ -57,7 +55,73 @@ export const PalladiumNeodymiumAlloy: MaterialDef = {
           world.addTemp(nx, ny, -diff);
         }
       }
-    }
+        }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 酸液(9)溶解率 0.001
+      if (nid === 9 && Math.random() < 0.001) {
+        world.set(x, y, 0);
+        world.set(nx, ny, 7);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 热传导 0.08/0.09
+      if (nid !== 0 && Math.random() < 0.08) {
+        const nt = world.getTemp(nx, ny);
+        if (Math.abs(temp - nt) > 5) {
+          const diff = (nt - temp) * 0.09;
+          world.addTemp(x, y, diff);
+          world.addTemp(nx, ny, -diff);
+        }
+      }
+        }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 酸液(9)溶解率 0.001
+      if (nid === 9 && Math.random() < 0.001) {
+        world.set(x, y, 0);
+        world.set(nx, ny, 7);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 热传导 0.08/0.09
+      if (nid !== 0 && Math.random() < 0.08) {
+        const nt = world.getTemp(nx, ny);
+        if (Math.abs(temp - nt) > 5) {
+          const diff = (nt - temp) * 0.09;
+          world.addTemp(x, y, diff);
+          world.addTemp(nx, ny, -diff);
+        }
+      }
+        }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 酸液(9)溶解率 0.001
+      if (nid === 9 && Math.random() < 0.001) {
+        world.set(x, y, 0);
+        world.set(nx, ny, 7);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 热传导 0.08/0.09
+      if (nid !== 0 && Math.random() < 0.08) {
+        const nt = world.getTemp(nx, ny);
+        if (Math.abs(temp - nt) > 5) {
+          const diff = (nt - temp) * 0.09;
+          world.addTemp(x, y, diff);
+          world.addTemp(nx, ny, -diff);
+        }
+      }
+        }
   },
 };
 
