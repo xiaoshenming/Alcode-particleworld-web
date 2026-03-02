@@ -1,5 +1,4 @@
 import type { MaterialDef, WorldAPI } from './types';
-import { DIRS4 } from './types';
 import { registerMaterial } from './registry';
 
 /**
@@ -40,39 +39,34 @@ export const Alum: MaterialDef = {
       return;
     }
 
-    // 检查四邻
-    for (const [dx, dy] of DIRS4) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-
-      // 遇水缓慢溶解：水变为盐水，明矾有小概率消失
-      if (nid === 2 && Math.random() < 0.03) {
-        world.set(nx, ny, 24); // 水 → 盐水
-        world.markUpdated(nx, ny);
-        world.wakeArea(nx, ny);
-        // 溶解消耗自身（概率性，模拟缓慢溶解）
-        if (Math.random() < 0.15) {
-          world.set(x, y, 0); // 明矾溶解消失
-          world.wakeArea(x, y);
-          return;
-        }
-      }
-
-      // 净水作用：泥浆 → 水
-      if (nid === 63 && Math.random() < 0.05) {
-        world.set(nx, ny, 2); // 泥浆 → 水
-        world.markUpdated(nx, ny);
-        world.wakeArea(nx, ny);
-      }
-
-      // 净水作用：沼泽 → 水
-      if (nid === 54 && Math.random() < 0.05) {
-        world.set(nx, ny, 2); // 沼泽 → 水
-        world.markUpdated(nx, ny);
-        world.wakeArea(nx, ny);
-      }
+    // 检查四邻（显式4方向，无HOF）
+    // 水溶解：遇水→水变盐水，明矾有概率消失
+    if (world.inBounds(x, y - 1) && world.get(x, y - 1) === 2 && Math.random() < 0.03) {
+      world.set(x, y - 1, 24); world.markUpdated(x, y - 1); world.wakeArea(x, y - 1);
+      if (Math.random() < 0.15) { world.set(x, y, 0); world.wakeArea(x, y); return; }
     }
+    if (world.inBounds(x, y + 1) && world.get(x, y + 1) === 2 && Math.random() < 0.03) {
+      world.set(x, y + 1, 24); world.markUpdated(x, y + 1); world.wakeArea(x, y + 1);
+      if (Math.random() < 0.15) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+    }
+    if (world.inBounds(x - 1, y) && world.get(x - 1, y) === 2 && Math.random() < 0.03) {
+      world.set(x - 1, y, 24); world.markUpdated(x - 1, y); world.wakeArea(x - 1, y);
+      if (Math.random() < 0.15) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+    }
+    if (world.inBounds(x + 1, y) && world.get(x + 1, y) === 2 && Math.random() < 0.03) {
+      world.set(x + 1, y, 24); world.markUpdated(x + 1, y); world.wakeArea(x + 1, y);
+      if (Math.random() < 0.15) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+    }
+    // 净水：泥浆→水
+    if (world.inBounds(x, y - 1) && world.get(x, y - 1) === 63 && Math.random() < 0.05) { world.set(x, y - 1, 2); world.markUpdated(x, y - 1); world.wakeArea(x, y - 1); }
+    if (world.inBounds(x, y + 1) && world.get(x, y + 1) === 63 && Math.random() < 0.05) { world.set(x, y + 1, 2); world.markUpdated(x, y + 1); world.wakeArea(x, y + 1); }
+    if (world.inBounds(x - 1, y) && world.get(x - 1, y) === 63 && Math.random() < 0.05) { world.set(x - 1, y, 2); world.markUpdated(x - 1, y); world.wakeArea(x - 1, y); }
+    if (world.inBounds(x + 1, y) && world.get(x + 1, y) === 63 && Math.random() < 0.05) { world.set(x + 1, y, 2); world.markUpdated(x + 1, y); world.wakeArea(x + 1, y); }
+    // 净水：沼泽→水
+    if (world.inBounds(x, y - 1) && world.get(x, y - 1) === 54 && Math.random() < 0.05) { world.set(x, y - 1, 2); world.markUpdated(x, y - 1); world.wakeArea(x, y - 1); }
+    if (world.inBounds(x, y + 1) && world.get(x, y + 1) === 54 && Math.random() < 0.05) { world.set(x, y + 1, 2); world.markUpdated(x, y + 1); world.wakeArea(x, y + 1); }
+    if (world.inBounds(x - 1, y) && world.get(x - 1, y) === 54 && Math.random() < 0.05) { world.set(x - 1, y, 2); world.markUpdated(x - 1, y); world.wakeArea(x - 1, y); }
+    if (world.inBounds(x + 1, y) && world.get(x + 1, y) === 54 && Math.random() < 0.05) { world.set(x + 1, y, 2); world.markUpdated(x + 1, y); world.wakeArea(x + 1, y); }
   },
 };
 

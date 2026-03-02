@@ -1,5 +1,4 @@
 import type { MaterialDef, WorldAPI } from './types';
-import { DIRS4 } from './types';
 import { registerMaterial } from './registry';
 
 /**
@@ -19,16 +18,18 @@ export const Glass: MaterialDef = {
   },
   density: Infinity,
   update(x: number, y: number, world: WorldAPI) {
-    // 玻璃是惰性固体，只检查酸液腐蚀
-    for (const [dx, dy] of DIRS4) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      if (world.get(nx, ny) === 9 && Math.random() < 0.02) {
-        // 酸液腐蚀玻璃
-        world.set(x, y, 0);
-        world.set(nx, ny, 0); // 酸液也消耗
-        return;
-      }
+    // 玻璃是惰性固体，只检查酸液腐蚀（显式4方向，无HOF）
+    if (world.inBounds(x, y - 1) && world.get(x, y - 1) === 9 && Math.random() < 0.02) {
+      world.set(x, y, 0); world.set(x, y - 1, 0); return;
+    }
+    if (world.inBounds(x, y + 1) && world.get(x, y + 1) === 9 && Math.random() < 0.02) {
+      world.set(x, y, 0); world.set(x, y + 1, 0); return;
+    }
+    if (world.inBounds(x - 1, y) && world.get(x - 1, y) === 9 && Math.random() < 0.02) {
+      world.set(x, y, 0); world.set(x - 1, y, 0); return;
+    }
+    if (world.inBounds(x + 1, y) && world.get(x + 1, y) === 9 && Math.random() < 0.02) {
+      world.set(x, y, 0); world.set(x + 1, y, 0); return;
     }
   },
 };

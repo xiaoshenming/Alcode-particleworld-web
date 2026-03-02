@@ -1,5 +1,4 @@
 import type { MaterialDef, WorldAPI } from './types';
-import { DIRS4 } from './types';
 import { registerMaterial } from './registry';
 
 /** 检查目标位置是否可以被当前密度的粒子穿过 */
@@ -36,18 +35,11 @@ export const Antimony: MaterialDef = {
       return;
     }
 
-    // 检查邻居
-    for (const [dx, dy] of DIRS4) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-
-      // 遇酸缓慢溶解
-      if (nid === 9 && Math.random() < 0.02) {
-        world.set(x, y, 0); // 溶解消失
-        return;
-      }
-    }
+    // 检查邻居（显式4方向，无HOF）：遇酸缓慢溶解
+    if (world.inBounds(x, y - 1) && world.get(x, y - 1) === 9 && Math.random() < 0.02) { world.set(x, y, 0); return; }
+    if (world.inBounds(x, y + 1) && world.get(x, y + 1) === 9 && Math.random() < 0.02) { world.set(x, y, 0); return; }
+    if (world.inBounds(x - 1, y) && world.get(x - 1, y) === 9 && Math.random() < 0.02) { world.set(x, y, 0); return; }
+    if (world.inBounds(x + 1, y) && world.get(x + 1, y) === 9 && Math.random() < 0.02) { world.set(x, y, 0); return; }
 
     // 粉末物理：下落
     if (y >= world.height - 1) return;

@@ -1,5 +1,4 @@
 import type { MaterialDef, WorldAPI } from './types';
-import { DIRS4 } from './types';
 import { registerMaterial } from './registry';
 
 /**
@@ -31,36 +30,30 @@ export const Glycerin: MaterialDef = {
       return;
     }
 
-    // 检查四邻反应
-    for (const [dx, dy] of DIRS4) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-
-      // 遇硝酸(183) → 硝化甘油(109)！危险反应
-      if (nid === 183 && Math.random() < 0.1) {
-        world.set(x, y, 109);  // 甘油 → 硝化甘油
-        world.set(nx, ny, 0);  // 硝酸消耗
-        world.markUpdated(x, y);
-        world.wakeArea(x, y);
-        world.wakeArea(nx, ny);
-        return;
-      }
-
-      // 遇火(6)缓慢燃烧
-      if (nid === 6 && Math.random() < 0.02) {
-        world.set(x, y, 6); // 着火
-        world.wakeArea(x, y);
-        return;
-      }
-
-      // 吸水：遇水(2)混合，水消失
-      if (nid === 2 && Math.random() < 0.08) {
-        world.set(nx, ny, 0); // 水被吸收
-        world.markUpdated(nx, ny);
-        world.wakeArea(nx, ny);
-      }
+    // 检查四邻反应（显式4方向，无HOF）
+    // 遇硝酸(183) → 硝化甘油(109)：立即return
+    if (world.inBounds(x, y - 1) && world.get(x, y - 1) === 183 && Math.random() < 0.1) {
+      world.set(x, y, 109); world.set(x, y - 1, 0); world.markUpdated(x, y); world.wakeArea(x, y); world.wakeArea(x, y - 1); return;
     }
+    if (world.inBounds(x, y + 1) && world.get(x, y + 1) === 183 && Math.random() < 0.1) {
+      world.set(x, y, 109); world.set(x, y + 1, 0); world.markUpdated(x, y); world.wakeArea(x, y); world.wakeArea(x, y + 1); return;
+    }
+    if (world.inBounds(x - 1, y) && world.get(x - 1, y) === 183 && Math.random() < 0.1) {
+      world.set(x, y, 109); world.set(x - 1, y, 0); world.markUpdated(x, y); world.wakeArea(x, y); world.wakeArea(x - 1, y); return;
+    }
+    if (world.inBounds(x + 1, y) && world.get(x + 1, y) === 183 && Math.random() < 0.1) {
+      world.set(x, y, 109); world.set(x + 1, y, 0); world.markUpdated(x, y); world.wakeArea(x, y); world.wakeArea(x + 1, y); return;
+    }
+    // 遇火(6)缓慢燃烧：立即return
+    if (world.inBounds(x, y - 1) && world.get(x, y - 1) === 6 && Math.random() < 0.02) { world.set(x, y, 6); world.wakeArea(x, y); return; }
+    if (world.inBounds(x, y + 1) && world.get(x, y + 1) === 6 && Math.random() < 0.02) { world.set(x, y, 6); world.wakeArea(x, y); return; }
+    if (world.inBounds(x - 1, y) && world.get(x - 1, y) === 6 && Math.random() < 0.02) { world.set(x, y, 6); world.wakeArea(x, y); return; }
+    if (world.inBounds(x + 1, y) && world.get(x + 1, y) === 6 && Math.random() < 0.02) { world.set(x, y, 6); world.wakeArea(x, y); return; }
+    // 吸水：遇水(2)→水被吸收（不return）
+    if (world.inBounds(x, y - 1) && world.get(x, y - 1) === 2 && Math.random() < 0.08) { world.set(x, y - 1, 0); world.markUpdated(x, y - 1); world.wakeArea(x, y - 1); }
+    if (world.inBounds(x, y + 1) && world.get(x, y + 1) === 2 && Math.random() < 0.08) { world.set(x, y + 1, 0); world.markUpdated(x, y + 1); world.wakeArea(x, y + 1); }
+    if (world.inBounds(x - 1, y) && world.get(x - 1, y) === 2 && Math.random() < 0.08) { world.set(x - 1, y, 0); world.markUpdated(x - 1, y); world.wakeArea(x - 1, y); }
+    if (world.inBounds(x + 1, y) && world.get(x + 1, y) === 2 && Math.random() < 0.08) { world.set(x + 1, y, 0); world.markUpdated(x + 1, y); world.wakeArea(x + 1, y); }
 
     // 粘稠流动：只有一定概率才移动（模拟高粘度）
     const moveChance = Math.min(0.5, 0.25 + (temp - 20) * 0.003);

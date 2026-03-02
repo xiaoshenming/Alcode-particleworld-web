@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -19,20 +18,22 @@ export const Cement: MaterialDef = {
   },
   density: 4,
   update(x: number, y: number, world: WorldAPI) {
-    // 检查邻居是否有水
-    for (const [dx, dy] of DIRS4) {
-      const nx = x + dx;
-      const ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-      // 水(2) 或 盐水(24) → 变成湿水泥
-      if (nid === 2 || nid === 24) {
-        world.set(x, y, 35); // 当前变湿水泥（age被重置为0，下帧WetCement会初始化）
-        world.set(nx, ny, 35); // 水也变湿水泥
-        world.markUpdated(x, y);
-        world.markUpdated(nx, ny);
-        return;
-      }
+    // 检查邻居是否有水（显式4方向，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nid = world.get(x, y - 1);
+      if ((nid === 2 || nid === 24)) { world.set(x, y, 35); world.set(x, y - 1, 35); world.markUpdated(x, y); world.markUpdated(x, y - 1); return; }
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nid = world.get(x, y + 1);
+      if ((nid === 2 || nid === 24)) { world.set(x, y, 35); world.set(x, y + 1, 35); world.markUpdated(x, y); world.markUpdated(x, y + 1); return; }
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nid = world.get(x - 1, y);
+      if ((nid === 2 || nid === 24)) { world.set(x, y, 35); world.set(x - 1, y, 35); world.markUpdated(x, y); world.markUpdated(x - 1, y); return; }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nid = world.get(x + 1, y);
+      if ((nid === 2 || nid === 24)) { world.set(x, y, 35); world.set(x + 1, y, 35); world.markUpdated(x, y); world.markUpdated(x + 1, y); return; }
     }
 
     // 粉末下落（类似沙子，swap自动迁移age）

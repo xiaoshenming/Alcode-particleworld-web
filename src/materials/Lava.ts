@@ -1,5 +1,4 @@
 import type { MaterialDef, WorldAPI } from './types';
-import { DIRS4 } from './types';
 import { registerMaterial } from './registry';
 
 /**
@@ -30,34 +29,30 @@ export const Lava: MaterialDef = {
     // 刷新颜色（熔岩闪烁）
     world.set(x, y, 11);
 
-    // 检查邻居进行反应
-    for (const [dx, dy] of DIRS4) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-
-      // 熔岩 + 水 → 黑曜石 + 蒸汽
-      if (nid === 2) {
-        world.set(x, y, 60);  // 熔岩急冷为黑曜石
-        world.set(nx, ny, 8); // 水变蒸汽
-        return;
-      }
-
-      // 熔岩 + 冰/雪 → 岩浆岩 + 蒸汽
-      if ((nid === 14 || nid === 15) && Math.random() < 0.3) {
-        world.set(x, y, 77);  // 岩浆岩
-        world.set(nx, ny, 8); // 蒸汽
-        world.wakeArea(x, y);
-        world.wakeArea(nx, ny);
-        return;
-      }
-
-      // 点燃可燃物
-      if (FLAMMABLE.has(nid) && Math.random() < 0.1) {
-        world.set(nx, ny, 6); // 着火
-        world.markUpdated(nx, ny);
-      }
+    // 检查邻居进行反应（显式4方向，无HOF）
+    // 熔岩 + 水 → 黑曜石 + 蒸汽（立即return）
+    if (world.inBounds(x, y - 1) && world.get(x, y - 1) === 2) { world.set(x, y, 60); world.set(x, y - 1, 8); return; }
+    if (world.inBounds(x, y + 1) && world.get(x, y + 1) === 2) { world.set(x, y, 60); world.set(x, y + 1, 8); return; }
+    if (world.inBounds(x - 1, y) && world.get(x - 1, y) === 2) { world.set(x, y, 60); world.set(x - 1, y, 8); return; }
+    if (world.inBounds(x + 1, y) && world.get(x + 1, y) === 2) { world.set(x, y, 60); world.set(x + 1, y, 8); return; }
+    // 熔岩 + 冰/雪 → 岩浆岩 + 蒸汽（立即return）
+    if (world.inBounds(x, y - 1) && (world.get(x, y - 1) === 14 || world.get(x, y - 1) === 15) && Math.random() < 0.3) {
+      world.set(x, y, 77); world.set(x, y - 1, 8); world.wakeArea(x, y); world.wakeArea(x, y - 1); return;
     }
+    if (world.inBounds(x, y + 1) && (world.get(x, y + 1) === 14 || world.get(x, y + 1) === 15) && Math.random() < 0.3) {
+      world.set(x, y, 77); world.set(x, y + 1, 8); world.wakeArea(x, y); world.wakeArea(x, y + 1); return;
+    }
+    if (world.inBounds(x - 1, y) && (world.get(x - 1, y) === 14 || world.get(x - 1, y) === 15) && Math.random() < 0.3) {
+      world.set(x, y, 77); world.set(x - 1, y, 8); world.wakeArea(x, y); world.wakeArea(x - 1, y); return;
+    }
+    if (world.inBounds(x + 1, y) && (world.get(x + 1, y) === 14 || world.get(x + 1, y) === 15) && Math.random() < 0.3) {
+      world.set(x, y, 77); world.set(x + 1, y, 8); world.wakeArea(x, y); world.wakeArea(x + 1, y); return;
+    }
+    // 点燃可燃物（不return）
+    if (world.inBounds(x, y - 1) && FLAMMABLE.has(world.get(x, y - 1)) && Math.random() < 0.1) { world.set(x, y - 1, 6); world.markUpdated(x, y - 1); }
+    if (world.inBounds(x, y + 1) && FLAMMABLE.has(world.get(x, y + 1)) && Math.random() < 0.1) { world.set(x, y + 1, 6); world.markUpdated(x, y + 1); }
+    if (world.inBounds(x - 1, y) && FLAMMABLE.has(world.get(x - 1, y)) && Math.random() < 0.1) { world.set(x - 1, y, 6); world.markUpdated(x - 1, y); }
+    if (world.inBounds(x + 1, y) && FLAMMABLE.has(world.get(x + 1, y)) && Math.random() < 0.1) { world.set(x + 1, y, 6); world.markUpdated(x + 1, y); }
 
     // 极小概率自然冷却
     if (Math.random() < 0.001) {

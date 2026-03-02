@@ -1,5 +1,4 @@
 import type { MaterialDef, WorldAPI } from './types';
-import { DIRS4 } from './types';
 import { registerMaterial } from './registry';
 
 /**
@@ -51,27 +50,43 @@ export const Philosopher: MaterialDef = {
       return;
     }
 
-    const energy = ageVal - 1; // 实际剩余转化次数
+    const energy = ageVal - 1; // ��际剩余转化次数
 
-    // 检查四周邻居进行��化
-    for (const [dx, dy] of DIRS4) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-      const target = TRANSMUTE[nid];
-
-      if (target !== undefined && Math.random() < 0.1) {
-        world.set(nx, ny, target);
-        world.markUpdated(nx, ny);
-        // 消耗一次转化次数（存为 energy，即 energy-1+1）
+    // 检查四周邻居进行转化（显式4方向，无HOF；每帧最多转化一个）
+    let transmuted = false;
+    if (!transmuted && world.inBounds(x, y - 1)) {
+      const target0 = TRANSMUTE[world.get(x, y - 1)];
+      if (target0 !== undefined && Math.random() < 0.1) {
+        world.set(x, y - 1, target0); world.markUpdated(x, y - 1);
         world.setAge(x, y, energy);
-
-        // 能量耗尽，炼金石碎裂
-        if (energy <= 1) {
-          world.set(x, y, 7); // 变成烟
-          return;
-        }
-        break; // 每帧只转化一个
+        if (energy <= 1) { world.set(x, y, 7); return; }
+        transmuted = true;
+      }
+    }
+    if (!transmuted && world.inBounds(x, y + 1)) {
+      const target1 = TRANSMUTE[world.get(x, y + 1)];
+      if (target1 !== undefined && Math.random() < 0.1) {
+        world.set(x, y + 1, target1); world.markUpdated(x, y + 1);
+        world.setAge(x, y, energy);
+        if (energy <= 1) { world.set(x, y, 7); return; }
+        transmuted = true;
+      }
+    }
+    if (!transmuted && world.inBounds(x - 1, y)) {
+      const target2 = TRANSMUTE[world.get(x - 1, y)];
+      if (target2 !== undefined && Math.random() < 0.1) {
+        world.set(x - 1, y, target2); world.markUpdated(x - 1, y);
+        world.setAge(x, y, energy);
+        if (energy <= 1) { world.set(x, y, 7); return; }
+        transmuted = true;
+      }
+    }
+    if (!transmuted && world.inBounds(x + 1, y)) {
+      const target3 = TRANSMUTE[world.get(x + 1, y)];
+      if (target3 !== undefined && Math.random() < 0.1) {
+        world.set(x + 1, y, target3); world.markUpdated(x + 1, y);
+        world.setAge(x, y, energy);
+        if (energy <= 1) { world.set(x, y, 7); return; }
       }
     }
 

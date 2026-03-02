@@ -1,5 +1,4 @@
 import type { MaterialDef, WorldAPI } from './types';
-import { DIRS4 } from './types';
 import { registerMaterial } from './registry';
 
 /**
@@ -34,20 +33,22 @@ export const MoltenAntimony: MaterialDef = {
       world.addTemp(x, y, -1);
     }
 
-    // 加热周围环境
-    for (const [dx, dy] of DIRS4) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-
-      // 点燃可燃物
-      if ((nid === 4 || nid === 5) && Math.random() < 0.1) {
-        world.set(nx, ny, 6); // 着火
-        world.markUpdated(nx, ny);
-      }
-
-      // 传热给邻居
-      world.addTemp(nx, ny, 3);
+    // 加热周围环境（显式4方向，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      if ((world.get(x, y - 1) === 4 || world.get(x, y - 1) === 5) && Math.random() < 0.1) { world.set(x, y - 1, 6); world.markUpdated(x, y - 1); }
+      world.addTemp(x, y - 1, 3);
+    }
+    if (world.inBounds(x, y + 1)) {
+      if ((world.get(x, y + 1) === 4 || world.get(x, y + 1) === 5) && Math.random() < 0.1) { world.set(x, y + 1, 6); world.markUpdated(x, y + 1); }
+      world.addTemp(x, y + 1, 3);
+    }
+    if (world.inBounds(x - 1, y)) {
+      if ((world.get(x - 1, y) === 4 || world.get(x - 1, y) === 5) && Math.random() < 0.1) { world.set(x - 1, y, 6); world.markUpdated(x - 1, y); }
+      world.addTemp(x - 1, y, 3);
+    }
+    if (world.inBounds(x + 1, y)) {
+      if ((world.get(x + 1, y) === 4 || world.get(x + 1, y) === 5) && Math.random() < 0.1) { world.set(x + 1, y, 6); world.markUpdated(x + 1, y); }
+      world.addTemp(x + 1, y, 3);
     }
 
     // 液体物理：下落
