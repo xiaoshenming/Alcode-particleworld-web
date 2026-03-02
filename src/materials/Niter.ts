@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -35,49 +34,58 @@ export const Niter: MaterialDef = {
   },
   density: 2.8,
   update(x: number, y: number, world: WorldAPI) {
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-
-      // 遇火/火花爆炸
+    // 检查邻居（4方向显式展开，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1; const nid = world.get(nx, ny);
       if ((nid === 6 || nid === 28) && Math.random() < 0.2) {
         world.set(x, y, 6);
-        // 爆炸扩散
-        for (const [ex, ey] of dirs) {
-          const bx = x + ex, by = y + ey;
-          if (world.inBounds(bx, by)) {
-            const bid = world.get(bx, by);
-            if (bid === 0) {
-              world.set(bx, by, Math.random() < 0.4 ? 6 : 7);
-              world.markUpdated(bx, by);
-              world.wakeArea(bx, by);
-            } else if (bid === 150) {
-              // 链式反应
-              world.set(bx, by, 6);
-              world.markUpdated(bx, by);
-              world.wakeArea(bx, by);
-            }
-          }
-        }
-        world.wakeArea(x, y);
-        return;
+        if (world.inBounds(x, y - 1)) { const bid = world.get(x, y - 1); if (bid === 0) { world.set(x, y - 1, Math.random() < 0.4 ? 6 : 7); world.markUpdated(x, y - 1); world.wakeArea(x, y - 1); } else if (bid === 150) { world.set(x, y - 1, 6); world.markUpdated(x, y - 1); world.wakeArea(x, y - 1); } }
+        if (world.inBounds(x, y + 1)) { const bid = world.get(x, y + 1); if (bid === 0) { world.set(x, y + 1, Math.random() < 0.4 ? 6 : 7); world.markUpdated(x, y + 1); world.wakeArea(x, y + 1); } else if (bid === 150) { world.set(x, y + 1, 6); world.markUpdated(x, y + 1); world.wakeArea(x, y + 1); } }
+        if (world.inBounds(x - 1, y)) { const bid = world.get(x - 1, y); if (bid === 0) { world.set(x - 1, y, Math.random() < 0.4 ? 6 : 7); world.markUpdated(x - 1, y); world.wakeArea(x - 1, y); } else if (bid === 150) { world.set(x - 1, y, 6); world.markUpdated(x - 1, y); world.wakeArea(x - 1, y); } }
+        if (world.inBounds(x + 1, y)) { const bid = world.get(x + 1, y); if (bid === 0) { world.set(x + 1, y, Math.random() < 0.4 ? 6 : 7); world.markUpdated(x + 1, y); world.wakeArea(x + 1, y); } else if (bid === 150) { world.set(x + 1, y, 6); world.markUpdated(x + 1, y); world.wakeArea(x + 1, y); } }
+        world.wakeArea(x, y); return;
       }
-
-      // 遇水溶解
-      if (nid === 2 && Math.random() < 0.03) {
-        world.set(x, y, 0);
-        world.wakeArea(x, y);
-        return;
+      if (nid === 2 && Math.random() < 0.03) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+      if ((nid === 46 || nid === 66) && Math.random() < 0.001) { world.set(x, y, 22); world.wakeArea(x, y); return; }
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1; const nid = world.get(nx, ny);
+      if ((nid === 6 || nid === 28) && Math.random() < 0.2) {
+        world.set(x, y, 6);
+        if (world.inBounds(x, y - 1)) { const bid = world.get(x, y - 1); if (bid === 0) { world.set(x, y - 1, Math.random() < 0.4 ? 6 : 7); world.markUpdated(x, y - 1); world.wakeArea(x, y - 1); } else if (bid === 150) { world.set(x, y - 1, 6); world.markUpdated(x, y - 1); world.wakeArea(x, y - 1); } }
+        if (world.inBounds(x, y + 1)) { const bid = world.get(x, y + 1); if (bid === 0) { world.set(x, y + 1, Math.random() < 0.4 ? 6 : 7); world.markUpdated(x, y + 1); world.wakeArea(x, y + 1); } else if (bid === 150) { world.set(x, y + 1, 6); world.markUpdated(x, y + 1); world.wakeArea(x, y + 1); } }
+        if (world.inBounds(x - 1, y)) { const bid = world.get(x - 1, y); if (bid === 0) { world.set(x - 1, y, Math.random() < 0.4 ? 6 : 7); world.markUpdated(x - 1, y); world.wakeArea(x - 1, y); } else if (bid === 150) { world.set(x - 1, y, 6); world.markUpdated(x - 1, y); world.wakeArea(x - 1, y); } }
+        if (world.inBounds(x + 1, y)) { const bid = world.get(x + 1, y); if (bid === 0) { world.set(x + 1, y, Math.random() < 0.4 ? 6 : 7); world.markUpdated(x + 1, y); world.wakeArea(x + 1, y); } else if (bid === 150) { world.set(x + 1, y, 6); world.markUpdated(x + 1, y); world.wakeArea(x + 1, y); } }
+        world.wakeArea(x, y); return;
       }
-
-      // 与木炭+硫磺相邻时更易爆
-      if ((nid === 46 || nid === 66) && Math.random() < 0.001) {
-        world.set(x, y, 22); // 变为火药
-        world.wakeArea(x, y);
-        return;
+      if (nid === 2 && Math.random() < 0.03) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+      if ((nid === 46 || nid === 66) && Math.random() < 0.001) { world.set(x, y, 22); world.wakeArea(x, y); return; }
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y; const nid = world.get(nx, ny);
+      if ((nid === 6 || nid === 28) && Math.random() < 0.2) {
+        world.set(x, y, 6);
+        if (world.inBounds(x, y - 1)) { const bid = world.get(x, y - 1); if (bid === 0) { world.set(x, y - 1, Math.random() < 0.4 ? 6 : 7); world.markUpdated(x, y - 1); world.wakeArea(x, y - 1); } else if (bid === 150) { world.set(x, y - 1, 6); world.markUpdated(x, y - 1); world.wakeArea(x, y - 1); } }
+        if (world.inBounds(x, y + 1)) { const bid = world.get(x, y + 1); if (bid === 0) { world.set(x, y + 1, Math.random() < 0.4 ? 6 : 7); world.markUpdated(x, y + 1); world.wakeArea(x, y + 1); } else if (bid === 150) { world.set(x, y + 1, 6); world.markUpdated(x, y + 1); world.wakeArea(x, y + 1); } }
+        if (world.inBounds(x - 1, y)) { const bid = world.get(x - 1, y); if (bid === 0) { world.set(x - 1, y, Math.random() < 0.4 ? 6 : 7); world.markUpdated(x - 1, y); world.wakeArea(x - 1, y); } else if (bid === 150) { world.set(x - 1, y, 6); world.markUpdated(x - 1, y); world.wakeArea(x - 1, y); } }
+        if (world.inBounds(x + 1, y)) { const bid = world.get(x + 1, y); if (bid === 0) { world.set(x + 1, y, Math.random() < 0.4 ? 6 : 7); world.markUpdated(x + 1, y); world.wakeArea(x + 1, y); } else if (bid === 150) { world.set(x + 1, y, 6); world.markUpdated(x + 1, y); world.wakeArea(x + 1, y); } }
+        world.wakeArea(x, y); return;
       }
+      if (nid === 2 && Math.random() < 0.03) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+      if ((nid === 46 || nid === 66) && Math.random() < 0.001) { world.set(x, y, 22); world.wakeArea(x, y); return; }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y; const nid = world.get(nx, ny);
+      if ((nid === 6 || nid === 28) && Math.random() < 0.2) {
+        world.set(x, y, 6);
+        if (world.inBounds(x, y - 1)) { const bid = world.get(x, y - 1); if (bid === 0) { world.set(x, y - 1, Math.random() < 0.4 ? 6 : 7); world.markUpdated(x, y - 1); world.wakeArea(x, y - 1); } else if (bid === 150) { world.set(x, y - 1, 6); world.markUpdated(x, y - 1); world.wakeArea(x, y - 1); } }
+        if (world.inBounds(x, y + 1)) { const bid = world.get(x, y + 1); if (bid === 0) { world.set(x, y + 1, Math.random() < 0.4 ? 6 : 7); world.markUpdated(x, y + 1); world.wakeArea(x, y + 1); } else if (bid === 150) { world.set(x, y + 1, 6); world.markUpdated(x, y + 1); world.wakeArea(x, y + 1); } }
+        if (world.inBounds(x - 1, y)) { const bid = world.get(x - 1, y); if (bid === 0) { world.set(x - 1, y, Math.random() < 0.4 ? 6 : 7); world.markUpdated(x - 1, y); world.wakeArea(x - 1, y); } else if (bid === 150) { world.set(x - 1, y, 6); world.markUpdated(x - 1, y); world.wakeArea(x - 1, y); } }
+        if (world.inBounds(x + 1, y)) { const bid = world.get(x + 1, y); if (bid === 0) { world.set(x + 1, y, Math.random() < 0.4 ? 6 : 7); world.markUpdated(x + 1, y); world.wakeArea(x + 1, y); } else if (bid === 150) { world.set(x + 1, y, 6); world.markUpdated(x + 1, y); world.wakeArea(x + 1, y); } }
+        world.wakeArea(x, y); return;
+      }
+      if (nid === 2 && Math.random() < 0.03) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+      if ((nid === 46 || nid === 66) && Math.random() < 0.001) { world.set(x, y, 22); world.wakeArea(x, y); return; }
     }
 
     // 粉末下落

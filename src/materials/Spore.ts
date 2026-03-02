@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -55,47 +54,36 @@ export const Spore: MaterialDef = {
       return;
     }
 
-    // 邻居交互
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-
-      // 落在泥土/沼泽上生长为菌丝
-      if ((nid === 20 || nid === 54) && dy === 1 && Math.random() < 0.1) {
-        world.set(x, y, 70); // 菌丝
-        world.wakeArea(x, y);
-        return;
-      }
-
-      // 落在苔藓上增殖
-      if (nid === 49 && Math.random() < 0.05) {
-        world.set(x, y, 70); // 菌丝
-        world.wakeArea(x, y);
-        return;
-      }
-
-      // 遇水溶解
-      if (nid === 2 && Math.random() < 0.1) {
-        world.set(x, y, 0);
-        world.wakeArea(x, y);
-        return;
-      }
-
-      // 遇火被杀
-      if (nid === 6 && Math.random() < 0.3) {
-        world.set(x, y, 0);
-        world.wakeArea(x, y);
-        return;
-      }
-
-      // 酸液杀死
-      if (nid === 9 && Math.random() < 0.2) {
-        world.set(x, y, 0);
-        world.wakeArea(x, y);
-        return;
-      }
+    // 邻居交互（4方向显式展开，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nid = world.get(x, y - 1);
+      if (nid === 49 && Math.random() < 0.05) { world.set(x, y, 70); world.wakeArea(x, y); return; }
+      if (nid === 2 && Math.random() < 0.1) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+      if (nid === 6 && Math.random() < 0.3) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+      if (nid === 9 && Math.random() < 0.2) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nid = world.get(x, y + 1);
+      // 落在泥土/沼泽上生长为菌丝（dy===1即y+1方向）
+      if ((nid === 20 || nid === 54) && Math.random() < 0.1) { world.set(x, y, 70); world.wakeArea(x, y); return; }
+      if (nid === 49 && Math.random() < 0.05) { world.set(x, y, 70); world.wakeArea(x, y); return; }
+      if (nid === 2 && Math.random() < 0.1) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+      if (nid === 6 && Math.random() < 0.3) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+      if (nid === 9 && Math.random() < 0.2) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nid = world.get(x - 1, y);
+      if (nid === 49 && Math.random() < 0.05) { world.set(x, y, 70); world.wakeArea(x, y); return; }
+      if (nid === 2 && Math.random() < 0.1) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+      if (nid === 6 && Math.random() < 0.3) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+      if (nid === 9 && Math.random() < 0.2) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nid = world.get(x + 1, y);
+      if (nid === 49 && Math.random() < 0.05) { world.set(x, y, 70); world.wakeArea(x, y); return; }
+      if (nid === 2 && Math.random() < 0.1) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+      if (nid === 6 && Math.random() < 0.3) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+      if (nid === 9 && Math.random() < 0.2) { world.set(x, y, 0); world.wakeArea(x, y); return; }
     }
 
     // 缓慢下沉

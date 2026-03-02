@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -81,54 +80,58 @@ export const Sodium: MaterialDef = {
       return;
     }
 
-    // 检查邻居
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-
-      // 遇水剧烈反应！
+    // 检查邻居（4方向显式展开，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1; const nid = world.get(nx, ny);
       if (WATER_LIKE.has(nid)) {
-        // 钠变为火
-        world.set(x, y, 6);
-        world.setTemp(x, y, 400);
-        // 水变为氢气
-        world.set(nx, ny, 19); // 氢气
-        world.markUpdated(nx, ny);
-        world.wakeArea(x, y);
-        world.wakeArea(nx, ny);
-        // 周围扩散爆炸效果
-        for (const [ddx, ddy] of dirs) {
-          const nnx = x + ddx, nny = y + ddy;
-          if (!world.inBounds(nnx, nny)) continue;
-          if (world.isEmpty(nnx, nny)) {
-            world.set(nnx, nny, Math.random() < 0.5 ? 6 : 28); // 火或火花
-            world.wakeArea(nnx, nny);
-          } else if (WATER_LIKE.has(world.get(nnx, nny)) && Math.random() < 0.4) {
-            world.set(nnx, nny, 8); // 蒸汽
-            world.wakeArea(nnx, nny);
-          }
-        }
+        world.set(x, y, 6); world.setTemp(x, y, 400); world.set(nx, ny, 19); world.markUpdated(nx, ny); world.wakeArea(x, y); world.wakeArea(nx, ny);
+        if (world.inBounds(x, y - 1)) { if (world.isEmpty(x, y - 1)) { world.set(x, y - 1, Math.random() < 0.5 ? 6 : 28); world.wakeArea(x, y - 1); } else if (WATER_LIKE.has(world.get(x, y - 1)) && Math.random() < 0.4) { world.set(x, y - 1, 8); world.wakeArea(x, y - 1); } }
+        if (world.inBounds(x, y + 1)) { if (world.isEmpty(x, y + 1)) { world.set(x, y + 1, Math.random() < 0.5 ? 6 : 28); world.wakeArea(x, y + 1); } else if (WATER_LIKE.has(world.get(x, y + 1)) && Math.random() < 0.4) { world.set(x, y + 1, 8); world.wakeArea(x, y + 1); } }
+        if (world.inBounds(x - 1, y)) { if (world.isEmpty(x - 1, y)) { world.set(x - 1, y, Math.random() < 0.5 ? 6 : 28); world.wakeArea(x - 1, y); } else if (WATER_LIKE.has(world.get(x - 1, y)) && Math.random() < 0.4) { world.set(x - 1, y, 8); world.wakeArea(x - 1, y); } }
+        if (world.inBounds(x + 1, y)) { if (world.isEmpty(x + 1, y)) { world.set(x + 1, y, Math.random() < 0.5 ? 6 : 28); world.wakeArea(x + 1, y); } else if (WATER_LIKE.has(world.get(x + 1, y)) && Math.random() < 0.4) { world.set(x + 1, y, 8); world.wakeArea(x + 1, y); } }
         return;
       }
-
-      // 遇酸液反应
-      if (nid === 9 && Math.random() < 0.2) {
-        world.set(x, y, 0); // 溶解
-        world.set(nx, ny, 19); // 氢气
-        world.wakeArea(x, y);
-        world.wakeArea(nx, ny);
+      if (nid === 9 && Math.random() < 0.2) { world.set(x, y, 0); world.set(nx, ny, 19); world.wakeArea(x, y); world.wakeArea(nx, ny); return; }
+      if (nid === 6 && Math.random() < 0.3) { world.set(x, y, 6); world.setTemp(x, y, 350); world.wakeArea(x, y); return; }
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1; const nid = world.get(nx, ny);
+      if (WATER_LIKE.has(nid)) {
+        world.set(x, y, 6); world.setTemp(x, y, 400); world.set(nx, ny, 19); world.markUpdated(nx, ny); world.wakeArea(x, y); world.wakeArea(nx, ny);
+        if (world.inBounds(x, y - 1)) { if (world.isEmpty(x, y - 1)) { world.set(x, y - 1, Math.random() < 0.5 ? 6 : 28); world.wakeArea(x, y - 1); } else if (WATER_LIKE.has(world.get(x, y - 1)) && Math.random() < 0.4) { world.set(x, y - 1, 8); world.wakeArea(x, y - 1); } }
+        if (world.inBounds(x, y + 1)) { if (world.isEmpty(x, y + 1)) { world.set(x, y + 1, Math.random() < 0.5 ? 6 : 28); world.wakeArea(x, y + 1); } else if (WATER_LIKE.has(world.get(x, y + 1)) && Math.random() < 0.4) { world.set(x, y + 1, 8); world.wakeArea(x, y + 1); } }
+        if (world.inBounds(x - 1, y)) { if (world.isEmpty(x - 1, y)) { world.set(x - 1, y, Math.random() < 0.5 ? 6 : 28); world.wakeArea(x - 1, y); } else if (WATER_LIKE.has(world.get(x - 1, y)) && Math.random() < 0.4) { world.set(x - 1, y, 8); world.wakeArea(x - 1, y); } }
+        if (world.inBounds(x + 1, y)) { if (world.isEmpty(x + 1, y)) { world.set(x + 1, y, Math.random() < 0.5 ? 6 : 28); world.wakeArea(x + 1, y); } else if (WATER_LIKE.has(world.get(x + 1, y)) && Math.random() < 0.4) { world.set(x + 1, y, 8); world.wakeArea(x + 1, y); } }
         return;
       }
-
-      // 遇火点燃
-      if (nid === 6 && Math.random() < 0.3) {
-        world.set(x, y, 6);
-        world.setTemp(x, y, 350);
-        world.wakeArea(x, y);
+      if (nid === 9 && Math.random() < 0.2) { world.set(x, y, 0); world.set(nx, ny, 19); world.wakeArea(x, y); world.wakeArea(nx, ny); return; }
+      if (nid === 6 && Math.random() < 0.3) { world.set(x, y, 6); world.setTemp(x, y, 350); world.wakeArea(x, y); return; }
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y; const nid = world.get(nx, ny);
+      if (WATER_LIKE.has(nid)) {
+        world.set(x, y, 6); world.setTemp(x, y, 400); world.set(nx, ny, 19); world.markUpdated(nx, ny); world.wakeArea(x, y); world.wakeArea(nx, ny);
+        if (world.inBounds(x, y - 1)) { if (world.isEmpty(x, y - 1)) { world.set(x, y - 1, Math.random() < 0.5 ? 6 : 28); world.wakeArea(x, y - 1); } else if (WATER_LIKE.has(world.get(x, y - 1)) && Math.random() < 0.4) { world.set(x, y - 1, 8); world.wakeArea(x, y - 1); } }
+        if (world.inBounds(x, y + 1)) { if (world.isEmpty(x, y + 1)) { world.set(x, y + 1, Math.random() < 0.5 ? 6 : 28); world.wakeArea(x, y + 1); } else if (WATER_LIKE.has(world.get(x, y + 1)) && Math.random() < 0.4) { world.set(x, y + 1, 8); world.wakeArea(x, y + 1); } }
+        if (world.inBounds(x - 1, y)) { if (world.isEmpty(x - 1, y)) { world.set(x - 1, y, Math.random() < 0.5 ? 6 : 28); world.wakeArea(x - 1, y); } else if (WATER_LIKE.has(world.get(x - 1, y)) && Math.random() < 0.4) { world.set(x - 1, y, 8); world.wakeArea(x - 1, y); } }
+        if (world.inBounds(x + 1, y)) { if (world.isEmpty(x + 1, y)) { world.set(x + 1, y, Math.random() < 0.5 ? 6 : 28); world.wakeArea(x + 1, y); } else if (WATER_LIKE.has(world.get(x + 1, y)) && Math.random() < 0.4) { world.set(x + 1, y, 8); world.wakeArea(x + 1, y); } }
         return;
       }
+      if (nid === 9 && Math.random() < 0.2) { world.set(x, y, 0); world.set(nx, ny, 19); world.wakeArea(x, y); world.wakeArea(nx, ny); return; }
+      if (nid === 6 && Math.random() < 0.3) { world.set(x, y, 6); world.setTemp(x, y, 350); world.wakeArea(x, y); return; }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y; const nid = world.get(nx, ny);
+      if (WATER_LIKE.has(nid)) {
+        world.set(x, y, 6); world.setTemp(x, y, 400); world.set(nx, ny, 19); world.markUpdated(nx, ny); world.wakeArea(x, y); world.wakeArea(nx, ny);
+        if (world.inBounds(x, y - 1)) { if (world.isEmpty(x, y - 1)) { world.set(x, y - 1, Math.random() < 0.5 ? 6 : 28); world.wakeArea(x, y - 1); } else if (WATER_LIKE.has(world.get(x, y - 1)) && Math.random() < 0.4) { world.set(x, y - 1, 8); world.wakeArea(x, y - 1); } }
+        if (world.inBounds(x, y + 1)) { if (world.isEmpty(x, y + 1)) { world.set(x, y + 1, Math.random() < 0.5 ? 6 : 28); world.wakeArea(x, y + 1); } else if (WATER_LIKE.has(world.get(x, y + 1)) && Math.random() < 0.4) { world.set(x, y + 1, 8); world.wakeArea(x, y + 1); } }
+        if (world.inBounds(x - 1, y)) { if (world.isEmpty(x - 1, y)) { world.set(x - 1, y, Math.random() < 0.5 ? 6 : 28); world.wakeArea(x - 1, y); } else if (WATER_LIKE.has(world.get(x - 1, y)) && Math.random() < 0.4) { world.set(x - 1, y, 8); world.wakeArea(x - 1, y); } }
+        if (world.inBounds(x + 1, y)) { if (world.isEmpty(x + 1, y)) { world.set(x + 1, y, Math.random() < 0.5 ? 6 : 28); world.wakeArea(x + 1, y); } else if (WATER_LIKE.has(world.get(x + 1, y)) && Math.random() < 0.4) { world.set(x + 1, y, 8); world.wakeArea(x + 1, y); } }
+        return;
+      }
+      if (nid === 9 && Math.random() < 0.2) { world.set(x, y, 0); world.set(nx, ny, 19); world.wakeArea(x, y); world.wakeArea(nx, ny); return; }
+      if (nid === 6 && Math.random() < 0.3) { world.set(x, y, 6); world.setTemp(x, y, 350); world.wakeArea(x, y); return; }
     }
 
     // 重力下落

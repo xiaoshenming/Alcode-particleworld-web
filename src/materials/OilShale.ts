@@ -1,4 +1,3 @@
-import { DIRS4, DIRS3_SIDES } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -49,62 +48,72 @@ export const OilShale: MaterialDef = {
     if (temp > 350) {
       if (Math.random() < 0.05) {
         world.set(x, y, 1); // 残留沙子
-        // 释放油到空位
-        const releaseDir = DIRS3_SIDES;
-        for (const [dx, dy] of releaseDir) {
-          const nx = x + dx, ny = y + dy;
-          if (world.inBounds(nx, ny) && world.isEmpty(nx, ny)) {
-            world.set(nx, ny, Math.random() < 0.6 ? 5 : 7); // 油或烟
-            world.markUpdated(nx, ny);
-            world.wakeArea(nx, ny);
-            break;
-          }
-        }
+        // 释放油到空位（3方向侧面，transmuted布尔替代break）
+        let released = false;
+        if (!released && world.inBounds(x - 1, y) && world.isEmpty(x - 1, y)) { world.set(x - 1, y, Math.random() < 0.6 ? 5 : 7); world.markUpdated(x - 1, y); world.wakeArea(x - 1, y); released = true; }
+        if (!released && world.inBounds(x + 1, y) && world.isEmpty(x + 1, y)) { world.set(x + 1, y, Math.random() < 0.6 ? 5 : 7); world.markUpdated(x + 1, y); world.wakeArea(x + 1, y); released = true; }
+        if (!released && world.inBounds(x, y - 1) && world.isEmpty(x, y - 1)) { world.set(x, y - 1, Math.random() < 0.6 ? 5 : 7); world.markUpdated(x, y - 1); world.wakeArea(x, y - 1); }
         world.wakeArea(x, y);
         return;
       }
     }
 
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-
-      // 遇火缓慢燃烧释放油
+    // 检查邻居（4方向显式展开，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1; const nid = world.get(nx, ny);
       if (nid === 6 && Math.random() < 0.03) {
-        // 在空位释放油
-        for (const [dx2, dy2] of dirs) {
-          const ox = x + dx2, oy = y + dy2;
-          if (world.inBounds(ox, oy) && world.isEmpty(ox, oy)) {
-            world.set(ox, oy, Math.random() < 0.5 ? 5 : 7);
-            world.markUpdated(ox, oy);
-            world.wakeArea(ox, oy);
-            break;
-          }
-        }
+        let spawned = false;
+        if (!spawned && world.inBounds(x, y - 1) && world.isEmpty(x, y - 1)) { world.set(x, y - 1, Math.random() < 0.5 ? 5 : 7); world.markUpdated(x, y - 1); world.wakeArea(x, y - 1); spawned = true; }
+        if (!spawned && world.inBounds(x, y + 1) && world.isEmpty(x, y + 1)) { world.set(x, y + 1, Math.random() < 0.5 ? 5 : 7); world.markUpdated(x, y + 1); world.wakeArea(x, y + 1); spawned = true; }
+        if (!spawned && world.inBounds(x - 1, y) && world.isEmpty(x - 1, y)) { world.set(x - 1, y, Math.random() < 0.5 ? 5 : 7); world.markUpdated(x - 1, y); world.wakeArea(x - 1, y); spawned = true; }
+        if (!spawned && world.inBounds(x + 1, y) && world.isEmpty(x + 1, y)) { world.set(x + 1, y, Math.random() < 0.5 ? 5 : 7); world.markUpdated(x + 1, y); world.wakeArea(x + 1, y); }
         world.addTemp(x, y, 5);
-        // 有概率消耗自身
-        if (Math.random() < 0.02) {
-          world.set(x, y, 1); // 残留沙子
-          world.wakeArea(x, y);
-          return;
-        }
+        if (Math.random() < 0.02) { world.set(x, y, 1); world.wakeArea(x, y); return; }
       }
-
-      // 遇熔岩快速热解
-      if (nid === 11 && Math.random() < 0.1) {
-        world.set(x, y, 5); // 变为油
-        world.wakeArea(x, y);
-        return;
+      if (nid === 11 && Math.random() < 0.1) { world.set(x, y, 5); world.wakeArea(x, y); return; }
+      if (nid === 9 && Math.random() < 0.02) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1; const nid = world.get(nx, ny);
+      if (nid === 6 && Math.random() < 0.03) {
+        let spawned = false;
+        if (!spawned && world.inBounds(x, y - 1) && world.isEmpty(x, y - 1)) { world.set(x, y - 1, Math.random() < 0.5 ? 5 : 7); world.markUpdated(x, y - 1); world.wakeArea(x, y - 1); spawned = true; }
+        if (!spawned && world.inBounds(x, y + 1) && world.isEmpty(x, y + 1)) { world.set(x, y + 1, Math.random() < 0.5 ? 5 : 7); world.markUpdated(x, y + 1); world.wakeArea(x, y + 1); spawned = true; }
+        if (!spawned && world.inBounds(x - 1, y) && world.isEmpty(x - 1, y)) { world.set(x - 1, y, Math.random() < 0.5 ? 5 : 7); world.markUpdated(x - 1, y); world.wakeArea(x - 1, y); spawned = true; }
+        if (!spawned && world.inBounds(x + 1, y) && world.isEmpty(x + 1, y)) { world.set(x + 1, y, Math.random() < 0.5 ? 5 : 7); world.markUpdated(x + 1, y); world.wakeArea(x + 1, y); }
+        world.addTemp(x, y, 5);
+        if (Math.random() < 0.02) { world.set(x, y, 1); world.wakeArea(x, y); return; }
       }
-
-      // 遇酸液腐蚀
-      if (nid === 9 && Math.random() < 0.02) {
-        world.set(x, y, 0);
-        world.wakeArea(x, y);
-        return;
+      if (nid === 11 && Math.random() < 0.1) { world.set(x, y, 5); world.wakeArea(x, y); return; }
+      if (nid === 9 && Math.random() < 0.02) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y; const nid = world.get(nx, ny);
+      if (nid === 6 && Math.random() < 0.03) {
+        let spawned = false;
+        if (!spawned && world.inBounds(x, y - 1) && world.isEmpty(x, y - 1)) { world.set(x, y - 1, Math.random() < 0.5 ? 5 : 7); world.markUpdated(x, y - 1); world.wakeArea(x, y - 1); spawned = true; }
+        if (!spawned && world.inBounds(x, y + 1) && world.isEmpty(x, y + 1)) { world.set(x, y + 1, Math.random() < 0.5 ? 5 : 7); world.markUpdated(x, y + 1); world.wakeArea(x, y + 1); spawned = true; }
+        if (!spawned && world.inBounds(x - 1, y) && world.isEmpty(x - 1, y)) { world.set(x - 1, y, Math.random() < 0.5 ? 5 : 7); world.markUpdated(x - 1, y); world.wakeArea(x - 1, y); spawned = true; }
+        if (!spawned && world.inBounds(x + 1, y) && world.isEmpty(x + 1, y)) { world.set(x + 1, y, Math.random() < 0.5 ? 5 : 7); world.markUpdated(x + 1, y); world.wakeArea(x + 1, y); }
+        world.addTemp(x, y, 5);
+        if (Math.random() < 0.02) { world.set(x, y, 1); world.wakeArea(x, y); return; }
       }
+      if (nid === 11 && Math.random() < 0.1) { world.set(x, y, 5); world.wakeArea(x, y); return; }
+      if (nid === 9 && Math.random() < 0.02) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y; const nid = world.get(nx, ny);
+      if (nid === 6 && Math.random() < 0.03) {
+        let spawned = false;
+        if (!spawned && world.inBounds(x, y - 1) && world.isEmpty(x, y - 1)) { world.set(x, y - 1, Math.random() < 0.5 ? 5 : 7); world.markUpdated(x, y - 1); world.wakeArea(x, y - 1); spawned = true; }
+        if (!spawned && world.inBounds(x, y + 1) && world.isEmpty(x, y + 1)) { world.set(x, y + 1, Math.random() < 0.5 ? 5 : 7); world.markUpdated(x, y + 1); world.wakeArea(x, y + 1); spawned = true; }
+        if (!spawned && world.inBounds(x - 1, y) && world.isEmpty(x - 1, y)) { world.set(x - 1, y, Math.random() < 0.5 ? 5 : 7); world.markUpdated(x - 1, y); world.wakeArea(x - 1, y); spawned = true; }
+        if (!spawned && world.inBounds(x + 1, y) && world.isEmpty(x + 1, y)) { world.set(x + 1, y, Math.random() < 0.5 ? 5 : 7); world.markUpdated(x + 1, y); world.wakeArea(x + 1, y); }
+        world.addTemp(x, y, 5);
+        if (Math.random() < 0.02) { world.set(x, y, 1); world.wakeArea(x, y); return; }
+      }
+      if (nid === 11 && Math.random() < 0.1) { world.set(x, y, 5); world.wakeArea(x, y); return; }
+      if (nid === 9 && Math.random() < 0.02) { world.set(x, y, 0); world.wakeArea(x, y); return; }
     }
 
     // 自然散热

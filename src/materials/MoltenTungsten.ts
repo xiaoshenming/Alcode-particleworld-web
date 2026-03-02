@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -60,44 +59,62 @@ export const MoltenTungsten: MaterialDef = {
     // 刷新颜色（发光闪烁）
     world.set(x, y, 200);
 
-    // 加热周围环境
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-
-      // 遇水(2)剧烈蒸汽爆炸
+    // 加热周围环境（4方向显式展开，无HOF，continue→else if）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1; const nid = world.get(nx, ny);
       if (nid === 2) {
-        world.set(nx, ny, 8); // 水 → 蒸汽
-        world.markUpdated(nx, ny);
-        world.wakeArea(nx, ny);
-        // 爆炸扩散：周围也产生蒸汽
-        for (const [ddx, ddy] of dirs) {
-          const ex = nx + ddx, ey = ny + ddy;
-          if (world.inBounds(ex, ey) && world.get(ex, ey) === 2) {
-            world.set(ex, ey, 8); // 连锁蒸发
-            world.markUpdated(ex, ey);
-            world.wakeArea(ex, ey);
-          }
-        }
-        // 爆炸产生火花
-        if (world.inBounds(nx, ny - 1) && world.isEmpty(nx, ny - 1)) {
-          world.set(nx, ny - 1, 28); // 火花
-          world.markUpdated(nx, ny - 1);
-        }
-        continue;
+        world.set(nx, ny, 8); world.markUpdated(nx, ny); world.wakeArea(nx, ny);
+        if (world.inBounds(nx, ny - 1) && world.get(nx, ny - 1) === 2) { world.set(nx, ny - 1, 8); world.markUpdated(nx, ny - 1); world.wakeArea(nx, ny - 1); }
+        if (world.inBounds(nx, ny + 1) && world.get(nx, ny + 1) === 2) { world.set(nx, ny + 1, 8); world.markUpdated(nx, ny + 1); world.wakeArea(nx, ny + 1); }
+        if (world.inBounds(nx - 1, ny) && world.get(nx - 1, ny) === 2) { world.set(nx - 1, ny, 8); world.markUpdated(nx - 1, ny); world.wakeArea(nx - 1, ny); }
+        if (world.inBounds(nx + 1, ny) && world.get(nx + 1, ny) === 2) { world.set(nx + 1, ny, 8); world.markUpdated(nx + 1, ny); world.wakeArea(nx + 1, ny); }
+        if (world.inBounds(nx, ny - 1) && world.isEmpty(nx, ny - 1)) { world.set(nx, ny - 1, 28); world.markUpdated(nx, ny - 1); }
+      } else {
+        if (FLAMMABLE.has(nid) && Math.random() < 0.3) { world.set(nx, ny, 6); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
+        world.addTemp(nx, ny, 50);
       }
-
-      // 点燃一切可燃物
-      if (FLAMMABLE.has(nid) && Math.random() < 0.3) {
-        world.set(nx, ny, 6); // 着火
-        world.markUpdated(nx, ny);
-        world.wakeArea(nx, ny);
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1; const nid = world.get(nx, ny);
+      if (nid === 2) {
+        world.set(nx, ny, 8); world.markUpdated(nx, ny); world.wakeArea(nx, ny);
+        if (world.inBounds(nx, ny - 1) && world.get(nx, ny - 1) === 2) { world.set(nx, ny - 1, 8); world.markUpdated(nx, ny - 1); world.wakeArea(nx, ny - 1); }
+        if (world.inBounds(nx, ny + 1) && world.get(nx, ny + 1) === 2) { world.set(nx, ny + 1, 8); world.markUpdated(nx, ny + 1); world.wakeArea(nx, ny + 1); }
+        if (world.inBounds(nx - 1, ny) && world.get(nx - 1, ny) === 2) { world.set(nx - 1, ny, 8); world.markUpdated(nx - 1, ny); world.wakeArea(nx - 1, ny); }
+        if (world.inBounds(nx + 1, ny) && world.get(nx + 1, ny) === 2) { world.set(nx + 1, ny, 8); world.markUpdated(nx + 1, ny); world.wakeArea(nx + 1, ny); }
+        if (world.inBounds(nx, ny - 1) && world.isEmpty(nx, ny - 1)) { world.set(nx, ny - 1, 28); world.markUpdated(nx, ny - 1); }
+      } else {
+        if (FLAMMABLE.has(nid) && Math.random() < 0.3) { world.set(nx, ny, 6); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
+        world.addTemp(nx, ny, 50);
       }
-
-      // 加热邻居
-      world.addTemp(nx, ny, 50);
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y; const nid = world.get(nx, ny);
+      if (nid === 2) {
+        world.set(nx, ny, 8); world.markUpdated(nx, ny); world.wakeArea(nx, ny);
+        if (world.inBounds(nx, ny - 1) && world.get(nx, ny - 1) === 2) { world.set(nx, ny - 1, 8); world.markUpdated(nx, ny - 1); world.wakeArea(nx, ny - 1); }
+        if (world.inBounds(nx, ny + 1) && world.get(nx, ny + 1) === 2) { world.set(nx, ny + 1, 8); world.markUpdated(nx, ny + 1); world.wakeArea(nx, ny + 1); }
+        if (world.inBounds(nx - 1, ny) && world.get(nx - 1, ny) === 2) { world.set(nx - 1, ny, 8); world.markUpdated(nx - 1, ny); world.wakeArea(nx - 1, ny); }
+        if (world.inBounds(nx + 1, ny) && world.get(nx + 1, ny) === 2) { world.set(nx + 1, ny, 8); world.markUpdated(nx + 1, ny); world.wakeArea(nx + 1, ny); }
+        if (world.inBounds(nx, ny - 1) && world.isEmpty(nx, ny - 1)) { world.set(nx, ny - 1, 28); world.markUpdated(nx, ny - 1); }
+      } else {
+        if (FLAMMABLE.has(nid) && Math.random() < 0.3) { world.set(nx, ny, 6); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
+        world.addTemp(nx, ny, 50);
+      }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y; const nid = world.get(nx, ny);
+      if (nid === 2) {
+        world.set(nx, ny, 8); world.markUpdated(nx, ny); world.wakeArea(nx, ny);
+        if (world.inBounds(nx, ny - 1) && world.get(nx, ny - 1) === 2) { world.set(nx, ny - 1, 8); world.markUpdated(nx, ny - 1); world.wakeArea(nx, ny - 1); }
+        if (world.inBounds(nx, ny + 1) && world.get(nx, ny + 1) === 2) { world.set(nx, ny + 1, 8); world.markUpdated(nx, ny + 1); world.wakeArea(nx, ny + 1); }
+        if (world.inBounds(nx - 1, ny) && world.get(nx - 1, ny) === 2) { world.set(nx - 1, ny, 8); world.markUpdated(nx - 1, ny); world.wakeArea(nx - 1, ny); }
+        if (world.inBounds(nx + 1, ny) && world.get(nx + 1, ny) === 2) { world.set(nx + 1, ny, 8); world.markUpdated(nx + 1, ny); world.wakeArea(nx + 1, ny); }
+        if (world.inBounds(nx, ny - 1) && world.isEmpty(nx, ny - 1)) { world.set(nx, ny - 1, 28); world.markUpdated(nx, ny - 1); }
+      } else {
+        if (FLAMMABLE.has(nid) && Math.random() < 0.3) { world.set(nx, ny, 6); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
+        world.addTemp(nx, ny, 50);
+      }
     }
 
     // 缓慢冷却

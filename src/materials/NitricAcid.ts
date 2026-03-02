@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -43,54 +42,55 @@ export const NitricAcid: MaterialDef = {
   },
   density: 2.5,
   update(x: number, y: number, world: WorldAPI) {
-    const dirs = DIRS4;
-
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-
-      // 溶解金属：产生烟
+    // 检查邻居（4方向显式展开，无HOF，continue→跳过后续检查用标志）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1; const nid = world.get(nx, ny);
       if (DISSOLVABLE_METAL.has(nid) && Math.random() < 0.04) {
-        world.set(nx, ny, 7); // 烟
-        world.markUpdated(nx, ny);
-        world.wakeArea(nx, ny);
-        // 硝酸自身有概率消耗
-        if (Math.random() < 0.4) {
-          world.set(x, y, 7); // 黄烟
-          world.wakeArea(x, y);
-          return;
-        }
-        continue;
+        world.set(nx, ny, 7); world.markUpdated(nx, ny); world.wakeArea(nx, ny);
+        if (Math.random() < 0.4) { world.set(x, y, 7); world.wakeArea(x, y); return; }
+      } else if (ORGANIC.has(nid) && Math.random() < 0.05) {
+        world.set(nx, ny, 146); world.markUpdated(nx, ny); world.wakeArea(nx, ny);
+        if (Math.random() < 0.3) { world.set(x, y, 7); world.wakeArea(x, y); return; }
+      } else if (nid === 167 && Math.random() < 0.1) {
+        world.set(x, y, 24); world.set(nx, ny, 24); world.wakeArea(x, y); world.wakeArea(nx, ny); return;
       }
-
-      // 有机物变黄（碳化为干沙模拟）
-      if (ORGANIC.has(nid) && Math.random() < 0.05) {
-        world.set(nx, ny, 146); // 干沙（模拟碳化变黄）
-        world.markUpdated(nx, ny);
-        world.wakeArea(nx, ny);
-        if (Math.random() < 0.3) {
-          world.set(x, y, 7); // 烟
-          world.wakeArea(x, y);
-          return;
-        }
-        continue;
+      // 上方产烟 (dy === -1 时 ny = y-1)
+      if (nid === 0 && Math.random() < 0.01) { world.set(nx, ny, 7); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1; const nid = world.get(nx, ny);
+      if (DISSOLVABLE_METAL.has(nid) && Math.random() < 0.04) {
+        world.set(nx, ny, 7); world.markUpdated(nx, ny); world.wakeArea(nx, ny);
+        if (Math.random() < 0.4) { world.set(x, y, 7); world.wakeArea(x, y); return; }
+      } else if (ORGANIC.has(nid) && Math.random() < 0.05) {
+        world.set(nx, ny, 146); world.markUpdated(nx, ny); world.wakeArea(nx, ny);
+        if (Math.random() < 0.3) { world.set(x, y, 7); world.wakeArea(x, y); return; }
+      } else if (nid === 167 && Math.random() < 0.1) {
+        world.set(x, y, 24); world.set(nx, ny, 24); world.wakeArea(x, y); world.wakeArea(nx, ny); return;
       }
-
-      // 遇碱液中和为盐水
-      if (nid === 167 && Math.random() < 0.1) {
-        world.set(x, y, 24);  // 盐水
-        world.set(nx, ny, 24); // 盐水
-        world.wakeArea(x, y);
-        world.wakeArea(nx, ny);
-        return;
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y; const nid = world.get(nx, ny);
+      if (DISSOLVABLE_METAL.has(nid) && Math.random() < 0.04) {
+        world.set(nx, ny, 7); world.markUpdated(nx, ny); world.wakeArea(nx, ny);
+        if (Math.random() < 0.4) { world.set(x, y, 7); world.wakeArea(x, y); return; }
+      } else if (ORGANIC.has(nid) && Math.random() < 0.05) {
+        world.set(nx, ny, 146); world.markUpdated(nx, ny); world.wakeArea(nx, ny);
+        if (Math.random() < 0.3) { world.set(x, y, 7); world.wakeArea(x, y); return; }
+      } else if (nid === 167 && Math.random() < 0.1) {
+        world.set(x, y, 24); world.set(nx, ny, 24); world.wakeArea(x, y); world.wakeArea(nx, ny); return;
       }
-
-      // 冒黄烟：上方空位偶尔产生烟
-      if (dy === -1 && nid === 0 && Math.random() < 0.01) {
-        world.set(nx, ny, 7); // 烟
-        world.markUpdated(nx, ny);
-        world.wakeArea(nx, ny);
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y; const nid = world.get(nx, ny);
+      if (DISSOLVABLE_METAL.has(nid) && Math.random() < 0.04) {
+        world.set(nx, ny, 7); world.markUpdated(nx, ny); world.wakeArea(nx, ny);
+        if (Math.random() < 0.4) { world.set(x, y, 7); world.wakeArea(x, y); return; }
+      } else if (ORGANIC.has(nid) && Math.random() < 0.05) {
+        world.set(nx, ny, 146); world.markUpdated(nx, ny); world.wakeArea(nx, ny);
+        if (Math.random() < 0.3) { world.set(x, y, 7); world.wakeArea(x, y); return; }
+      } else if (nid === 167 && Math.random() < 0.1) {
+        world.set(x, y, 24); world.set(nx, ny, 24); world.wakeArea(x, y); world.wakeArea(nx, ny); return;
       }
     }
 

@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -52,47 +51,60 @@ export const Honeycomb: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
-
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-
-      // 遇火燃烧：产生蜂蜜滴落 + 烟
-      if (nid === 6 && Math.random() < 0.08) {
-        world.set(x, y, Math.random() < 0.6 ? 45 : 7); // 蜂蜜或烟
-        world.wakeArea(x, y);
-        return;
-      }
-
-      // 酸液腐蚀
-      if (nid === 9 && Math.random() < 0.06) {
-        world.set(x, y, 0);
-        world.wakeArea(x, y);
-        return;
-      }
-
-      // 熔岩接触加热
-      if (nid === 11) {
-        world.addTemp(x, y, 12);
-      }
-
-      // 蜂蜜接触时缓慢扩展蜂巢
+    // 检查邻居（4方向显式展开，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1; const nid = world.get(nx, ny);
+      if (nid === 6 && Math.random() < 0.08) { world.set(x, y, Math.random() < 0.6 ? 45 : 7); world.wakeArea(x, y); return; }
+      if (nid === 9 && Math.random() < 0.06) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+      if (nid === 11) { world.addTemp(x, y, 12); }
       if (nid === 45 && Math.random() < 0.003) {
-        // 在蜂蜜旁的空位生成新蜂巢
-        for (const [dx2, dy2] of dirs) {
-          const bx = nx + dx2, by = ny + dy2;
-          if (world.inBounds(bx, by) && world.isEmpty(bx, by)) {
-            world.set(bx, by, 107); // 蜂巢
-            world.markUpdated(bx, by);
-            world.wakeArea(bx, by);
-            // 消耗蜂蜜
-            world.set(nx, ny, 0);
-            world.wakeArea(nx, ny);
-            break;
-          }
-        }
+        let spawned = false;
+        if (!spawned && world.inBounds(nx, ny - 1) && world.isEmpty(nx, ny - 1)) { world.set(nx, ny - 1, 107); world.markUpdated(nx, ny - 1); world.wakeArea(nx, ny - 1); world.set(nx, ny, 0); world.wakeArea(nx, ny); spawned = true; }
+        if (!spawned && world.inBounds(nx, ny + 1) && world.isEmpty(nx, ny + 1)) { world.set(nx, ny + 1, 107); world.markUpdated(nx, ny + 1); world.wakeArea(nx, ny + 1); world.set(nx, ny, 0); world.wakeArea(nx, ny); spawned = true; }
+        if (!spawned && world.inBounds(nx - 1, ny) && world.isEmpty(nx - 1, ny)) { world.set(nx - 1, ny, 107); world.markUpdated(nx - 1, ny); world.wakeArea(nx - 1, ny); world.set(nx, ny, 0); world.wakeArea(nx, ny); spawned = true; }
+        if (!spawned && world.inBounds(nx + 1, ny) && world.isEmpty(nx + 1, ny)) { world.set(nx + 1, ny, 107); world.markUpdated(nx + 1, ny); world.wakeArea(nx + 1, ny); world.set(nx, ny, 0); world.wakeArea(nx, ny); }
+        return;
+      }
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1; const nid = world.get(nx, ny);
+      if (nid === 6 && Math.random() < 0.08) { world.set(x, y, Math.random() < 0.6 ? 45 : 7); world.wakeArea(x, y); return; }
+      if (nid === 9 && Math.random() < 0.06) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+      if (nid === 11) { world.addTemp(x, y, 12); }
+      if (nid === 45 && Math.random() < 0.003) {
+        let spawned = false;
+        if (!spawned && world.inBounds(nx, ny - 1) && world.isEmpty(nx, ny - 1)) { world.set(nx, ny - 1, 107); world.markUpdated(nx, ny - 1); world.wakeArea(nx, ny - 1); world.set(nx, ny, 0); world.wakeArea(nx, ny); spawned = true; }
+        if (!spawned && world.inBounds(nx, ny + 1) && world.isEmpty(nx, ny + 1)) { world.set(nx, ny + 1, 107); world.markUpdated(nx, ny + 1); world.wakeArea(nx, ny + 1); world.set(nx, ny, 0); world.wakeArea(nx, ny); spawned = true; }
+        if (!spawned && world.inBounds(nx - 1, ny) && world.isEmpty(nx - 1, ny)) { world.set(nx - 1, ny, 107); world.markUpdated(nx - 1, ny); world.wakeArea(nx - 1, ny); world.set(nx, ny, 0); world.wakeArea(nx, ny); spawned = true; }
+        if (!spawned && world.inBounds(nx + 1, ny) && world.isEmpty(nx + 1, ny)) { world.set(nx + 1, ny, 107); world.markUpdated(nx + 1, ny); world.wakeArea(nx + 1, ny); world.set(nx, ny, 0); world.wakeArea(nx, ny); }
+        return;
+      }
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y; const nid = world.get(nx, ny);
+      if (nid === 6 && Math.random() < 0.08) { world.set(x, y, Math.random() < 0.6 ? 45 : 7); world.wakeArea(x, y); return; }
+      if (nid === 9 && Math.random() < 0.06) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+      if (nid === 11) { world.addTemp(x, y, 12); }
+      if (nid === 45 && Math.random() < 0.003) {
+        let spawned = false;
+        if (!spawned && world.inBounds(nx, ny - 1) && world.isEmpty(nx, ny - 1)) { world.set(nx, ny - 1, 107); world.markUpdated(nx, ny - 1); world.wakeArea(nx, ny - 1); world.set(nx, ny, 0); world.wakeArea(nx, ny); spawned = true; }
+        if (!spawned && world.inBounds(nx, ny + 1) && world.isEmpty(nx, ny + 1)) { world.set(nx, ny + 1, 107); world.markUpdated(nx, ny + 1); world.wakeArea(nx, ny + 1); world.set(nx, ny, 0); world.wakeArea(nx, ny); spawned = true; }
+        if (!spawned && world.inBounds(nx - 1, ny) && world.isEmpty(nx - 1, ny)) { world.set(nx - 1, ny, 107); world.markUpdated(nx - 1, ny); world.wakeArea(nx - 1, ny); world.set(nx, ny, 0); world.wakeArea(nx, ny); spawned = true; }
+        if (!spawned && world.inBounds(nx + 1, ny) && world.isEmpty(nx + 1, ny)) { world.set(nx + 1, ny, 107); world.markUpdated(nx + 1, ny); world.wakeArea(nx + 1, ny); world.set(nx, ny, 0); world.wakeArea(nx, ny); }
+        return;
+      }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y; const nid = world.get(nx, ny);
+      if (nid === 6 && Math.random() < 0.08) { world.set(x, y, Math.random() < 0.6 ? 45 : 7); world.wakeArea(x, y); return; }
+      if (nid === 9 && Math.random() < 0.06) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+      if (nid === 11) { world.addTemp(x, y, 12); }
+      if (nid === 45 && Math.random() < 0.003) {
+        let spawned = false;
+        if (!spawned && world.inBounds(nx, ny - 1) && world.isEmpty(nx, ny - 1)) { world.set(nx, ny - 1, 107); world.markUpdated(nx, ny - 1); world.wakeArea(nx, ny - 1); world.set(nx, ny, 0); world.wakeArea(nx, ny); spawned = true; }
+        if (!spawned && world.inBounds(nx, ny + 1) && world.isEmpty(nx, ny + 1)) { world.set(nx, ny + 1, 107); world.markUpdated(nx, ny + 1); world.wakeArea(nx, ny + 1); world.set(nx, ny, 0); world.wakeArea(nx, ny); spawned = true; }
+        if (!spawned && world.inBounds(nx - 1, ny) && world.isEmpty(nx - 1, ny)) { world.set(nx - 1, ny, 107); world.markUpdated(nx - 1, ny); world.wakeArea(nx - 1, ny); world.set(nx, ny, 0); world.wakeArea(nx, ny); spawned = true; }
+        if (!spawned && world.inBounds(nx + 1, ny) && world.isEmpty(nx + 1, ny)) { world.set(nx + 1, ny, 107); world.markUpdated(nx + 1, ny); world.wakeArea(nx + 1, ny); world.set(nx, ny, 0); world.wakeArea(nx, ny); }
         return;
       }
     }

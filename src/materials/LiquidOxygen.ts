@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -49,39 +48,58 @@ export const LiquidOxygen: MaterialDef = {
       }
     }
 
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-
-      // 遇火/火花/熔岩 → 爆炸（产生火+烟）
+    // 检查邻居（4方向显式展开，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1; const nid = world.get(nx, ny);
       if ((nid === 6 || nid === 28 || nid === 11) && Math.random() < 0.3) {
-        world.set(x, y, 6); // 火
-        // 扩散爆炸
-        for (const [ex, ey] of dirs) {
-          const bx = x + ex, by = y + ey;
-          if (world.inBounds(bx, by) && (world.isEmpty(bx, by) || world.get(bx, by) === 139)) {
-            world.set(bx, by, Math.random() < 0.5 ? 6 : 7);
-            world.markUpdated(bx, by);
-            world.wakeArea(bx, by);
-          }
-        }
-        world.wakeArea(x, y);
-        return;
+        world.set(x, y, 6);
+        if (world.inBounds(x, y - 1) && (world.isEmpty(x, y - 1) || world.get(x, y - 1) === 139)) { world.set(x, y - 1, Math.random() < 0.5 ? 6 : 7); world.markUpdated(x, y - 1); world.wakeArea(x, y - 1); }
+        if (world.inBounds(x, y + 1) && (world.isEmpty(x, y + 1) || world.get(x, y + 1) === 139)) { world.set(x, y + 1, Math.random() < 0.5 ? 6 : 7); world.markUpdated(x, y + 1); world.wakeArea(x, y + 1); }
+        if (world.inBounds(x - 1, y) && (world.isEmpty(x - 1, y) || world.get(x - 1, y) === 139)) { world.set(x - 1, y, Math.random() < 0.5 ? 6 : 7); world.markUpdated(x - 1, y); world.wakeArea(x - 1, y); }
+        if (world.inBounds(x + 1, y) && (world.isEmpty(x + 1, y) || world.get(x + 1, y) === 139)) { world.set(x + 1, y, Math.random() < 0.5 ? 6 : 7); world.markUpdated(x + 1, y); world.wakeArea(x + 1, y); }
+        world.wakeArea(x, y); return;
       }
-
-      // 遇可燃物使其点燃（概率性）
-      if ((nid === 4 || nid === 5 || nid === 22) && Math.random() < 0.01) {
-        world.set(nx, ny, 6); // 点燃
-        world.markUpdated(nx, ny);
-        world.wakeArea(nx, ny);
+      if ((nid === 4 || nid === 5 || nid === 22) && Math.random() < 0.01) { world.set(nx, ny, 6); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
+      if (nid !== 0 && Math.random() < 0.1) { world.addTemp(nx, ny, -3); }
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1; const nid = world.get(nx, ny);
+      if ((nid === 6 || nid === 28 || nid === 11) && Math.random() < 0.3) {
+        world.set(x, y, 6);
+        if (world.inBounds(x, y - 1) && (world.isEmpty(x, y - 1) || world.get(x, y - 1) === 139)) { world.set(x, y - 1, Math.random() < 0.5 ? 6 : 7); world.markUpdated(x, y - 1); world.wakeArea(x, y - 1); }
+        if (world.inBounds(x, y + 1) && (world.isEmpty(x, y + 1) || world.get(x, y + 1) === 139)) { world.set(x, y + 1, Math.random() < 0.5 ? 6 : 7); world.markUpdated(x, y + 1); world.wakeArea(x, y + 1); }
+        if (world.inBounds(x - 1, y) && (world.isEmpty(x - 1, y) || world.get(x - 1, y) === 139)) { world.set(x - 1, y, Math.random() < 0.5 ? 6 : 7); world.markUpdated(x - 1, y); world.wakeArea(x - 1, y); }
+        if (world.inBounds(x + 1, y) && (world.isEmpty(x + 1, y) || world.get(x + 1, y) === 139)) { world.set(x + 1, y, Math.random() < 0.5 ? 6 : 7); world.markUpdated(x + 1, y); world.wakeArea(x + 1, y); }
+        world.wakeArea(x, y); return;
       }
-
-      // 冷冻邻居
-      if (nid !== 0 && Math.random() < 0.1) {
-        world.addTemp(nx, ny, -3);
+      if ((nid === 4 || nid === 5 || nid === 22) && Math.random() < 0.01) { world.set(nx, ny, 6); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
+      if (nid !== 0 && Math.random() < 0.1) { world.addTemp(nx, ny, -3); }
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y; const nid = world.get(nx, ny);
+      if ((nid === 6 || nid === 28 || nid === 11) && Math.random() < 0.3) {
+        world.set(x, y, 6);
+        if (world.inBounds(x, y - 1) && (world.isEmpty(x, y - 1) || world.get(x, y - 1) === 139)) { world.set(x, y - 1, Math.random() < 0.5 ? 6 : 7); world.markUpdated(x, y - 1); world.wakeArea(x, y - 1); }
+        if (world.inBounds(x, y + 1) && (world.isEmpty(x, y + 1) || world.get(x, y + 1) === 139)) { world.set(x, y + 1, Math.random() < 0.5 ? 6 : 7); world.markUpdated(x, y + 1); world.wakeArea(x, y + 1); }
+        if (world.inBounds(x - 1, y) && (world.isEmpty(x - 1, y) || world.get(x - 1, y) === 139)) { world.set(x - 1, y, Math.random() < 0.5 ? 6 : 7); world.markUpdated(x - 1, y); world.wakeArea(x - 1, y); }
+        if (world.inBounds(x + 1, y) && (world.isEmpty(x + 1, y) || world.get(x + 1, y) === 139)) { world.set(x + 1, y, Math.random() < 0.5 ? 6 : 7); world.markUpdated(x + 1, y); world.wakeArea(x + 1, y); }
+        world.wakeArea(x, y); return;
       }
+      if ((nid === 4 || nid === 5 || nid === 22) && Math.random() < 0.01) { world.set(nx, ny, 6); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
+      if (nid !== 0 && Math.random() < 0.1) { world.addTemp(nx, ny, -3); }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y; const nid = world.get(nx, ny);
+      if ((nid === 6 || nid === 28 || nid === 11) && Math.random() < 0.3) {
+        world.set(x, y, 6);
+        if (world.inBounds(x, y - 1) && (world.isEmpty(x, y - 1) || world.get(x, y - 1) === 139)) { world.set(x, y - 1, Math.random() < 0.5 ? 6 : 7); world.markUpdated(x, y - 1); world.wakeArea(x, y - 1); }
+        if (world.inBounds(x, y + 1) && (world.isEmpty(x, y + 1) || world.get(x, y + 1) === 139)) { world.set(x, y + 1, Math.random() < 0.5 ? 6 : 7); world.markUpdated(x, y + 1); world.wakeArea(x, y + 1); }
+        if (world.inBounds(x - 1, y) && (world.isEmpty(x - 1, y) || world.get(x - 1, y) === 139)) { world.set(x - 1, y, Math.random() < 0.5 ? 6 : 7); world.markUpdated(x - 1, y); world.wakeArea(x - 1, y); }
+        if (world.inBounds(x + 1, y) && (world.isEmpty(x + 1, y) || world.get(x + 1, y) === 139)) { world.set(x + 1, y, Math.random() < 0.5 ? 6 : 7); world.markUpdated(x + 1, y); world.wakeArea(x + 1, y); }
+        world.wakeArea(x, y); return;
+      }
+      if ((nid === 4 || nid === 5 || nid === 22) && Math.random() < 0.01) { world.set(nx, ny, 6); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
+      if (nid !== 0 && Math.random() < 0.1) { world.addTemp(nx, ny, -3); }
     }
 
     // 缓慢升温

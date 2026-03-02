@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -60,48 +59,65 @@ export const MoltenSilicon: MaterialDef = {
       return;
     }
 
-    // 邻居交互
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-
-      // 遇水产生蒸汽爆炸
+    // 邻居交互（4方向显式展开，无HOF，continue→else if）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1; const nid = world.get(nx, ny);
       if (nid === 2) {
-        world.set(nx, ny, 8); // 水变蒸汽
-        world.setTemp(nx, ny, 200);
-        world.wakeArea(nx, ny);
-        // 爆炸冲击：周围额外产生蒸汽
-        for (const [dx2, dy2] of dirs) {
-          const ex = nx + dx2, ey = ny + dy2;
-          if (world.inBounds(ex, ey) && world.get(ex, ey) === 2) {
-            world.set(ex, ey, 8); // 蒸汽
-            world.setTemp(ex, ey, 150);
-            world.wakeArea(ex, ey);
-          }
-        }
-        // 液态硅降温
-        world.addTemp(x, y, -300);
-        world.wakeArea(x, y);
-        continue;
+        world.set(nx, ny, 8); world.setTemp(nx, ny, 200); world.wakeArea(nx, ny);
+        if (world.inBounds(nx, ny - 1) && world.get(nx, ny - 1) === 2) { world.set(nx, ny - 1, 8); world.setTemp(nx, ny - 1, 150); world.wakeArea(nx, ny - 1); }
+        if (world.inBounds(nx, ny + 1) && world.get(nx, ny + 1) === 2) { world.set(nx, ny + 1, 8); world.setTemp(nx, ny + 1, 150); world.wakeArea(nx, ny + 1); }
+        if (world.inBounds(nx - 1, ny) && world.get(nx - 1, ny) === 2) { world.set(nx - 1, ny, 8); world.setTemp(nx - 1, ny, 150); world.wakeArea(nx - 1, ny); }
+        if (world.inBounds(nx + 1, ny) && world.get(nx + 1, ny) === 2) { world.set(nx + 1, ny, 8); world.setTemp(nx + 1, ny, 150); world.wakeArea(nx + 1, ny); }
+        world.addTemp(x, y, -300); world.wakeArea(x, y);
+      } else if ((nid === 4 || nid === 5 || nid === 22) && Math.random() < 0.15) {
+        world.set(nx, ny, 6); world.setTemp(nx, ny, 200); world.markUpdated(nx, ny); world.wakeArea(nx, ny);
+      } else {
+        const nTemp = world.getTemp(nx, ny); if (temp > nTemp) { const transfer = (temp - nTemp) * 0.06; world.addTemp(nx, ny, transfer); world.addTemp(x, y, -transfer); }
       }
-
-      // 点燃可燃物
-      if ((nid === 4 || nid === 5 || nid === 22) && Math.random() < 0.15) {
-        world.set(nx, ny, 6); // 火
-        world.setTemp(nx, ny, 200);
-        world.markUpdated(nx, ny);
-        world.wakeArea(nx, ny);
-        continue;
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1; const nid = world.get(nx, ny);
+      if (nid === 2) {
+        world.set(nx, ny, 8); world.setTemp(nx, ny, 200); world.wakeArea(nx, ny);
+        if (world.inBounds(nx, ny - 1) && world.get(nx, ny - 1) === 2) { world.set(nx, ny - 1, 8); world.setTemp(nx, ny - 1, 150); world.wakeArea(nx, ny - 1); }
+        if (world.inBounds(nx, ny + 1) && world.get(nx, ny + 1) === 2) { world.set(nx, ny + 1, 8); world.setTemp(nx, ny + 1, 150); world.wakeArea(nx, ny + 1); }
+        if (world.inBounds(nx - 1, ny) && world.get(nx - 1, ny) === 2) { world.set(nx - 1, ny, 8); world.setTemp(nx - 1, ny, 150); world.wakeArea(nx - 1, ny); }
+        if (world.inBounds(nx + 1, ny) && world.get(nx + 1, ny) === 2) { world.set(nx + 1, ny, 8); world.setTemp(nx + 1, ny, 150); world.wakeArea(nx + 1, ny); }
+        world.addTemp(x, y, -300); world.wakeArea(x, y);
+      } else if ((nid === 4 || nid === 5 || nid === 22) && Math.random() < 0.15) {
+        world.set(nx, ny, 6); world.setTemp(nx, ny, 200); world.markUpdated(nx, ny); world.wakeArea(nx, ny);
+      } else {
+        const nTemp = world.getTemp(nx, ny); if (temp > nTemp) { const transfer = (temp - nTemp) * 0.06; world.addTemp(nx, ny, transfer); world.addTemp(x, y, -transfer); }
       }
-
-      // 传热给邻居
-      const nTemp = world.getTemp(nx, ny);
-      if (temp > nTemp) {
-        const transfer = (temp - nTemp) * 0.06;
-        world.addTemp(nx, ny, transfer);
-        world.addTemp(x, y, -transfer);
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y; const nid = world.get(nx, ny);
+      if (nid === 2) {
+        world.set(nx, ny, 8); world.setTemp(nx, ny, 200); world.wakeArea(nx, ny);
+        if (world.inBounds(nx, ny - 1) && world.get(nx, ny - 1) === 2) { world.set(nx, ny - 1, 8); world.setTemp(nx, ny - 1, 150); world.wakeArea(nx, ny - 1); }
+        if (world.inBounds(nx, ny + 1) && world.get(nx, ny + 1) === 2) { world.set(nx, ny + 1, 8); world.setTemp(nx, ny + 1, 150); world.wakeArea(nx, ny + 1); }
+        if (world.inBounds(nx - 1, ny) && world.get(nx - 1, ny) === 2) { world.set(nx - 1, ny, 8); world.setTemp(nx - 1, ny, 150); world.wakeArea(nx - 1, ny); }
+        if (world.inBounds(nx + 1, ny) && world.get(nx + 1, ny) === 2) { world.set(nx + 1, ny, 8); world.setTemp(nx + 1, ny, 150); world.wakeArea(nx + 1, ny); }
+        world.addTemp(x, y, -300); world.wakeArea(x, y);
+      } else if ((nid === 4 || nid === 5 || nid === 22) && Math.random() < 0.15) {
+        world.set(nx, ny, 6); world.setTemp(nx, ny, 200); world.markUpdated(nx, ny); world.wakeArea(nx, ny);
+      } else {
+        const nTemp = world.getTemp(nx, ny); if (temp > nTemp) { const transfer = (temp - nTemp) * 0.06; world.addTemp(nx, ny, transfer); world.addTemp(x, y, -transfer); }
+      }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y; const nid = world.get(nx, ny);
+      if (nid === 2) {
+        world.set(nx, ny, 8); world.setTemp(nx, ny, 200); world.wakeArea(nx, ny);
+        if (world.inBounds(nx, ny - 1) && world.get(nx, ny - 1) === 2) { world.set(nx, ny - 1, 8); world.setTemp(nx, ny - 1, 150); world.wakeArea(nx, ny - 1); }
+        if (world.inBounds(nx, ny + 1) && world.get(nx, ny + 1) === 2) { world.set(nx, ny + 1, 8); world.setTemp(nx, ny + 1, 150); world.wakeArea(nx, ny + 1); }
+        if (world.inBounds(nx - 1, ny) && world.get(nx - 1, ny) === 2) { world.set(nx - 1, ny, 8); world.setTemp(nx - 1, ny, 150); world.wakeArea(nx - 1, ny); }
+        if (world.inBounds(nx + 1, ny) && world.get(nx + 1, ny) === 2) { world.set(nx + 1, ny, 8); world.setTemp(nx + 1, ny, 150); world.wakeArea(nx + 1, ny); }
+        world.addTemp(x, y, -300); world.wakeArea(x, y);
+      } else if ((nid === 4 || nid === 5 || nid === 22) && Math.random() < 0.15) {
+        world.set(nx, ny, 6); world.setTemp(nx, ny, 200); world.markUpdated(nx, ny); world.wakeArea(nx, ny);
+      } else {
+        const nTemp = world.getTemp(nx, ny); if (temp > nTemp) { const transfer = (temp - nTemp) * 0.06; world.addTemp(nx, ny, transfer); world.addTemp(x, y, -transfer); }
       }
     }
 

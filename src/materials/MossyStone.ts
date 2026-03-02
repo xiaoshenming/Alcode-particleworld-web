@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -53,56 +52,66 @@ export const MossyStone: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
+    // 检查邻居（4方向显式展开，无HOF）
     let hasWater = false;
-
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-
-      // 酸液腐蚀
-      if (nid === 9 && Math.random() < 0.05) {
-        world.set(x, y, 0);
-        world.wakeArea(x, y);
-        return;
-      }
-
-      // 火烧掉苔藓
-      if (nid === 6 && Math.random() < 0.15) {
-        world.set(x, y, 3); // 变回石头
-        world.wakeArea(x, y);
-        return;
-      }
-
-      // 熔岩加热
-      if (nid === 11) {
-        world.addTemp(x, y, 10);
-      }
-
-      // 检测水源
-      if (nid === 2 || nid === 8 || nid === 97) {
-        hasWater = true;
-      }
-
-      // 潮湿环境下扩散苔藓到相邻石头
-      if (nid === 3 && hasWater && Math.random() < 0.002) {
-        world.set(nx, ny, 110); // 苔藓石
-        world.markUpdated(nx, ny);
-        world.wakeArea(nx, ny);
-      }
-
-      // 遇种子促进植物生长
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1; const nid = world.get(nx, ny);
+      if (nid === 9 && Math.random() < 0.05) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+      if (nid === 6 && Math.random() < 0.15) { world.set(x, y, 3); world.wakeArea(x, y); return; }
+      if (nid === 11) { world.addTemp(x, y, 10); }
+      if (nid === 2 || nid === 8 || nid === 97) { hasWater = true; }
+      if (nid === 3 && hasWater && Math.random() < 0.002) { world.set(nx, ny, 110); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
       if (nid === 12 && Math.random() < 0.01) {
-        for (const [dx2, dy2] of dirs) {
-          const px = nx + dx2, py = ny + dy2;
-          if (world.inBounds(px, py) && world.isEmpty(px, py)) {
-            world.set(px, py, 13); // 植物
-            world.markUpdated(px, py);
-            world.wakeArea(px, py);
-            break;
-          }
-        }
+        let spawned = false;
+        if (!spawned && world.inBounds(nx, ny - 1) && world.isEmpty(nx, ny - 1)) { world.set(nx, ny - 1, 13); world.markUpdated(nx, ny - 1); world.wakeArea(nx, ny - 1); spawned = true; }
+        if (!spawned && world.inBounds(nx, ny + 1) && world.isEmpty(nx, ny + 1)) { world.set(nx, ny + 1, 13); world.markUpdated(nx, ny + 1); world.wakeArea(nx, ny + 1); spawned = true; }
+        if (!spawned && world.inBounds(nx - 1, ny) && world.isEmpty(nx - 1, ny)) { world.set(nx - 1, ny, 13); world.markUpdated(nx - 1, ny); world.wakeArea(nx - 1, ny); spawned = true; }
+        if (!spawned && world.inBounds(nx + 1, ny) && world.isEmpty(nx + 1, ny)) { world.set(nx + 1, ny, 13); world.markUpdated(nx + 1, ny); world.wakeArea(nx + 1, ny); }
+      }
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1; const nid = world.get(nx, ny);
+      if (nid === 9 && Math.random() < 0.05) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+      if (nid === 6 && Math.random() < 0.15) { world.set(x, y, 3); world.wakeArea(x, y); return; }
+      if (nid === 11) { world.addTemp(x, y, 10); }
+      if (nid === 2 || nid === 8 || nid === 97) { hasWater = true; }
+      if (nid === 3 && hasWater && Math.random() < 0.002) { world.set(nx, ny, 110); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
+      if (nid === 12 && Math.random() < 0.01) {
+        let spawned = false;
+        if (!spawned && world.inBounds(nx, ny - 1) && world.isEmpty(nx, ny - 1)) { world.set(nx, ny - 1, 13); world.markUpdated(nx, ny - 1); world.wakeArea(nx, ny - 1); spawned = true; }
+        if (!spawned && world.inBounds(nx, ny + 1) && world.isEmpty(nx, ny + 1)) { world.set(nx, ny + 1, 13); world.markUpdated(nx, ny + 1); world.wakeArea(nx, ny + 1); spawned = true; }
+        if (!spawned && world.inBounds(nx - 1, ny) && world.isEmpty(nx - 1, ny)) { world.set(nx - 1, ny, 13); world.markUpdated(nx - 1, ny); world.wakeArea(nx - 1, ny); spawned = true; }
+        if (!spawned && world.inBounds(nx + 1, ny) && world.isEmpty(nx + 1, ny)) { world.set(nx + 1, ny, 13); world.markUpdated(nx + 1, ny); world.wakeArea(nx + 1, ny); }
+      }
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y; const nid = world.get(nx, ny);
+      if (nid === 9 && Math.random() < 0.05) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+      if (nid === 6 && Math.random() < 0.15) { world.set(x, y, 3); world.wakeArea(x, y); return; }
+      if (nid === 11) { world.addTemp(x, y, 10); }
+      if (nid === 2 || nid === 8 || nid === 97) { hasWater = true; }
+      if (nid === 3 && hasWater && Math.random() < 0.002) { world.set(nx, ny, 110); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
+      if (nid === 12 && Math.random() < 0.01) {
+        let spawned = false;
+        if (!spawned && world.inBounds(nx, ny - 1) && world.isEmpty(nx, ny - 1)) { world.set(nx, ny - 1, 13); world.markUpdated(nx, ny - 1); world.wakeArea(nx, ny - 1); spawned = true; }
+        if (!spawned && world.inBounds(nx, ny + 1) && world.isEmpty(nx, ny + 1)) { world.set(nx, ny + 1, 13); world.markUpdated(nx, ny + 1); world.wakeArea(nx, ny + 1); spawned = true; }
+        if (!spawned && world.inBounds(nx - 1, ny) && world.isEmpty(nx - 1, ny)) { world.set(nx - 1, ny, 13); world.markUpdated(nx - 1, ny); world.wakeArea(nx - 1, ny); spawned = true; }
+        if (!spawned && world.inBounds(nx + 1, ny) && world.isEmpty(nx + 1, ny)) { world.set(nx + 1, ny, 13); world.markUpdated(nx + 1, ny); world.wakeArea(nx + 1, ny); }
+      }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y; const nid = world.get(nx, ny);
+      if (nid === 9 && Math.random() < 0.05) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+      if (nid === 6 && Math.random() < 0.15) { world.set(x, y, 3); world.wakeArea(x, y); return; }
+      if (nid === 11) { world.addTemp(x, y, 10); }
+      if (nid === 2 || nid === 8 || nid === 97) { hasWater = true; }
+      if (nid === 3 && hasWater && Math.random() < 0.002) { world.set(nx, ny, 110); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
+      if (nid === 12 && Math.random() < 0.01) {
+        let spawned = false;
+        if (!spawned && world.inBounds(nx, ny - 1) && world.isEmpty(nx, ny - 1)) { world.set(nx, ny - 1, 13); world.markUpdated(nx, ny - 1); world.wakeArea(nx, ny - 1); spawned = true; }
+        if (!spawned && world.inBounds(nx, ny + 1) && world.isEmpty(nx, ny + 1)) { world.set(nx, ny + 1, 13); world.markUpdated(nx, ny + 1); world.wakeArea(nx, ny + 1); spawned = true; }
+        if (!spawned && world.inBounds(nx - 1, ny) && world.isEmpty(nx - 1, ny)) { world.set(nx - 1, ny, 13); world.markUpdated(nx - 1, ny); world.wakeArea(nx - 1, ny); spawned = true; }
+        if (!spawned && world.inBounds(nx + 1, ny) && world.isEmpty(nx + 1, ny)) { world.set(nx + 1, ny, 13); world.markUpdated(nx + 1, ny); world.wakeArea(nx + 1, ny); }
       }
     }
 
