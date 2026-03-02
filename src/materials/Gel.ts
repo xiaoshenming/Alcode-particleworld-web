@@ -2,12 +2,16 @@ import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
+/** 直接引发凝胶蒸发的热源 */
+const GEL_IGNITORS = new Set([6, 11, 28]); // 火、熔岩、火花
+
 /**
  * 凝胶 —— 半固体弹性材质
  * - 受重力影响，但流动性极低（粘稠）
  * - 其他粒子穿过时被减速（粘滞效果）
  * - 吸收水分：接触水时膨胀（水变凝胶）
  * - 高温（>150°）融化为液态，蒸发为蒸汽
+ * - 接触火/熔岩/火花：立即气化为蒸汽（凝胶含水分，遇明火迅速沸腾）
  * - 低温（<-20°）冻结变硬（不再流动）
  * - 酸液可溶解
  * - 视觉上呈半透明蓝紫色
@@ -46,6 +50,20 @@ export const Gel: MaterialDef = {
       world.set(x, y, 8); // 蒸汽
       world.wakeArea(x, y);
       return;
+    }
+
+    // 接触火/熔岩/火花：凝胶含水分，直接气化为蒸汽（显式4方向，无HOF）
+    if (world.inBounds(x, y - 1) && GEL_IGNITORS.has(world.get(x, y - 1))) {
+      world.set(x, y, 8); world.wakeArea(x, y); return;
+    }
+    if (world.inBounds(x, y + 1) && GEL_IGNITORS.has(world.get(x, y + 1))) {
+      world.set(x, y, 8); world.wakeArea(x, y); return;
+    }
+    if (world.inBounds(x - 1, y) && GEL_IGNITORS.has(world.get(x - 1, y))) {
+      world.set(x, y, 8); world.wakeArea(x, y); return;
+    }
+    if (world.inBounds(x + 1, y) && GEL_IGNITORS.has(world.get(x + 1, y))) {
+      world.set(x, y, 8); world.wakeArea(x, y); return;
     }
 
     // 低温冻结 → 不流动，只做邻居检查

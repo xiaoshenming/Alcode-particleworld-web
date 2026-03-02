@@ -1,11 +1,13 @@
 import type { MaterialDef, WorldAPI } from './types';
-import { DIRS4 } from './types';
 import { registerMaterial } from './registry';
+
+/** 点燃液蜡的热源 */
+const MOLTEN_WAX_IGNITORS = new Set([6, 11, 28]); // 火、熔岩、火花
 
 /**
  * 液态蜡 —— 缓慢流动的可燃液体
  * - 冷却后凝固为固体蜡(25)（温度 < 35°）
- * - 可被火点燃，燃烧时间长
+ * - 接触火/熔岩/火花点燃，燃烧时间长
  * - 流动速度比水慢
  */
 export const MoltenWax: MaterialDef = {
@@ -27,14 +29,18 @@ export const MoltenWax: MaterialDef = {
       return;
     }
 
-    // 检查邻居：被火点燃
-    for (const [dx, dy] of DIRS4) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      if (world.get(nx, ny) === 6 && Math.random() < 0.08) {
-        world.set(x, y, 6); // 着火
-        return;
-      }
+    // 检查邻居：被火/熔岩/火花点燃（显式4方向，无HOF）
+    if (world.inBounds(x, y - 1) && MOLTEN_WAX_IGNITORS.has(world.get(x, y - 1)) && Math.random() < 0.08) {
+      world.set(x, y, 6); return;
+    }
+    if (world.inBounds(x, y + 1) && MOLTEN_WAX_IGNITORS.has(world.get(x, y + 1)) && Math.random() < 0.08) {
+      world.set(x, y, 6); return;
+    }
+    if (world.inBounds(x - 1, y) && MOLTEN_WAX_IGNITORS.has(world.get(x - 1, y)) && Math.random() < 0.08) {
+      world.set(x, y, 6); return;
+    }
+    if (world.inBounds(x + 1, y) && MOLTEN_WAX_IGNITORS.has(world.get(x + 1, y)) && Math.random() < 0.08) {
+      world.set(x, y, 6); return;
     }
 
     // 液蜡自身缓慢散热

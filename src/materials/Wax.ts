@@ -1,11 +1,13 @@
 import type { MaterialDef, WorldAPI } from './types';
-import { DIRS4 } from './types';
 import { registerMaterial } from './registry';
+
+/** 点燃蜡的热源 */
+const WAX_IGNITORS = new Set([6, 11, 28]); // 火、熔岩、火花
 
 /**
  * 蜡 —— 固体，可被火/高温融化为液态蜡
  * - 温度 > 60° → 融化为液态蜡(26)
- * - 接触火 → 直接点燃
+ * - 接触火/熔岩/火花 → 直接点燃（概率点燃）
  * - 不受重力影响（固体堆叠）
  */
 export const Wax: MaterialDef = {
@@ -28,16 +30,22 @@ export const Wax: MaterialDef = {
       return;
     }
 
-    // 检查邻居：火直接点燃
-    for (const [dx, dy] of DIRS4) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      if (world.get(nx, ny) === 6 && Math.random() < 0.03) {
-        world.set(x, y, 6); // 着火
-        return;
-      }
+    // 检查邻居：接触火/熔岩/火花点燃（显式4方向，无HOF）
+    if (world.inBounds(x, y - 1) && WAX_IGNITORS.has(world.get(x, y - 1)) && Math.random() < 0.03) {
+      world.set(x, y, 6); return;
+    }
+    if (world.inBounds(x, y + 1) && WAX_IGNITORS.has(world.get(x, y + 1)) && Math.random() < 0.03) {
+      world.set(x, y, 6); return;
+    }
+    if (world.inBounds(x - 1, y) && WAX_IGNITORS.has(world.get(x - 1, y)) && Math.random() < 0.03) {
+      world.set(x, y, 6); return;
+    }
+    if (world.inBounds(x + 1, y) && WAX_IGNITORS.has(world.get(x + 1, y)) && Math.random() < 0.03) {
+      world.set(x, y, 6); return;
     }
   },
 };
+
+registerMaterial(Wax);
 
 registerMaterial(Wax);
