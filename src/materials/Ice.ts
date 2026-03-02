@@ -1,5 +1,4 @@
 import type { MaterialDef, WorldAPI } from './types';
-import { DIRS4 } from './types';
 import { registerMaterial } from './registry';
 
 /** 热源材质 ID */
@@ -31,23 +30,17 @@ export const Ice: MaterialDef = {
     // 冰降低周围温度
     world.setTemp(x, y, Math.min(world.getTemp(x, y), -5));
 
-    for (const [dx, dy] of DIRS4) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
+    // 热源检测（显式4方向，无HOF）：遇热源立即融化为水
+    if (world.inBounds(x, y - 1) && HOT.has(world.get(x, y - 1))) { world.set(x, y, 2); return; }
+    if (world.inBounds(x, y + 1) && HOT.has(world.get(x, y + 1))) { world.set(x, y, 2); return; }
+    if (world.inBounds(x - 1, y) && HOT.has(world.get(x - 1, y))) { world.set(x, y, 2); return; }
+    if (world.inBounds(x + 1, y) && HOT.has(world.get(x + 1, y))) { world.set(x, y, 2); return; }
 
-      // 遇热源融化为水
-      if (HOT.has(nid)) {
-        world.set(x, y, 2); // 变水
-        return;
-      }
-
-      // 扩散冻结：相邻水有小概率冻结
-      if (nid === 2 && Math.random() < 0.005) {
-        world.set(nx, ny, 14);
-        world.markUpdated(nx, ny);
-      }
-    }
+    // 扩散冻结（显式4方向，无HOF）：相邻水有小概率冻结为冰
+    if (world.inBounds(x, y - 1) && world.get(x, y - 1) === 2 && Math.random() < 0.005) { world.set(x, y - 1, 14); world.markUpdated(x, y - 1); }
+    if (world.inBounds(x, y + 1) && world.get(x, y + 1) === 2 && Math.random() < 0.005) { world.set(x, y + 1, 14); world.markUpdated(x, y + 1); }
+    if (world.inBounds(x - 1, y) && world.get(x - 1, y) === 2 && Math.random() < 0.005) { world.set(x - 1, y, 14); world.markUpdated(x - 1, y); }
+    if (world.inBounds(x + 1, y) && world.get(x + 1, y) === 2 && Math.random() < 0.005) { world.set(x + 1, y, 14); world.markUpdated(x + 1, y); }
   },
 };
 

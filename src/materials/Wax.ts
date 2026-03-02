@@ -47,5 +47,3 @@ export const Wax: MaterialDef = {
 };
 
 registerMaterial(Wax);
-
-registerMaterial(Wax);

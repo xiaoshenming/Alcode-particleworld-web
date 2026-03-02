@@ -1,5 +1,4 @@
 import type { MaterialDef, WorldAPI } from './types';
-import { DIRS4 } from './types';
 import { registerMaterial } from './registry';
 
 /**
@@ -24,16 +23,11 @@ export const Dirt: MaterialDef = {
   },
   density: 3.5,
   update(x: number, y: number, world: WorldAPI) {
-    // 检查邻居：遇水变黏土
-    for (const [dx, dy] of DIRS4) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      if (world.get(nx, ny) === 2 && Math.random() < 0.08) {
-        world.set(x, y, 21); // 变黏土
-        world.set(nx, ny, 0); // 水被吸收
-        return;
-      }
-    }
+    // 检查邻居：遇水变黏土（显式4方向，无HOF）
+    if (world.inBounds(x, y - 1) && world.get(x, y - 1) === 2 && Math.random() < 0.08) { world.set(x, y, 21); world.set(x, y - 1, 0); return; }
+    if (world.inBounds(x, y + 1) && world.get(x, y + 1) === 2 && Math.random() < 0.08) { world.set(x, y, 21); world.set(x, y + 1, 0); return; }
+    if (world.inBounds(x - 1, y) && world.get(x - 1, y) === 2 && Math.random() < 0.08) { world.set(x, y, 21); world.set(x - 1, y, 0); return; }
+    if (world.inBounds(x + 1, y) && world.get(x + 1, y) === 2 && Math.random() < 0.08) { world.set(x, y, 21); world.set(x + 1, y, 0); return; }
 
     if (y >= world.height - 1) return;
 

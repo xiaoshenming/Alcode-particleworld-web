@@ -1,5 +1,4 @@
 import type { MaterialDef, WorldAPI } from './types';
-import { DIRS4 } from './types';
 import { registerMaterial } from './registry';
 
 /**
@@ -20,22 +19,26 @@ export const MudBrick: MaterialDef = {
   },
   density: Infinity,
   update(x: number, y: number, world: WorldAPI) {
-    for (const [dx, dy] of DIRS4) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-
-      // 遇水缓慢软化为泥土
-      if (nid === 2 && Math.random() < 0.008) {
-        world.set(x, y, 20); // 泥土
-        return;
-      }
-
-      // 遇酸缓慢腐蚀
-      if (nid === 9 && Math.random() < 0.015) {
-        world.set(x, y, 0); // 消失
-        return;
-      }
+    // 遇水/酸反应（显式4方向，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nid = world.get(x, y - 1);
+      if (nid === 2 && Math.random() < 0.008) { world.set(x, y, 20); return; }
+      if (nid === 9 && Math.random() < 0.015) { world.set(x, y, 0); return; }
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nid = world.get(x, y + 1);
+      if (nid === 2 && Math.random() < 0.008) { world.set(x, y, 20); return; }
+      if (nid === 9 && Math.random() < 0.015) { world.set(x, y, 0); return; }
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nid = world.get(x - 1, y);
+      if (nid === 2 && Math.random() < 0.008) { world.set(x, y, 20); return; }
+      if (nid === 9 && Math.random() < 0.015) { world.set(x, y, 0); return; }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nid = world.get(x + 1, y);
+      if (nid === 2 && Math.random() < 0.008) { world.set(x, y, 20); return; }
+      if (nid === 9 && Math.random() < 0.015) { world.set(x, y, 0); return; }
     }
   },
 };

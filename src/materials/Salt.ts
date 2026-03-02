@@ -1,5 +1,4 @@
 import type { MaterialDef, WorldAPI } from './types';
-import { DIRS4 } from './types';
 import { registerMaterial } from './registry';
 
 /** 检查目标位置是否可以被当前密度的粒子穿过 */
@@ -11,7 +10,7 @@ function canDisplace(x: number, y: number, myDensity: number, world: WorldAPI): 
 /**
  * 盐 —— 粉末类，白色晶体
  * - 接触水 → 溶解为盐水（概率性）
- * - 接触熔岩 → 熔化消失
+ * - 接触熔岩 → 变为熔盐
  * - 物理行为类似沙子
  */
 export const Salt: MaterialDef = {
@@ -23,26 +22,27 @@ export const Salt: MaterialDef = {
   },
   density: 3,
   update(x: number, y: number, world: WorldAPI) {
-    // 检查邻居：溶解反应
-    for (const [dx, dy] of DIRS4) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-
-      // 盐 + 水 → 盐水（盐消失，水变盐水）
-      if (nid === 2 && Math.random() < 0.08) {
-        world.set(nx, ny, 24); // 水变盐水
-        world.set(x, y, 0);   // 盐溶解
-        return;
-      }
-
-      // 盐 + 熔岩 → 熔盐
-      if (nid === 11 && Math.random() < 0.2) {
-        world.set(x, y, 83); // 熔盐
-        world.setTemp(x, y, 350);
-        world.wakeArea(x, y);
-        return;
-      }
+    // 检查邻居：溶解反应（显式4方向，无HOF）
+    // 盐 + 水 → 盐水；盐 + 熔岩 → 熔盐
+    if (world.inBounds(x, y - 1)) {
+      const nid = world.get(x, y - 1);
+      if (nid === 2 && Math.random() < 0.08) { world.set(x, y - 1, 24); world.set(x, y, 0); return; }
+      if (nid === 11 && Math.random() < 0.2) { world.set(x, y, 83); world.setTemp(x, y, 350); world.wakeArea(x, y); return; }
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nid = world.get(x, y + 1);
+      if (nid === 2 && Math.random() < 0.08) { world.set(x, y + 1, 24); world.set(x, y, 0); return; }
+      if (nid === 11 && Math.random() < 0.2) { world.set(x, y, 83); world.setTemp(x, y, 350); world.wakeArea(x, y); return; }
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nid = world.get(x - 1, y);
+      if (nid === 2 && Math.random() < 0.08) { world.set(x - 1, y, 24); world.set(x, y, 0); return; }
+      if (nid === 11 && Math.random() < 0.2) { world.set(x, y, 83); world.setTemp(x, y, 350); world.wakeArea(x, y); return; }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nid = world.get(x + 1, y);
+      if (nid === 2 && Math.random() < 0.08) { world.set(x + 1, y, 24); world.set(x, y, 0); return; }
+      if (nid === 11 && Math.random() < 0.2) { world.set(x, y, 83); world.setTemp(x, y, 350); world.wakeArea(x, y); return; }
     }
 
     // 高温融化为熔盐
