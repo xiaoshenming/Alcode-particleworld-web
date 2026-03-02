@@ -17,10 +17,17 @@ export const Fire: MaterialDef = {
   name: '火',
   color() {
     const t = Math.random();
-    // 火焰颜色从黄到红渐变
+    // 火焰颜色：焰心白/蓝（t接近0）→ 橙黄（中间）→ 深红（t接近1）
+    // 随机模拟火焰内外温度分布
+    if (t < 0.15) {
+      // 焰心：白热/淡蓝（极高温）
+      const v = Math.floor(200 + t * 300);
+      return (0xFF << 24) | (Math.min(255, v) << 16) | (Math.min(255, v) << 8) | 255;
+    }
+    // 外焰：红橙黄渐变
     const r = 255;
-    const g = Math.floor(80 + t * 175);
-    const b = Math.floor(t * 40);
+    const g = Math.floor(60 + t * 195);
+    const b = Math.floor(t * 30);
     return (0xFF << 24) | (b << 16) | (g << 8) | r;
   },
   density: 0.1, // 极轻，几乎像气体

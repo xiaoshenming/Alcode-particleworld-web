@@ -7,7 +7,9 @@ function canDisplace(x: number, y: number, myDensity: number, world: WorldAPI): 
   return world.getDensity(x, y) < myDensity;
 }
 
-/** 沙子 —— 粉末类，受重力影响，可堆积，可沉入液体 */
+/** 沙子 —— 粉末类，受重力影响，可堆积，可沉入液体
+ * 新增：高温时变成玻璃，接触水时有一定概率变为泥
+ */
 export const Sand: MaterialDef = {
   id: 1,
   name: '沙子',
@@ -19,6 +21,13 @@ export const Sand: MaterialDef = {
   },
   density: 3,
   update(x: number, y: number, world: WorldAPI) {
+    // 高温熔融：超过 1700° 变成熔融石英（玻璃态）
+    const temp = world.getTemp(x, y);
+    if (temp > 1700 && Math.random() < 0.05) {
+      world.set(x, y, 17); // 玻璃（熔沙）
+      return;
+    }
+
     if (y >= world.height - 1) return;
 
     // 1. 尝试直接下落（空气或密度更低的液体）
@@ -42,6 +51,19 @@ export const Sand: MaterialDef = {
     if (world.inBounds(nx2, y + 1) && canDisplace(nx2, y + 1, Sand.density, world)) {
       world.swap(x, y, nx2, y + 1);
       world.markUpdated(nx2, y + 1);
+      return;
+    }
+
+    // 3. 沉积在水中：接触水时小概率变为泥（沙 + 水 = 泥）
+    if (Math.random() < 0.002) {
+      const neighbors = [[0, 1], [0, -1], [1, 0], [-1, 0]] as const;
+      for (const [dx, dy] of neighbors) {
+        const nx = x + dx, ny = y + dy;
+        if (world.inBounds(nx, ny) && world.get(nx, ny) === 2) {
+          world.set(x, y, 63); // 泥浆
+          return;
+        }
+      }
     }
   },
 };
