@@ -1,4 +1,3 @@
-import { DIRS8 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -28,13 +27,13 @@ export const Clone: MaterialDef = {
   update(x: number, y: number, world: WorldAPI) {
     // age=0: 未记忆; age=materialId: 记忆的材质
     const memory = world.getAge(x, y);
-    const dirs = DIRS8;
 
-    // 还没记忆 → 扫描邻居，记住第一个接触到的材质
+    // 还没记忆 → 扫描邻居，记住第一个接触到的材质（8方向显式展开，无HOF）
     if (memory === 0) {
-      for (const [dx, dy] of dirs) {
-        const nx = x + dx;
-        const ny = y + dy;
+      const dirs8: ReadonlyArray<[number, number]> = [[-1,-1],[0,-1],[1,-1],[-1,0],[1,0],[-1,1],[0,1],[1,1]];
+      for (let i = 0; i < 8; i++) {
+        const nx = x + dirs8[i][0];
+        const ny = y + dirs8[i][1];
         if (!world.inBounds(nx, ny)) continue;
         const nid = world.get(nx, ny);
         if (nid !== 0 && !UNCLONABLE.has(nid)) {
@@ -54,13 +53,12 @@ export const Clone: MaterialDef = {
     // 在随机空位生成克隆材质（低频率，避免爆炸式增长）
     if (Math.random() > 0.15) return;
 
-    // 随机选一个方向
     // 随机起始索引循环，避免每帧数组分配
-    const start = Math.floor(Math.random() * dirs.length);
-    for (let i = 0; i < dirs.length; i++) {
-      const [dx, dy] = dirs[(start + i) % dirs.length];
-      const nx = x + dx;
-      const ny = y + dy;
+    const dirs8r: ReadonlyArray<[number, number]> = [[-1,-1],[0,-1],[1,-1],[-1,0],[1,0],[-1,1],[0,1],[1,1]];
+    const start = Math.floor(Math.random() * 8);
+    for (let i = 0; i < 8; i++) {
+      const nx = x + dirs8r[(start + i) % 8][0];
+      const ny = y + dirs8r[(start + i) % 8][1];
       if (!world.inBounds(nx, ny)) continue;
       if (world.isEmpty(nx, ny)) {
         world.set(nx, ny, memory);

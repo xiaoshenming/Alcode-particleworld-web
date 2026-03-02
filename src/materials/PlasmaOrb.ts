@@ -1,4 +1,3 @@
-import { DIRS4, DIRS8 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -45,53 +44,51 @@ export const PlasmaOrb: MaterialDef = {
   update(x: number, y: number, world: WorldAPI) {
     const temp = world.getTemp(x, y);
 
-    // 过载爆炸
+    // 过载爆炸（8方向显式展开，无HOF）
     if (temp > 800) {
       world.set(x, y, 55); // 等离子体
-      const dirs = DIRS8;
-      for (const [dx, dy] of dirs) {
-        const nx = x + dx, ny = y + dy;
-        if (world.inBounds(nx, ny) && (world.isEmpty(nx, ny) || world.get(nx, ny) === 7)) {
-          world.set(nx, ny, Math.random() < 0.5 ? 55 : 28);
-          world.markUpdated(nx, ny);
-          world.wakeArea(nx, ny);
-        }
-      }
+      if (world.inBounds(x-1,y-1) && (world.isEmpty(x-1,y-1)||world.get(x-1,y-1)===7)) { world.set(x-1,y-1,Math.random()<0.5?55:28); world.markUpdated(x-1,y-1); world.wakeArea(x-1,y-1); }
+      if (world.inBounds(x,y-1) && (world.isEmpty(x,y-1)||world.get(x,y-1)===7)) { world.set(x,y-1,Math.random()<0.5?55:28); world.markUpdated(x,y-1); world.wakeArea(x,y-1); }
+      if (world.inBounds(x+1,y-1) && (world.isEmpty(x+1,y-1)||world.get(x+1,y-1)===7)) { world.set(x+1,y-1,Math.random()<0.5?55:28); world.markUpdated(x+1,y-1); world.wakeArea(x+1,y-1); }
+      if (world.inBounds(x-1,y) && (world.isEmpty(x-1,y)||world.get(x-1,y)===7)) { world.set(x-1,y,Math.random()<0.5?55:28); world.markUpdated(x-1,y); world.wakeArea(x-1,y); }
+      if (world.inBounds(x+1,y) && (world.isEmpty(x+1,y)||world.get(x+1,y)===7)) { world.set(x+1,y,Math.random()<0.5?55:28); world.markUpdated(x+1,y); world.wakeArea(x+1,y); }
+      if (world.inBounds(x-1,y+1) && (world.isEmpty(x-1,y+1)||world.get(x-1,y+1)===7)) { world.set(x-1,y+1,Math.random()<0.5?55:28); world.markUpdated(x-1,y+1); world.wakeArea(x-1,y+1); }
+      if (world.inBounds(x,y+1) && (world.isEmpty(x,y+1)||world.get(x,y+1)===7)) { world.set(x,y+1,Math.random()<0.5?55:28); world.markUpdated(x,y+1); world.wakeArea(x,y+1); }
+      if (world.inBounds(x+1,y+1) && (world.isEmpty(x+1,y+1)||world.get(x+1,y+1)===7)) { world.set(x+1,y+1,Math.random()<0.5?55:28); world.markUpdated(x+1,y+1); world.wakeArea(x+1,y+1); }
       world.wakeArea(x, y);
       return;
     }
 
+    // 检查邻居（4方向显式展开，无HOF）
     let hasWire = false;
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-
-      // 接触水短路
-      if (nid === 2 && Math.random() < 0.05) {
-        world.set(x, y, 28); // 火花
-        world.set(nx, ny, 8); // 蒸汽
-        world.markUpdated(nx, ny);
-        world.wakeArea(x, y);
-        world.wakeArea(nx, ny);
-        return;
-      }
-
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1; const nid = world.get(nx, ny);
+      if (nid === 2 && Math.random() < 0.05) { world.set(x, y, 28); world.set(nx, ny, 8); world.markUpdated(nx, ny); world.wakeArea(x, y); world.wakeArea(nx, ny); return; }
+      if (nid === 44) hasWire = true;
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1; const nid = world.get(nx, ny);
+      if (nid === 2 && Math.random() < 0.05) { world.set(x, y, 28); world.set(nx, ny, 8); world.markUpdated(nx, ny); world.wakeArea(x, y); world.wakeArea(nx, ny); return; }
+      if (nid === 44) hasWire = true;
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y; const nid = world.get(nx, ny);
+      if (nid === 2 && Math.random() < 0.05) { world.set(x, y, 28); world.set(nx, ny, 8); world.markUpdated(nx, ny); world.wakeArea(x, y); world.wakeArea(nx, ny); return; }
+      if (nid === 44) hasWire = true;
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y; const nid = world.get(nx, ny);
+      if (nid === 2 && Math.random() < 0.05) { world.set(x, y, 28); world.set(nx, ny, 8); world.markUpdated(nx, ny); world.wakeArea(x, y); world.wakeArea(nx, ny); return; }
       if (nid === 44) hasWire = true;
     }
 
-    // 释放等离子体
+    // 释放等离子体（transmuted布尔，无HOF）
     const rate = hasWire ? 0.12 : 0.04;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (world.inBounds(nx, ny) && world.isEmpty(nx, ny) && Math.random() < rate) {
-        world.set(nx, ny, 55); // 等离子体
-        world.markUpdated(nx, ny);
-        world.wakeArea(nx, ny);
-        break;
-      }
-    }
+    let plasmaReleased = false;
+    if (!plasmaReleased && world.inBounds(x, y - 1) && world.isEmpty(x, y - 1) && Math.random() < rate) { world.set(x, y - 1, 55); world.markUpdated(x, y - 1); world.wakeArea(x, y - 1); plasmaReleased = true; }
+    if (!plasmaReleased && world.inBounds(x, y + 1) && world.isEmpty(x, y + 1) && Math.random() < rate) { world.set(x, y + 1, 55); world.markUpdated(x, y + 1); world.wakeArea(x, y + 1); plasmaReleased = true; }
+    if (!plasmaReleased && world.inBounds(x - 1, y) && world.isEmpty(x - 1, y) && Math.random() < rate) { world.set(x - 1, y, 55); world.markUpdated(x - 1, y); world.wakeArea(x - 1, y); plasmaReleased = true; }
+    if (!plasmaReleased && world.inBounds(x + 1, y) && world.isEmpty(x + 1, y) && Math.random() < rate) { world.set(x + 1, y, 55); world.markUpdated(x + 1, y); world.wakeArea(x + 1, y); }
 
     world.wakeArea(x, y);
   },

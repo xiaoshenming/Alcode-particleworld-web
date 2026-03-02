@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -55,34 +54,36 @@ export const Mycelium: MaterialDef = {
       return;
     }
 
-    // 检查邻居
-    const dirs = DIRS4;
+    // 检查邻居（4方向显式展开，无HOF）
     let hasSubstrate = false;
     let hasWater = false;
-
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-
-      // 遇火燃烧
-      if (IGNITER.has(nid)) {
-        world.set(x, y, 6); // 火
-        world.wakeArea(x, y);
-        return;
-      }
-
-      // 酸液杀死
-      if (nid === 9) {
-        world.set(x, y, 0);
-        world.set(nx, ny, 0);
-        world.wakeArea(x, y);
-        return;
-      }
-
-      // 检测基质和水
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1; const nid = world.get(nx, ny);
+      if (IGNITER.has(nid)) { world.set(x, y, 6); world.wakeArea(x, y); return; }
+      if (nid === 9) { world.set(x, y, 0); world.set(nx, ny, 0); world.wakeArea(x, y); return; }
       if (SUBSTRATE.has(nid)) hasSubstrate = true;
-      if (nid === 2 || nid === 24 || nid === 54) hasWater = true; // 水、盐水、沼泽
+      if (nid === 2 || nid === 24 || nid === 54) hasWater = true;
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1; const nid = world.get(nx, ny);
+      if (IGNITER.has(nid)) { world.set(x, y, 6); world.wakeArea(x, y); return; }
+      if (nid === 9) { world.set(x, y, 0); world.set(nx, ny, 0); world.wakeArea(x, y); return; }
+      if (SUBSTRATE.has(nid)) hasSubstrate = true;
+      if (nid === 2 || nid === 24 || nid === 54) hasWater = true;
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y; const nid = world.get(nx, ny);
+      if (IGNITER.has(nid)) { world.set(x, y, 6); world.wakeArea(x, y); return; }
+      if (nid === 9) { world.set(x, y, 0); world.set(nx, ny, 0); world.wakeArea(x, y); return; }
+      if (SUBSTRATE.has(nid)) hasSubstrate = true;
+      if (nid === 2 || nid === 24 || nid === 54) hasWater = true;
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y; const nid = world.get(nx, ny);
+      if (IGNITER.has(nid)) { world.set(x, y, 6); world.wakeArea(x, y); return; }
+      if (nid === 9) { world.set(x, y, 0); world.set(nx, ny, 0); world.wakeArea(x, y); return; }
+      if (SUBSTRATE.has(nid)) hasSubstrate = true;
+      if (nid === 2 || nid === 24 || nid === 54) hasWater = true;
     }
 
     // 没有基质则缓慢死亡
@@ -92,18 +93,13 @@ export const Mycelium: MaterialDef = {
       return;
     }
 
-    // 分解木头：相邻木头缓慢变为泥土
+    // 分解木头：相邻木头缓慢变为泥土（transmuted布尔，无HOF）
     if (Math.random() < 0.002) {
-      for (const [dx, dy] of dirs) {
-        const nx = x + dx, ny = y + dy;
-        if (!world.inBounds(nx, ny)) continue;
-        if (world.get(nx, ny) === 4) { // 木头
-          world.set(nx, ny, 20); // 泥土
-          world.markUpdated(nx, ny);
-          world.wakeArea(nx, ny);
-          break;
-        }
-      }
+      let decomposed = false;
+      if (!decomposed && world.inBounds(x, y - 1) && world.get(x, y - 1) === 4) { world.set(x, y - 1, 20); world.markUpdated(x, y - 1); world.wakeArea(x, y - 1); decomposed = true; }
+      if (!decomposed && world.inBounds(x, y + 1) && world.get(x, y + 1) === 4) { world.set(x, y + 1, 20); world.markUpdated(x, y + 1); world.wakeArea(x, y + 1); decomposed = true; }
+      if (!decomposed && world.inBounds(x - 1, y) && world.get(x - 1, y) === 4) { world.set(x - 1, y, 20); world.markUpdated(x - 1, y); world.wakeArea(x - 1, y); decomposed = true; }
+      if (!decomposed && world.inBounds(x + 1, y) && world.get(x + 1, y) === 4) { world.set(x + 1, y, 20); world.markUpdated(x + 1, y); world.wakeArea(x + 1, y); }
     }
 
     // 蔓延生长
@@ -112,24 +108,21 @@ export const Mycelium: MaterialDef = {
     if (temp < 10) growChance *= 0.3; // 低温减速
 
     if (hasSubstrate && Math.random() < growChance) {
-      // 向相邻空气格蔓延（随机起始索引循环，避免每帧数组分配）
-      const start = Math.floor(Math.random() * dirs.length);
-      for (let i = 0; i < dirs.length; i++) {
-        const [dx, dy] = dirs[(start + i) % dirs.length];
-        const nx = x + dx, ny = y + dy;
-        if (!world.inBounds(nx, ny)) continue;
-        if (!world.isEmpty(nx, ny)) continue;
+      // 随机起始方向遍历，找到邻近基质的空位蔓延（无HOF，无临时数组）
+      const start = Math.floor(Math.random() * 4);
+      const dxs = [0, 0, -1, 1];
+      const dys = [-1, 1, 0, 0];
+      for (let i = 0; i < 4; i++) {
+        const di = (start + i) % 4;
+        const nx = x + dxs[di], ny = y + dys[di];
+        if (!world.inBounds(nx, ny) || !world.isEmpty(nx, ny)) continue;
 
-        // 检查目标位置是否也邻近基质
+        // 检查目标位置是否也邻近基质（4方向显式展开，无HOF）
         let targetHasSubstrate = false;
-        for (const [ddx, ddy] of dirs) {
-          const nnx = nx + ddx, nny = ny + ddy;
-          if (!world.inBounds(nnx, nny)) continue;
-          if (SUBSTRATE.has(world.get(nnx, nny))) {
-            targetHasSubstrate = true;
-            break;
-          }
-        }
+        if (!targetHasSubstrate && world.inBounds(nx, ny - 1) && SUBSTRATE.has(world.get(nx, ny - 1))) targetHasSubstrate = true;
+        if (!targetHasSubstrate && world.inBounds(nx, ny + 1) && SUBSTRATE.has(world.get(nx, ny + 1))) targetHasSubstrate = true;
+        if (!targetHasSubstrate && world.inBounds(nx - 1, ny) && SUBSTRATE.has(world.get(nx - 1, ny))) targetHasSubstrate = true;
+        if (!targetHasSubstrate && world.inBounds(nx + 1, ny) && SUBSTRATE.has(world.get(nx + 1, ny))) targetHasSubstrate = true;
 
         if (targetHasSubstrate) {
           world.set(nx, ny, 70);

@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -52,51 +51,49 @@ export const DesertRose: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
+    // 邻居交互（4方向显式��开，无HOF）
     let hasSaltwater = false;
     let hasSand = false;
-
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-
+    if (world.inBounds(x, y - 1)) {
+      const nid = world.get(x, y - 1);
       if (nid === 24) hasSaltwater = true;
       if (nid === 1) hasSand = true;
-
-      // 遇酸液溶解
-      if (nid === 9 && Math.random() < 0.04) {
-        world.set(x, y, 0);
-        world.wakeArea(x, y);
-        return;
-      }
-
-      // 遇水缓慢溶解
-      if (nid === 2 && Math.random() < 0.003) {
-        world.set(x, y, 1); // 沙子
-        world.wakeArea(x, y);
-        return;
-      }
-
-      // 遇熔岩碎裂
-      if (nid === 11 && Math.random() < 0.1) {
-        world.set(x, y, 1);
-        world.wakeArea(x, y);
-        return;
-      }
+      if (nid === 9 && Math.random() < 0.04) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+      if (nid === 2 && Math.random() < 0.003) { world.set(x, y, 1); world.wakeArea(x, y); return; }
+      if (nid === 11 && Math.random() < 0.1) { world.set(x, y, 1); world.wakeArea(x, y); return; }
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nid = world.get(x, y + 1);
+      if (nid === 24) hasSaltwater = true;
+      if (nid === 1) hasSand = true;
+      if (nid === 9 && Math.random() < 0.04) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+      if (nid === 2 && Math.random() < 0.003) { world.set(x, y, 1); world.wakeArea(x, y); return; }
+      if (nid === 11 && Math.random() < 0.1) { world.set(x, y, 1); world.wakeArea(x, y); return; }
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nid = world.get(x - 1, y);
+      if (nid === 24) hasSaltwater = true;
+      if (nid === 1) hasSand = true;
+      if (nid === 9 && Math.random() < 0.04) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+      if (nid === 2 && Math.random() < 0.003) { world.set(x, y, 1); world.wakeArea(x, y); return; }
+      if (nid === 11 && Math.random() < 0.1) { world.set(x, y, 1); world.wakeArea(x, y); return; }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nid = world.get(x + 1, y);
+      if (nid === 24) hasSaltwater = true;
+      if (nid === 1) hasSand = true;
+      if (nid === 9 && Math.random() < 0.04) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+      if (nid === 2 && Math.random() < 0.003) { world.set(x, y, 1); world.wakeArea(x, y); return; }
+      if (nid === 11 && Math.random() < 0.1) { world.set(x, y, 1); world.wakeArea(x, y); return; }
     }
 
-    // 在盐水+沙子环境下扩展结晶
+    // 在盐水+沙子环境下扩展结晶（transmuted布尔，无HOF）
     if (hasSaltwater && hasSand && Math.random() < 0.002) {
-      for (const [dx, dy] of dirs) {
-        const nx = x + dx, ny = y + dy;
-        if (world.inBounds(nx, ny) && world.get(nx, ny) === 1 && Math.random() < 0.3) {
-          world.set(nx, ny, 120); // 沙漠玫瑰
-          world.markUpdated(nx, ny);
-          world.wakeArea(nx, ny);
-          break;
-        }
-      }
+      let crystallized = false;
+      if (!crystallized && world.inBounds(x, y - 1) && world.get(x, y - 1) === 1 && Math.random() < 0.3) { world.set(x, y - 1, 120); world.markUpdated(x, y - 1); world.wakeArea(x, y - 1); crystallized = true; }
+      if (!crystallized && world.inBounds(x, y + 1) && world.get(x, y + 1) === 1 && Math.random() < 0.3) { world.set(x, y + 1, 120); world.markUpdated(x, y + 1); world.wakeArea(x, y + 1); crystallized = true; }
+      if (!crystallized && world.inBounds(x - 1, y) && world.get(x - 1, y) === 1 && Math.random() < 0.3) { world.set(x - 1, y, 120); world.markUpdated(x - 1, y); world.wakeArea(x - 1, y); crystallized = true; }
+      if (!crystallized && world.inBounds(x + 1, y) && world.get(x + 1, y) === 1 && Math.random() < 0.3) { world.set(x + 1, y, 120); world.markUpdated(x + 1, y); world.wakeArea(x + 1, y); }
     }
 
     // 自然散热

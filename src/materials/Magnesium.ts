@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -90,51 +89,58 @@ export const Magnesium: MaterialDef = {
       return;
     }
 
-    // 邻居交互
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-
-      // 遇火/火花：剧烈燃烧
+    // 邻居交互（4方向显式展开，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1; const nid = world.get(nx, ny);
       if (IGNITION.has(nid) && Math.random() < 0.6) {
-        world.set(x, y, 6); // 火
-        world.setTemp(x, y, 3200);
-        world.wakeArea(x, y);
-        // 周围空位产生火花
-        for (const [ddx, ddy] of dirs) {
-          const nnx = x + ddx, nny = y + ddy;
-          if (world.inBounds(nnx, nny) && world.isEmpty(nnx, nny) && Math.random() < 0.4) {
-            world.set(nnx, nny, 28); // 火花
-            world.setTemp(nnx, nny, 3000);
-            world.markUpdated(nnx, nny);
-            world.wakeArea(nnx, nny);
-          }
-        }
+        world.set(x, y, 6); world.setTemp(x, y, 3200); world.wakeArea(x, y);
+        if (world.inBounds(x, y - 1) && world.isEmpty(x, y - 1) && Math.random() < 0.4) { world.set(x, y - 1, 28); world.setTemp(x, y - 1, 3000); world.markUpdated(x, y - 1); world.wakeArea(x, y - 1); }
+        if (world.inBounds(x, y + 1) && world.isEmpty(x, y + 1) && Math.random() < 0.4) { world.set(x, y + 1, 28); world.setTemp(x, y + 1, 3000); world.markUpdated(x, y + 1); world.wakeArea(x, y + 1); }
+        if (world.inBounds(x - 1, y) && world.isEmpty(x - 1, y) && Math.random() < 0.4) { world.set(x - 1, y, 28); world.setTemp(x - 1, y, 3000); world.markUpdated(x - 1, y); world.wakeArea(x - 1, y); }
+        if (world.inBounds(x + 1, y) && world.isEmpty(x + 1, y) && Math.random() < 0.4) { world.set(x + 1, y, 28); world.setTemp(x + 1, y, 3000); world.markUpdated(x + 1, y); world.wakeArea(x + 1, y); }
         return;
       }
-
-      // 遇水燃烧：产生氢气 + 火
-      if (nid === 2 && Math.random() < 0.08) {
-        world.set(x, y, 6);  // 火
-        world.set(nx, ny, 19); // 氢气
-        world.setTemp(x, y, 3000);
-        world.markUpdated(nx, ny);
-        world.wakeArea(x, y);
-        world.wakeArea(nx, ny);
+      if (nid === 2 && Math.random() < 0.08) { world.set(x, y, 6); world.set(nx, ny, 19); world.setTemp(x, y, 3000); world.markUpdated(nx, ny); world.wakeArea(x, y); world.wakeArea(nx, ny); return; }
+      if (nid === 9 && Math.random() < 0.06) { world.set(x, y, 0); world.set(nx, ny, 19); world.markUpdated(nx, ny); world.wakeArea(x, y); world.wakeArea(nx, ny); return; }
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1; const nid = world.get(nx, ny);
+      if (IGNITION.has(nid) && Math.random() < 0.6) {
+        world.set(x, y, 6); world.setTemp(x, y, 3200); world.wakeArea(x, y);
+        if (world.inBounds(x, y - 1) && world.isEmpty(x, y - 1) && Math.random() < 0.4) { world.set(x, y - 1, 28); world.setTemp(x, y - 1, 3000); world.markUpdated(x, y - 1); world.wakeArea(x, y - 1); }
+        if (world.inBounds(x, y + 1) && world.isEmpty(x, y + 1) && Math.random() < 0.4) { world.set(x, y + 1, 28); world.setTemp(x, y + 1, 3000); world.markUpdated(x, y + 1); world.wakeArea(x, y + 1); }
+        if (world.inBounds(x - 1, y) && world.isEmpty(x - 1, y) && Math.random() < 0.4) { world.set(x - 1, y, 28); world.setTemp(x - 1, y, 3000); world.markUpdated(x - 1, y); world.wakeArea(x - 1, y); }
+        if (world.inBounds(x + 1, y) && world.isEmpty(x + 1, y) && Math.random() < 0.4) { world.set(x + 1, y, 28); world.setTemp(x + 1, y, 3000); world.markUpdated(x + 1, y); world.wakeArea(x + 1, y); }
         return;
       }
-
-      // 遇酸产生氢气
-      if (nid === 9 && Math.random() < 0.06) {
-        world.set(x, y, 0);   // 镁溶解
-        world.set(nx, ny, 19); // 氢气
-        world.markUpdated(nx, ny);
-        world.wakeArea(x, y);
-        world.wakeArea(nx, ny);
+      if (nid === 2 && Math.random() < 0.08) { world.set(x, y, 6); world.set(nx, ny, 19); world.setTemp(x, y, 3000); world.markUpdated(nx, ny); world.wakeArea(x, y); world.wakeArea(nx, ny); return; }
+      if (nid === 9 && Math.random() < 0.06) { world.set(x, y, 0); world.set(nx, ny, 19); world.markUpdated(nx, ny); world.wakeArea(x, y); world.wakeArea(nx, ny); return; }
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y; const nid = world.get(nx, ny);
+      if (IGNITION.has(nid) && Math.random() < 0.6) {
+        world.set(x, y, 6); world.setTemp(x, y, 3200); world.wakeArea(x, y);
+        if (world.inBounds(x, y - 1) && world.isEmpty(x, y - 1) && Math.random() < 0.4) { world.set(x, y - 1, 28); world.setTemp(x, y - 1, 3000); world.markUpdated(x, y - 1); world.wakeArea(x, y - 1); }
+        if (world.inBounds(x, y + 1) && world.isEmpty(x, y + 1) && Math.random() < 0.4) { world.set(x, y + 1, 28); world.setTemp(x, y + 1, 3000); world.markUpdated(x, y + 1); world.wakeArea(x, y + 1); }
+        if (world.inBounds(x - 1, y) && world.isEmpty(x - 1, y) && Math.random() < 0.4) { world.set(x - 1, y, 28); world.setTemp(x - 1, y, 3000); world.markUpdated(x - 1, y); world.wakeArea(x - 1, y); }
+        if (world.inBounds(x + 1, y) && world.isEmpty(x + 1, y) && Math.random() < 0.4) { world.set(x + 1, y, 28); world.setTemp(x + 1, y, 3000); world.markUpdated(x + 1, y); world.wakeArea(x + 1, y); }
         return;
       }
+      if (nid === 2 && Math.random() < 0.08) { world.set(x, y, 6); world.set(nx, ny, 19); world.setTemp(x, y, 3000); world.markUpdated(nx, ny); world.wakeArea(x, y); world.wakeArea(nx, ny); return; }
+      if (nid === 9 && Math.random() < 0.06) { world.set(x, y, 0); world.set(nx, ny, 19); world.markUpdated(nx, ny); world.wakeArea(x, y); world.wakeArea(nx, ny); return; }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y; const nid = world.get(nx, ny);
+      if (IGNITION.has(nid) && Math.random() < 0.6) {
+        world.set(x, y, 6); world.setTemp(x, y, 3200); world.wakeArea(x, y);
+        if (world.inBounds(x, y - 1) && world.isEmpty(x, y - 1) && Math.random() < 0.4) { world.set(x, y - 1, 28); world.setTemp(x, y - 1, 3000); world.markUpdated(x, y - 1); world.wakeArea(x, y - 1); }
+        if (world.inBounds(x, y + 1) && world.isEmpty(x, y + 1) && Math.random() < 0.4) { world.set(x, y + 1, 28); world.setTemp(x, y + 1, 3000); world.markUpdated(x, y + 1); world.wakeArea(x, y + 1); }
+        if (world.inBounds(x - 1, y) && world.isEmpty(x - 1, y) && Math.random() < 0.4) { world.set(x - 1, y, 28); world.setTemp(x - 1, y, 3000); world.markUpdated(x - 1, y); world.wakeArea(x - 1, y); }
+        if (world.inBounds(x + 1, y) && world.isEmpty(x + 1, y) && Math.random() < 0.4) { world.set(x + 1, y, 28); world.setTemp(x + 1, y, 3000); world.markUpdated(x + 1, y); world.wakeArea(x + 1, y); }
+        return;
+      }
+      if (nid === 2 && Math.random() < 0.08) { world.set(x, y, 6); world.set(nx, ny, 19); world.setTemp(x, y, 3000); world.markUpdated(nx, ny); world.wakeArea(x, y); world.wakeArea(nx, ny); return; }
+      if (nid === 9 && Math.random() < 0.06) { world.set(x, y, 0); world.set(nx, ny, 19); world.markUpdated(nx, ny); world.wakeArea(x, y); world.wakeArea(nx, ny); return; }
     }
 
     // 粉末下落

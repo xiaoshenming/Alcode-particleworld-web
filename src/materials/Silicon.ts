@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -43,34 +42,33 @@ export const Silicon: MaterialDef = {
 
     // 导电逻辑（age=0: 未通电; age=N: 通电剩余N帧）
     let charge = world.getAge(x, y);
-    const dirs = DIRS4;
 
     if (charge <= 0) {
-      // 未通电：检查是否被电弧/雷电/火花激活
-      for (const [dx, dy] of dirs) {
-        const nx = x + dx, ny = y + dy;
-        if (!world.inBounds(nx, ny)) continue;
-        const nid = world.get(nx, ny);
-
-        if (ACTIVATORS.has(nid)) {
-          charge = CHARGE_DURATION;
-          world.setAge(x, y, charge);
-          break;
-        }
-
-        // 被相邻通电硅传导（概率性，效率低于电线）
-        if (nid === 188 && world.getAge(nx, ny) === CHARGE_DURATION && Math.random() < 0.5) {
-          charge = CHARGE_DURATION;
-          world.setAge(x, y, charge);
-          break;
-        }
-
-        // 被通电电线传导
-        if (nid === 44 && Math.random() < 0.3) {
-          charge = CHARGE_DURATION;
-          world.setAge(x, y, charge);
-          break;
-        }
+      // 未通电：检查是否被电弧/雷电/火花激活（4方向显式展开，transmuted布尔，无HOF）
+      let activated = false;
+      if (!activated && world.inBounds(x, y - 1)) {
+        const nid = world.get(x, y - 1);
+        if (ACTIVATORS.has(nid)) { charge = CHARGE_DURATION; world.setAge(x, y, charge); activated = true; }
+        else if (nid === 188 && world.getAge(x, y - 1) === CHARGE_DURATION && Math.random() < 0.5) { charge = CHARGE_DURATION; world.setAge(x, y, charge); activated = true; }
+        else if (nid === 44 && Math.random() < 0.3) { charge = CHARGE_DURATION; world.setAge(x, y, charge); activated = true; }
+      }
+      if (!activated && world.inBounds(x, y + 1)) {
+        const nid = world.get(x, y + 1);
+        if (ACTIVATORS.has(nid)) { charge = CHARGE_DURATION; world.setAge(x, y, charge); activated = true; }
+        else if (nid === 188 && world.getAge(x, y + 1) === CHARGE_DURATION && Math.random() < 0.5) { charge = CHARGE_DURATION; world.setAge(x, y, charge); activated = true; }
+        else if (nid === 44 && Math.random() < 0.3) { charge = CHARGE_DURATION; world.setAge(x, y, charge); activated = true; }
+      }
+      if (!activated && world.inBounds(x - 1, y)) {
+        const nid = world.get(x - 1, y);
+        if (ACTIVATORS.has(nid)) { charge = CHARGE_DURATION; world.setAge(x, y, charge); activated = true; }
+        else if (nid === 188 && world.getAge(x - 1, y) === CHARGE_DURATION && Math.random() < 0.5) { charge = CHARGE_DURATION; world.setAge(x, y, charge); activated = true; }
+        else if (nid === 44 && Math.random() < 0.3) { charge = CHARGE_DURATION; world.setAge(x, y, charge); activated = true; }
+      }
+      if (!activated && world.inBounds(x + 1, y)) {
+        const nid = world.get(x + 1, y);
+        if (ACTIVATORS.has(nid)) { charge = CHARGE_DURATION; world.setAge(x, y, charge); }
+        else if (nid === 188 && world.getAge(x + 1, y) === CHARGE_DURATION && Math.random() < 0.5) { charge = CHARGE_DURATION; world.setAge(x, y, charge); }
+        else if (nid === 44 && Math.random() < 0.3) { charge = CHARGE_DURATION; world.setAge(x, y, charge); }
       }
     }
 
@@ -84,24 +82,36 @@ export const Silicon: MaterialDef = {
 
       // 通电结束时：末端释放火花
       if (charge <= 0) {
+        // 统计邻居类型和空位（4方向显式展开，无HOF）
         let siliconNeighbors = 0;
-        const emptyDirs: [number, number][] = [];
-        for (const [dx, dy] of dirs) {
-          const nx = x + dx, ny = y + dy;
-          if (!world.inBounds(nx, ny)) continue;
-          if (world.get(nx, ny) === 188 || world.get(nx, ny) === 44) {
-            siliconNeighbors++;
-          } else if (world.isEmpty(nx, ny)) {
-            emptyDirs.push([dx, dy]);
-          }
+        let emptyCount = 0;
+        if (world.inBounds(x, y - 1)) {
+          if (world.get(x, y - 1) === 188 || world.get(x, y - 1) === 44) siliconNeighbors++;
+          else if (world.isEmpty(x, y - 1)) emptyCount++;
+        }
+        if (world.inBounds(x, y + 1)) {
+          if (world.get(x, y + 1) === 188 || world.get(x, y + 1) === 44) siliconNeighbors++;
+          else if (world.isEmpty(x, y + 1)) emptyCount++;
+        }
+        if (world.inBounds(x - 1, y)) {
+          if (world.get(x - 1, y) === 188 || world.get(x - 1, y) === 44) siliconNeighbors++;
+          else if (world.isEmpty(x - 1, y)) emptyCount++;
+        }
+        if (world.inBounds(x + 1, y)) {
+          if (world.get(x + 1, y) === 188 || world.get(x + 1, y) === 44) siliconNeighbors++;
+          else if (world.isEmpty(x + 1, y)) emptyCount++;
         }
 
-        // 末端释放火花（概率性）
-        if (siliconNeighbors <= 1 && emptyDirs.length > 0 && Math.random() < 0.6) {
-          const [dx, dy] = emptyDirs[Math.floor(Math.random() * emptyDirs.length)];
-          const sx = x + dx, sy = y + dy;
-          world.set(sx, sy, 28); // 火花
-          world.markUpdated(sx, sy);
+        // 末端释放火花（概率性），随机选一个空位
+        if (siliconNeighbors <= 1 && emptyCount > 0 && Math.random() < 0.6) {
+          const start = Math.floor(Math.random() * emptyCount);
+          let idx = 0;
+          let sx = x, sy = y;
+          if (world.inBounds(x, y - 1) && world.isEmpty(x, y - 1)) { if (idx === start) { sx = x; sy = y - 1; } idx++; }
+          if (world.inBounds(x, y + 1) && world.isEmpty(x, y + 1)) { if (idx === start) { sx = x; sy = y + 1; } idx++; }
+          if (world.inBounds(x - 1, y) && world.isEmpty(x - 1, y)) { if (idx === start) { sx = x - 1; sy = y; } idx++; }
+          if (world.inBounds(x + 1, y) && world.isEmpty(x + 1, y)) { if (idx === start) { sx = x + 1; sy = y; } }
+          if (sx !== x || sy !== y) { world.set(sx, sy, 28); world.markUpdated(sx, sy); }
         }
       }
     }

@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -51,7 +50,7 @@ export const Magnetoresistive: MaterialDef = {
       return;
     }
 
-    // 检测附近磁源
+    // 检测附近磁源（7x7区域双层for，不是for...of）
     let nearMagnet = false;
     for (let dy = -3; dy <= 3; dy++) {
       for (let dx = -3; dx <= 3; dx++) {
@@ -66,8 +65,6 @@ export const Magnetoresistive: MaterialDef = {
       if (nearMagnet) break;
     }
 
-    const dirs = DIRS4;
-
     if (nearMagnet) {
       // 受磁场影响：刷新颜色（模拟电阻变化）
       if (Math.random() < 0.2) {
@@ -75,35 +72,42 @@ export const Magnetoresistive: MaterialDef = {
         world.wakeArea(x, y);
       }
 
-      // 接近电线时产生火花（磁阻效应导电）
-      for (const [dx, dy] of dirs) {
-        const nx = x + dx, ny = y + dy;
-        if (!world.inBounds(nx, ny)) continue;
-        if (world.get(nx, ny) === 44 && Math.random() < 0.03) {
-          // 在空位产生火花
-          for (const [dx2, dy2] of dirs) {
-            const fx = x + dx2, fy = y + dy2;
-            if (world.inBounds(fx, fy) && world.isEmpty(fx, fy)) {
-              world.set(fx, fy, 28); // 火花
-              world.wakeArea(fx, fy);
-              break;
-            }
-          }
-        }
+      // 接近电线时产生火花（磁阻效应导电）4方向显式展开，无HOF
+      if (world.inBounds(x, y - 1) && world.get(x, y - 1) === 44 && Math.random() < 0.03) {
+        let sparked = false;
+        if (!sparked && world.inBounds(x, y - 1) && world.isEmpty(x, y - 1)) { world.set(x, y - 1, 28); world.wakeArea(x, y - 1); sparked = true; }
+        if (!sparked && world.inBounds(x, y + 1) && world.isEmpty(x, y + 1)) { world.set(x, y + 1, 28); world.wakeArea(x, y + 1); sparked = true; }
+        if (!sparked && world.inBounds(x - 1, y) && world.isEmpty(x - 1, y)) { world.set(x - 1, y, 28); world.wakeArea(x - 1, y); sparked = true; }
+        if (!sparked && world.inBounds(x + 1, y) && world.isEmpty(x + 1, y)) { world.set(x + 1, y, 28); world.wakeArea(x + 1, y); }
+      }
+      if (world.inBounds(x, y + 1) && world.get(x, y + 1) === 44 && Math.random() < 0.03) {
+        let sparked = false;
+        if (!sparked && world.inBounds(x, y - 1) && world.isEmpty(x, y - 1)) { world.set(x, y - 1, 28); world.wakeArea(x, y - 1); sparked = true; }
+        if (!sparked && world.inBounds(x, y + 1) && world.isEmpty(x, y + 1)) { world.set(x, y + 1, 28); world.wakeArea(x, y + 1); sparked = true; }
+        if (!sparked && world.inBounds(x - 1, y) && world.isEmpty(x - 1, y)) { world.set(x - 1, y, 28); world.wakeArea(x - 1, y); sparked = true; }
+        if (!sparked && world.inBounds(x + 1, y) && world.isEmpty(x + 1, y)) { world.set(x + 1, y, 28); world.wakeArea(x + 1, y); }
+      }
+      if (world.inBounds(x - 1, y) && world.get(x - 1, y) === 44 && Math.random() < 0.03) {
+        let sparked = false;
+        if (!sparked && world.inBounds(x, y - 1) && world.isEmpty(x, y - 1)) { world.set(x, y - 1, 28); world.wakeArea(x, y - 1); sparked = true; }
+        if (!sparked && world.inBounds(x, y + 1) && world.isEmpty(x, y + 1)) { world.set(x, y + 1, 28); world.wakeArea(x, y + 1); sparked = true; }
+        if (!sparked && world.inBounds(x - 1, y) && world.isEmpty(x - 1, y)) { world.set(x - 1, y, 28); world.wakeArea(x - 1, y); sparked = true; }
+        if (!sparked && world.inBounds(x + 1, y) && world.isEmpty(x + 1, y)) { world.set(x + 1, y, 28); world.wakeArea(x + 1, y); }
+      }
+      if (world.inBounds(x + 1, y) && world.get(x + 1, y) === 44 && Math.random() < 0.03) {
+        let sparked = false;
+        if (!sparked && world.inBounds(x, y - 1) && world.isEmpty(x, y - 1)) { world.set(x, y - 1, 28); world.wakeArea(x, y - 1); sparked = true; }
+        if (!sparked && world.inBounds(x, y + 1) && world.isEmpty(x, y + 1)) { world.set(x, y + 1, 28); world.wakeArea(x, y + 1); sparked = true; }
+        if (!sparked && world.inBounds(x - 1, y) && world.isEmpty(x - 1, y)) { world.set(x - 1, y, 28); world.wakeArea(x - 1, y); sparked = true; }
+        if (!sparked && world.inBounds(x + 1, y) && world.isEmpty(x + 1, y)) { world.set(x + 1, y, 28); world.wakeArea(x + 1, y); }
       }
     }
 
-    // 耐酸
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      if (world.get(nx, ny) === 9 && Math.random() < 0.006) {
-        world.set(x, y, 0);
-        world.set(nx, ny, 7);
-        world.wakeArea(x, y);
-        return;
-      }
-    }
+    // 耐酸（4方向显式展开，无HOF）
+    if (world.inBounds(x, y - 1) && world.get(x, y - 1) === 9 && Math.random() < 0.006) { world.set(x, y, 0); world.set(x, y - 1, 7); world.wakeArea(x, y); return; }
+    if (world.inBounds(x, y + 1) && world.get(x, y + 1) === 9 && Math.random() < 0.006) { world.set(x, y, 0); world.set(x, y + 1, 7); world.wakeArea(x, y); return; }
+    if (world.inBounds(x - 1, y) && world.get(x - 1, y) === 9 && Math.random() < 0.006) { world.set(x, y, 0); world.set(x - 1, y, 7); world.wakeArea(x, y); return; }
+    if (world.inBounds(x + 1, y) && world.get(x + 1, y) === 9 && Math.random() < 0.006) { world.set(x, y, 0); world.set(x + 1, y, 7); world.wakeArea(x, y); return; }
   },
 };
 

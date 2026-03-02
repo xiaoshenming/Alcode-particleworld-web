@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -79,36 +78,32 @@ export const Tundra: MaterialDef = {
       }
     }
 
-    // 邻居交互
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-
-      // 接触水且低温 → 冻结为冰
-      if (nid === 2 && temp < 0 && Math.random() < 0.06) {
-        world.set(nx, ny, 14); // 冰
-        world.markUpdated(nx, ny);
-        world.wakeArea(nx, ny);
-      }
-
-      // 表面生长苔藓（上方是空气时）
-      if (dy === -1 && nid === 0 && temp > -10 && temp < 5 && Math.random() < 0.001) {
-        world.set(nx, ny, 49); // 苔藓
-        world.markUpdated(nx, ny);
-        world.wakeArea(nx, ny);
-      }
+    // 邻居交互（4方向显式展开，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nid = world.get(x, y - 1);
+      // 上方（dy===-1）：冻结水 + 苔藓生长
+      if (nid === 2 && temp < 0 && Math.random() < 0.06) { world.set(x, y - 1, 14); world.markUpdated(x, y - 1); world.wakeArea(x, y - 1); }
+      if (nid === 0 && temp > -10 && temp < 5 && Math.random() < 0.001) { world.set(x, y - 1, 49); world.markUpdated(x, y - 1); world.wakeArea(x, y - 1); }
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nid = world.get(x, y + 1);
+      if (nid === 2 && temp < 0 && Math.random() < 0.06) { world.set(x, y + 1, 14); world.markUpdated(x, y + 1); world.wakeArea(x, y + 1); }
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nid = world.get(x - 1, y);
+      if (nid === 2 && temp < 0 && Math.random() < 0.06) { world.set(x - 1, y, 14); world.markUpdated(x - 1, y); world.wakeArea(x - 1, y); }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nid = world.get(x + 1, y);
+      if (nid === 2 && temp < 0 && Math.random() < 0.06) { world.set(x + 1, y, 14); world.markUpdated(x + 1, y); world.wakeArea(x + 1, y); }
     }
 
-    // 低温环境下缓慢降温周围
+    // 低温环境下缓慢降温周围（4方向显式展开，无HOF）
     if (temp < 0) {
-      for (const [dx, dy] of dirs) {
-        const nx = x + dx, ny = y + dy;
-        if (world.inBounds(nx, ny) && world.getTemp(nx, ny) > temp) {
-          world.addTemp(nx, ny, -0.2);
-        }
-      }
+      if (world.inBounds(x, y - 1) && world.getTemp(x, y - 1) > temp) { world.addTemp(x, y - 1, -0.2); }
+      if (world.inBounds(x, y + 1) && world.getTemp(x, y + 1) > temp) { world.addTemp(x, y + 1, -0.2); }
+      if (world.inBounds(x - 1, y) && world.getTemp(x - 1, y) > temp) { world.addTemp(x - 1, y, -0.2); }
+      if (world.inBounds(x + 1, y) && world.getTemp(x + 1, y) > temp) { world.addTemp(x + 1, y, -0.2); }
     }
   },
 };

@@ -1,4 +1,3 @@
-import { DIRS8 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -72,60 +71,54 @@ export const ElectroPlasma: MaterialDef = {
     // 极高温
     world.setTemp(x, y, 5000);
 
-    // 检查邻居交互（含对角线）
-    const dirs = DIRS8;
-
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
+    // 检查邻居交互（8方向显式展开，continue→else if，无HOF）
+    // 每个方向的dx/dy用于计算电线另一侧坐标
+    // 方向: (-1,-1),(0,-1),(1,-1),(-1,0),(1,0),(-1,1),(0,1),(1,1)
+    const dirs8 = [[-1,-1],[0,-1],[1,-1],[-1,0],[1,0],[-1,1],[0,1],[1,1]] as const;
+    for (let i = 0; i < 8; i++) {
+      const ddx = dirs8[i][0], ddy = dirs8[i][1];
+      const nx = x + ddx, ny = y + ddy;
       if (!world.inBounds(nx, ny)) continue;
       const nid = world.get(nx, ny);
 
       // 向周围传递极高温
       world.addTemp(nx, ny, 50);
 
-      // 导电：沿电线传播，产生更多电浆
       if (nid === 44 && Math.random() < 0.4) {
-        // 在电线的另一侧空位产生新电浆
-        const fx = nx + dx, fy = ny + dy;
+        // 导电：沿电线传播，产生更多电浆（在电线另一侧空位）
+        const fx = nx + ddx, fy = ny + ddy;
         if (world.inBounds(fx, fy) && world.isEmpty(fx, fy)) {
           world.set(fx, fy, 202);
           world.markUpdated(fx, fy);
           world.wakeArea(fx, fy);
         }
-        continue;
-      }
-
-      // 遇水产生蒸汽爆炸
-      if (nid === 2) {
+      } else if (nid === 2) {
+        // 遇水产生蒸汽爆炸
         world.set(nx, ny, 8); // 蒸汽
         world.markUpdated(nx, ny);
         world.wakeArea(nx, ny);
-        // 爆炸扩散：周围水也变蒸汽
-        for (const [ex, ey] of dirs) {
-          const bx = nx + ex, by = ny + ey;
-          if (world.inBounds(bx, by) && world.get(bx, by) === 2 && Math.random() < 0.5) {
-            world.set(bx, by, 8);
-            world.markUpdated(bx, by);
-            world.wakeArea(bx, by);
-          }
-        }
+        // 爆炸扩散：周围水也变蒸汽（8方向显式展开，无HOF）
+        if (world.inBounds(nx-1,ny-1) && world.get(nx-1,ny-1)===2 && Math.random()<0.5) { world.set(nx-1,ny-1,8); world.markUpdated(nx-1,ny-1); world.wakeArea(nx-1,ny-1); }
+        if (world.inBounds(nx,ny-1) && world.get(nx,ny-1)===2 && Math.random()<0.5) { world.set(nx,ny-1,8); world.markUpdated(nx,ny-1); world.wakeArea(nx,ny-1); }
+        if (world.inBounds(nx+1,ny-1) && world.get(nx+1,ny-1)===2 && Math.random()<0.5) { world.set(nx+1,ny-1,8); world.markUpdated(nx+1,ny-1); world.wakeArea(nx+1,ny-1); }
+        if (world.inBounds(nx-1,ny) && world.get(nx-1,ny)===2 && Math.random()<0.5) { world.set(nx-1,ny,8); world.markUpdated(nx-1,ny); world.wakeArea(nx-1,ny); }
+        if (world.inBounds(nx+1,ny) && world.get(nx+1,ny)===2 && Math.random()<0.5) { world.set(nx+1,ny,8); world.markUpdated(nx+1,ny); world.wakeArea(nx+1,ny); }
+        if (world.inBounds(nx-1,ny+1) && world.get(nx-1,ny+1)===2 && Math.random()<0.5) { world.set(nx-1,ny+1,8); world.markUpdated(nx-1,ny+1); world.wakeArea(nx-1,ny+1); }
+        if (world.inBounds(nx,ny+1) && world.get(nx,ny+1)===2 && Math.random()<0.5) { world.set(nx,ny+1,8); world.markUpdated(nx,ny+1); world.wakeArea(nx,ny+1); }
+        if (world.inBounds(nx+1,ny+1) && world.get(nx+1,ny+1)===2 && Math.random()<0.5) { world.set(nx+1,ny+1,8); world.markUpdated(nx+1,ny+1); world.wakeArea(nx+1,ny+1); }
         life -= 3; // 加速消亡
-        continue;
-      }
-
-      // 熔化金属
-      const meltTo = MELTABLE.get(nid);
-      if (meltTo !== undefined && Math.random() < 0.3) {
-        world.set(nx, ny, meltTo);
-        world.markUpdated(nx, ny);
-        world.wakeArea(nx, ny);
-        continue;
-      }
-
-      // 点燃可燃物
-      if (IGNITABLE.has(nid) && Math.random() < 0.5) {
-        world.set(nx, ny, 6);
-        world.markUpdated(nx, ny);
+      } else {
+        // 熔化金属
+        const meltTo = MELTABLE.get(nid);
+        if (meltTo !== undefined && Math.random() < 0.3) {
+          world.set(nx, ny, meltTo);
+          world.markUpdated(nx, ny);
+          world.wakeArea(nx, ny);
+        } else if (IGNITABLE.has(nid) && Math.random() < 0.5) {
+          // 点燃可燃物
+          world.set(nx, ny, 6);
+          world.markUpdated(nx, ny);
+        }
       }
     }
 

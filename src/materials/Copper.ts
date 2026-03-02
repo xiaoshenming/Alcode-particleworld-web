@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -49,63 +48,71 @@ export const Copper: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
-
-    // 导热：快速传热给邻居
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nTemp = world.getTemp(nx, ny);
-      const diff = temp - nTemp;
-      if (Math.abs(diff) > 1) {
-        // 铜导热快，传递 30% 温差
-        const transfer = diff * 0.3;
-        world.addTemp(nx, ny, transfer);
-        world.addTemp(x, y, -transfer);
-      }
+    // 导热：快速传热给邻居（4方向显式展开，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nTemp = world.getTemp(x, y - 1); const diff = temp - nTemp;
+      if (Math.abs(diff) > 1) { const transfer = diff * 0.3; world.addTemp(x, y - 1, transfer); world.addTemp(x, y, -transfer); }
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nTemp = world.getTemp(x, y + 1); const diff = temp - nTemp;
+      if (Math.abs(diff) > 1) { const transfer = diff * 0.3; world.addTemp(x, y + 1, transfer); world.addTemp(x, y, -transfer); }
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nTemp = world.getTemp(x - 1, y); const diff = temp - nTemp;
+      if (Math.abs(diff) > 1) { const transfer = diff * 0.3; world.addTemp(x - 1, y, transfer); world.addTemp(x, y, -transfer); }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nTemp = world.getTemp(x + 1, y); const diff = temp - nTemp;
+      if (Math.abs(diff) > 1) { const transfer = diff * 0.3; world.addTemp(x + 1, y, transfer); world.addTemp(x, y, -transfer); }
     }
 
-    // 邻居交互
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-
-      // 遇水缓慢氧化（铜绿 → 用铁锈表示）
-      if (nid === 2 && Math.random() < 0.001) {
-        world.set(x, y, 72); // 铁锈
-        world.wakeArea(x, y);
-        return;
-      }
-
-      // 遇酸液腐蚀（比普通金属快）
-      if (nid === 9 && Math.random() < 0.02) {
-        world.set(x, y, 0);
-        world.set(nx, ny, 7); // 烟
-        world.wakeArea(x, y);
-        world.wakeArea(nx, ny);
-        return;
-      }
-
-      // 导电：接触电线时传递信号（唤醒电线区域）
-      if (nid === 44) {
-        world.wakeArea(nx, ny);
-      }
-
-      // 接触雷电导电扩散
+    // 邻居交互（4方向显式展开，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1; const nid = world.get(nx, ny);
+      if (nid === 2 && Math.random() < 0.001) { world.set(x, y, 72); world.wakeArea(x, y); return; }
+      if (nid === 9 && Math.random() < 0.02) { world.set(x, y, 0); world.set(nx, ny, 7); world.wakeArea(x, y); world.wakeArea(nx, ny); return; }
+      if (nid === 44) { world.wakeArea(nx, ny); }
       if (nid === 16 && Math.random() < 0.3) {
-        // 沿铜传导：找另一侧的邻居释放雷电
-        for (const [ddx, ddy] of dirs) {
-          const nnx = x + ddx, nny = y + ddy;
-          if (nnx === nx && nny === ny) continue; // 跳过来源
-          if (!world.inBounds(nnx, nny)) continue;
-          if (world.isEmpty(nnx, nny)) {
-            world.set(nnx, nny, 16); // 雷电
-            world.markUpdated(nnx, nny);
-            world.wakeArea(nnx, nny);
-            break;
-          }
-        }
+        let sparked = false;
+        if (!sparked && world.inBounds(x, y + 1) && world.isEmpty(x, y + 1)) { world.set(x, y + 1, 16); world.markUpdated(x, y + 1); world.wakeArea(x, y + 1); sparked = true; }
+        if (!sparked && world.inBounds(x - 1, y) && world.isEmpty(x - 1, y)) { world.set(x - 1, y, 16); world.markUpdated(x - 1, y); world.wakeArea(x - 1, y); sparked = true; }
+        if (!sparked && world.inBounds(x + 1, y) && world.isEmpty(x + 1, y)) { world.set(x + 1, y, 16); world.markUpdated(x + 1, y); world.wakeArea(x + 1, y); }
+      }
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1; const nid = world.get(nx, ny);
+      if (nid === 2 && Math.random() < 0.001) { world.set(x, y, 72); world.wakeArea(x, y); return; }
+      if (nid === 9 && Math.random() < 0.02) { world.set(x, y, 0); world.set(nx, ny, 7); world.wakeArea(x, y); world.wakeArea(nx, ny); return; }
+      if (nid === 44) { world.wakeArea(nx, ny); }
+      if (nid === 16 && Math.random() < 0.3) {
+        let sparked = false;
+        if (!sparked && world.inBounds(x, y - 1) && world.isEmpty(x, y - 1)) { world.set(x, y - 1, 16); world.markUpdated(x, y - 1); world.wakeArea(x, y - 1); sparked = true; }
+        if (!sparked && world.inBounds(x - 1, y) && world.isEmpty(x - 1, y)) { world.set(x - 1, y, 16); world.markUpdated(x - 1, y); world.wakeArea(x - 1, y); sparked = true; }
+        if (!sparked && world.inBounds(x + 1, y) && world.isEmpty(x + 1, y)) { world.set(x + 1, y, 16); world.markUpdated(x + 1, y); world.wakeArea(x + 1, y); }
+      }
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y; const nid = world.get(nx, ny);
+      if (nid === 2 && Math.random() < 0.001) { world.set(x, y, 72); world.wakeArea(x, y); return; }
+      if (nid === 9 && Math.random() < 0.02) { world.set(x, y, 0); world.set(nx, ny, 7); world.wakeArea(x, y); world.wakeArea(nx, ny); return; }
+      if (nid === 44) { world.wakeArea(nx, ny); }
+      if (nid === 16 && Math.random() < 0.3) {
+        let sparked = false;
+        if (!sparked && world.inBounds(x, y - 1) && world.isEmpty(x, y - 1)) { world.set(x, y - 1, 16); world.markUpdated(x, y - 1); world.wakeArea(x, y - 1); sparked = true; }
+        if (!sparked && world.inBounds(x, y + 1) && world.isEmpty(x, y + 1)) { world.set(x, y + 1, 16); world.markUpdated(x, y + 1); world.wakeArea(x, y + 1); sparked = true; }
+        if (!sparked && world.inBounds(x + 1, y) && world.isEmpty(x + 1, y)) { world.set(x + 1, y, 16); world.markUpdated(x + 1, y); world.wakeArea(x + 1, y); }
+      }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y; const nid = world.get(nx, ny);
+      if (nid === 2 && Math.random() < 0.001) { world.set(x, y, 72); world.wakeArea(x, y); return; }
+      if (nid === 9 && Math.random() < 0.02) { world.set(x, y, 0); world.set(nx, ny, 7); world.wakeArea(x, y); world.wakeArea(nx, ny); return; }
+      if (nid === 44) { world.wakeArea(nx, ny); }
+      if (nid === 16 && Math.random() < 0.3) {
+        let sparked = false;
+        if (!sparked && world.inBounds(x, y - 1) && world.isEmpty(x, y - 1)) { world.set(x, y - 1, 16); world.markUpdated(x, y - 1); world.wakeArea(x, y - 1); sparked = true; }
+        if (!sparked && world.inBounds(x, y + 1) && world.isEmpty(x, y + 1)) { world.set(x, y + 1, 16); world.markUpdated(x, y + 1); world.wakeArea(x, y + 1); sparked = true; }
+        if (!sparked && world.inBounds(x - 1, y) && world.isEmpty(x - 1, y)) { world.set(x - 1, y, 16); world.markUpdated(x - 1, y); world.wakeArea(x - 1, y); }
       }
     }
   },

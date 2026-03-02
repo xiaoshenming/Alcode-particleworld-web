@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -52,39 +51,34 @@ export const LavaRock: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-
-      // 遇水产生少量蒸汽（余热效果）
-      if (nid === 2 && Math.random() < 0.02) {
-        world.set(nx, ny, 8); // 蒸汽
-        world.markUpdated(nx, ny);
-        world.wakeArea(nx, ny);
-        continue;
-      }
-
-      // 比普通石头更耐酸（概率 0.002，石头约 0.01，岩浆岩 0.005）
-      if (nid === 9 && Math.random() < 0.002) {
-        world.set(x, y, 0); // 被腐蚀
-        world.set(nx, ny, 7); // 酸变烟
-        world.wakeArea(x, y);
-        world.wakeArea(nx, ny);
-        return;
-      }
+    // 检查邻居（4方向显式展开，无HOF，continue→else if）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1; const nid = world.get(nx, ny);
+      if (nid === 2 && Math.random() < 0.02) { world.set(nx, ny, 8); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
+      else if (nid === 9 && Math.random() < 0.002) { world.set(x, y, 0); world.set(nx, ny, 7); world.wakeArea(x, y); world.wakeArea(nx, ny); return; }
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1; const nid = world.get(nx, ny);
+      if (nid === 2 && Math.random() < 0.02) { world.set(nx, ny, 8); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
+      else if (nid === 9 && Math.random() < 0.002) { world.set(x, y, 0); world.set(nx, ny, 7); world.wakeArea(x, y); world.wakeArea(nx, ny); return; }
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y; const nid = world.get(nx, ny);
+      if (nid === 2 && Math.random() < 0.02) { world.set(nx, ny, 8); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
+      else if (nid === 9 && Math.random() < 0.002) { world.set(x, y, 0); world.set(nx, ny, 7); world.wakeArea(x, y); world.wakeArea(nx, ny); return; }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y; const nid = world.get(nx, ny);
+      if (nid === 2 && Math.random() < 0.02) { world.set(nx, ny, 8); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
+      else if (nid === 9 && Math.random() < 0.002) { world.set(x, y, 0); world.set(nx, ny, 7); world.wakeArea(x, y); world.wakeArea(nx, ny); return; }
     }
 
-    // 高温时缓慢向周围传热（余热散发）
+    // 高温时缓慢向周围传热（4方向显���展开）
     if (temp > 50) {
-      for (const [dx, dy] of dirs) {
-        const nx = x + dx, ny = y + dy;
-        if (world.inBounds(nx, ny) && world.getTemp(nx, ny) < temp) {
-          world.addTemp(nx, ny, 0.2);
-          world.addTemp(x, y, -0.2);
-        }
-      }
+      if (world.inBounds(x, y - 1) && world.getTemp(x, y - 1) < temp) { world.addTemp(x, y - 1, 0.2); world.addTemp(x, y, -0.2); }
+      if (world.inBounds(x, y + 1) && world.getTemp(x, y + 1) < temp) { world.addTemp(x, y + 1, 0.2); world.addTemp(x, y, -0.2); }
+      if (world.inBounds(x - 1, y) && world.getTemp(x - 1, y) < temp) { world.addTemp(x - 1, y, 0.2); world.addTemp(x, y, -0.2); }
+      if (world.inBounds(x + 1, y) && world.getTemp(x + 1, y) < temp) { world.addTemp(x + 1, y, 0.2); world.addTemp(x, y, -0.2); }
     }
   },
 };

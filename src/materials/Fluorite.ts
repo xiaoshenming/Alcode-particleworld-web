@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -55,27 +54,27 @@ export const Fluorite: MaterialDef = {
       return;
     }
 
-    // 检查邻居
-    const dirs = DIRS4;
+    // 检查邻居（4方向显式展开，无HOF）
     let lightningHit = false;
-
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-
-      // 酸液腐蚀
-      if (nid === 9) {
-        world.set(x, y, 0);
-        world.set(nx, ny, 0);
-        world.wakeArea(x, y);
-        return;
-      }
-
-      // 雷电击中
-      if (nid === 16) {
-        lightningHit = true;
-      }
+    if (world.inBounds(x, y - 1)) {
+      const nid = world.get(x, y - 1);
+      if (nid === 9) { world.set(x, y, 0); world.set(x, y - 1, 0); world.wakeArea(x, y); return; }
+      if (nid === 16) { lightningHit = true; }
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nid = world.get(x, y + 1);
+      if (nid === 9) { world.set(x, y, 0); world.set(x, y + 1, 0); world.wakeArea(x, y); return; }
+      if (nid === 16) { lightningHit = true; }
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nid = world.get(x - 1, y);
+      if (nid === 9) { world.set(x, y, 0); world.set(x - 1, y, 0); world.wakeArea(x, y); return; }
+      if (nid === 16) { lightningHit = true; }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nid = world.get(x + 1, y);
+      if (nid === 9) { world.set(x, y, 0); world.set(x + 1, y, 0); world.wakeArea(x, y); return; }
+      if (nid === 16) { lightningHit = true; }
     }
 
     // 发光效果：受热或被雷电击中时刷新颜色
@@ -85,14 +84,12 @@ export const Fluorite: MaterialDef = {
       world.set(x, y, 69);
       world.wakeArea(x, y);
 
-      // 向周围传递微弱热量（荧光发热）
+      // 向周围传递微弱热量（荧光发热，4方向显式展开，无HOF）
       if (temp > 80) {
-        for (const [dx, dy] of dirs) {
-          const nx = x + dx, ny = y + dy;
-          if (world.inBounds(nx, ny)) {
-            world.addTemp(nx, ny, 1);
-          }
-        }
+        if (world.inBounds(x, y - 1)) { world.addTemp(x, y - 1, 1); }
+        if (world.inBounds(x, y + 1)) { world.addTemp(x, y + 1, 1); }
+        if (world.inBounds(x - 1, y)) { world.addTemp(x - 1, y, 1); }
+        if (world.inBounds(x + 1, y)) { world.addTemp(x + 1, y, 1); }
       }
     }
 

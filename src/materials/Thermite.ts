@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -55,62 +54,49 @@ export const Thermite: MaterialDef = {
           world.setTemp(x, y, 1500);
         }
         world.wakeArea(x, y);
-        // 向周围传递极高温
-        const dirs = DIRS4;
-        for (const [dx, dy] of dirs) {
-          const nx = x + dx, ny = y + dy;
-          if (world.inBounds(nx, ny)) {
-            world.addTemp(nx, ny, 400);
-            world.wakeArea(nx, ny);
-          }
-        }
+        // 向周围传递极高温（4方向显式展开，无HOF）
+        if (world.inBounds(x, y - 1)) { world.addTemp(x, y - 1, 400); world.wakeArea(x, y - 1); }
+        if (world.inBounds(x, y + 1)) { world.addTemp(x, y + 1, 400); world.wakeArea(x, y + 1); }
+        if (world.inBounds(x - 1, y)) { world.addTemp(x - 1, y, 400); world.wakeArea(x - 1, y); }
+        if (world.inBounds(x + 1, y)) { world.addTemp(x + 1, y, 400); world.wakeArea(x + 1, y); }
         return;
       }
       // 还没反应完，继续升温
       world.addTemp(x, y, 50);
     }
 
-    // 邻居交互
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-
-      // 遇火点燃
-      if (nid === 6 && Math.random() < 0.2) {
-        world.setTemp(x, y, 500);
-        world.wakeArea(x, y);
-        continue;
-      }
-
-      // 遇熔岩点燃
-      if (nid === 11 && Math.random() < 0.3) {
-        world.setTemp(x, y, 600);
-        world.wakeArea(x, y);
-        continue;
-      }
-
-      // 遇雷电点燃
-      if (nid === 16 && Math.random() < 0.4) {
-        world.setTemp(x, y, 800);
-        world.wakeArea(x, y);
-        continue;
-      }
-
-      // 遇等离子体点燃
-      if (nid === 55 && Math.random() < 0.5) {
-        world.setTemp(x, y, 1000);
-        world.wakeArea(x, y);
-        continue;
-      }
-
-      // 酸液缓慢腐蚀
-      if (nid === 9 && Math.random() < 0.02) {
-        world.set(x, y, 0);
-        world.wakeArea(x, y);
-        return;
-      }
+    // 邻居交互（4方向显式展开，无HOF，continue→else if）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1; const nid = world.get(nx, ny);
+      if (nid === 6 && Math.random() < 0.2) { world.setTemp(x, y, 500); world.wakeArea(x, y); }
+      else if (nid === 11 && Math.random() < 0.3) { world.setTemp(x, y, 600); world.wakeArea(x, y); }
+      else if (nid === 16 && Math.random() < 0.4) { world.setTemp(x, y, 800); world.wakeArea(x, y); }
+      else if (nid === 55 && Math.random() < 0.5) { world.setTemp(x, y, 1000); world.wakeArea(x, y); }
+      else if (nid === 9 && Math.random() < 0.02) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1; const nid = world.get(nx, ny);
+      if (nid === 6 && Math.random() < 0.2) { world.setTemp(x, y, 500); world.wakeArea(x, y); }
+      else if (nid === 11 && Math.random() < 0.3) { world.setTemp(x, y, 600); world.wakeArea(x, y); }
+      else if (nid === 16 && Math.random() < 0.4) { world.setTemp(x, y, 800); world.wakeArea(x, y); }
+      else if (nid === 55 && Math.random() < 0.5) { world.setTemp(x, y, 1000); world.wakeArea(x, y); }
+      else if (nid === 9 && Math.random() < 0.02) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y; const nid = world.get(nx, ny);
+      if (nid === 6 && Math.random() < 0.2) { world.setTemp(x, y, 500); world.wakeArea(x, y); }
+      else if (nid === 11 && Math.random() < 0.3) { world.setTemp(x, y, 600); world.wakeArea(x, y); }
+      else if (nid === 16 && Math.random() < 0.4) { world.setTemp(x, y, 800); world.wakeArea(x, y); }
+      else if (nid === 55 && Math.random() < 0.5) { world.setTemp(x, y, 1000); world.wakeArea(x, y); }
+      else if (nid === 9 && Math.random() < 0.02) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y; const nid = world.get(nx, ny);
+      if (nid === 6 && Math.random() < 0.2) { world.setTemp(x, y, 500); world.wakeArea(x, y); }
+      else if (nid === 11 && Math.random() < 0.3) { world.setTemp(x, y, 600); world.wakeArea(x, y); }
+      else if (nid === 16 && Math.random() < 0.4) { world.setTemp(x, y, 800); world.wakeArea(x, y); }
+      else if (nid === 55 && Math.random() < 0.5) { world.setTemp(x, y, 1000); world.wakeArea(x, y); }
+      else if (nid === 9 && Math.random() < 0.02) { world.set(x, y, 0); world.wakeArea(x, y); return; }
     }
 
     // 重力下落（粉末堆积）

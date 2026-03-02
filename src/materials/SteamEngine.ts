@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -44,34 +43,34 @@ export const SteamEngine: MaterialDef = {
   density: Infinity,
   update(x: number, y: number, world: WorldAPI) {
     const temp = world.getTemp(x, y);
-    const dirs = DIRS4;
 
     let hasHeat = temp > 80;
     let waterPos: [number, number] | null = null;
 
-    // 扫描邻居
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-
-      // 检测热源
-      if (HEAT_SOURCES.has(nid)) {
-        hasHeat = true;
-        world.addTemp(x, y, 2);
-      }
-
-      // 检测水源
-      if (WATER_TYPES.has(nid) && !waterPos) {
-        waterPos = [nx, ny];
-      }
-
-      // 酸液腐蚀（缓慢）
-      if (nid === 9 && Math.random() < 0.02) {
-        world.set(x, y, 0);
-        world.wakeArea(x, y);
-        return;
-      }
+    // 扫描邻居（4方向显式展开，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1; const nid = world.get(nx, ny);
+      if (HEAT_SOURCES.has(nid)) { hasHeat = true; world.addTemp(x, y, 2); }
+      if (WATER_TYPES.has(nid) && !waterPos) { waterPos = [nx, ny]; }
+      if (nid === 9 && Math.random() < 0.02) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1; const nid = world.get(nx, ny);
+      if (HEAT_SOURCES.has(nid)) { hasHeat = true; world.addTemp(x, y, 2); }
+      if (WATER_TYPES.has(nid) && !waterPos) { waterPos = [nx, ny]; }
+      if (nid === 9 && Math.random() < 0.02) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y; const nid = world.get(nx, ny);
+      if (HEAT_SOURCES.has(nid)) { hasHeat = true; world.addTemp(x, y, 2); }
+      if (WATER_TYPES.has(nid) && !waterPos) { waterPos = [nx, ny]; }
+      if (nid === 9 && Math.random() < 0.02) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y; const nid = world.get(nx, ny);
+      if (HEAT_SOURCES.has(nid)) { hasHeat = true; world.addTemp(x, y, 2); }
+      if (WATER_TYPES.has(nid) && !waterPos) { waterPos = [nx, ny]; }
+      if (nid === 9 && Math.random() < 0.02) { world.set(x, y, 0); world.wakeArea(x, y); return; }
     }
 
     // 有热量+有水 → 产生蒸汽
@@ -94,13 +93,11 @@ export const SteamEngine: MaterialDef = {
       // 降温消耗
       world.addTemp(x, y, -5);
 
-      // 唤醒邻近齿轮
-      for (const [dx, dy] of dirs) {
-        const nx = x + dx, ny = y + dy;
-        if (world.inBounds(nx, ny) && world.get(nx, ny) === 88) {
-          world.wakeArea(nx, ny);
-        }
-      }
+      // 唤醒邻近齿轮（4方向显式展开，无HOF）
+      if (world.inBounds(x, y - 1) && world.get(x, y - 1) === 88) { world.wakeArea(x, y - 1); }
+      if (world.inBounds(x, y + 1) && world.get(x, y + 1) === 88) { world.wakeArea(x, y + 1); }
+      if (world.inBounds(x - 1, y) && world.get(x - 1, y) === 88) { world.wakeArea(x - 1, y); }
+      if (world.inBounds(x + 1, y) && world.get(x + 1, y) === 88) { world.wakeArea(x + 1, y); }
     }
 
     // 自身散热

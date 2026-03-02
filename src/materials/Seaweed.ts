@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -37,23 +36,27 @@ export const Seaweed: MaterialDef = {
   density: 1.3,
   update(x: number, y: number, world: WorldAPI) {
     let inWater = false;
-    const dirs = DIRS4;
 
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-
-      if (nid === 2 || nid === 24) {
-        inWater = true;
-      }
-
-      // 遇火燃烧
-      if (nid === 6 && Math.random() < 0.05) {
-        world.set(x, y, 6);
-        world.wakeArea(x, y);
-        return;
-      }
+    // 邻居检查（4方向显式展开，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nid = world.get(x, y - 1);
+      if (nid === 2 || nid === 24) { inWater = true; }
+      if (nid === 6 && Math.random() < 0.05) { world.set(x, y, 6); world.wakeArea(x, y); return; }
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nid = world.get(x, y + 1);
+      if (nid === 2 || nid === 24) { inWater = true; }
+      if (nid === 6 && Math.random() < 0.05) { world.set(x, y, 6); world.wakeArea(x, y); return; }
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nid = world.get(x - 1, y);
+      if (nid === 2 || nid === 24) { inWater = true; }
+      if (nid === 6 && Math.random() < 0.05) { world.set(x, y, 6); world.wakeArea(x, y); return; }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nid = world.get(x + 1, y);
+      if (nid === 2 || nid === 24) { inWater = true; }
+      if (nid === 6 && Math.random() < 0.05) { world.set(x, y, 6); world.wakeArea(x, y); return; }
     }
 
     // 在水中生长
@@ -65,17 +68,13 @@ export const Seaweed: MaterialDef = {
       }
     }
 
-    // 产生气泡
+    // 产生气泡（transmuted布尔，无HOF）
     if (inWater && Math.random() < 0.001) {
-      for (const [dx, dy] of dirs) {
-        const nx = x + dx, ny = y + dy;
-        if (world.inBounds(nx, ny) && (world.get(nx, ny) === 2 || world.get(nx, ny) === 24)) {
-          world.set(nx, ny, 73); // 泡泡
-          world.markUpdated(nx, ny);
-          world.wakeArea(nx, ny);
-          break;
-        }
-      }
+      let bubbled = false;
+      if (!bubbled && world.inBounds(x, y - 1) && (world.get(x, y - 1) === 2 || world.get(x, y - 1) === 24)) { world.set(x, y - 1, 73); world.markUpdated(x, y - 1); world.wakeArea(x, y - 1); bubbled = true; }
+      if (!bubbled && world.inBounds(x, y + 1) && (world.get(x, y + 1) === 2 || world.get(x, y + 1) === 24)) { world.set(x, y + 1, 73); world.markUpdated(x, y + 1); world.wakeArea(x, y + 1); bubbled = true; }
+      if (!bubbled && world.inBounds(x - 1, y) && (world.get(x - 1, y) === 2 || world.get(x - 1, y) === 24)) { world.set(x - 1, y, 73); world.markUpdated(x - 1, y); world.wakeArea(x - 1, y); bubbled = true; }
+      if (!bubbled && world.inBounds(x + 1, y) && (world.get(x + 1, y) === 2 || world.get(x + 1, y) === 24)) { world.set(x + 1, y, 73); world.markUpdated(x + 1, y); world.wakeArea(x + 1, y); }
     }
 
     // 离开水枯萎

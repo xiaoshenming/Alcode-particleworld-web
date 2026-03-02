@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -54,18 +53,13 @@ export const Serpentinite: MaterialDef = {
       return;
     }
 
-    // 加热释放蒸汽（含水矿物）
+    // 加热释放蒸汽（含水矿物，transmuted布尔，无HOF）
     if (temp > 100 && Math.random() < 0.01) {
-      const dirs = DIRS4;
-      for (const [dx, dy] of dirs) {
-        const nx = x + dx, ny = y + dy;
-        if (world.inBounds(nx, ny) && world.isEmpty(nx, ny)) {
-          world.set(nx, ny, 8); // 蒸汽
-          world.markUpdated(nx, ny);
-          world.wakeArea(nx, ny);
-          break;
-        }
-      }
+      let steamed = false;
+      if (!steamed && world.inBounds(x, y - 1) && world.isEmpty(x, y - 1)) { world.set(x, y - 1, 8); world.markUpdated(x, y - 1); world.wakeArea(x, y - 1); steamed = true; }
+      if (!steamed && world.inBounds(x, y + 1) && world.isEmpty(x, y + 1)) { world.set(x, y + 1, 8); world.markUpdated(x, y + 1); world.wakeArea(x, y + 1); steamed = true; }
+      if (!steamed && world.inBounds(x - 1, y) && world.isEmpty(x - 1, y)) { world.set(x - 1, y, 8); world.markUpdated(x - 1, y); world.wakeArea(x - 1, y); steamed = true; }
+      if (!steamed && world.inBounds(x + 1, y) && world.isEmpty(x + 1, y)) { world.set(x + 1, y, 8); world.markUpdated(x + 1, y); world.wakeArea(x + 1, y); }
     }
 
     // 检查四邻

@@ -1,4 +1,3 @@
-import { DIRS3_UP, DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -54,37 +53,34 @@ export const Cite: MaterialDef = {
       // 持续产生高温
       world.addTemp(x, y, 15);
 
-      // 产生烟
+      // 产生烟（DIRS3_UP: 上/左/右，transmuted布尔，无HOF）
       if (Math.random() < 0.08) {
-        const smokeDir = DIRS3_UP;
-        for (const [dx, dy] of smokeDir) {
-          const nx = x + dx, ny = y + dy;
-          if (world.inBounds(nx, ny) && world.isEmpty(nx, ny)) {
-            world.set(nx, ny, 7); // 烟
-            world.markUpdated(nx, ny);
-            world.wakeArea(nx, ny);
-            break;
-          }
-        }
+        let smokeSpawned = false;
+        if (!smokeSpawned && world.inBounds(x, y - 1) && world.isEmpty(x, y - 1)) { world.set(x, y - 1, 7); world.markUpdated(x, y - 1); world.wakeArea(x, y - 1); smokeSpawned = true; }
+        if (!smokeSpawned && world.inBounds(x - 1, y) && world.isEmpty(x - 1, y)) { world.set(x - 1, y, 7); world.markUpdated(x - 1, y); world.wakeArea(x - 1, y); smokeSpawned = true; }
+        if (!smokeSpawned && world.inBounds(x + 1, y) && world.isEmpty(x + 1, y)) { world.set(x + 1, y, 7); world.markUpdated(x + 1, y); world.wakeArea(x + 1, y); }
       }
 
-      // 点燃相邻可燃物
-      const dirs4 = DIRS4;
-      for (const [dx, dy] of dirs4) {
-        const nx = x + dx, ny = y + dy;
-        if (!world.inBounds(nx, ny)) continue;
-        const nid = world.get(nx, ny);
-        // 点燃相邻未燃烧的焦炭
-        if (nid === 129 && world.getAge(nx, ny) === 0 && Math.random() < 0.02) {
-          world.setAge(nx, ny, 80 + Math.floor(Math.random() * 40));
-          world.wakeArea(nx, ny);
-        }
-        // 点燃木头/油
-        if ((nid === 4 || nid === 5) && Math.random() < 0.03) {
-          world.set(nx, ny, 6); // 火
-          world.markUpdated(nx, ny);
-          world.wakeArea(nx, ny);
-        }
+      // 点燃相邻可燃物（4方向显式展开，无HOF）
+      if (world.inBounds(x, y - 1)) {
+        const nx = x, ny = y - 1; const nid = world.get(nx, ny);
+        if (nid === 129 && world.getAge(nx, ny) === 0 && Math.random() < 0.02) { world.setAge(nx, ny, 80 + Math.floor(Math.random() * 40)); world.wakeArea(nx, ny); }
+        if ((nid === 4 || nid === 5) && Math.random() < 0.03) { world.set(nx, ny, 6); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
+      }
+      if (world.inBounds(x, y + 1)) {
+        const nx = x, ny = y + 1; const nid = world.get(nx, ny);
+        if (nid === 129 && world.getAge(nx, ny) === 0 && Math.random() < 0.02) { world.setAge(nx, ny, 80 + Math.floor(Math.random() * 40)); world.wakeArea(nx, ny); }
+        if ((nid === 4 || nid === 5) && Math.random() < 0.03) { world.set(nx, ny, 6); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
+      }
+      if (world.inBounds(x - 1, y)) {
+        const nx = x - 1, ny = y; const nid = world.get(nx, ny);
+        if (nid === 129 && world.getAge(nx, ny) === 0 && Math.random() < 0.02) { world.setAge(nx, ny, 80 + Math.floor(Math.random() * 40)); world.wakeArea(nx, ny); }
+        if ((nid === 4 || nid === 5) && Math.random() < 0.03) { world.set(nx, ny, 6); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
+      }
+      if (world.inBounds(x + 1, y)) {
+        const nx = x + 1, ny = y; const nid = world.get(nx, ny);
+        if (nid === 129 && world.getAge(nx, ny) === 0 && Math.random() < 0.02) { world.setAge(nx, ny, 80 + Math.floor(Math.random() * 40)); world.wakeArea(nx, ny); }
+        if ((nid === 4 || nid === 5) && Math.random() < 0.03) { world.set(nx, ny, 6); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
       }
 
       world.setAge(x, y, burnLife - 1);

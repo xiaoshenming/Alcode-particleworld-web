@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -58,22 +57,16 @@ export const Frost: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
-
-    // 检查是否仍附着在表面（至少一个邻居是固体或霜）
+    // 检查是否仍附着在表面（至少一个邻居是固体或霜，4方向显式展开，transmuted布尔，无HOF）
     let attached = false;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) {
-        attached = true; // 边界也算附着
-        break;
-      }
-      const nid = world.get(nx, ny);
-      if (SURFACE.has(nid) || nid === 75 || nid === 14) { // 固体、霜、冰
-        attached = true;
-        break;
-      }
-    }
+    if (!attached && !world.inBounds(x, y - 1)) { attached = true; }
+    else if (!attached && world.inBounds(x, y - 1)) { const nid = world.get(x, y - 1); if (SURFACE.has(nid) || nid === 75 || nid === 14) attached = true; }
+    if (!attached && !world.inBounds(x, y + 1)) { attached = true; }
+    else if (!attached && world.inBounds(x, y + 1)) { const nid = world.get(x, y + 1); if (SURFACE.has(nid) || nid === 75 || nid === 14) attached = true; }
+    if (!attached && !world.inBounds(x - 1, y)) { attached = true; }
+    else if (!attached && world.inBounds(x - 1, y)) { const nid = world.get(x - 1, y); if (SURFACE.has(nid) || nid === 75 || nid === 14) attached = true; }
+    if (!attached && !world.inBounds(x + 1, y)) { attached = true; }
+    else if (!attached && world.inBounds(x + 1, y)) { const nid = world.get(x + 1, y); if (SURFACE.has(nid) || nid === 75 || nid === 14) attached = true; }
 
     // 未附着则掉落为水
     if (!attached) {
@@ -82,61 +75,71 @@ export const Frost: MaterialDef = {
       return;
     }
 
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-
-      // 接触热源蒸发
-      if (HOT_SOURCE.has(nid)) {
-        world.set(x, y, 8); // 蒸汽
-        world.wakeArea(x, y);
-        return;
-      }
-
-      // 接触水且低温 → 冻结水为冰
-      if (nid === 2 && temp < 0 && Math.random() < 0.08) {
-        world.set(nx, ny, 14); // 冰
-        world.markUpdated(nx, ny);
-        world.wakeArea(nx, ny);
-      }
-
-      // 低温扩散：在相邻空气处生成新霜（需要旁边有固体表面）
+    // 邻居交互（4方向显式展开，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1; const nid = world.get(nx, ny);
+      if (HOT_SOURCE.has(nid)) { world.set(x, y, 8); world.wakeArea(x, y); return; }
+      if (nid === 2 && temp < 0 && Math.random() < 0.08) { world.set(nx, ny, 14); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
       if (nid === 0 && temp < -5 && Math.random() < 0.02) {
-        // 检查该空气位置是否靠近固体
+        // 检查该空气位置是否靠近固体（4方向显式展开，无HOF）
         let nearSurface = false;
-        for (const [ddx, ddy] of dirs) {
-          const nnx = nx + ddx, nny = ny + ddy;
-          if (!world.inBounds(nnx, nny)) continue;
-          const nnid = world.get(nnx, nny);
-          if (SURFACE.has(nnid) || nnid === 14) {
-            nearSurface = true;
-            break;
-          }
-        }
-        if (nearSurface) {
-          world.set(nx, ny, 75);
-          world.markUpdated(nx, ny);
-          world.wakeArea(nx, ny);
-        }
+        if (!nearSurface && world.inBounds(nx, ny - 1)) { const nnid = world.get(nx, ny - 1); if (SURFACE.has(nnid) || nnid === 14) nearSurface = true; }
+        if (!nearSurface && world.inBounds(nx, ny + 1)) { const nnid = world.get(nx, ny + 1); if (SURFACE.has(nnid) || nnid === 14) nearSurface = true; }
+        if (!nearSurface && world.inBounds(nx - 1, ny)) { const nnid = world.get(nx - 1, ny); if (SURFACE.has(nnid) || nnid === 14) nearSurface = true; }
+        if (!nearSurface && world.inBounds(nx + 1, ny)) { const nnid = world.get(nx + 1, ny); if (SURFACE.has(nnid) || nnid === 14) nearSurface = true; }
+        if (nearSurface) { world.set(nx, ny, 75); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
       }
-
-      // 蒸汽在低温下凝结为霜
-      if (nid === 8 && temp < -3 && Math.random() < 0.05) {
-        world.set(nx, ny, 75);
-        world.markUpdated(nx, ny);
-        world.wakeArea(nx, ny);
+      if (nid === 8 && temp < -3 && Math.random() < 0.05) { world.set(nx, ny, 75); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1; const nid = world.get(nx, ny);
+      if (HOT_SOURCE.has(nid)) { world.set(x, y, 8); world.wakeArea(x, y); return; }
+      if (nid === 2 && temp < 0 && Math.random() < 0.08) { world.set(nx, ny, 14); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
+      if (nid === 0 && temp < -5 && Math.random() < 0.02) {
+        let nearSurface = false;
+        if (!nearSurface && world.inBounds(nx, ny - 1)) { const nnid = world.get(nx, ny - 1); if (SURFACE.has(nnid) || nnid === 14) nearSurface = true; }
+        if (!nearSurface && world.inBounds(nx, ny + 1)) { const nnid = world.get(nx, ny + 1); if (SURFACE.has(nnid) || nnid === 14) nearSurface = true; }
+        if (!nearSurface && world.inBounds(nx - 1, ny)) { const nnid = world.get(nx - 1, ny); if (SURFACE.has(nnid) || nnid === 14) nearSurface = true; }
+        if (!nearSurface && world.inBounds(nx + 1, ny)) { const nnid = world.get(nx + 1, ny); if (SURFACE.has(nnid) || nnid === 14) nearSurface = true; }
+        if (nearSurface) { world.set(nx, ny, 75); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
       }
+      if (nid === 8 && temp < -3 && Math.random() < 0.05) { world.set(nx, ny, 75); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y; const nid = world.get(nx, ny);
+      if (HOT_SOURCE.has(nid)) { world.set(x, y, 8); world.wakeArea(x, y); return; }
+      if (nid === 2 && temp < 0 && Math.random() < 0.08) { world.set(nx, ny, 14); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
+      if (nid === 0 && temp < -5 && Math.random() < 0.02) {
+        let nearSurface = false;
+        if (!nearSurface && world.inBounds(nx, ny - 1)) { const nnid = world.get(nx, ny - 1); if (SURFACE.has(nnid) || nnid === 14) nearSurface = true; }
+        if (!nearSurface && world.inBounds(nx, ny + 1)) { const nnid = world.get(nx, ny + 1); if (SURFACE.has(nnid) || nnid === 14) nearSurface = true; }
+        if (!nearSurface && world.inBounds(nx - 1, ny)) { const nnid = world.get(nx - 1, ny); if (SURFACE.has(nnid) || nnid === 14) nearSurface = true; }
+        if (!nearSurface && world.inBounds(nx + 1, ny)) { const nnid = world.get(nx + 1, ny); if (SURFACE.has(nnid) || nnid === 14) nearSurface = true; }
+        if (nearSurface) { world.set(nx, ny, 75); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
+      }
+      if (nid === 8 && temp < -3 && Math.random() < 0.05) { world.set(nx, ny, 75); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y; const nid = world.get(nx, ny);
+      if (HOT_SOURCE.has(nid)) { world.set(x, y, 8); world.wakeArea(x, y); return; }
+      if (nid === 2 && temp < 0 && Math.random() < 0.08) { world.set(nx, ny, 14); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
+      if (nid === 0 && temp < -5 && Math.random() < 0.02) {
+        let nearSurface = false;
+        if (!nearSurface && world.inBounds(nx, ny - 1)) { const nnid = world.get(nx, ny - 1); if (SURFACE.has(nnid) || nnid === 14) nearSurface = true; }
+        if (!nearSurface && world.inBounds(nx, ny + 1)) { const nnid = world.get(nx, ny + 1); if (SURFACE.has(nnid) || nnid === 14) nearSurface = true; }
+        if (!nearSurface && world.inBounds(nx - 1, ny)) { const nnid = world.get(nx - 1, ny); if (SURFACE.has(nnid) || nnid === 14) nearSurface = true; }
+        if (!nearSurface && world.inBounds(nx + 1, ny)) { const nnid = world.get(nx + 1, ny); if (SURFACE.has(nnid) || nnid === 14) nearSurface = true; }
+        if (nearSurface) { world.set(nx, ny, 75); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
+      }
+      if (nid === 8 && temp < -3 && Math.random() < 0.05) { world.set(nx, ny, 75); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
     }
 
-    // 缓慢降温周围环境
+    // 缓慢降温周围环境（4方向显式展开，无HOF）
     if (temp < 0) {
-      for (const [dx, dy] of dirs) {
-        const nx = x + dx, ny = y + dy;
-        if (world.inBounds(nx, ny) && world.getTemp(nx, ny) > temp) {
-          world.addTemp(nx, ny, -0.5);
-        }
-      }
+      if (world.inBounds(x, y - 1) && world.getTemp(x, y - 1) > temp) { world.addTemp(x, y - 1, -0.5); }
+      if (world.inBounds(x, y + 1) && world.getTemp(x, y + 1) > temp) { world.addTemp(x, y + 1, -0.5); }
+      if (world.inBounds(x - 1, y) && world.getTemp(x - 1, y) > temp) { world.addTemp(x - 1, y, -0.5); }
+      if (world.inBounds(x + 1, y) && world.getTemp(x + 1, y) > temp) { world.addTemp(x + 1, y, -0.5); }
     }
   },
 };

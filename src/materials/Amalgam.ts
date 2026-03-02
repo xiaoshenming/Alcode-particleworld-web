@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -37,16 +36,12 @@ export const Amalgam: MaterialDef = {
     // 极低概率自然分解为水银 + 金属
     if (Math.random() < 0.0005) {
       world.set(x, y, 56); // 水银
-      // 尝试在邻居空位放置金属碎片
-      const dirs = DIRS4;
-      for (const [dx, dy] of dirs) {
-        const nx = x + dx, ny = y + dy;
-        if (world.inBounds(nx, ny) && world.isEmpty(nx, ny)) {
-          world.set(nx, ny, 10); // 金属
-          world.markUpdated(nx, ny);
-          break;
-        }
-      }
+      // 尝试在邻居空位放置金属碎片（4方向显式展开，transmuted布尔，无HOF）
+      let placed = false;
+      if (!placed && world.inBounds(x, y - 1) && world.isEmpty(x, y - 1)) { world.set(x, y - 1, 10); world.markUpdated(x, y - 1); placed = true; }
+      if (!placed && world.inBounds(x, y + 1) && world.isEmpty(x, y + 1)) { world.set(x, y + 1, 10); world.markUpdated(x, y + 1); placed = true; }
+      if (!placed && world.inBounds(x - 1, y) && world.isEmpty(x - 1, y)) { world.set(x - 1, y, 10); world.markUpdated(x - 1, y); placed = true; }
+      if (!placed && world.inBounds(x + 1, y) && world.isEmpty(x + 1, y)) { world.set(x + 1, y, 10); world.markUpdated(x + 1, y); }
       world.wakeArea(x, y);
       return;
     }

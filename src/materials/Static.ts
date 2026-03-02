@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -57,38 +56,34 @@ export const Static: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
+    // 邻居交互（4方向显式展开，无HOF）
     let neighborStatic = 0;
-
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-
-      // 接触导体产生火花
-      if ((nid === 10 || nid === 85 || nid === 44) && Math.random() < 0.15) {
-        world.set(x, y, 28); // 火花
-        world.wakeArea(x, y);
-        return;
-      }
-
-      // 接触水/盐水消散
-      if ((nid === 2 || nid === 24) && Math.random() < 0.4) {
-        world.set(x, y, 0);
-        world.wakeArea(x, y);
-        return;
-      }
-
-      // 吸引轻质粒子（swap 自动迁移 age）
-      if ((nid === 114 || nid === 91 || nid === 93) && Math.random() < 0.1) {
-        world.swap(nx, ny, x, y); // 静电移到 (nx,ny)，轻质粒子到 (x,y)
-        world.setAge(nx, ny, life); // 静电现在在 (nx,ny)，更新 life
-        world.wakeArea(x, y);
-        world.wakeArea(nx, ny);
-        return;
-      }
-
-      // 计数相邻静电
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1; const nid = world.get(nx, ny);
+      if ((nid === 10 || nid === 85 || nid === 44) && Math.random() < 0.15) { world.set(x, y, 28); world.wakeArea(x, y); return; }
+      if ((nid === 2 || nid === 24) && Math.random() < 0.4) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+      if ((nid === 114 || nid === 91 || nid === 93) && Math.random() < 0.1) { world.swap(nx, ny, x, y); world.setAge(nx, ny, life); world.wakeArea(x, y); world.wakeArea(nx, ny); return; }
+      if (nid === 121) neighborStatic++;
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1; const nid = world.get(nx, ny);
+      if ((nid === 10 || nid === 85 || nid === 44) && Math.random() < 0.15) { world.set(x, y, 28); world.wakeArea(x, y); return; }
+      if ((nid === 2 || nid === 24) && Math.random() < 0.4) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+      if ((nid === 114 || nid === 91 || nid === 93) && Math.random() < 0.1) { world.swap(nx, ny, x, y); world.setAge(nx, ny, life); world.wakeArea(x, y); world.wakeArea(nx, ny); return; }
+      if (nid === 121) neighborStatic++;
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y; const nid = world.get(nx, ny);
+      if ((nid === 10 || nid === 85 || nid === 44) && Math.random() < 0.15) { world.set(x, y, 28); world.wakeArea(x, y); return; }
+      if ((nid === 2 || nid === 24) && Math.random() < 0.4) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+      if ((nid === 114 || nid === 91 || nid === 93) && Math.random() < 0.1) { world.swap(nx, ny, x, y); world.setAge(nx, ny, life); world.wakeArea(x, y); world.wakeArea(nx, ny); return; }
+      if (nid === 121) neighborStatic++;
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y; const nid = world.get(nx, ny);
+      if ((nid === 10 || nid === 85 || nid === 44) && Math.random() < 0.15) { world.set(x, y, 28); world.wakeArea(x, y); return; }
+      if ((nid === 2 || nid === 24) && Math.random() < 0.4) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+      if ((nid === 114 || nid === 91 || nid === 93) && Math.random() < 0.1) { world.swap(nx, ny, x, y); world.setAge(nx, ny, life); world.wakeArea(x, y); world.wakeArea(nx, ny); return; }
       if (nid === 121) neighborStatic++;
     }
 
@@ -99,26 +94,25 @@ export const Static: MaterialDef = {
       return;
     }
 
-    // 随机漂移（swap 自动迁移 age）
-    const moveDir: [number, number][] = [];
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (world.inBounds(nx, ny) && world.isEmpty(nx, ny)) {
-        moveDir.push([dx, dy]);
+    // 随机漂移：随机起始方向遍历空位（无HOF，无临时数组）
+    if (Math.random() < 0.3) {
+      const start = Math.floor(Math.random() * 4);
+      const dxs = [0, 0, -1, 1];
+      const dys = [-1, 1, 0, 0];
+      for (let i = 0; i < 4; i++) {
+        const di = (start + i) % 4;
+        const nx = x + dxs[di], ny = y + dys[di];
+        if (world.inBounds(nx, ny) && world.isEmpty(nx, ny)) {
+          world.swap(x, y, nx, ny);
+          world.setAge(nx, ny, life);
+          world.markUpdated(nx, ny);
+          world.wakeArea(nx, ny);
+          return;
+        }
       }
     }
-
-    if (moveDir.length > 0 && Math.random() < 0.3) {
-      const [mx, my] = moveDir[Math.floor(Math.random() * moveDir.length)];
-      const nx = x + mx, ny = y + my;
-      world.swap(x, y, nx, ny);
-      world.setAge(nx, ny, life);
-      world.markUpdated(nx, ny);
-      world.wakeArea(nx, ny);
-    } else {
-      world.setAge(x, y, life);
-      world.wakeArea(x, y);
-    }
+    world.setAge(x, y, life);
+    world.wakeArea(x, y);
   },
 };
 

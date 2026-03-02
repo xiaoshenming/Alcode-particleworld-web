@@ -1,4 +1,3 @@
-import { DIRS8 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -56,25 +55,15 @@ export const Meteor: MaterialDef = {
       world.markUpdated(x, y - 1);
     }
 
-    // 加热周围
-    const dirs8 = DIRS8;
-    for (const [dx, dy] of dirs8) {
-      const nx = x + dx, ny = y + dy;
+    // 加热周围（8方向显式展开，无HOF）
+    const dirs8 = [[-1,-1],[0,-1],[1,-1],[-1,0],[1,0],[-1,1],[0,1],[1,1]] as const;
+    for (let i = 0; i < 8; i++) {
+      const nx = x + dirs8[i][0], ny = y + dirs8[i][1];
       if (!world.inBounds(nx, ny)) continue;
       world.addTemp(nx, ny, 10);
       const nid = world.get(nx, ny);
-
-      // 点燃可燃物
-      if (IGNITABLE.has(nid)) {
-        world.set(nx, ny, 6);
-        world.markUpdated(nx, ny);
-      }
-
-      // 融化
-      if (MELTABLE.has(nid) && Math.random() < 0.3) {
-        world.set(nx, ny, nid === 14 || nid === 15 ? 2 : 11); // 冰/雪→水，其他→熔岩
-        world.markUpdated(nx, ny);
-      }
+      if (IGNITABLE.has(nid)) { world.set(nx, ny, 6); world.markUpdated(nx, ny); }
+      if (MELTABLE.has(nid) && Math.random() < 0.3) { world.set(nx, ny, nid === 14 || nid === 15 ? 2 : 11); world.markUpdated(nx, ny); }
     }
 
     if (y >= world.height - 1) {

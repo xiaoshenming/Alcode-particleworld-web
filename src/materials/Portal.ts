@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -102,33 +101,49 @@ export const Portal: MaterialDef = {
       return;
     }
 
-    // 检查四周邻居，传送接触到的粒子
-    const dirs = DIRS4;
-
-    for (const [dx, dy] of dirs) {
-      const sx = x + dx, sy = y + dy;
-      if (!world.inBounds(sx, sy)) continue;
-
-      const matId = world.get(sx, sy);
-      if (matId === 0 || NO_TELEPORT.has(matId)) continue;
-      if (world.isUpdated(sx, sy)) continue;
-
-      // 每帧只传送一个粒子，30% 概率触发
-      if (Math.random() > 0.3) continue;
-
-      // 在配对传送门周围找空位放置（随机起始索引循环，避免每帧数组分配）
-      const start = Math.floor(Math.random() * DIRS4.length);
-      for (let i = 0; i < DIRS4.length; i++) {
-        const [edx, edy] = DIRS4[(start + i) % DIRS4.length];
-        const ex = px + edx, ey = py + edy;
-        if (!world.inBounds(ex, ey)) continue;
-        if (!world.isEmpty(ex, ey)) continue;
-
-        // 传送：源位置清空，目标位置放置材质
-        world.set(sx, sy, 0);
-        world.set(ex, ey, matId);
-        world.markUpdated(ex, ey);
-        return; // 每帧最多传送一个
+    // 检查四周邻居，传送接触到的粒子（4方向显式展开，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const sx = x, sy = y - 1; const matId = world.get(sx, sy);
+      if (matId !== 0 && !NO_TELEPORT.has(matId) && !world.isUpdated(sx, sy) && Math.random() < 0.3) {
+        const start = Math.floor(Math.random() * 4); let teleported = false;
+        if (!teleported) { const edx = [0,0,-1,1][start%4], edy = [-1,1,0,0][start%4]; const ex = px+edx, ey = py+edy; if (world.inBounds(ex,ey) && world.isEmpty(ex,ey)) { world.set(sx,sy,0); world.set(ex,ey,matId); world.markUpdated(ex,ey); teleported = true; } }
+        if (!teleported) { const edx = [0,0,-1,1][(start+1)%4], edy = [-1,1,0,0][(start+1)%4]; const ex = px+edx, ey = py+edy; if (world.inBounds(ex,ey) && world.isEmpty(ex,ey)) { world.set(sx,sy,0); world.set(ex,ey,matId); world.markUpdated(ex,ey); teleported = true; } }
+        if (!teleported) { const edx = [0,0,-1,1][(start+2)%4], edy = [-1,1,0,0][(start+2)%4]; const ex = px+edx, ey = py+edy; if (world.inBounds(ex,ey) && world.isEmpty(ex,ey)) { world.set(sx,sy,0); world.set(ex,ey,matId); world.markUpdated(ex,ey); teleported = true; } }
+        if (!teleported) { const edx = [0,0,-1,1][(start+3)%4], edy = [-1,1,0,0][(start+3)%4]; const ex = px+edx, ey = py+edy; if (world.inBounds(ex,ey) && world.isEmpty(ex,ey)) { world.set(sx,sy,0); world.set(ex,ey,matId); world.markUpdated(ex,ey); } }
+        return;
+      }
+    }
+    if (world.inBounds(x, y + 1)) {
+      const sx = x, sy = y + 1; const matId = world.get(sx, sy);
+      if (matId !== 0 && !NO_TELEPORT.has(matId) && !world.isUpdated(sx, sy) && Math.random() < 0.3) {
+        const start = Math.floor(Math.random() * 4); let teleported = false;
+        if (!teleported) { const edx = [0,0,-1,1][start%4], edy = [-1,1,0,0][start%4]; const ex = px+edx, ey = py+edy; if (world.inBounds(ex,ey) && world.isEmpty(ex,ey)) { world.set(sx,sy,0); world.set(ex,ey,matId); world.markUpdated(ex,ey); teleported = true; } }
+        if (!teleported) { const edx = [0,0,-1,1][(start+1)%4], edy = [-1,1,0,0][(start+1)%4]; const ex = px+edx, ey = py+edy; if (world.inBounds(ex,ey) && world.isEmpty(ex,ey)) { world.set(sx,sy,0); world.set(ex,ey,matId); world.markUpdated(ex,ey); teleported = true; } }
+        if (!teleported) { const edx = [0,0,-1,1][(start+2)%4], edy = [-1,1,0,0][(start+2)%4]; const ex = px+edx, ey = py+edy; if (world.inBounds(ex,ey) && world.isEmpty(ex,ey)) { world.set(sx,sy,0); world.set(ex,ey,matId); world.markUpdated(ex,ey); teleported = true; } }
+        if (!teleported) { const edx = [0,0,-1,1][(start+3)%4], edy = [-1,1,0,0][(start+3)%4]; const ex = px+edx, ey = py+edy; if (world.inBounds(ex,ey) && world.isEmpty(ex,ey)) { world.set(sx,sy,0); world.set(ex,ey,matId); world.markUpdated(ex,ey); } }
+        return;
+      }
+    }
+    if (world.inBounds(x - 1, y)) {
+      const sx = x - 1, sy = y; const matId = world.get(sx, sy);
+      if (matId !== 0 && !NO_TELEPORT.has(matId) && !world.isUpdated(sx, sy) && Math.random() < 0.3) {
+        const start = Math.floor(Math.random() * 4); let teleported = false;
+        if (!teleported) { const edx = [0,0,-1,1][start%4], edy = [-1,1,0,0][start%4]; const ex = px+edx, ey = py+edy; if (world.inBounds(ex,ey) && world.isEmpty(ex,ey)) { world.set(sx,sy,0); world.set(ex,ey,matId); world.markUpdated(ex,ey); teleported = true; } }
+        if (!teleported) { const edx = [0,0,-1,1][(start+1)%4], edy = [-1,1,0,0][(start+1)%4]; const ex = px+edx, ey = py+edy; if (world.inBounds(ex,ey) && world.isEmpty(ex,ey)) { world.set(sx,sy,0); world.set(ex,ey,matId); world.markUpdated(ex,ey); teleported = true; } }
+        if (!teleported) { const edx = [0,0,-1,1][(start+2)%4], edy = [-1,1,0,0][(start+2)%4]; const ex = px+edx, ey = py+edy; if (world.inBounds(ex,ey) && world.isEmpty(ex,ey)) { world.set(sx,sy,0); world.set(ex,ey,matId); world.markUpdated(ex,ey); teleported = true; } }
+        if (!teleported) { const edx = [0,0,-1,1][(start+3)%4], edy = [-1,1,0,0][(start+3)%4]; const ex = px+edx, ey = py+edy; if (world.inBounds(ex,ey) && world.isEmpty(ex,ey)) { world.set(sx,sy,0); world.set(ex,ey,matId); world.markUpdated(ex,ey); } }
+        return;
+      }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const sx = x + 1, sy = y; const matId = world.get(sx, sy);
+      if (matId !== 0 && !NO_TELEPORT.has(matId) && !world.isUpdated(sx, sy) && Math.random() < 0.3) {
+        const start = Math.floor(Math.random() * 4); let teleported = false;
+        if (!teleported) { const edx = [0,0,-1,1][start%4], edy = [-1,1,0,0][start%4]; const ex = px+edx, ey = py+edy; if (world.inBounds(ex,ey) && world.isEmpty(ex,ey)) { world.set(sx,sy,0); world.set(ex,ey,matId); world.markUpdated(ex,ey); teleported = true; } }
+        if (!teleported) { const edx = [0,0,-1,1][(start+1)%4], edy = [-1,1,0,0][(start+1)%4]; const ex = px+edx, ey = py+edy; if (world.inBounds(ex,ey) && world.isEmpty(ex,ey)) { world.set(sx,sy,0); world.set(ex,ey,matId); world.markUpdated(ex,ey); teleported = true; } }
+        if (!teleported) { const edx = [0,0,-1,1][(start+2)%4], edy = [-1,1,0,0][(start+2)%4]; const ex = px+edx, ey = py+edy; if (world.inBounds(ex,ey) && world.isEmpty(ex,ey)) { world.set(sx,sy,0); world.set(ex,ey,matId); world.markUpdated(ex,ey); teleported = true; } }
+        if (!teleported) { const edx = [0,0,-1,1][(start+3)%4], edy = [-1,1,0,0][(start+3)%4]; const ex = px+edx, ey = py+edy; if (world.inBounds(ex,ey) && world.isEmpty(ex,ey)) { world.set(sx,sy,0); world.set(ex,ey,matId); world.markUpdated(ex,ey); } }
+        return;
       }
     }
   },
