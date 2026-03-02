@@ -916,7 +916,7 @@ export class Toolbar {
     const slider = document.createElement('input');
     slider.type = 'range';
     slider.min = '1';
-    slider.max = '10';
+    slider.max = '20';
     slider.value = String(this.input.getBrushSize());
     slider.setAttribute('aria-label', '笔刷大小');
     slider.addEventListener('input', () => {
@@ -929,6 +929,28 @@ export class Toolbar {
     brushDiv.appendChild(brushLabel);
     brushDiv.appendChild(slider);
     controlPanel.appendChild(brushDiv);
+
+    // 笔刷快速尺寸按钮（1/3/5/10/20px）
+    const brushPresetDiv = document.createElement('div');
+    brushPresetDiv.className = 'control-row';
+    brushPresetDiv.style.gap = '3px';
+    const brushPresetLabel = document.createElement('span');
+    brushPresetLabel.className = 'control-label';
+    brushPresetLabel.textContent = '快速:';
+    brushPresetDiv.appendChild(brushPresetLabel);
+    for (const sz of [1, 3, 5, 10, 20]) {
+      const btn = document.createElement('button');
+      btn.className = 'ctrl-btn';
+      btn.textContent = String(sz);
+      btn.title = `笔刷大小 ${sz}px`;
+      btn.style.cssText = 'padding:2px 5px;font-size:11px;min-width:26px;';
+      btn.addEventListener('click', () => {
+        this.input.setBrushSize(sz);
+        this.refreshBrushSize();
+      });
+      brushPresetDiv.appendChild(btn);
+    }
+    controlPanel.appendChild(brushPresetDiv);
 
     // 笔刷形状
     const shapeDiv = document.createElement('div');

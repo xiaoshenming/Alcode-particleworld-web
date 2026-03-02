@@ -548,6 +548,76 @@ function generateBattlefield(world: World): void {
   world.setWind(2, 0.4);
 }
 
+/** 场景：深海热泉 —— 海底热泉喷口+矿物结晶+海水 */
+function generateHydrothermal(world: World): void {
+  const W = world.width, H = world.height;
+  world.clear();
+
+  // 海底地层：石头和黑曜石
+  fillRect(world, 0, H - 12, W - 1, H - 1, 3); // 石头地基
+  fillRect(world, 0, H - 8, W - 1, H - 1, 60); // 黑曜石面层
+
+  // 整个空间充满水（深海）
+  fillRect(world, 0, 0, W - 1, H - 9, 2); // 深海水
+
+  // 热泉喷口1（左侧）：蛇纹岩围成的烟囱形状
+  const vent1X = Math.floor(W * 0.25);
+  fillRect(world, vent1X - 5, H - 20, vent1X - 4, H - 9, 269); // 左壁（蛇纹岩）
+  fillRect(world, vent1X + 4, H - 20, vent1X + 5, H - 9, 269); // 右壁
+  fillRect(world, vent1X - 3, H - 22, vent1X + 3, H - 21, 269); // 顶部收口
+  // 喷口内熔岩
+  for (let y = H - 20; y < H - 9; y++) {
+    if (world.inBounds(vent1X, y)) world.set(vent1X, y, 11); // 熔岩柱
+  }
+  // 热泉周围矿物结晶（硫磺+硫化物）
+  scatter(world, vent1X - 8, H - 18, vent1X + 8, H - 9, 66, 0.15); // 硫磺
+  scatter(world, vent1X - 6, H - 15, vent1X + 6, H - 9, 53, 0.1); // 水晶
+
+  // 热泉喷口2（右侧）：更高的黑烟囱
+  const vent2X = Math.floor(W * 0.7);
+  fillRect(world, vent2X - 4, H - 30, vent2X - 3, H - 9, 77); // 岩浆岩壁
+  fillRect(world, vent2X + 3, H - 30, vent2X + 4, H - 9, 77);
+  fillRect(world, vent2X - 2, H - 32, vent2X + 2, H - 31, 77); // 顶部
+  // 内部熔岩+高温蒸汽
+  for (let y = H - 30; y < H - 9; y++) {
+    if (world.inBounds(vent2X, y)) world.set(vent2X, y, 11);
+    if (world.inBounds(vent2X - 1, y) && Math.random() < 0.5) world.set(vent2X - 1, y, 8); // 蒸汽
+  }
+  scatter(world, vent2X - 7, H - 28, vent2X + 7, H - 9, 66, 0.12);
+  scatter(world, vent2X - 5, H - 22, vent2X + 5, H - 9, 98, 0.08); // 石英
+
+  // 海底珊瑚礁（左右两侧）
+  for (let i = 0; i < 8; i++) {
+    const cx = 5 + Math.floor(Math.random() * (W / 3));
+    const cy = H - 9;
+    const cr = 2 + Math.floor(Math.random() * 4);
+    fillCircle(world, cx, cy - cr, cr, 64); // 珊瑚
+  }
+  for (let i = 0; i < 6; i++) {
+    const cx = Math.floor(W * 0.8) + Math.floor(Math.random() * (W / 5));
+    const cy = H - 9;
+    const cr = 2 + Math.floor(Math.random() * 3);
+    fillCircle(world, cx, cy - cr, cr, 64);
+  }
+
+  // 海水中散布水草和海藻
+  scatter(world, 0, H - 20, W - 1, H - 9, 156, 0.04); // 水草
+  scatter(world, 0, H - 30, W - 1, H - 15, 73, 0.01); // 泡泡（热液释放）
+
+  // 深海发光生物（荧光藻）
+  scatter(world, 0, 0, W - 1, H - 20, 140, 0.003); // 荧光藻
+
+  // 热泉周围设置高温
+  for (let dy = -15; dy < 0; dy++) {
+    for (let dx = -6; dx <= 6; dx++) {
+      const x1 = vent1X + dx, y1 = H - 9 + dy;
+      const x2 = vent2X + dx, y2 = H - 9 + dy;
+      if (world.inBounds(x1, y1)) world.setTemp(x1, y1, 300 + Math.random() * 200);
+      if (world.inBounds(x2, y2)) world.setTemp(x2, y2, 400 + Math.random() * 300);
+    }
+  }
+}
+
 /** 所有预设场景 */
 export const SCENE_PRESETS: ScenePreset[] = [
   { name: '火山', icon: '🌋', description: '熔岩喷发的火山场景', generate: generateVolcano },
@@ -561,6 +631,7 @@ export const SCENE_PRESETS: ScenePreset[] = [
   { name: '末日火山', icon: '🔥', description: '末日熔岩雨与火山喷发', generate: generateApocalypse },
   { name: '地下洞穴', icon: '🦇', description: '水晶+地下湖+钟乳石+熔岩池', generate: generateCave },
   { name: '战场', icon: '💥', description: '弹坑+火焰+金属碎片+毒气烟雾', generate: generateBattlefield },
+  { name: '深海热泉', icon: '🌊', description: '海底热泉喷口+矿物结晶+发光深海生物', generate: generateHydrothermal },
 ];
 
 /**

@@ -84,7 +84,7 @@ export class InputHandler {
   }
 
   setBrushSize(size: number): void {
-    this.brushSize = Math.max(1, Math.min(10, size));
+    this.brushSize = Math.max(1, Math.min(20, size));
   }
 
   getBrushSize(): number {
