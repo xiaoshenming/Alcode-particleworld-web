@@ -1,7 +1,13 @@
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
-/** 油 —— 液体，密度比水低（浮在水面），可燃 */
+/** 油 —— 液体，密度比水低（浮在水面），可燃
+ * 新增：高温自燃（接触火/熔岩/高温时自燃，产生浓烟）
+ */
+
+/** 点火源材质 ID */
+const OIL_IGNITORS = new Set([6, 11, 28]); // 火、熔岩、火花
+
 export const Oil: MaterialDef = {
   id: 5,
   name: '油',
@@ -13,6 +19,36 @@ export const Oil: MaterialDef = {
   },
   density: 1.5,
   update(x: number, y: number, world: WorldAPI) {
+    // 高温自燃：温度超过 200° 时油会自燃
+    const temp = world.getTemp(x, y);
+    if (temp > 200 && Math.random() < 0.05) {
+      world.set(x, y, 6); // 自燃变火
+      world.setTemp(x, y, 300);
+      return;
+    }
+
+    // 接触点火源（火/熔岩/火花）直接点燃
+    if (world.inBounds(x, y - 1) && OIL_IGNITORS.has(world.get(x, y - 1))) {
+      world.set(x, y, 6);
+      world.setTemp(x, y, 200);
+      return;
+    }
+    if (world.inBounds(x, y + 1) && OIL_IGNITORS.has(world.get(x, y + 1))) {
+      world.set(x, y, 6);
+      world.setTemp(x, y, 200);
+      return;
+    }
+    if (world.inBounds(x - 1, y) && OIL_IGNITORS.has(world.get(x - 1, y))) {
+      world.set(x, y, 6);
+      world.setTemp(x, y, 200);
+      return;
+    }
+    if (world.inBounds(x + 1, y) && OIL_IGNITORS.has(world.get(x + 1, y))) {
+      world.set(x, y, 6);
+      world.setTemp(x, y, 200);
+      return;
+    }
+
     if (y >= world.height - 1) return;
 
     // 1. 直接下落（空气或密度更低的）

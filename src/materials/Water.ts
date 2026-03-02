@@ -1,7 +1,9 @@
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
-/** 水 —— 液体类，受重力影响，可水平流动 */
+/** 水 —— 液体类，受重力影响，可水平流动
+ * 新增：接触熔岩→蒸汽+黑曜石（与 Lava.ts 互补的双向反应）
+ */
 export const Water: MaterialDef = {
   id: 2,
   name: '水',
@@ -24,6 +26,31 @@ export const Water: MaterialDef = {
     if (world.getTemp(x, y) < -10) {
       world.set(x, y, 14); // 冰
       return;
+    }
+
+    // 接触熔岩：水被蒸发，熔岩急冷变黑曜石（水端的互动，与 Lava.ts 的双向反应）
+    // 检查四邻方向，若有熔岩则以小概率触发
+    if (Math.random() < 0.15) {
+      if (world.inBounds(x, y + 1) && world.get(x, y + 1) === 11) {
+        world.set(x, y, 8);    // 水变蒸汽
+        world.set(x, y + 1, 60); // 熔岩急冷为黑曜石
+        return;
+      }
+      if (world.inBounds(x, y - 1) && world.get(x, y - 1) === 11) {
+        world.set(x, y, 8);
+        world.set(x, y - 1, 60);
+        return;
+      }
+      if (world.inBounds(x - 1, y) && world.get(x - 1, y) === 11) {
+        world.set(x, y, 8);
+        world.set(x - 1, y, 60);
+        return;
+      }
+      if (world.inBounds(x + 1, y) && world.get(x + 1, y) === 11) {
+        world.set(x, y, 8);
+        world.set(x + 1, y, 60);
+        return;
+      }
     }
 
     if (y >= world.height - 1) return;
