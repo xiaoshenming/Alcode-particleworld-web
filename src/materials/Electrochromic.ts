@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -51,10 +50,113 @@ export const Electrochromic: MaterialDef = {
     }
 
     let powered = false;
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
+      const nid = world.get(nx, ny);
+
+      // 检测电源
+      if (nid === 44 || nid === 16 || nid === 145) {
+        powered = true;
+      }
+
+      // 检测邻近已通电的电致变色材料（链式传导）
+      if (nid === 285) {
+        const key = ny * world.width + nx;
+        if (poweredSet.has(key)) {
+          powered = true;
+        }
+      }
+
+      // 酸腐蚀
+      if (nid === 9 && Math.random() < 0.02) {
+        world.set(x, y, 0);
+        world.set(nx, ny, 7);
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 强酸
+      if ((nid === 173 || nid === 183) && Math.random() < 0.04) {
+        world.set(x, y, 0);
+        world.set(nx, ny, 7);
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        return;
+      }
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 检测电源
+      if (nid === 44 || nid === 16 || nid === 145) {
+        powered = true;
+      }
+
+      // 检测邻近已通电的电致变色材料（链式传导）
+      if (nid === 285) {
+        const key = ny * world.width + nx;
+        if (poweredSet.has(key)) {
+          powered = true;
+        }
+      }
+
+      // 酸腐蚀
+      if (nid === 9 && Math.random() < 0.02) {
+        world.set(x, y, 0);
+        world.set(nx, ny, 7);
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 强酸
+      if ((nid === 173 || nid === 183) && Math.random() < 0.04) {
+        world.set(x, y, 0);
+        world.set(nx, ny, 7);
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        return;
+      }
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 检测电源
+      if (nid === 44 || nid === 16 || nid === 145) {
+        powered = true;
+      }
+
+      // 检测邻近已通电的电致变色材料（链式传导）
+      if (nid === 285) {
+        const key = ny * world.width + nx;
+        if (poweredSet.has(key)) {
+          powered = true;
+        }
+      }
+
+      // 酸腐蚀
+      if (nid === 9 && Math.random() < 0.02) {
+        world.set(x, y, 0);
+        world.set(nx, ny, 7);
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 强酸
+      if ((nid === 173 || nid === 183) && Math.random() < 0.04) {
+        world.set(x, y, 0);
+        world.set(nx, ny, 7);
+        world.markUpdated(nx, ny);
+        world.wakeArea(x, y);
+        return;
+      }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
       const nid = world.get(nx, ny);
 
       // 检测电源
@@ -101,9 +203,26 @@ export const Electrochromic: MaterialDef = {
       // 通电变色：刷新为亮青色
       world.set(x, y, 285);
       // 唤醒邻居传导
-      for (const [dx, dy] of dirs) {
-        const nx = x + dx, ny = y + dy;
-        if (!world.inBounds(nx, ny)) continue;
+      if (world.inBounds(x, y - 1)) {
+        const nx = x, ny = y - 1;
+        if (world.get(nx, ny) === 285) {
+          world.wakeArea(nx, ny);
+        }
+      }
+      if (world.inBounds(x, y + 1)) {
+        const nx = x, ny = y + 1;
+        if (world.get(nx, ny) === 285) {
+          world.wakeArea(nx, ny);
+        }
+      }
+      if (world.inBounds(x - 1, y)) {
+        const nx = x - 1, ny = y;
+        if (world.get(nx, ny) === 285) {
+          world.wakeArea(nx, ny);
+        }
+      }
+      if (world.inBounds(x + 1, y)) {
+        const nx = x + 1, ny = y;
         if (world.get(nx, ny) === 285) {
           world.wakeArea(nx, ny);
         }
@@ -111,9 +230,44 @@ export const Electrochromic: MaterialDef = {
     }
 
     // 低导热
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
+      const nid = world.get(nx, ny);
+      if (nid !== 0 && Math.random() < 0.03) {
+        const nt = world.getTemp(nx, ny);
+        if (Math.abs(temp - nt) > 8) {
+          const diff = (nt - temp) * 0.04;
+          world.addTemp(x, y, diff);
+          world.addTemp(nx, ny, -diff);
+        }
+      }
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+      if (nid !== 0 && Math.random() < 0.03) {
+        const nt = world.getTemp(nx, ny);
+        if (Math.abs(temp - nt) > 8) {
+          const diff = (nt - temp) * 0.04;
+          world.addTemp(x, y, diff);
+          world.addTemp(nx, ny, -diff);
+        }
+      }
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+      if (nid !== 0 && Math.random() < 0.03) {
+        const nt = world.getTemp(nx, ny);
+        if (Math.abs(temp - nt) > 8) {
+          const diff = (nt - temp) * 0.04;
+          world.addTemp(x, y, diff);
+          world.addTemp(nx, ny, -diff);
+        }
+      }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
       const nid = world.get(nx, ny);
       if (nid !== 0 && Math.random() < 0.03) {
         const nt = world.getTemp(nx, ny);

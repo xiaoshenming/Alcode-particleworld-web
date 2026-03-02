@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -101,10 +100,32 @@ export const Cloud: MaterialDef = {
     }
 
     // 吸收相邻蒸汽（蒸汽聚合为云）
-    const dirs = DIRS4;
-    for (const [ddx, ddy] of dirs) {
-      const nx = x + ddx, ny = y + ddy;
-      if (!world.inBounds(nx, ny)) continue;
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
+      if (world.get(nx, ny) === 8 && Math.random() < 0.05) { // 蒸汽
+        world.set(nx, ny, 76); // 变为云
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      if (world.get(nx, ny) === 8 && Math.random() < 0.05) { // 蒸汽
+        world.set(nx, ny, 76); // 变为云
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      if (world.get(nx, ny) === 8 && Math.random() < 0.05) { // 蒸汽
+        world.set(nx, ny, 76); // 变为云
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
       if (world.get(nx, ny) === 8 && Math.random() < 0.05) { // 蒸汽
         world.set(nx, ny, 76); // 变为云
         world.markUpdated(nx, ny);

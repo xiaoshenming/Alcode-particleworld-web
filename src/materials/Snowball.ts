@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -53,10 +52,35 @@ export const Snowball: MaterialDef = {
     }
 
     // 邻居检测：遇热源融化
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
+      const nid = world.get(nx, ny);
+      if (HOT.has(nid)) {
+        world.set(x, y, 2); // 融化为水
+        world.wakeArea(x, y);
+        return;
+      }
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+      if (HOT.has(nid)) {
+        world.set(x, y, 2); // 融化为水
+        world.wakeArea(x, y);
+        return;
+      }
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+      if (HOT.has(nid)) {
+        world.set(x, y, 2); // 融化为水
+        world.wakeArea(x, y);
+        return;
+      }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
       const nid = world.get(nx, ny);
       if (HOT.has(nid)) {
         world.set(x, y, 2); // 融化为水
@@ -117,8 +141,26 @@ export const Snowball: MaterialDef = {
 
     // 缓慢降温周围
     if (Math.random() < 0.05) {
-      for (const [dx, dy] of dirs) {
-        const nx = x + dx, ny = y + dy;
+      if (world.inBounds(x, y - 1)) {
+        const nx = x, ny = y - 1;
+        if (world.inBounds(nx, ny)) {
+          world.addTemp(nx, ny, -0.5);
+        }
+      }
+      if (world.inBounds(x, y + 1)) {
+        const nx = x, ny = y + 1;
+        if (world.inBounds(nx, ny)) {
+          world.addTemp(nx, ny, -0.5);
+        }
+      }
+      if (world.inBounds(x - 1, y)) {
+        const nx = x - 1, ny = y;
+        if (world.inBounds(nx, ny)) {
+          world.addTemp(nx, ny, -0.5);
+        }
+      }
+      if (world.inBounds(x + 1, y)) {
+        const nx = x + 1, ny = y;
         if (world.inBounds(nx, ny)) {
           world.addTemp(nx, ny, -0.5);
         }

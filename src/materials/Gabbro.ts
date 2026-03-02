@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -54,10 +53,74 @@ export const Gabbro: MaterialDef = {
     }
 
     // 检查邻居交互
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
+      const nid = world.get(nx, ny);
+
+      // 普通酸(9)缓慢腐蚀
+      if (nid === 9 && Math.random() < 0.008) {
+        world.set(x, y, 0);
+        world.set(nx, ny, 7); // 烟
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 强酸：硫酸(173)、硝酸(183)腐蚀稍快
+      if ((nid === 173 || nid === 183) && Math.random() < 0.015) {
+        world.set(x, y, 0);
+        world.set(nx, ny, 7); // 烟
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 普通酸(9)缓慢腐蚀
+      if (nid === 9 && Math.random() < 0.008) {
+        world.set(x, y, 0);
+        world.set(nx, ny, 7); // 烟
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 强酸：硫酸(173)、硝酸(183)腐蚀稍快
+      if ((nid === 173 || nid === 183) && Math.random() < 0.015) {
+        world.set(x, y, 0);
+        world.set(nx, ny, 7); // 烟
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 普通酸(9)缓慢腐蚀
+      if (nid === 9 && Math.random() < 0.008) {
+        world.set(x, y, 0);
+        world.set(nx, ny, 7); // 烟
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 强酸：硫酸(173)、硝酸(183)腐蚀稍快
+      if ((nid === 173 || nid === 183) && Math.random() < 0.015) {
+        world.set(x, y, 0);
+        world.set(nx, ny, 7); // 烟
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
       const nid = world.get(nx, ny);
 
       // 普通酸(9)缓慢腐蚀
@@ -81,9 +144,35 @@ export const Gabbro: MaterialDef = {
 
     // 低导热：温差>10时缓慢传导
     if (Math.random() < 0.03) {
-      for (const [dx, dy] of dirs) {
-        const nx = x + dx, ny = y + dy;
-        if (!world.inBounds(nx, ny)) continue;
+      if (world.inBounds(x, y - 1)) {
+        const nx = x, ny = y - 1;
+        const nTemp = world.getTemp(nx, ny);
+        if (Math.abs(temp - nTemp) > 10) {
+          const transfer = (nTemp - temp) * 0.04;
+          world.addTemp(x, y, transfer);
+          world.addTemp(nx, ny, -transfer);
+        }
+      }
+      if (world.inBounds(x, y + 1)) {
+        const nx = x, ny = y + 1;
+        const nTemp = world.getTemp(nx, ny);
+        if (Math.abs(temp - nTemp) > 10) {
+          const transfer = (nTemp - temp) * 0.04;
+          world.addTemp(x, y, transfer);
+          world.addTemp(nx, ny, -transfer);
+        }
+      }
+      if (world.inBounds(x - 1, y)) {
+        const nx = x - 1, ny = y;
+        const nTemp = world.getTemp(nx, ny);
+        if (Math.abs(temp - nTemp) > 10) {
+          const transfer = (nTemp - temp) * 0.04;
+          world.addTemp(x, y, transfer);
+          world.addTemp(nx, ny, -transfer);
+        }
+      }
+      if (world.inBounds(x + 1, y)) {
+        const nx = x + 1, ny = y;
         const nTemp = world.getTemp(nx, ny);
         if (Math.abs(temp - nTemp) > 10) {
           const transfer = (nTemp - temp) * 0.04;

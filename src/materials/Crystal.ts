@@ -49,12 +49,28 @@ export const Crystal: MaterialDef = {
 
     // 结晶生长：检查邻居是否有盐水/盐
     let hasSource = false;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    if (!hasSource && world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       if (CRYSTAL_SOURCE.has(world.get(nx, ny))) {
         hasSource = true;
-        break;
+      }
+    }
+    if (!hasSource && world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      if (CRYSTAL_SOURCE.has(world.get(nx, ny))) {
+        hasSource = true;
+      }
+    }
+    if (!hasSource && world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      if (CRYSTAL_SOURCE.has(world.get(nx, ny))) {
+        hasSource = true;
+      }
+    }
+    if (!hasSource && world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      if (CRYSTAL_SOURCE.has(world.get(nx, ny))) {
+        hasSource = true;
       }
     }
 

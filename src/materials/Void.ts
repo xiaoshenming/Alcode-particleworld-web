@@ -1,4 +1,3 @@
-import { DIRS8 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -24,18 +23,46 @@ export const Void: MaterialDef = {
   },
   density: Infinity,
   update(x: number, y: number, world: WorldAPI) {
-    // 扫描周围 8 个方向，吞噬所有非免疫材质
-    const dirs = DIRS8;
-
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx;
-      const ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 扫描周围 8 个方向，吞噬所有非免疫材质（8方向显式展开，无HOF）
+    if (world.inBounds(x - 1, y - 1)) {
+      const nx = x - 1, ny = y - 1;
       const nid = world.get(nx, ny);
-      if (!IMMUNE.has(nid)) {
-        world.set(nx, ny, 0); // 吞噬 → 变空气
-        world.markUpdated(nx, ny);
-      }
+      if (!IMMUNE.has(nid)) { world.set(nx, ny, 0); world.markUpdated(nx, ny); }
+    }
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
+      const nid = world.get(nx, ny);
+      if (!IMMUNE.has(nid)) { world.set(nx, ny, 0); world.markUpdated(nx, ny); }
+    }
+    if (world.inBounds(x + 1, y - 1)) {
+      const nx = x + 1, ny = y - 1;
+      const nid = world.get(nx, ny);
+      if (!IMMUNE.has(nid)) { world.set(nx, ny, 0); world.markUpdated(nx, ny); }
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+      if (!IMMUNE.has(nid)) { world.set(nx, ny, 0); world.markUpdated(nx, ny); }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+      if (!IMMUNE.has(nid)) { world.set(nx, ny, 0); world.markUpdated(nx, ny); }
+    }
+    if (world.inBounds(x - 1, y + 1)) {
+      const nx = x - 1, ny = y + 1;
+      const nid = world.get(nx, ny);
+      if (!IMMUNE.has(nid)) { world.set(nx, ny, 0); world.markUpdated(nx, ny); }
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+      if (!IMMUNE.has(nid)) { world.set(nx, ny, 0); world.markUpdated(nx, ny); }
+    }
+    if (world.inBounds(x + 1, y + 1)) {
+      const nx = x + 1, ny = y + 1;
+      const nid = world.get(nx, ny);
+      if (!IMMUNE.has(nid)) { world.set(nx, ny, 0); world.markUpdated(nx, ny); }
     }
   },
 };

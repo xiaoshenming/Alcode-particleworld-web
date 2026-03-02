@@ -41,14 +41,36 @@ export const PhotoAcoustoMagneticMaterial3: MaterialDef = {
 
     // 检测光照
     let hasLight = false;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    if (!hasLight && world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
       // 光束(48)、激光(47)、等离子体(55)
       if (nid === 48 || nid === 47 || nid === 55) {
         hasLight = true;
-        break;
+      }
+    }
+    if (!hasLight && world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+      // 光束(48)、激光(47)、等离子体(55)
+      if (nid === 48 || nid === 47 || nid === 55) {
+        hasLight = true;
+      }
+    }
+    if (!hasLight && world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+      // 光束(48)、激光(47)、等离子体(55)
+      if (nid === 48 || nid === 47 || nid === 55) {
+        hasLight = true;
+      }
+    }
+    if (!hasLight && world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+      // 光束(48)、激光(47)、等离子体(55)
+      if (nid === 48 || nid === 47 || nid === 55) {
+        hasLight = true;
       }
     }
 

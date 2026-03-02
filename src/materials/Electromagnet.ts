@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -51,13 +50,28 @@ export const Electromagnet: MaterialDef = {
 
     // 检查是否邻近电线（增强磁力）
     let powered = false;
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    if (!powered && world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       if (world.get(nx, ny) === 44) {
         powered = true;
-        break;
+      }
+    }
+    if (!powered && world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      if (world.get(nx, ny) === 44) {
+        powered = true;
+      }
+    }
+    if (!powered && world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      if (world.get(nx, ny) === 44) {
+        powered = true;
+      }
+    }
+    if (!powered && world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      if (world.get(nx, ny) === 44) {
+        powered = true;
       }
     }
 

@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -51,19 +50,12 @@ export const Gear: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
-
-    // 检测是否被电力激活（邻居有电线或雷电）
+    // 检测是否被电力激活（邻居有电线或雷电，4方向显式展开，无HOF）
     let powered = false;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-      if (nid === 44 || nid === 16) { // 电线或雷电
-        powered = true;
-        break;
-      }
-    }
+    if (!powered && world.inBounds(x, y - 1)) { const nid = world.get(x, y - 1); if (nid === 44 || nid === 16) powered = true; }
+    if (!powered && world.inBounds(x, y + 1)) { const nid = world.get(x, y + 1); if (nid === 44 || nid === 16) powered = true; }
+    if (!powered && world.inBounds(x - 1, y)) { const nid = world.get(x - 1, y); if (nid === 44 || nid === 16) powered = true; }
+    if (!powered && world.inBounds(x + 1, y)) { const nid = world.get(x + 1, y); if (nid === 44 || nid === 16) powered = true; }
 
     // 推动概率：通电时更强
     const pushChance = powered ? 0.4 : 0.12;
@@ -84,30 +76,61 @@ export const Gear: MaterialDef = {
       }
     }
 
-    // 邻居交互
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 邻居交互（4方向显式展开，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
-
-      // 推动相邻粉末
       if (PUSHABLE.has(nid) && Math.random() < pushChance) {
         const targetX = nx + pushDir;
         const targetY = ny;
         if (world.inBounds(targetX, targetY) && world.isEmpty(targetX, targetY)) {
-          world.swap(nx, ny, targetX, targetY);
-          world.wakeArea(nx, ny);
-          world.wakeArea(targetX, targetY);
+          world.swap(nx, ny, targetX, targetY); world.wakeArea(nx, ny); world.wakeArea(targetX, targetY);
         }
       }
-
-      // 遇酸液腐蚀
       if (nid === 9 && Math.random() < 0.005) {
-        world.set(x, y, 0);
-        world.set(nx, ny, 7); // 烟
-        world.wakeArea(x, y);
-        world.wakeArea(nx, ny);
-        return;
+        world.set(x, y, 0); world.set(nx, ny, 7); world.wakeArea(x, y); world.wakeArea(nx, ny); return;
+      }
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+      if (PUSHABLE.has(nid) && Math.random() < pushChance) {
+        const targetX = nx + pushDir;
+        const targetY = ny;
+        if (world.inBounds(targetX, targetY) && world.isEmpty(targetX, targetY)) {
+          world.swap(nx, ny, targetX, targetY); world.wakeArea(nx, ny); world.wakeArea(targetX, targetY);
+        }
+      }
+      if (nid === 9 && Math.random() < 0.005) {
+        world.set(x, y, 0); world.set(nx, ny, 7); world.wakeArea(x, y); world.wakeArea(nx, ny); return;
+      }
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+      if (PUSHABLE.has(nid) && Math.random() < pushChance) {
+        const targetX = nx + pushDir;
+        const targetY = ny;
+        if (world.inBounds(targetX, targetY) && world.isEmpty(targetX, targetY)) {
+          world.swap(nx, ny, targetX, targetY); world.wakeArea(nx, ny); world.wakeArea(targetX, targetY);
+        }
+      }
+      if (nid === 9 && Math.random() < 0.005) {
+        world.set(x, y, 0); world.set(nx, ny, 7); world.wakeArea(x, y); world.wakeArea(nx, ny); return;
+      }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+      if (PUSHABLE.has(nid) && Math.random() < pushChance) {
+        const targetX = nx + pushDir;
+        const targetY = ny;
+        if (world.inBounds(targetX, targetY) && world.isEmpty(targetX, targetY)) {
+          world.swap(nx, ny, targetX, targetY); world.wakeArea(nx, ny); world.wakeArea(targetX, targetY);
+        }
+      }
+      if (nid === 9 && Math.random() < 0.005) {
+        world.set(x, y, 0); world.set(nx, ny, 7); world.wakeArea(x, y); world.wakeArea(nx, ny); return;
       }
     }
   },

@@ -50,14 +50,32 @@ export const PhotoelectricMaterial: MaterialDef = {
     const dirs = DIRS4;
 
     // 检测是否被光照射
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    if (!illuminated && world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
-
       if (nid === 47 || nid === 48) {
         illuminated = true;
-        break;
+      }
+    }
+    if (!illuminated && world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+      if (nid === 47 || nid === 48) {
+        illuminated = true;
+      }
+    }
+    if (!illuminated && world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+      if (nid === 47 || nid === 48) {
+        illuminated = true;
+      }
+    }
+    if (!illuminated && world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+      if (nid === 47 || nid === 48) {
+        illuminated = true;
       }
     }
 

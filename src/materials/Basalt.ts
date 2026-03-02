@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -47,10 +46,47 @@ export const Basalt: MaterialDef = {
     }
 
     // 检查邻居交互
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
+      const nid = world.get(nx, ny);
+
+      // 酸液缓慢腐蚀（比石头慢）
+      if (nid === 9 && Math.random() < 0.005) {
+        world.set(x, y, 0);
+        world.set(nx, ny, 7); // 烟
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 酸液缓慢腐蚀（比石头慢）
+      if (nid === 9 && Math.random() < 0.005) {
+        world.set(x, y, 0);
+        world.set(nx, ny, 7); // 烟
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 酸液缓慢腐蚀（比石头慢）
+      if (nid === 9 && Math.random() < 0.005) {
+        world.set(x, y, 0);
+        world.set(nx, ny, 7); // 烟
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
       const nid = world.get(nx, ny);
 
       // 酸液缓慢腐蚀（比石头慢）
@@ -65,8 +101,29 @@ export const Basalt: MaterialDef = {
 
     // 高温时缓慢向周围传热
     if (temp > 100) {
-      for (const [dx, dy] of dirs) {
-        const nx = x + dx, ny = y + dy;
+      if (world.inBounds(x, y - 1)) {
+        const nx = x, ny = y - 1;
+        if (world.inBounds(nx, ny) && world.getTemp(nx, ny) < temp) {
+          world.addTemp(nx, ny, 0.3);
+          world.addTemp(x, y, -0.3);
+        }
+      }
+      if (world.inBounds(x, y + 1)) {
+        const nx = x, ny = y + 1;
+        if (world.inBounds(nx, ny) && world.getTemp(nx, ny) < temp) {
+          world.addTemp(nx, ny, 0.3);
+          world.addTemp(x, y, -0.3);
+        }
+      }
+      if (world.inBounds(x - 1, y)) {
+        const nx = x - 1, ny = y;
+        if (world.inBounds(nx, ny) && world.getTemp(nx, ny) < temp) {
+          world.addTemp(nx, ny, 0.3);
+          world.addTemp(x, y, -0.3);
+        }
+      }
+      if (world.inBounds(x + 1, y)) {
+        const nx = x + 1, ny = y;
         if (world.inBounds(nx, ny) && world.getTemp(nx, ny) < temp) {
           world.addTemp(nx, ny, 0.3);
           world.addTemp(x, y, -0.3);

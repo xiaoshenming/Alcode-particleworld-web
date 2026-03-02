@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -55,10 +54,68 @@ export const Limestone: MaterialDef = {
     }
 
     // 检查四邻
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
+      const nid = world.get(nx, ny);
+
+      // 遇酸缓慢溶解，产生泡沫
+      if (ACIDS.has(nid) && Math.random() < 0.04) {
+        world.set(x, y, 51); // 石灰石变泡沫（溶解）
+        world.set(nx, ny, 0); // 酸液消耗
+        world.wakeArea(x, y);
+        world.markUpdated(nx, ny);
+        return;
+      }
+
+      // 遇水极缓慢侵蚀
+      if (nid === 2 && Math.random() < 0.001) {
+        world.set(x, y, 0); // 侵蚀消失
+        world.wakeArea(x, y);
+        return;
+      }
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 遇酸缓慢溶解，产生泡沫
+      if (ACIDS.has(nid) && Math.random() < 0.04) {
+        world.set(x, y, 51); // 石灰石变泡沫（溶解）
+        world.set(nx, ny, 0); // 酸液消耗
+        world.wakeArea(x, y);
+        world.markUpdated(nx, ny);
+        return;
+      }
+
+      // 遇水极缓慢侵蚀
+      if (nid === 2 && Math.random() < 0.001) {
+        world.set(x, y, 0); // 侵蚀消失
+        world.wakeArea(x, y);
+        return;
+      }
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 遇酸缓慢溶解，产生泡沫
+      if (ACIDS.has(nid) && Math.random() < 0.04) {
+        world.set(x, y, 51); // 石灰石变泡沫（溶解）
+        world.set(nx, ny, 0); // 酸液消耗
+        world.wakeArea(x, y);
+        world.markUpdated(nx, ny);
+        return;
+      }
+
+      // 遇水极缓慢侵蚀
+      if (nid === 2 && Math.random() < 0.001) {
+        world.set(x, y, 0); // 侵蚀消失
+        world.wakeArea(x, y);
+        return;
+      }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
       const nid = world.get(nx, ny);
 
       // 遇酸缓慢溶解，产生泡沫
@@ -80,9 +137,32 @@ export const Limestone: MaterialDef = {
 
     // 缓慢散热
     if (temp > 30) {
-      for (const [dx, dy] of dirs) {
-        const nx = x + dx, ny = y + dy;
-        if (!world.inBounds(nx, ny)) continue;
+      if (world.inBounds(x, y - 1)) {
+        const nx = x, ny = y - 1;
+        const nTemp = world.getTemp(nx, ny);
+        if (nTemp < temp - 5) {
+          world.addTemp(nx, ny, 1);
+          world.addTemp(x, y, -1);
+        }
+      }
+      if (world.inBounds(x, y + 1)) {
+        const nx = x, ny = y + 1;
+        const nTemp = world.getTemp(nx, ny);
+        if (nTemp < temp - 5) {
+          world.addTemp(nx, ny, 1);
+          world.addTemp(x, y, -1);
+        }
+      }
+      if (world.inBounds(x - 1, y)) {
+        const nx = x - 1, ny = y;
+        const nTemp = world.getTemp(nx, ny);
+        if (nTemp < temp - 5) {
+          world.addTemp(nx, ny, 1);
+          world.addTemp(x, y, -1);
+        }
+      }
+      if (world.inBounds(x + 1, y)) {
+        const nx = x + 1, ny = y;
         const nTemp = world.getTemp(nx, ny);
         if (nTemp < temp - 5) {
           world.addTemp(nx, ny, 1);

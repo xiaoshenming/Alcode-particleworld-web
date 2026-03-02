@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -54,10 +53,74 @@ export const Granulite: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
+      const nid = world.get(nx, ny);
+
+      // 耐酸
+      if (nid === 9 && Math.random() < 0.004) {
+        world.set(x, y, 0);
+        world.set(nx, ny, 7);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 强酸
+      if ((nid === 173 || nid === 183) && Math.random() < 0.009) {
+        world.set(x, y, 0);
+        world.set(nx, ny, 7);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 耐酸
+      if (nid === 9 && Math.random() < 0.004) {
+        world.set(x, y, 0);
+        world.set(nx, ny, 7);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 强酸
+      if ((nid === 173 || nid === 183) && Math.random() < 0.009) {
+        world.set(x, y, 0);
+        world.set(nx, ny, 7);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 耐酸
+      if (nid === 9 && Math.random() < 0.004) {
+        world.set(x, y, 0);
+        world.set(nx, ny, 7);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+
+      // 强酸
+      if ((nid === 173 || nid === 183) && Math.random() < 0.009) {
+        world.set(x, y, 0);
+        world.set(nx, ny, 7);
+        world.wakeArea(x, y);
+        world.wakeArea(nx, ny);
+        return;
+      }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
       const nid = world.get(nx, ny);
 
       // 耐酸
@@ -81,9 +144,35 @@ export const Granulite: MaterialDef = {
 
     // 低导热
     if (Math.random() < 0.025) {
-      for (const [dx, dy] of dirs) {
-        const nx = x + dx, ny = y + dy;
-        if (!world.inBounds(nx, ny)) continue;
+      if (world.inBounds(x, y - 1)) {
+        const nx = x, ny = y - 1;
+        const nTemp = world.getTemp(nx, ny);
+        if (Math.abs(temp - nTemp) > 10) {
+          const transfer = (nTemp - temp) * 0.03;
+          world.addTemp(x, y, transfer);
+          world.addTemp(nx, ny, -transfer);
+        }
+      }
+      if (world.inBounds(x, y + 1)) {
+        const nx = x, ny = y + 1;
+        const nTemp = world.getTemp(nx, ny);
+        if (Math.abs(temp - nTemp) > 10) {
+          const transfer = (nTemp - temp) * 0.03;
+          world.addTemp(x, y, transfer);
+          world.addTemp(nx, ny, -transfer);
+        }
+      }
+      if (world.inBounds(x - 1, y)) {
+        const nx = x - 1, ny = y;
+        const nTemp = world.getTemp(nx, ny);
+        if (Math.abs(temp - nTemp) > 10) {
+          const transfer = (nTemp - temp) * 0.03;
+          world.addTemp(x, y, transfer);
+          world.addTemp(nx, ny, -transfer);
+        }
+      }
+      if (world.inBounds(x + 1, y)) {
+        const nx = x + 1, ny = y;
         const nTemp = world.getTemp(nx, ny);
         if (Math.abs(temp - nTemp) > 10) {
           const transfer = (nTemp - temp) * 0.03;

@@ -50,15 +50,36 @@ export const FulguriteSand: MaterialDef = {
     const dirs = DIRS4;
     let activated = false;
 
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    if (!activated && world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
-
       // 遇电弧/雷电被激活
       if (ELECTRIC.has(nid)) {
         activated = true;
-        break;
+      }
+    }
+    if (!activated && world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+      // 遇电弧/雷电被激活
+      if (ELECTRIC.has(nid)) {
+        activated = true;
+      }
+    }
+    if (!activated && world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+      // 遇电弧/雷电被激活
+      if (ELECTRIC.has(nid)) {
+        activated = true;
+      }
+    }
+    if (!activated && world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+      // 遇电弧/雷电被激活
+      if (ELECTRIC.has(nid)) {
+        activated = true;
       }
     }
 

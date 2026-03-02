@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -49,12 +48,43 @@ export const Ceramic: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
 
     // 隔热：极低传热率
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
+      const nTemp = world.getTemp(nx, ny);
+      const diff = temp - nTemp;
+      if (Math.abs(diff) > 5) {
+        // 陶瓷隔热，仅传递 3% 温差
+        const transfer = diff * 0.03;
+        world.addTemp(nx, ny, transfer);
+        world.addTemp(x, y, -transfer);
+      }
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nTemp = world.getTemp(nx, ny);
+      const diff = temp - nTemp;
+      if (Math.abs(diff) > 5) {
+        // 陶瓷隔热，仅传递 3% 温差
+        const transfer = diff * 0.03;
+        world.addTemp(nx, ny, transfer);
+        world.addTemp(x, y, -transfer);
+      }
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nTemp = world.getTemp(nx, ny);
+      const diff = temp - nTemp;
+      if (Math.abs(diff) > 5) {
+        // 陶瓷隔热，仅传递 3% 温差
+        const transfer = diff * 0.03;
+        world.addTemp(nx, ny, transfer);
+        world.addTemp(x, y, -transfer);
+      }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
       const nTemp = world.getTemp(nx, ny);
       const diff = temp - nTemp;
       if (Math.abs(diff) > 5) {
@@ -66,9 +96,104 @@ export const Ceramic: MaterialDef = {
     }
 
     // 邻居交互
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
+      const nid = world.get(nx, ny);
+
+      // 雷电击碎（脆性）
+      if (nid === 16 && Math.random() < 0.25) {
+        world.set(x, y, 1); // 碎裂为沙子
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 耐酸（极低腐蚀率）
+      if (nid === 9 && Math.random() < 0.001) {
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 黏土在高温邻居旁烧制为陶瓷
+      if (nid === 21 && temp > 200 && Math.random() < 0.02) {
+        world.set(nx, ny, 90); // 黏土→陶瓷
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 等离子体/爆炸击碎
+      if (nid === 55 && Math.random() < 0.3) {
+        world.set(x, y, 1); // 碎裂为沙子
+        world.wakeArea(x, y);
+        return;
+      }
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+
+      // 雷电击碎（脆性）
+      if (nid === 16 && Math.random() < 0.25) {
+        world.set(x, y, 1); // 碎裂为沙子
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 耐酸（极低腐蚀率）
+      if (nid === 9 && Math.random() < 0.001) {
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 黏土在高温邻居旁烧制为陶瓷
+      if (nid === 21 && temp > 200 && Math.random() < 0.02) {
+        world.set(nx, ny, 90); // 黏土→陶瓷
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 等离子体/爆炸击碎
+      if (nid === 55 && Math.random() < 0.3) {
+        world.set(x, y, 1); // 碎裂为沙子
+        world.wakeArea(x, y);
+        return;
+      }
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+
+      // 雷电击碎（脆性）
+      if (nid === 16 && Math.random() < 0.25) {
+        world.set(x, y, 1); // 碎裂为沙子
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 耐酸（极低腐蚀率）
+      if (nid === 9 && Math.random() < 0.001) {
+        world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 黏土在高温邻居旁烧制为陶瓷
+      if (nid === 21 && temp > 200 && Math.random() < 0.02) {
+        world.set(nx, ny, 90); // 黏土→陶瓷
+        world.markUpdated(nx, ny);
+        world.wakeArea(nx, ny);
+      }
+
+      // 等离子体/爆炸击碎
+      if (nid === 55 && Math.random() < 0.3) {
+        world.set(x, y, 1); // 碎裂为沙子
+        world.wakeArea(x, y);
+        return;
+      }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
       const nid = world.get(nx, ny);
 
       // 雷电击碎（脆性）
