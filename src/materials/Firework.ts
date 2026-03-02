@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -25,17 +24,24 @@ export const Firework: MaterialDef = {
     // age=0: 未点燃; age>0: 已点燃，剩余上升帧数
     let state = world.getAge(x, y);
 
-    // 未点燃状态：检查是否被点燃
+    // 未点燃状态：检查是否被点燃（显式4方向，无HOF）
     if (state === 0) {
       let ignited = false;
-      for (const [dx, dy] of DIRS4) {
-        const nx = x + dx, ny = y + dy;
-        if (!world.inBounds(nx, ny)) continue;
-        const nid = world.get(nx, ny);
-        if (nid === 6 || nid === 11) { // 火或熔岩
-          ignited = true;
-          break;
-        }
+      if (!ignited && world.inBounds(x, y - 1)) {
+        const nid0 = world.get(x, y - 1);
+        if (nid0 === 6 || nid0 === 11) { ignited = true; }
+      }
+      if (!ignited && world.inBounds(x, y + 1)) {
+        const nid1 = world.get(x, y + 1);
+        if (nid1 === 6 || nid1 === 11) { ignited = true; }
+      }
+      if (!ignited && world.inBounds(x - 1, y)) {
+        const nid2 = world.get(x - 1, y);
+        if (nid2 === 6 || nid2 === 11) { ignited = true; }
+      }
+      if (!ignited && world.inBounds(x + 1, y)) {
+        const nid3 = world.get(x + 1, y);
+        if (nid3 === 6 || nid3 === 11) { ignited = true; }
       }
       if (world.getTemp(x, y) > 100) ignited = true;
 

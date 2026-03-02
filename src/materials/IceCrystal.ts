@@ -1,5 +1,4 @@
 import type { MaterialDef, WorldAPI } from './types';
-import { DIRS4 } from './types';
 import { registerMaterial } from './registry';
 
 /**
@@ -39,29 +38,48 @@ export const IceCrystal: MaterialDef = {
     // 冰晶自身保持极低温
     world.setTemp(x, y, Math.min(temp, -20));
 
-    // 冷冻周围环境
-    for (const [dx, dy] of DIRS4) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-
-      // 遇热源（火/熔岩/蒸汽）加速融化
-      if (nid === 6 || nid === 11 || nid === 8) {
-        if (Math.random() < 0.15) {
-          world.set(x, y, 2); // 融化为水
-          world.setTemp(x, y, 5);
-          return;
-        }
+    // 冷冻周围环境（显式4方向，无HOF）
+    // 遇热源（火/熔岩/蒸汽）加速融化：立即return
+    if (world.inBounds(x, y - 1)) {
+      const nid0 = world.get(x, y - 1);
+      if (nid0 === 6 || nid0 === 11 || nid0 === 8) {
+        if (Math.random() < 0.15) { world.set(x, y, 2); world.setTemp(x, y, 5); return; }
       }
-
-      // 冷冻邻居：降温
-      world.addTemp(nx, ny, -2);
-
-      // 相邻水有概率冻结为冰(14)
-      if (nid === 2 && Math.random() < 0.01) {
-        world.set(nx, ny, 14); // 冰
-        world.markUpdated(nx, ny);
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nid1 = world.get(x, y + 1);
+      if (nid1 === 6 || nid1 === 11 || nid1 === 8) {
+        if (Math.random() < 0.15) { world.set(x, y, 2); world.setTemp(x, y, 5); return; }
       }
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nid2 = world.get(x - 1, y);
+      if (nid2 === 6 || nid2 === 11 || nid2 === 8) {
+        if (Math.random() < 0.15) { world.set(x, y, 2); world.setTemp(x, y, 5); return; }
+      }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nid3 = world.get(x + 1, y);
+      if (nid3 === 6 || nid3 === 11 || nid3 === 8) {
+        if (Math.random() < 0.15) { world.set(x, y, 2); world.setTemp(x, y, 5); return; }
+      }
+    }
+    // 冷冻邻居：降温 + 冻结水（不return）
+    if (world.inBounds(x, y - 1)) {
+      world.addTemp(x, y - 1, -2);
+      if (world.get(x, y - 1) === 2 && Math.random() < 0.01) { world.set(x, y - 1, 14); world.markUpdated(x, y - 1); }
+    }
+    if (world.inBounds(x, y + 1)) {
+      world.addTemp(x, y + 1, -2);
+      if (world.get(x, y + 1) === 2 && Math.random() < 0.01) { world.set(x, y + 1, 14); world.markUpdated(x, y + 1); }
+    }
+    if (world.inBounds(x - 1, y)) {
+      world.addTemp(x - 1, y, -2);
+      if (world.get(x - 1, y) === 2 && Math.random() < 0.01) { world.set(x - 1, y, 14); world.markUpdated(x - 1, y); }
+    }
+    if (world.inBounds(x + 1, y)) {
+      world.addTemp(x + 1, y, -2);
+      if (world.get(x + 1, y) === 2 && Math.random() < 0.01) { world.set(x + 1, y, 14); world.markUpdated(x + 1, y); }
     }
 
     // 保持活跃以刷新闪烁视觉效果

@@ -1,5 +1,4 @@
 import type { MaterialDef, WorldAPI } from './types';
-import { DIRS4 } from './types';
 import { registerMaterial } from './registry';
 
 /** 检查目标位置是否可以被当前密度的粒子穿过 */
@@ -98,16 +97,11 @@ export const FireworkShell: MaterialDef = {
 
     // === 未点燃状态 ===
 
-    // 检查邻居是否有点燃源
-    for (const [dx, dy] of DIRS4) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      if (IGNITE.has(world.get(nx, ny))) {
-        // 点燃！设置温度进入飞行状态
-        world.setTemp(x, y, 110);
-        return;
-      }
-    }
+    // 检查邻居是否有点燃源（显式4方向，无HOF）
+    if (world.inBounds(x, y - 1) && IGNITE.has(world.get(x, y - 1))) { world.setTemp(x, y, 110); return; }
+    if (world.inBounds(x, y + 1) && IGNITE.has(world.get(x, y + 1))) { world.setTemp(x, y, 110); return; }
+    if (world.inBounds(x - 1, y) && IGNITE.has(world.get(x - 1, y))) { world.setTemp(x, y, 110); return; }
+    if (world.inBounds(x + 1, y) && IGNITE.has(world.get(x + 1, y))) { world.setTemp(x, y, 110); return; }
 
     // 粉末物理：下落
     if (y >= world.height - 1) return;

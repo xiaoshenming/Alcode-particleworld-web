@@ -1,5 +1,4 @@
 import type { MaterialDef, WorldAPI } from './types';
-import { DIRS4 } from './types';
 import { registerMaterial } from './registry';
 
 /**
@@ -46,18 +45,19 @@ export const Tungsten: MaterialDef = {
       return;
     }
 
-    // 检查四邻：完全耐腐蚀
-    for (const [dx, dy] of DIRS4) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-
-      // 酸液接触钨无效，但酸液自身会被中和消耗
-      if (ACIDS.has(nid) && Math.random() < 0.01) {
-        world.set(nx, ny, 7); // 酸蒸发为烟（钨不受损）
-        world.markUpdated(nx, ny);
-        world.wakeArea(nx, ny);
-      }
+    // 检查四邻：完全耐腐蚀（显式4方向，无HOF）
+    // 酸液接触钨无效，但酸液自身会被中和消耗
+    if (world.inBounds(x, y - 1) && ACIDS.has(world.get(x, y - 1)) && Math.random() < 0.01) {
+      world.set(x, y - 1, 7); world.markUpdated(x, y - 1); world.wakeArea(x, y - 1);
+    }
+    if (world.inBounds(x, y + 1) && ACIDS.has(world.get(x, y + 1)) && Math.random() < 0.01) {
+      world.set(x, y + 1, 7); world.markUpdated(x, y + 1); world.wakeArea(x, y + 1);
+    }
+    if (world.inBounds(x - 1, y) && ACIDS.has(world.get(x - 1, y)) && Math.random() < 0.01) {
+      world.set(x - 1, y, 7); world.markUpdated(x - 1, y); world.wakeArea(x - 1, y);
+    }
+    if (world.inBounds(x + 1, y) && ACIDS.has(world.get(x + 1, y)) && Math.random() < 0.01) {
+      world.set(x + 1, y, 7); world.markUpdated(x + 1, y); world.wakeArea(x + 1, y);
     }
 
     // 钨不移动，无其他行为

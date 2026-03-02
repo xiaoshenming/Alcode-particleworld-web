@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -58,36 +57,48 @@ export const Acid: MaterialDef = {
   },
   density: 2.5, // 比水重一点
   update(x: number, y: number, world: WorldAPI) {
-    // 先尝试腐蚀周围材质
-    for (const [dx, dy] of DIRS4) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const neighborId = world.get(nx, ny);
-      if (ACID_IMMUNE.has(neighborId)) continue;
-
-      // 金属：特殊腐蚀（慢但有特效）
-      if (neighborId === 10) {
-        if (corrodeMetal(x, y, nx, ny, world)) return;
-        continue;
+    // 先尝试腐蚀周围材质（显式4方向，无HOF）
+    {
+      const nx = x, ny = y - 1;
+      if (world.inBounds(nx, ny)) {
+        const neighborId = world.get(nx, ny);
+        if (!ACID_IMMUNE.has(neighborId) && neighborId !== 0) {
+          if (neighborId === 10) { if (corrodeMetal(x, y, nx, ny, world)) return; }
+          else if (neighborId === 3 || neighborId === 17 || neighborId === 60) { if (corrodeRock(x, y, nx, ny, world)) return; }
+          else { const density = world.getDensity(nx, ny); const chance = density >= Infinity ? 0.03 : 0.05; if (Math.random() < chance) { world.set(nx, ny, 0); if (Math.random() < 0.5) { world.set(x, y, 7); return; } } }
+        }
       }
-
-      // 石头(3)、玻璃(17)、黑曜石(60)：产生气泡
-      if (neighborId === 3 || neighborId === 17 || neighborId === 60) {
-        if (corrodeRock(x, y, nx, ny, world)) return;
-        continue;
+    }
+    {
+      const nx = x, ny = y + 1;
+      if (world.inBounds(nx, ny)) {
+        const neighborId = world.get(nx, ny);
+        if (!ACID_IMMUNE.has(neighborId) && neighborId !== 0) {
+          if (neighborId === 10) { if (corrodeMetal(x, y, nx, ny, world)) return; }
+          else if (neighborId === 3 || neighborId === 17 || neighborId === 60) { if (corrodeRock(x, y, nx, ny, world)) return; }
+          else { const density = world.getDensity(nx, ny); const chance = density >= Infinity ? 0.03 : 0.05; if (Math.random() < chance) { world.set(nx, ny, 0); if (Math.random() < 0.5) { world.set(x, y, 7); return; } } }
+        }
       }
-
-      if (neighborId === 0) continue;
-
-      // 普通腐蚀：固体 3%，液体/气体 5%
-      const density = world.getDensity(nx, ny);
-      const chance = density >= Infinity ? 0.03 : 0.05;
-
-      if (Math.random() < chance) {
-        world.set(nx, ny, 0);
-        if (Math.random() < 0.5) {
-          world.set(x, y, 7); // 烟
-          return;
+    }
+    {
+      const nx = x - 1, ny = y;
+      if (world.inBounds(nx, ny)) {
+        const neighborId = world.get(nx, ny);
+        if (!ACID_IMMUNE.has(neighborId) && neighborId !== 0) {
+          if (neighborId === 10) { if (corrodeMetal(x, y, nx, ny, world)) return; }
+          else if (neighborId === 3 || neighborId === 17 || neighborId === 60) { if (corrodeRock(x, y, nx, ny, world)) return; }
+          else { const density = world.getDensity(nx, ny); const chance = density >= Infinity ? 0.03 : 0.05; if (Math.random() < chance) { world.set(nx, ny, 0); if (Math.random() < 0.5) { world.set(x, y, 7); return; } } }
+        }
+      }
+    }
+    {
+      const nx = x + 1, ny = y;
+      if (world.inBounds(nx, ny)) {
+        const neighborId = world.get(nx, ny);
+        if (!ACID_IMMUNE.has(neighborId) && neighborId !== 0) {
+          if (neighborId === 10) { if (corrodeMetal(x, y, nx, ny, world)) return; }
+          else if (neighborId === 3 || neighborId === 17 || neighborId === 60) { if (corrodeRock(x, y, nx, ny, world)) return; }
+          else { const density = world.getDensity(nx, ny); const chance = density >= Infinity ? 0.03 : 0.05; if (Math.random() < chance) { world.set(nx, ny, 0); if (Math.random() < 0.5) { world.set(x, y, 7); return; } } }
         }
       }
     }

@@ -1,4 +1,3 @@
-import { DIRS8 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -64,32 +63,34 @@ export const PhosphorusFire: MaterialDef = {
       return;
     }
 
-    // 检查邻居进行反应
-    for (const [dx, dy] of DIRS8) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-
-      // 遇水不灭！但产生蒸汽（白磷火特性）
-      if (nid === 2) {
-        world.set(nx, ny, 8); // 水变蒸汽
-        world.markUpdated(nx, ny);
-        // 白磷火不熄灭，继续燃烧
-        continue;
-      }
-
-      // 点燃可燃物（高概率，因为温度极高）
-      if (FLAMMABLE.has(nid) && Math.random() < 0.15) {
-        world.set(nx, ny, 6); // 点燃
-        world.markUpdated(nx, ny);
-      }
-
-      // 点燃金属类（极高温可以点燃某些金属）
-      if (nid === 62 && Math.random() < 0.2) {
-        world.set(nx, ny, 194); // 白磷引燃更多白磷火
-        world.markUpdated(nx, ny);
-      }
-    }
+    // 检查邻居进行反应（显式8方向，无HOF）
+    // 遇水不灭！但产生蒸汽（不return）
+    if (world.inBounds(x, y - 1) && world.get(x, y - 1) === 2) { world.set(x, y - 1, 8); world.markUpdated(x, y - 1); }
+    if (world.inBounds(x, y + 1) && world.get(x, y + 1) === 2) { world.set(x, y + 1, 8); world.markUpdated(x, y + 1); }
+    if (world.inBounds(x - 1, y) && world.get(x - 1, y) === 2) { world.set(x - 1, y, 8); world.markUpdated(x - 1, y); }
+    if (world.inBounds(x + 1, y) && world.get(x + 1, y) === 2) { world.set(x + 1, y, 8); world.markUpdated(x + 1, y); }
+    if (world.inBounds(x - 1, y - 1) && world.get(x - 1, y - 1) === 2) { world.set(x - 1, y - 1, 8); world.markUpdated(x - 1, y - 1); }
+    if (world.inBounds(x + 1, y - 1) && world.get(x + 1, y - 1) === 2) { world.set(x + 1, y - 1, 8); world.markUpdated(x + 1, y - 1); }
+    if (world.inBounds(x - 1, y + 1) && world.get(x - 1, y + 1) === 2) { world.set(x - 1, y + 1, 8); world.markUpdated(x - 1, y + 1); }
+    if (world.inBounds(x + 1, y + 1) && world.get(x + 1, y + 1) === 2) { world.set(x + 1, y + 1, 8); world.markUpdated(x + 1, y + 1); }
+    // 点燃可燃物（不return）
+    if (world.inBounds(x, y - 1) && FLAMMABLE.has(world.get(x, y - 1)) && Math.random() < 0.15) { world.set(x, y - 1, 6); world.markUpdated(x, y - 1); }
+    if (world.inBounds(x, y + 1) && FLAMMABLE.has(world.get(x, y + 1)) && Math.random() < 0.15) { world.set(x, y + 1, 6); world.markUpdated(x, y + 1); }
+    if (world.inBounds(x - 1, y) && FLAMMABLE.has(world.get(x - 1, y)) && Math.random() < 0.15) { world.set(x - 1, y, 6); world.markUpdated(x - 1, y); }
+    if (world.inBounds(x + 1, y) && FLAMMABLE.has(world.get(x + 1, y)) && Math.random() < 0.15) { world.set(x + 1, y, 6); world.markUpdated(x + 1, y); }
+    if (world.inBounds(x - 1, y - 1) && FLAMMABLE.has(world.get(x - 1, y - 1)) && Math.random() < 0.15) { world.set(x - 1, y - 1, 6); world.markUpdated(x - 1, y - 1); }
+    if (world.inBounds(x + 1, y - 1) && FLAMMABLE.has(world.get(x + 1, y - 1)) && Math.random() < 0.15) { world.set(x + 1, y - 1, 6); world.markUpdated(x + 1, y - 1); }
+    if (world.inBounds(x - 1, y + 1) && FLAMMABLE.has(world.get(x - 1, y + 1)) && Math.random() < 0.15) { world.set(x - 1, y + 1, 6); world.markUpdated(x - 1, y + 1); }
+    if (world.inBounds(x + 1, y + 1) && FLAMMABLE.has(world.get(x + 1, y + 1)) && Math.random() < 0.15) { world.set(x + 1, y + 1, 6); world.markUpdated(x + 1, y + 1); }
+    // 点燃白磷（不return）
+    if (world.inBounds(x, y - 1) && world.get(x, y - 1) === 62 && Math.random() < 0.2) { world.set(x, y - 1, 194); world.markUpdated(x, y - 1); }
+    if (world.inBounds(x, y + 1) && world.get(x, y + 1) === 62 && Math.random() < 0.2) { world.set(x, y + 1, 194); world.markUpdated(x, y + 1); }
+    if (world.inBounds(x - 1, y) && world.get(x - 1, y) === 62 && Math.random() < 0.2) { world.set(x - 1, y, 194); world.markUpdated(x - 1, y); }
+    if (world.inBounds(x + 1, y) && world.get(x + 1, y) === 62 && Math.random() < 0.2) { world.set(x + 1, y, 194); world.markUpdated(x + 1, y); }
+    if (world.inBounds(x - 1, y - 1) && world.get(x - 1, y - 1) === 62 && Math.random() < 0.2) { world.set(x - 1, y - 1, 194); world.markUpdated(x - 1, y - 1); }
+    if (world.inBounds(x + 1, y - 1) && world.get(x + 1, y - 1) === 62 && Math.random() < 0.2) { world.set(x + 1, y - 1, 194); world.markUpdated(x + 1, y - 1); }
+    if (world.inBounds(x - 1, y + 1) && world.get(x - 1, y + 1) === 62 && Math.random() < 0.2) { world.set(x - 1, y + 1, 194); world.markUpdated(x - 1, y + 1); }
+    if (world.inBounds(x + 1, y + 1) && world.get(x + 1, y + 1) === 62 && Math.random() < 0.2) { world.set(x + 1, y + 1, 194); world.markUpdated(x + 1, y + 1); }
 
     // 向上飘动（swap 自动迁移 age）
     if (y > 0 && world.isEmpty(x, y - 1) && Math.random() < 0.5) {

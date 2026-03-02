@@ -1,4 +1,3 @@
-import { DIRS8 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -34,17 +33,18 @@ export const Krypton: MaterialDef = {
       return;
     }
 
-    // 通电发光：接触电源时刷新自身颜色
-    for (const [dx, dy] of DIRS8) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      if (ELECTRIC.has(world.get(nx, ny))) {
-        // 重新 set 自身 ID，触发颜色刷新（发光闪烁）
-        world.set(x, y, 293);
-        world.markUpdated(x, y);
-        world.wakeArea(x, y);
-        break;
-      }
+    // 通电发光：接触电源时刷新自身颜色（显式8方向，无HOF）
+    let _found = false;
+    if (!_found && world.inBounds(x, y - 1) && ELECTRIC.has(world.get(x, y - 1))) { _found = true; }
+    if (!_found && world.inBounds(x, y + 1) && ELECTRIC.has(world.get(x, y + 1))) { _found = true; }
+    if (!_found && world.inBounds(x - 1, y) && ELECTRIC.has(world.get(x - 1, y))) { _found = true; }
+    if (!_found && world.inBounds(x + 1, y) && ELECTRIC.has(world.get(x + 1, y))) { _found = true; }
+    if (!_found && world.inBounds(x - 1, y - 1) && ELECTRIC.has(world.get(x - 1, y - 1))) { _found = true; }
+    if (!_found && world.inBounds(x + 1, y - 1) && ELECTRIC.has(world.get(x + 1, y - 1))) { _found = true; }
+    if (!_found && world.inBounds(x - 1, y + 1) && ELECTRIC.has(world.get(x - 1, y + 1))) { _found = true; }
+    if (!_found && world.inBounds(x + 1, y + 1) && ELECTRIC.has(world.get(x + 1, y + 1))) { _found = true; }
+    if (_found) {
+      world.set(x, y, 293); world.markUpdated(x, y); world.wakeArea(x, y);
     }
 
     // === 气体运动 ===

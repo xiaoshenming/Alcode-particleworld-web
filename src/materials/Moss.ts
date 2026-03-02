@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -30,16 +29,12 @@ export const Moss: MaterialDef = {
       return;
     }
 
-    // 检查邻居
+    // 检查邻居（显式4方向，无HOF）
     let hasMoisture = false;
-    for (const [dx, dy] of DIRS4) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      if (MOISTURE.has(world.get(nx, ny))) {
-        hasMoisture = true;
-        break;
-      }
-    }
+    if (!hasMoisture && world.inBounds(x, y - 1) && MOISTURE.has(world.get(x, y - 1))) { hasMoisture = true; }
+    if (!hasMoisture && world.inBounds(x, y + 1) && MOISTURE.has(world.get(x, y + 1))) { hasMoisture = true; }
+    if (!hasMoisture && world.inBounds(x - 1, y) && MOISTURE.has(world.get(x - 1, y))) { hasMoisture = true; }
+    if (!hasMoisture && world.inBounds(x + 1, y) && MOISTURE.has(world.get(x + 1, y))) { hasMoisture = true; }
 
     // 没有水源则不生长
     if (!hasMoisture) return;
@@ -47,24 +42,22 @@ export const Moss: MaterialDef = {
     // 缓慢蔓延：向邻近的空气格子生长（前提是该空气格子旁边有基底）
     if (Math.random() > 0.01) return; // 1% 概率尝试生长
 
-    // 随机起始索引循环，避免每帧数组分配
-    const start = Math.floor(Math.random() * DIRS4.length);
-    for (let i = 0; i < DIRS4.length; i++) {
-      const [dx, dy] = DIRS4[(start + i) % DIRS4.length];
+    // 随机起始方向，4方向显式展开（无HOF）
+    const start = Math.floor(Math.random() * 4);
+    for (let i = 0; i < 4; i++) {
+      const idx = (start + i) % 4;
+      const dx = idx === 0 ? 0 : idx === 1 ? 0 : idx === 2 ? -1 : 1;
+      const dy = idx === 0 ? -1 : idx === 1 ? 1 : idx === 2 ? 0 : 0;
       const nx = x + dx, ny = y + dy;
       if (!world.inBounds(nx, ny)) continue;
       if (world.get(nx, ny) !== 0) continue; // 只能长到空气位置
 
-      // 检查目标位置是否邻近基底
+      // 检查目标位置是否邻近基底（显式4方向，无HOF）
       let nearSubstrate = false;
-      for (const [sdx, sdy] of DIRS4) {
-        const sx = nx + sdx, sy = ny + sdy;
-        if (!world.inBounds(sx, sy)) continue;
-        if (SUBSTRATE.has(world.get(sx, sy))) {
-          nearSubstrate = true;
-          break;
-        }
-      }
+      if (!nearSubstrate && world.inBounds(nx, ny - 1) && SUBSTRATE.has(world.get(nx, ny - 1))) { nearSubstrate = true; }
+      if (!nearSubstrate && world.inBounds(nx, ny + 1) && SUBSTRATE.has(world.get(nx, ny + 1))) { nearSubstrate = true; }
+      if (!nearSubstrate && world.inBounds(nx - 1, ny) && SUBSTRATE.has(world.get(nx - 1, ny))) { nearSubstrate = true; }
+      if (!nearSubstrate && world.inBounds(nx + 1, ny) && SUBSTRATE.has(world.get(nx + 1, ny))) { nearSubstrate = true; }
 
       if (nearSubstrate) {
         world.set(nx, ny, 49); // 生长苔藓

@@ -1,4 +1,3 @@
-import { DIRS8 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -61,17 +60,30 @@ export const Gunpowder: MaterialDef = {
   },
   density: 2.5,
   update(x: number, y: number, world: WorldAPI) {
-    // 检查邻居：遇到点火源则爆炸
-    for (const [dx, dy] of DIRS8) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      if (IGNITORS.has(world.get(nx, ny))) {
-        // 爆炸！
-        const radius = 4 + Math.floor(Math.random() * 3); // 4~6 格半径
-        explode(x, y, radius, world);
-        world.set(x, y, 6); // 自身变火
-        return;
-      }
+    // 检查邻居：遇到点火源则爆炸（显式8方向，无HOF）
+    if (world.inBounds(x, y - 1) && IGNITORS.has(world.get(x, y - 1))) {
+      const radius = 4 + Math.floor(Math.random() * 3); explode(x, y, radius, world); world.set(x, y, 6); return;
+    }
+    if (world.inBounds(x, y + 1) && IGNITORS.has(world.get(x, y + 1))) {
+      const radius = 4 + Math.floor(Math.random() * 3); explode(x, y, radius, world); world.set(x, y, 6); return;
+    }
+    if (world.inBounds(x - 1, y) && IGNITORS.has(world.get(x - 1, y))) {
+      const radius = 4 + Math.floor(Math.random() * 3); explode(x, y, radius, world); world.set(x, y, 6); return;
+    }
+    if (world.inBounds(x + 1, y) && IGNITORS.has(world.get(x + 1, y))) {
+      const radius = 4 + Math.floor(Math.random() * 3); explode(x, y, radius, world); world.set(x, y, 6); return;
+    }
+    if (world.inBounds(x - 1, y - 1) && IGNITORS.has(world.get(x - 1, y - 1))) {
+      const radius = 4 + Math.floor(Math.random() * 3); explode(x, y, radius, world); world.set(x, y, 6); return;
+    }
+    if (world.inBounds(x + 1, y - 1) && IGNITORS.has(world.get(x + 1, y - 1))) {
+      const radius = 4 + Math.floor(Math.random() * 3); explode(x, y, radius, world); world.set(x, y, 6); return;
+    }
+    if (world.inBounds(x - 1, y + 1) && IGNITORS.has(world.get(x - 1, y + 1))) {
+      const radius = 4 + Math.floor(Math.random() * 3); explode(x, y, radius, world); world.set(x, y, 6); return;
+    }
+    if (world.inBounds(x + 1, y + 1) && IGNITORS.has(world.get(x + 1, y + 1))) {
+      const radius = 4 + Math.floor(Math.random() * 3); explode(x, y, radius, world); world.set(x, y, 6); return;
     }
 
     if (y >= world.height - 1) return;

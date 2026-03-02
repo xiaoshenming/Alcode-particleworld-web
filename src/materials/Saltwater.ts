@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -27,13 +26,11 @@ export const Saltwater: MaterialDef = {
       world.setTemp(x, y, 60);
       // 在附近空位析出盐粒
       if (Math.random() < 0.5) {
-        for (const [dx, dy] of DIRS4) {
-          const nx = x + dx, ny = y + dy;
-          if (world.inBounds(nx, ny) && world.isEmpty(nx, ny)) {
-            world.set(nx, ny, 23); // 盐
-            break;
-          }
-        }
+      // 在附近空位析出盐粒（显式4方向，无HOF）
+      if (world.inBounds(x, y - 1) && world.isEmpty(x, y - 1)) { world.set(x, y - 1, 23); }
+      else if (world.inBounds(x, y + 1) && world.isEmpty(x, y + 1)) { world.set(x, y + 1, 23); }
+      else if (world.inBounds(x - 1, y) && world.isEmpty(x - 1, y)) { world.set(x - 1, y, 23); }
+      else if (world.inBounds(x + 1, y) && world.isEmpty(x + 1, y)) { world.set(x + 1, y, 23); }
       }
       return;
     }

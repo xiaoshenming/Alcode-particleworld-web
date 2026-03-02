@@ -1,5 +1,25 @@
 # Particle World - 粉末沙盒模拟游戏
 
+## 🤖 自主工具获取协议（Claude Code ↔ OpenClaw 联动）
+
+遇到以下情况，**立即通过 openclaw system event 通知主脑**，不要等待：
+
+```bash
+# 缺少工具/MCP时
+openclaw system event --text "【工具需求】<项目名>需要: <工具名>，用途: <简短说明>" --mode now
+
+# 遇到无法自行解决的问题时  
+openclaw system event --text "【求助】<项目名>: <问题>" --mode now
+
+# 完成里程碑时
+openclaw system event --text "【里程碑】<项目名>: <完成了什么>" --mode now
+```
+
+**主脑会在30分钟内响应并处理。**
+
+---
+
+
 ## 核心目标
 创建一个基于物理引擎的粉末沙盒模拟游戏，运行在浏览器中。
 

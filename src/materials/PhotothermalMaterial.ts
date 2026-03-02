@@ -1,4 +1,4 @@
-import { DIRS4, DIRS8 } from './types';
+import { DIRS8 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -56,7 +56,7 @@ export const PhotothermalMaterial: MaterialDef = {
     const allDirs = DIRS8;
     let illuminated = false;
 
-    // 检测周围是否有光源（激光47/光束48），扩大检测范围
+    // 检测周围是否有光源（激光47/光束48），扩大检测范围（8方向保留for循环，非update热路径的DIRS8遍历）
     for (const [dx, dy] of allDirs) {
       for (let dist = 1; dist <= 3; dist++) {
         const nx = x + dx * dist, ny = y + dy * dist;
@@ -81,42 +81,35 @@ export const PhotothermalMaterial: MaterialDef = {
       }
     }
 
-    // 高温时向周围传热 + 点燃可燃物
+    // 高温时向周围传热 + 点燃可燃物（显式4方向，无HOF）
     if (temp > 80) {
-      for (const [dx, dy] of DIRS4) {
-        const nx = x + dx, ny = y + dy;
-        if (!world.inBounds(nx, ny)) continue;
-        const nid = world.get(nx, ny);
-
-        // 传热
-        if (nid !== 0) {
-          const nt = world.getTemp(nx, ny);
-          if (temp > nt + 5) {
-            const diff = (temp - nt) * 0.15;
-            world.addTemp(nx, ny, diff);
-            world.addTemp(x, y, -diff * 0.3);
-          }
-        }
-
-        // 高温点燃可燃物
-        if (temp > 300 && FLAMMABLE.has(nid) && Math.random() < 0.05) {
-          world.set(nx, ny, 6); // 火
-          world.wakeArea(nx, ny);
-        }
+      if (world.inBounds(x, y - 1)) {
+        const nid0 = world.get(x, y - 1);
+        if (nid0 !== 0) { const nt0 = world.getTemp(x, y - 1); if (temp > nt0 + 5) { const d0 = (temp - nt0) * 0.15; world.addTemp(x, y - 1, d0); world.addTemp(x, y, -d0 * 0.3); } }
+        if (temp > 300 && FLAMMABLE.has(nid0) && Math.random() < 0.05) { world.set(x, y - 1, 6); world.wakeArea(x, y - 1); }
+      }
+      if (world.inBounds(x, y + 1)) {
+        const nid1 = world.get(x, y + 1);
+        if (nid1 !== 0) { const nt1 = world.getTemp(x, y + 1); if (temp > nt1 + 5) { const d1 = (temp - nt1) * 0.15; world.addTemp(x, y + 1, d1); world.addTemp(x, y, -d1 * 0.3); } }
+        if (temp > 300 && FLAMMABLE.has(nid1) && Math.random() < 0.05) { world.set(x, y + 1, 6); world.wakeArea(x, y + 1); }
+      }
+      if (world.inBounds(x - 1, y)) {
+        const nid2 = world.get(x - 1, y);
+        if (nid2 !== 0) { const nt2 = world.getTemp(x - 1, y); if (temp > nt2 + 5) { const d2 = (temp - nt2) * 0.15; world.addTemp(x - 1, y, d2); world.addTemp(x, y, -d2 * 0.3); } }
+        if (temp > 300 && FLAMMABLE.has(nid2) && Math.random() < 0.05) { world.set(x - 1, y, 6); world.wakeArea(x - 1, y); }
+      }
+      if (world.inBounds(x + 1, y)) {
+        const nid3 = world.get(x + 1, y);
+        if (nid3 !== 0) { const nt3 = world.getTemp(x + 1, y); if (temp > nt3 + 5) { const d3 = (temp - nt3) * 0.15; world.addTemp(x + 1, y, d3); world.addTemp(x, y, -d3 * 0.3); } }
+        if (temp > 300 && FLAMMABLE.has(nid3) && Math.random() < 0.05) { world.set(x + 1, y, 6); world.wakeArea(x + 1, y); }
       }
     }
 
-    // 耐酸中等
-    for (const [dx, dy] of DIRS4) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      if (world.get(nx, ny) === 9 && Math.random() < 0.008) {
-        world.set(x, y, 0);
-        world.set(nx, ny, 7);
-        world.wakeArea(x, y);
-        return;
-      }
-    }
+    // 耐酸中等（显式4方向，无HOF）
+    if (world.inBounds(x, y - 1) && world.get(x, y - 1) === 9 && Math.random() < 0.008) { world.set(x, y, 0); world.set(x, y - 1, 7); world.wakeArea(x, y); return; }
+    if (world.inBounds(x, y + 1) && world.get(x, y + 1) === 9 && Math.random() < 0.008) { world.set(x, y, 0); world.set(x, y + 1, 7); world.wakeArea(x, y); return; }
+    if (world.inBounds(x - 1, y) && world.get(x - 1, y) === 9 && Math.random() < 0.008) { world.set(x, y, 0); world.set(x - 1, y, 7); world.wakeArea(x, y); return; }
+    if (world.inBounds(x + 1, y) && world.get(x + 1, y) === 9 && Math.random() < 0.008) { world.set(x, y, 0); world.set(x + 1, y, 7); world.wakeArea(x, y); return; }
   },
 };
 

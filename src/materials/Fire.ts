@@ -1,4 +1,3 @@
-import { DIRS8 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -58,29 +57,56 @@ export const Fire: MaterialDef = {
       return;
     }
 
-    // 检查四周邻居，进行化学反应
-    for (const [dx, dy] of DIRS8) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const neighborId = world.get(nx, ny);
-
-      // 火 + 水 → 蒸汽（火熄灭）
-      if (neighborId === 2) {
-        world.set(x, y, 8); // 当前火变蒸汽
-        world.set(nx, ny, 8); // 水变蒸汽
-        return;
-      }
-
-      // 点燃可燃物（概率性蔓延）
-      if (FLAMMABLE.has(neighborId) && Math.random() < 0.05) {
-        // 木头燃烧有概率产生木炭
-        if (neighborId === 4 && Math.random() < 0.4) {
-          world.set(nx, ny, 46); // 木炭
-        } else {
-          world.set(nx, ny, 6); // 点燃
-        }
-        world.markUpdated(nx, ny);
-      }
+    // 检查四周邻居，进行化学反应（显式8方向，无HOF）
+    // 火 + 水 → 蒸汽（立即return）
+    if (world.inBounds(x, y - 1) && world.get(x, y - 1) === 2) { world.set(x, y, 8); world.set(x, y - 1, 8); return; }
+    if (world.inBounds(x, y + 1) && world.get(x, y + 1) === 2) { world.set(x, y, 8); world.set(x, y + 1, 8); return; }
+    if (world.inBounds(x - 1, y) && world.get(x - 1, y) === 2) { world.set(x, y, 8); world.set(x - 1, y, 8); return; }
+    if (world.inBounds(x + 1, y) && world.get(x + 1, y) === 2) { world.set(x, y, 8); world.set(x + 1, y, 8); return; }
+    if (world.inBounds(x - 1, y - 1) && world.get(x - 1, y - 1) === 2) { world.set(x, y, 8); world.set(x - 1, y - 1, 8); return; }
+    if (world.inBounds(x + 1, y - 1) && world.get(x + 1, y - 1) === 2) { world.set(x, y, 8); world.set(x + 1, y - 1, 8); return; }
+    if (world.inBounds(x - 1, y + 1) && world.get(x - 1, y + 1) === 2) { world.set(x, y, 8); world.set(x - 1, y + 1, 8); return; }
+    if (world.inBounds(x + 1, y + 1) && world.get(x + 1, y + 1) === 2) { world.set(x, y, 8); world.set(x + 1, y + 1, 8); return; }
+    // 点燃可燃物（不return）
+    if (world.inBounds(x, y - 1) && FLAMMABLE.has(world.get(x, y - 1)) && Math.random() < 0.05) {
+      const nid0 = world.get(x, y - 1);
+      if (nid0 === 4 && Math.random() < 0.4) { world.set(x, y - 1, 46); } else { world.set(x, y - 1, 6); }
+      world.markUpdated(x, y - 1);
+    }
+    if (world.inBounds(x, y + 1) && FLAMMABLE.has(world.get(x, y + 1)) && Math.random() < 0.05) {
+      const nid1 = world.get(x, y + 1);
+      if (nid1 === 4 && Math.random() < 0.4) { world.set(x, y + 1, 46); } else { world.set(x, y + 1, 6); }
+      world.markUpdated(x, y + 1);
+    }
+    if (world.inBounds(x - 1, y) && FLAMMABLE.has(world.get(x - 1, y)) && Math.random() < 0.05) {
+      const nid2 = world.get(x - 1, y);
+      if (nid2 === 4 && Math.random() < 0.4) { world.set(x - 1, y, 46); } else { world.set(x - 1, y, 6); }
+      world.markUpdated(x - 1, y);
+    }
+    if (world.inBounds(x + 1, y) && FLAMMABLE.has(world.get(x + 1, y)) && Math.random() < 0.05) {
+      const nid3 = world.get(x + 1, y);
+      if (nid3 === 4 && Math.random() < 0.4) { world.set(x + 1, y, 46); } else { world.set(x + 1, y, 6); }
+      world.markUpdated(x + 1, y);
+    }
+    if (world.inBounds(x - 1, y - 1) && FLAMMABLE.has(world.get(x - 1, y - 1)) && Math.random() < 0.05) {
+      const nid4 = world.get(x - 1, y - 1);
+      if (nid4 === 4 && Math.random() < 0.4) { world.set(x - 1, y - 1, 46); } else { world.set(x - 1, y - 1, 6); }
+      world.markUpdated(x - 1, y - 1);
+    }
+    if (world.inBounds(x + 1, y - 1) && FLAMMABLE.has(world.get(x + 1, y - 1)) && Math.random() < 0.05) {
+      const nid5 = world.get(x + 1, y - 1);
+      if (nid5 === 4 && Math.random() < 0.4) { world.set(x + 1, y - 1, 46); } else { world.set(x + 1, y - 1, 6); }
+      world.markUpdated(x + 1, y - 1);
+    }
+    if (world.inBounds(x - 1, y + 1) && FLAMMABLE.has(world.get(x - 1, y + 1)) && Math.random() < 0.05) {
+      const nid6 = world.get(x - 1, y + 1);
+      if (nid6 === 4 && Math.random() < 0.4) { world.set(x - 1, y + 1, 46); } else { world.set(x - 1, y + 1, 6); }
+      world.markUpdated(x - 1, y + 1);
+    }
+    if (world.inBounds(x + 1, y + 1) && FLAMMABLE.has(world.get(x + 1, y + 1)) && Math.random() < 0.05) {
+      const nid7 = world.get(x + 1, y + 1);
+      if (nid7 === 4 && Math.random() < 0.4) { world.set(x + 1, y + 1, 46); } else { world.set(x + 1, y + 1, 6); }
+      world.markUpdated(x + 1, y + 1);
     }
 
     // 火焰偶尔向上飘动（swap 自动迁移 age）

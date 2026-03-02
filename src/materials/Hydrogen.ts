@@ -1,4 +1,3 @@
-import { DIRS8 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -21,16 +20,15 @@ export const Hydrogen: MaterialDef = {
   },
   density: 0.01, // 极轻
   update(x: number, y: number, world: WorldAPI) {
-    // 检查邻居：遇点火源爆炸
-    for (const [dx, dy] of DIRS8) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      if (IGNITION.has(world.get(nx, ny))) {
-        // 爆炸：自身及周围 3x3 区域变火
-        explode(x, y, world);
-        return;
-      }
-    }
+    // 检查邻居：遇点火源爆炸（显式8方向，无HOF）
+    if (world.inBounds(x, y - 1) && IGNITION.has(world.get(x, y - 1))) { explode(x, y, world); return; }
+    if (world.inBounds(x, y + 1) && IGNITION.has(world.get(x, y + 1))) { explode(x, y, world); return; }
+    if (world.inBounds(x - 1, y) && IGNITION.has(world.get(x - 1, y))) { explode(x, y, world); return; }
+    if (world.inBounds(x + 1, y) && IGNITION.has(world.get(x + 1, y))) { explode(x, y, world); return; }
+    if (world.inBounds(x - 1, y - 1) && IGNITION.has(world.get(x - 1, y - 1))) { explode(x, y, world); return; }
+    if (world.inBounds(x + 1, y - 1) && IGNITION.has(world.get(x + 1, y - 1))) { explode(x, y, world); return; }
+    if (world.inBounds(x - 1, y + 1) && IGNITION.has(world.get(x - 1, y + 1))) { explode(x, y, world); return; }
+    if (world.inBounds(x + 1, y + 1) && IGNITION.has(world.get(x + 1, y + 1))) { explode(x, y, world); return; }
 
     // 快速上升
     if (y > 0 && world.isEmpty(x, y - 1)) {
