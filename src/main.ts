@@ -1455,7 +1455,14 @@ selectionTool.onSnapshot = () => history.pushSnapshot(world.cells);
 const radialMenu = new RadialMenu();
 
 let paused = false;
-let simSpeed = 1; // 模拟速度倍率 1~5
+let simSpeed = 1; // 模拟速度倍率（支持小数：0.25/0.5/1/2/4）
+let simSpeedIndex = 2; // 当前速度在预设数组中的索引
+/** 速度预设：支持慢速和快速 */
+const SPEED_PRESETS = [0.25, 0.5, 1, 2, 4];
+/** 慢速模式：累积帧分数，每 N 帧才真正执行一步 */
+let slowFrameAccum = 0;
+/** 单步执行标记：暂停时按 . 执行一帧 */
+let stepOnce = false;
 let recording = false;
 let gifEncoder: GifEncoder | null = null;
 let recordFrameCount = 0;
@@ -1495,6 +1502,26 @@ function autosave(): void {
   localStorage.setItem(`${AUTOSAVE_KEY}-meta-${autosaveSlot}`, JSON.stringify(meta));
   autosaveSlot = (autosaveSlot + 1) % AUTOSAVE_SLOTS;
   lastAutosaveTime = Date.now();
+}
+
+/** 背景主题定义 */
+const BG_THEMES = [
+  { name: '深空', bg: '#0a0a1a', canvasBg: '#0f0f22' },
+  { name: '暗夜', bg: '#0d0d0d', canvasBg: '#111111' },
+  { name: '森林', bg: '#0a1a0a', canvasBg: '#0d1a0d' },
+  { name: '沙漠', bg: '#1a1208', canvasBg: '#1e1608' },
+  { name: '白天', bg: '#d0e8f8', canvasBg: '#e8f4ff' },
+];
+let bgThemeIndex = 0;
+
+/** 切换背景主题，返回主题名 */
+function cycleBackgroundTheme(): string {
+  bgThemeIndex = (bgThemeIndex + 1) % BG_THEMES.length;
+  const theme = BG_THEMES[bgThemeIndex];
+  document.body.style.background = theme.bg;
+  const appEl = document.getElementById('app');
+  if (appEl) appEl.style.background = theme.bg;
+  return theme.name;
 }
 
 /** 获取所有自动保存槽位信息 */
@@ -1598,8 +1625,12 @@ const toolbar = new Toolbar(input, {
   onSnapshotB: () => canvas.toDataURL('image/png'),
   getParticleCount: () => world.getParticleCount(),
   isPaused: () => paused,
-  getSpeed: () => simSpeed,
-  setSpeed: (s: number) => { simSpeed = Math.max(1, Math.min(5, s)); },
+  getSpeed: () => simSpeedIndex,
+  setSpeed: (s: number) => {
+    simSpeedIndex = Math.max(0, Math.min(SPEED_PRESETS.length - 1, s));
+    simSpeed = SPEED_PRESETS[simSpeedIndex];
+    slowFrameAccum = 0;
+  },
   setWind: (dir: number, strength: number) => { world.setWind(dir, strength); },
   onCycleWeather: () => {
     simulation.cycleWeather();
@@ -1661,6 +1692,16 @@ const toolbar = new Toolbar(input, {
   onToggleAgeOverlay: () => {
     renderer.showAgeOverlay = !renderer.showAgeOverlay;
     return renderer.showAgeOverlay;
+  },
+  onToggleGlow: () => {
+    renderer.showGlowEffect = !renderer.showGlowEffect;
+    return renderer.showGlowEffect;
+  },
+  onCycleTheme: () => {
+    return cycleBackgroundTheme();
+  },
+  onStepOnce: () => {
+    stepOnce = true;
   },
   onGetAutosaveSlots: () => {
     return getAutosaveSlots();
@@ -1935,15 +1976,25 @@ document.addEventListener('keydown', (e) => {
     return;
   }
 
-  // - = 调速度
+  // - = 调速度（支持 0.25x/0.5x/1x/2x/4x 预设）
   if (e.code === 'Minus') {
-    simSpeed = Math.max(1, simSpeed - 1);
-    toolbar.refreshSpeed(simSpeed);
+    simSpeedIndex = Math.max(0, simSpeedIndex - 1);
+    simSpeed = SPEED_PRESETS[simSpeedIndex];
+    slowFrameAccum = 0;
+    toolbar.refreshSpeed(simSpeedIndex);
     return;
   }
   if (e.code === 'Equal') {
-    simSpeed = Math.min(5, simSpeed + 1);
-    toolbar.refreshSpeed(simSpeed);
+    simSpeedIndex = Math.min(SPEED_PRESETS.length - 1, simSpeedIndex + 1);
+    simSpeed = SPEED_PRESETS[simSpeedIndex];
+    slowFrameAccum = 0;
+    toolbar.refreshSpeed(simSpeedIndex);
+    return;
+  }
+
+  // . 键：暂停时单步执行一帧
+  if (e.code === 'Period' && paused) {
+    stepOnce = true;
     return;
   }
 
@@ -2280,13 +2331,32 @@ function loop() {
       rewindCount--;
       world.restoreFromSnapshot(rewindBuffer[rewindHead]);
     }
-  } else if (!paused) {
+  } else if (!paused || stepOnce) {
     // 反重力：模拟前先翻转回正常方向（上一帧渲染后是倒置的）
     if (antiGravity) {
       world.flipVertical();
     }
+
+    // 计算本帧应执行的模拟步数（支持小数速率）
+    let stepsToRun = 0;
+    if (stepOnce) {
+      // 单步执行模式：恰好执行一步
+      stepsToRun = 1;
+      stepOnce = false;
+    } else if (simSpeed >= 1) {
+      // 正常/快速模式：整数步数
+      stepsToRun = Math.floor(simSpeed);
+    } else {
+      // 慢速模式（0.25x/0.5x）：用帧累积决定是否执行
+      slowFrameAccum += simSpeed;
+      if (slowFrameAccum >= 1) {
+        slowFrameAccum -= 1;
+        stepsToRun = 1;
+      }
+    }
+
     // 正常模拟：记录帧到环形缓冲区
-    for (let i = 0; i < simSpeed; i++) {
+    for (let i = 0; i < stepsToRun; i++) {
       // 每步模拟前记录快照
       if (!rewindBuffer[rewindHead]) {
         rewindBuffer[rewindHead] = new Uint16Array(world.cells.length);

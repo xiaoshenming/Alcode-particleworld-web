@@ -1,9 +1,33 @@
 import { World } from './World';
 
 /**
+ * 发光材质配置：材质ID → { 辉光颜色, 辉光半径 }
+ * 这些材质在渲染时会在其像素位置额外绘制 shadowBlur 辉光
+ */
+const GLOW_MATERIALS: Map<number, { color: string; blur: number }> = new Map([
+  [6,  { color: 'rgba(255,120,20,0.6)',  blur: 12 }], // 火焰
+  [7,  { color: 'rgba(150,150,150,0.3)', blur: 6  }], // 烟
+  [11, { color: 'rgba(255,60,0,0.7)',    blur: 16 }], // 熔岩
+  [16, { color: 'rgba(120,200,255,0.8)', blur: 20 }], // 雷电
+  [28, { color: 'rgba(255,200,50,0.7)',  blur: 12 }], // 火花
+  [47, { color: 'rgba(255,40,40,0.8)',   blur: 18 }], // 激光
+  [48, { color: 'rgba(255,80,20,0.6)',   blur: 10 }], // 光束
+  [52, { color: 'rgba(120,255,100,0.7)', blur: 14 }], // 萤火虫
+  [55, { color: 'rgba(160,80,255,0.7)',  blur: 16 }], // 等离子体
+  [111,{ color: 'rgba(100,180,255,0.8)', blur: 20 }], // 闪电球
+  [121,{ color: 'rgba(220,220,255,0.7)', blur: 14 }], // 静电
+  [128,{ color: 'rgba(180,100,255,0.8)', blur: 20 }], // 等离子球
+  [145,{ color: 'rgba(100,200,255,0.8)', blur: 18 }], // 电弧
+  [147,{ color: 'rgba(255,180,50,0.6)',  blur: 10 }], // 磁沙
+  [154,{ color: 'rgba(80,255,120,0.7)',  blur: 14 }], // 荧光棒
+  [202,{ color: 'rgba(200,120,255,0.8)', blur: 18 }], // 电浆
+  [230,{ color: 'rgba(100,150,255,0.7)', blur: 16 }], // 电磁铁
+]);
+
+/**
  * Canvas 渲染器
  * 将 World 的颜色数据通过 ImageData 渲染到 Canvas
- * 支持温度可视化叠加层
+ * 支持温度可视化叠加层、粒子发光效果
  */
 export class Renderer {
   private ctx: CanvasRenderingContext2D;
@@ -32,6 +56,8 @@ export class Renderer {
   showMirrorLine = false;
   /** 小地图开关（缩放时自动显示） */
   showMinimap = true;
+  /** 粒子发光效果开关（默认开启） */
+  showGlowEffect = true;
   /** 视图缩放倍率 (1.0 = 原始) */
   viewZoom = 1.0;
   /** 视图平移偏移（像素坐标） */
@@ -107,6 +133,11 @@ export class Renderer {
       this.tempCanvas.width * this.scale,
       this.tempCanvas.height * this.scale,
     );
+
+    // 粒子发光效果（在缩放变换内绘制，所以坐标已对齐）
+    if (this.showGlowEffect) {
+      this.applyGlowEffect(world);
+    }
 
     // 网格线
     if (this.showGrid && this.scale * this.viewZoom >= 3) {
@@ -759,6 +790,58 @@ export class Renderer {
     this.ctx.stroke();
     this.ctx.setLineDash([]);
 
+    this.ctx.restore();
+  }
+
+  /**
+   * 粒子发光效果 —— 为特定材质绘制 shadowBlur 辉光
+   * 策略：对每种发光材质，收集其所有粒子位置，批量绘制带辉光的方块
+   * 注意：调用前已在 ctx.save() + 视图变换中，坐标单位为 "像素网格×缩放"
+   */
+  private applyGlowEffect(world: World): void {
+    const cells = world.cells;
+    const w = this.gridWidth;
+    const scale = this.scale; // 每格像素数
+
+    // 按材质 ID 收集粒子坐标
+    const matGroups = new Map<number, Array<[number, number]>>();
+    for (let i = 0; i < cells.length; i++) {
+      const id = cells[i];
+      if (id === 0) continue;
+      const cfg = GLOW_MATERIALS.get(id);
+      if (!cfg) continue;
+      let arr = matGroups.get(id);
+      if (!arr) { arr = []; matGroups.set(id, arr); }
+      const x = i % w;
+      const y = (i / w) | 0;
+      arr.push([x, y]);
+    }
+
+    if (matGroups.size === 0) return;
+
+    this.ctx.save();
+    // 使用 'lighter' 混合模式让辉光叠加更自然
+    this.ctx.globalCompositeOperation = 'lighter';
+    this.ctx.globalAlpha = 1;
+
+    for (const [id, positions] of matGroups) {
+      const cfg = GLOW_MATERIALS.get(id)!;
+      this.ctx.shadowColor = cfg.color;
+      this.ctx.shadowBlur = cfg.blur * this.viewZoom;
+      this.ctx.fillStyle = cfg.color;
+
+      // 每个粒子绘制一个小方块（触发 shadowBlur）
+      for (const [px, py] of positions) {
+        const sx = px * scale;
+        const sy = py * scale;
+        this.ctx.fillRect(sx, sy, scale, scale);
+      }
+    }
+
+    // 重置状态
+    this.ctx.shadowColor = 'transparent';
+    this.ctx.shadowBlur = 0;
+    this.ctx.globalCompositeOperation = 'source-over';
     this.ctx.restore();
   }
 }

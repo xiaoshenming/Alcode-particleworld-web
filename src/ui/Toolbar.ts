@@ -43,6 +43,12 @@ export interface ToolbarCallbacks {
   onGetAutosaveSlots?: () => Array<{slot: number; time: number; particles: number} | null>;
   onLoadAutosave?: (slot: number) => boolean;
   getHotkeyBindings?: () => number[];
+  /** 切换发光效果 */
+  onToggleGlow?: () => boolean;
+  /** 切换背景主题 */
+  onCycleTheme?: () => string;
+  /** 单步执行（暂停时前进一帧） */
+  onStepOnce?: () => void;
 }
 
 /**
@@ -201,10 +207,12 @@ export class Toolbar {
     }
   }
 
-  /** 刷新速度显示 */
-  refreshSpeed(speed: number): void {
-    this.speedLabel.textContent = `速度: ${speed}x`;
-    this.speedSlider.value = String(speed);
+  /** 刷新速度显示（参数为速度预设索引 0~4） */
+  refreshSpeed(speedIndex: number): void {
+    const labels = ['0.25x', '0.5x', '1x', '2x', '4x'];
+    const label = labels[Math.max(0, Math.min(labels.length - 1, speedIndex))] ?? `${speedIndex}x`;
+    this.speedLabel.textContent = `速度: ${label}`;
+    this.speedSlider.value = String(speedIndex);
   }
 
   /** 刷新温度叠加层按钮状态 */
@@ -1320,22 +1328,26 @@ export class Toolbar {
     gridRow.appendChild(this.gridBtn);
     controlPanel.appendChild(gridRow);
 
-    // 模拟速度
+    // 模拟速度（支持 0.25x/0.5x/1x/2x/4x 五档预设）
     const speedDiv = document.createElement('div');
     speedDiv.className = 'control-row';
     const speedLabel = document.createElement('span');
     speedLabel.className = 'control-label';
-    speedLabel.textContent = `速度: ${this.callbacks.getSpeed()}x`;
+    const SPEED_LABELS = ['0.25x', '0.5x', '1x', '2x', '4x'];
+    const initSpeedIdx = this.callbacks.getSpeed(); // 返回索引
+    speedLabel.textContent = `速度: ${SPEED_LABELS[initSpeedIdx] ?? '1x'}`;
     const speedSlider = document.createElement('input');
     speedSlider.type = 'range';
-    speedSlider.min = '1';
-    speedSlider.max = '5';
-    speedSlider.value = String(this.callbacks.getSpeed());
+    speedSlider.min = '0';
+    speedSlider.max = '4';
+    speedSlider.step = '1';
+    speedSlider.value = String(initSpeedIdx);
     speedSlider.setAttribute('aria-label', '模拟速度');
+    speedSlider.setAttribute('title', '0.25x / 0.5x / 1x / 2x / 4x');
     speedSlider.addEventListener('input', () => {
-      const speed = parseInt(speedSlider.value);
-      this.callbacks.setSpeed(speed);
-      speedLabel.textContent = `速度: ${speed}x`;
+      const idx = parseInt(speedSlider.value);
+      this.callbacks.setSpeed(idx);
+      speedLabel.textContent = `速度: ${SPEED_LABELS[idx] ?? `${idx}x`}`;
     });
     this.speedLabel = speedLabel;
     this.speedSlider = speedSlider;
@@ -1491,6 +1503,54 @@ export class Toolbar {
     });
     ageRow.appendChild(this.ageOverlayBtn);
     controlPanel.appendChild(ageRow);
+
+    // 发光效果开关按钮
+    const glowRow = document.createElement('div');
+    glowRow.className = 'control-row';
+    const glowBtn = document.createElement('button');
+    glowBtn.className = 'ctrl-btn active';
+    glowBtn.textContent = '✨ 发光: 开';
+    glowBtn.title = '切换粒子发光效果（火焰/熔岩/闪电等）';
+    glowBtn.addEventListener('click', () => {
+      if (this.callbacks.onToggleGlow) {
+        const on = this.callbacks.onToggleGlow();
+        glowBtn.textContent = on ? '✨ 发光: 开' : '✨ 发光: 关';
+        glowBtn.classList.toggle('active', on);
+      }
+    });
+    glowRow.appendChild(glowBtn);
+    controlPanel.appendChild(glowRow);
+
+    // 背景主题切换按钮
+    const themeRow = document.createElement('div');
+    themeRow.className = 'control-row';
+    const themeBtn = document.createElement('button');
+    themeBtn.className = 'ctrl-btn';
+    themeBtn.textContent = '🎨 主题: 深空';
+    themeBtn.title = '切换背景主题（深空/暗夜/森林/沙漠/白天）';
+    themeBtn.addEventListener('click', () => {
+      if (this.callbacks.onCycleTheme) {
+        const name = this.callbacks.onCycleTheme();
+        themeBtn.textContent = `🎨 主题: ${name}`;
+      }
+    });
+    themeRow.appendChild(themeBtn);
+    controlPanel.appendChild(themeRow);
+
+    // 单步执行按钮（暂停时才有效）
+    const stepRow = document.createElement('div');
+    stepRow.className = 'control-row';
+    const stepBtn = document.createElement('button');
+    stepBtn.className = 'ctrl-btn';
+    stepBtn.textContent = '⏭ 单步执行';
+    stepBtn.title = '暂停时，每次点击前进一帧（快捷键：.）';
+    stepBtn.addEventListener('click', () => {
+      if (this.callbacks.onStepOnce) {
+        this.callbacks.onStepOnce();
+      }
+    });
+    stepRow.appendChild(stepBtn);
+    controlPanel.appendChild(stepRow);
 
     // 自动保存恢复按钮
     const autosaveRow = document.createElement('div');
