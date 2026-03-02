@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -57,25 +56,120 @@ export const Jellyfish: MaterialDef = {
     world.setAge(x, y, timer);
 
     // 检查四邻
-    const dirs = DIRS4;
     let nearWater = false;
 
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
 
-      // 遇酸立即溶解
-      if (nid === 9) {
+      if (world.inBounds(x, y - 1)) {
+
+        const nx = x, ny = y - 1;
+
+        const nid = world.get(nx, ny);
+
+
+        // 遇酸立即溶解
+
+        if (nid === 9) {
+
         world.set(x, y, 0);
+
         world.wakeArea(x, y);
+
         return;
+
+        }
+
+
+        if (nid === 2) {
+
+        nearWater = true;
+
+        }
+
       }
 
-      if (nid === 2) {
+      if (world.inBounds(x, y + 1)) {
+
+        const nx = x, ny = y + 1;
+
+        const nid = world.get(nx, ny);
+
+
+        // 遇酸立即溶解
+
+        if (nid === 9) {
+
+        world.set(x, y, 0);
+
+        world.wakeArea(x, y);
+
+        return;
+
+        }
+
+
+        if (nid === 2) {
+
         nearWater = true;
+
+        }
+
       }
-    }
+
+      if (world.inBounds(x - 1, y)) {
+
+        const nx = x - 1, ny = y;
+
+        const nid = world.get(nx, ny);
+
+
+        // 遇酸立即溶解
+
+        if (nid === 9) {
+
+        world.set(x, y, 0);
+
+        world.wakeArea(x, y);
+
+        return;
+
+        }
+
+
+        if (nid === 2) {
+
+        nearWater = true;
+
+        }
+
+      }
+
+      if (world.inBounds(x + 1, y)) {
+
+        const nx = x + 1, ny = y;
+
+        const nid = world.get(nx, ny);
+
+
+        // 遇酸立即溶解
+
+        if (nid === 9) {
+
+        world.set(x, y, 0);
+
+        world.wakeArea(x, y);
+
+        return;
+
+        }
+
+
+        if (nid === 2) {
+
+        nearWater = true;
+
+        }
+
+      }
 
     // 离水死亡机制
     if (!nearWater) {

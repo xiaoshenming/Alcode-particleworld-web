@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -58,22 +57,114 @@ export const Ferrofluid: MaterialDef = {
     }
 
     // 检查四邻交互
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
 
-      // 接触电线产生火花
-      if (nid === 44 && Math.random() < 0.04) {
-        const ox = x - dx, oy = y - dy;
+      if (world.inBounds(x, y - 1)) {
+
+        const nx = x, ny = y - 1;
+
+        const nid = world.get(nx, ny);
+
+
+        // 接触电线产生火花
+
+        if (nid === 44 && Math.random() < 0.04) {
+
+        const ox = x, oy = y - -1;
+
         if (world.inBounds(ox, oy) && world.isEmpty(ox, oy)) {
-          world.set(ox, oy, 28); // 火花
-          world.markUpdated(ox, oy);
-          world.wakeArea(ox, oy);
+
+        world.set(ox, oy, 28); // 火花
+
+        world.markUpdated(ox, oy);
+
+        world.wakeArea(ox, oy);
+
         }
+
+        }
+
       }
-    }
+
+      if (world.inBounds(x, y + 1)) {
+
+        const nx = x, ny = y + 1;
+
+        const nid = world.get(nx, ny);
+
+
+        // 接触电线产生火花
+
+        if (nid === 44 && Math.random() < 0.04) {
+
+        const ox = x, oy = y - 1;
+
+        if (world.inBounds(ox, oy) && world.isEmpty(ox, oy)) {
+
+        world.set(ox, oy, 28); // 火花
+
+        world.markUpdated(ox, oy);
+
+        world.wakeArea(ox, oy);
+
+        }
+
+        }
+
+      }
+
+      if (world.inBounds(x - 1, y)) {
+
+        const nx = x - 1, ny = y;
+
+        const nid = world.get(nx, ny);
+
+
+        // 接触电线产生火花
+
+        if (nid === 44 && Math.random() < 0.04) {
+
+        const ox = x - -1, oy = y;
+
+        if (world.inBounds(ox, oy) && world.isEmpty(ox, oy)) {
+
+        world.set(ox, oy, 28); // 火花
+
+        world.markUpdated(ox, oy);
+
+        world.wakeArea(ox, oy);
+
+        }
+
+        }
+
+      }
+
+      if (world.inBounds(x + 1, y)) {
+
+        const nx = x + 1, ny = y;
+
+        const nid = world.get(nx, ny);
+
+
+        // 接触电线产生火花
+
+        if (nid === 44 && Math.random() < 0.04) {
+
+        const ox = x - 1, oy = y;
+
+        if (world.inBounds(ox, oy) && world.isEmpty(ox, oy)) {
+
+        world.set(ox, oy, 28); // 火花
+
+        world.markUpdated(ox, oy);
+
+        world.wakeArea(ox, oy);
+
+        }
+
+        }
+
+      }
 
     // 磁铁吸引：搜索范围内的磁铁并向其移动
     let magnetX = -1, magnetY = -1;

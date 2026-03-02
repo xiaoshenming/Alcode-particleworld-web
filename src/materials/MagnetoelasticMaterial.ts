@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -40,49 +39,304 @@ export const MagnetoelasticMaterial: MaterialDef = {
   },
   update(x: number, y: number, world: WorldAPI) {
     const temp = world.getTemp(x, y);
-    const dirs = DIRS4;
     let nearMagnet = false;
 
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
 
-      // 接触火缓慢燃烧
-      if (nid === 6 && Math.random() < 0.03) {
+      if (world.inBounds(x, y - 1)) {
+
+        const nx = x, ny = y - 1;
+
+        const nid = world.get(nx, ny);
+
+
+        // 接触火缓慢燃烧
+
+        if (nid === 6 && Math.random() < 0.03) {
+
         world.set(x, y, 7);
+
         world.wakeArea(x, y);
+
         return;
-      }
 
-      // 检测磁铁
-      if (nid === 42) {
+        }
+
+
+        // 检测磁铁
+
+        if (nid === 42) {
+
         nearMagnet = true;
-      }
 
-      // 接触电弧产生振动（随机交换邻居）
-      if (nid === 145 && Math.random() < 0.15) {
+        }
+
+
+        // 接触电弧产生振动（随机交换邻居）
+
+        if (nid === 145 && Math.random() < 0.15) {
+
         const rdx = Math.random() < 0.5 ? -1 : 1;
+
         const rdy = Math.random() < 0.5 ? -1 : 1;
+
         const sx = x + rdx, sy = y + rdy;
+
         if (world.inBounds(sx, sy) && world.get(sx, sy) !== 0) {
-          world.swap(x, y, sx, sy);
-          world.wakeArea(x, y);
-          world.wakeArea(sx, sy);
-          return;
+
+        world.swap(x, y, sx, sy);
+
+        world.wakeArea(x, y);
+
+        world.wakeArea(sx, sy);
+
+        return;
+
         }
+
+        }
+
+
+        // 导热
+
+        if (nid !== 0 && Math.random() < 0.06) {
+
+        const nt = world.getTemp(nx, ny);
+
+        if (Math.abs(temp - nt) > 5) {
+
+        const diff = (nt - temp) * 0.1;
+
+        world.addTemp(x, y, diff);
+
+        world.addTemp(nx, ny, -diff);
+
+        }
+
+        }
+
       }
 
-      // 导热
-      if (nid !== 0 && Math.random() < 0.06) {
-        const nt = world.getTemp(nx, ny);
-        if (Math.abs(temp - nt) > 5) {
-          const diff = (nt - temp) * 0.1;
-          world.addTemp(x, y, diff);
-          world.addTemp(nx, ny, -diff);
+      if (world.inBounds(x, y + 1)) {
+
+        const nx = x, ny = y + 1;
+
+        const nid = world.get(nx, ny);
+
+
+        // 接触火缓慢燃烧
+
+        if (nid === 6 && Math.random() < 0.03) {
+
+        world.set(x, y, 7);
+
+        world.wakeArea(x, y);
+
+        return;
+
         }
+
+
+        // 检测磁铁
+
+        if (nid === 42) {
+
+        nearMagnet = true;
+
+        }
+
+
+        // 接触电弧产生振动（随机交换邻居）
+
+        if (nid === 145 && Math.random() < 0.15) {
+
+        const rdx = Math.random() < 0.5 ? -1 : 1;
+
+        const rdy = Math.random() < 0.5 ? -1 : 1;
+
+        const sx = x + rdx, sy = y + rdy;
+
+        if (world.inBounds(sx, sy) && world.get(sx, sy) !== 0) {
+
+        world.swap(x, y, sx, sy);
+
+        world.wakeArea(x, y);
+
+        world.wakeArea(sx, sy);
+
+        return;
+
+        }
+
+        }
+
+
+        // 导热
+
+        if (nid !== 0 && Math.random() < 0.06) {
+
+        const nt = world.getTemp(nx, ny);
+
+        if (Math.abs(temp - nt) > 5) {
+
+        const diff = (nt - temp) * 0.1;
+
+        world.addTemp(x, y, diff);
+
+        world.addTemp(nx, ny, -diff);
+
+        }
+
+        }
+
       }
-    }
+
+      if (world.inBounds(x - 1, y)) {
+
+        const nx = x - 1, ny = y;
+
+        const nid = world.get(nx, ny);
+
+
+        // 接触火缓慢燃烧
+
+        if (nid === 6 && Math.random() < 0.03) {
+
+        world.set(x, y, 7);
+
+        world.wakeArea(x, y);
+
+        return;
+
+        }
+
+
+        // 检测磁铁
+
+        if (nid === 42) {
+
+        nearMagnet = true;
+
+        }
+
+
+        // 接触电弧产生振动（随机交换邻居）
+
+        if (nid === 145 && Math.random() < 0.15) {
+
+        const rdx = Math.random() < 0.5 ? -1 : 1;
+
+        const rdy = Math.random() < 0.5 ? -1 : 1;
+
+        const sx = x + rdx, sy = y + rdy;
+
+        if (world.inBounds(sx, sy) && world.get(sx, sy) !== 0) {
+
+        world.swap(x, y, sx, sy);
+
+        world.wakeArea(x, y);
+
+        world.wakeArea(sx, sy);
+
+        return;
+
+        }
+
+        }
+
+
+        // 导热
+
+        if (nid !== 0 && Math.random() < 0.06) {
+
+        const nt = world.getTemp(nx, ny);
+
+        if (Math.abs(temp - nt) > 5) {
+
+        const diff = (nt - temp) * 0.1;
+
+        world.addTemp(x, y, diff);
+
+        world.addTemp(nx, ny, -diff);
+
+        }
+
+        }
+
+      }
+
+      if (world.inBounds(x + 1, y)) {
+
+        const nx = x + 1, ny = y;
+
+        const nid = world.get(nx, ny);
+
+
+        // 接触火缓慢燃烧
+
+        if (nid === 6 && Math.random() < 0.03) {
+
+        world.set(x, y, 7);
+
+        world.wakeArea(x, y);
+
+        return;
+
+        }
+
+
+        // 检测磁铁
+
+        if (nid === 42) {
+
+        nearMagnet = true;
+
+        }
+
+
+        // 接触电弧产生振动（随机交换邻居）
+
+        if (nid === 145 && Math.random() < 0.15) {
+
+        const rdx = Math.random() < 0.5 ? -1 : 1;
+
+        const rdy = Math.random() < 0.5 ? -1 : 1;
+
+        const sx = x + rdx, sy = y + rdy;
+
+        if (world.inBounds(sx, sy) && world.get(sx, sy) !== 0) {
+
+        world.swap(x, y, sx, sy);
+
+        world.wakeArea(x, y);
+
+        world.wakeArea(sx, sy);
+
+        return;
+
+        }
+
+        }
+
+
+        // 导热
+
+        if (nid !== 0 && Math.random() < 0.06) {
+
+        const nt = world.getTemp(nx, ny);
+
+        if (Math.abs(temp - nt) > 5) {
+
+        const diff = (nt - temp) * 0.1;
+
+        world.addTemp(x, y, diff);
+
+        world.addTemp(nx, ny, -diff);
+
+        }
+
+        }
+
+      }
 
     // 磁铁附近：吸引周围金属粒子靠近
     if (nearMagnet && Math.random() < 0.2) {

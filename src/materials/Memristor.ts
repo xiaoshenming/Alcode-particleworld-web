@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -49,36 +48,204 @@ export const Memristor: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
     let powered = false;
 
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
 
-      // 通电变色：接触电线/闪电/电弧
-      if (nid === 44 || nid === 16 || nid === 145) {
+      if (world.inBounds(x, y - 1)) {
+
+        const nx = x, ny = y - 1;
+
+        const nid = world.get(nx, ny);
+
+
+        // 通电变色：接触电线/闪电/电弧
+
+        if (nid === 44 || nid === 16 || nid === 145) {
+
         powered = true;
-      }
 
-      // 耐酸：普通酸(9)概率0.01，酸被消耗变烟
-      if (nid === 9 && Math.random() < 0.01) {
-        world.set(nx, ny, 7); // 酸变烟
-        world.markUpdated(nx, ny);
-        world.wakeArea(nx, ny);
-      }
-
-      // 中等导热（概率0.05）：温差>8时传导
-      if (nid !== 0 && Math.random() < 0.05) {
-        const nt = world.getTemp(nx, ny);
-        if (Math.abs(temp - nt) > 8) {
-          const diff = (nt - temp) * 0.06;
-          world.addTemp(x, y, diff);
-          world.addTemp(nx, ny, -diff);
         }
+
+
+        // 耐酸：普通酸(9)概率0.01，酸被消耗变烟
+
+        if (nid === 9 && Math.random() < 0.01) {
+
+        world.set(nx, ny, 7); // 酸变烟
+
+        world.markUpdated(nx, ny);
+
+        world.wakeArea(nx, ny);
+
+        }
+
+
+        // 中等导热（概率0.05）：温差>8时传导
+
+        if (nid !== 0 && Math.random() < 0.05) {
+
+        const nt = world.getTemp(nx, ny);
+
+        if (Math.abs(temp - nt) > 8) {
+
+        const diff = (nt - temp) * 0.06;
+
+        world.addTemp(x, y, diff);
+
+        world.addTemp(nx, ny, -diff);
+
+        }
+
+        }
+
       }
-    }
+
+      if (world.inBounds(x, y + 1)) {
+
+        const nx = x, ny = y + 1;
+
+        const nid = world.get(nx, ny);
+
+
+        // 通电变色：接触电线/闪电/电弧
+
+        if (nid === 44 || nid === 16 || nid === 145) {
+
+        powered = true;
+
+        }
+
+
+        // 耐酸：普通酸(9)概率0.01，酸被消耗变烟
+
+        if (nid === 9 && Math.random() < 0.01) {
+
+        world.set(nx, ny, 7); // 酸变烟
+
+        world.markUpdated(nx, ny);
+
+        world.wakeArea(nx, ny);
+
+        }
+
+
+        // 中等导热（概率0.05）：温差>8时传导
+
+        if (nid !== 0 && Math.random() < 0.05) {
+
+        const nt = world.getTemp(nx, ny);
+
+        if (Math.abs(temp - nt) > 8) {
+
+        const diff = (nt - temp) * 0.06;
+
+        world.addTemp(x, y, diff);
+
+        world.addTemp(nx, ny, -diff);
+
+        }
+
+        }
+
+      }
+
+      if (world.inBounds(x - 1, y)) {
+
+        const nx = x - 1, ny = y;
+
+        const nid = world.get(nx, ny);
+
+
+        // 通电变色：接触电线/闪电/电弧
+
+        if (nid === 44 || nid === 16 || nid === 145) {
+
+        powered = true;
+
+        }
+
+
+        // 耐酸：普通酸(9)概率0.01，酸被消耗变烟
+
+        if (nid === 9 && Math.random() < 0.01) {
+
+        world.set(nx, ny, 7); // 酸变烟
+
+        world.markUpdated(nx, ny);
+
+        world.wakeArea(nx, ny);
+
+        }
+
+
+        // 中等导热（概率0.05）：温差>8时传导
+
+        if (nid !== 0 && Math.random() < 0.05) {
+
+        const nt = world.getTemp(nx, ny);
+
+        if (Math.abs(temp - nt) > 8) {
+
+        const diff = (nt - temp) * 0.06;
+
+        world.addTemp(x, y, diff);
+
+        world.addTemp(nx, ny, -diff);
+
+        }
+
+        }
+
+      }
+
+      if (world.inBounds(x + 1, y)) {
+
+        const nx = x + 1, ny = y;
+
+        const nid = world.get(nx, ny);
+
+
+        // 通电变色：接触电线/闪电/电弧
+
+        if (nid === 44 || nid === 16 || nid === 145) {
+
+        powered = true;
+
+        }
+
+
+        // 耐酸：普通酸(9)概率0.01，酸被消耗变烟
+
+        if (nid === 9 && Math.random() < 0.01) {
+
+        world.set(nx, ny, 7); // 酸变烟
+
+        world.markUpdated(nx, ny);
+
+        world.wakeArea(nx, ny);
+
+        }
+
+
+        // 中等导热（概率0.05）：温差>8时传导
+
+        if (nid !== 0 && Math.random() < 0.05) {
+
+        const nt = world.getTemp(nx, ny);
+
+        if (Math.abs(temp - nt) > 8) {
+
+        const diff = (nt - temp) * 0.06;
+
+        world.addTemp(x, y, diff);
+
+        world.addTemp(nx, ny, -diff);
+
+        }
+
+        }
+
+      }
 
     // 通电时刷新自身颜色（重新调用 color()）
     if (powered) {

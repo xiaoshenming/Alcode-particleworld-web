@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -54,51 +53,46 @@ export const Slime: MaterialDef = {
       return;
     }
 
-    // 遇火直接燃烧
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 遇火直接燃烧（4方向显式展开，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
-
-      // 遇火燃烧
-      if (nid === 6 && Math.random() < 0.1) {
-        world.set(x, y, 6); // 火
-        world.setTemp(x, y, 150);
-        world.wakeArea(x, y);
-        return;
-      }
-
-      // 酸液快速溶解
-      if (nid === 9 && Math.random() < 0.08) {
-        world.set(x, y, 0);
-        world.wakeArea(x, y);
-        return;
-      }
-
-      // 遇水缓慢溶解
-      if (nid === 2 && Math.random() < 0.005) {
-        world.set(x, y, 2); // 变为水
-        world.wakeArea(x, y);
-        return;
-      }
-
-      // 弹起效果：上方有可弹粒子时向上推
-      if (dy === -1 && BOUNCEABLE.has(nid) && Math.random() < 0.2) {
+      if (nid === 6 && Math.random() < 0.1) { world.set(x, y, 6); world.setTemp(x, y, 150); world.wakeArea(x, y); return; }
+      if (nid === 9 && Math.random() < 0.08) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+      if (nid === 2 && Math.random() < 0.005) { world.set(x, y, 2); world.wakeArea(x, y); return; }
+      // 向上(dy=-1): 弹起效果
+      if (BOUNCEABLE.has(nid) && Math.random() < 0.2) {
         const bounceY = ny - 1;
-        if (world.inBounds(nx, bounceY) && world.isEmpty(nx, bounceY)) {
-          world.swap(nx, ny, nx, bounceY);
-          world.wakeArea(nx, ny);
-          world.wakeArea(nx, bounceY);
-        }
+        if (world.inBounds(nx, bounceY) && world.isEmpty(nx, bounceY)) { world.swap(nx, ny, nx, bounceY); world.wakeArea(nx, ny); world.wakeArea(nx, bounceY); }
       }
-
-      // 困住小生物
-      if (TRAPPABLE.has(nid) && Math.random() < 0.15) {
-        world.set(nx, ny, 89); // 吞噬
-        world.markUpdated(nx, ny);
-        world.wakeArea(nx, ny);
-      }
+      if (TRAPPABLE.has(nid) && Math.random() < 0.15) { world.set(nx, ny, 89); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+      if (nid === 6 && Math.random() < 0.1) { world.set(x, y, 6); world.setTemp(x, y, 150); world.wakeArea(x, y); return; }
+      if (nid === 9 && Math.random() < 0.08) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+      if (nid === 2 && Math.random() < 0.005) { world.set(x, y, 2); world.wakeArea(x, y); return; }
+      // dy=+1: 无弹起效果
+      if (TRAPPABLE.has(nid) && Math.random() < 0.15) { world.set(nx, ny, 89); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+      if (nid === 6 && Math.random() < 0.1) { world.set(x, y, 6); world.setTemp(x, y, 150); world.wakeArea(x, y); return; }
+      if (nid === 9 && Math.random() < 0.08) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+      if (nid === 2 && Math.random() < 0.005) { world.set(x, y, 2); world.wakeArea(x, y); return; }
+      // dy=0: 无弹起效果
+      if (TRAPPABLE.has(nid) && Math.random() < 0.15) { world.set(nx, ny, 89); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+      if (nid === 6 && Math.random() < 0.1) { world.set(x, y, 6); world.setTemp(x, y, 150); world.wakeArea(x, y); return; }
+      if (nid === 9 && Math.random() < 0.08) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+      if (nid === 2 && Math.random() < 0.005) { world.set(x, y, 2); world.wakeArea(x, y); return; }
+      // dy=0: 无弹起效果
+      if (TRAPPABLE.has(nid) && Math.random() < 0.15) { world.set(nx, ny, 89); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
     }
 
     // 极缓慢重力下落

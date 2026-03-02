@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -46,41 +45,258 @@ export const Superconductor: MaterialDef = {
     const isSuperconducting = temp < 50;
 
     // 检查四邻
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
 
-      if (isSuperconducting) {
+      if (world.inBounds(x, y - 1)) {
+
+        const nx = x, ny = y - 1;
+
+        const nid = world.get(nx, ny);
+
+
+        if (isSuperconducting) {
+
         // 超导电：增强电线
+
         if (nid === 44) {
-          world.addTemp(nx, ny, 5);
-          world.wakeArea(nx, ny);
+
+        world.addTemp(nx, ny, 5);
+
+        world.wakeArea(nx, ny);
+
         }
+
 
         // 迈斯纳效应：排斥磁性材质
+
         if (MAGNETIC.has(nid) && Math.random() < 0.15) {
-          // 将磁性材质推离
-          const pushX = nx + dx, pushY = ny + dy;
-          if (world.inBounds(pushX, pushY) && world.isEmpty(pushX, pushY)) {
-            world.swap(nx, ny, pushX, pushY);
-            world.markUpdated(pushX, pushY);
-            world.wakeArea(pushX, pushY);
-          }
+
+        // 将磁性材质推离
+
+        const pushX = nx, pushY = ny + -1;
+
+        if (world.inBounds(pushX, pushY) && world.isEmpty(pushX, pushY)) {
+
+        world.swap(nx, ny, pushX, pushY);
+
+        world.markUpdated(pushX, pushY);
+
+        world.wakeArea(pushX, pushY);
+
         }
+
+        }
+
+        }
+
+
+        // 超导热（无论是否超导态都有良好导热）
+
+        if (nid !== 0 && Math.random() < 0.25) {
+
+        const nt = world.getTemp(nx, ny);
+
+        if (Math.abs(temp - nt) > 2) {
+
+        const avg = (temp + nt) / 2;
+
+        world.setTemp(x, y, avg);
+
+        world.setTemp(nx, ny, avg);
+
+        }
+
+        }
+
       }
 
-      // 超导热（无论是否超导态都有良好导热）
-      if (nid !== 0 && Math.random() < 0.25) {
-        const nt = world.getTemp(nx, ny);
-        if (Math.abs(temp - nt) > 2) {
-          const avg = (temp + nt) / 2;
-          world.setTemp(x, y, avg);
-          world.setTemp(nx, ny, avg);
+      if (world.inBounds(x, y + 1)) {
+
+        const nx = x, ny = y + 1;
+
+        const nid = world.get(nx, ny);
+
+
+        if (isSuperconducting) {
+
+        // 超导电：增强电线
+
+        if (nid === 44) {
+
+        world.addTemp(nx, ny, 5);
+
+        world.wakeArea(nx, ny);
+
         }
+
+
+        // 迈斯纳效应：排斥磁性材质
+
+        if (MAGNETIC.has(nid) && Math.random() < 0.15) {
+
+        // 将磁性材质推离
+
+        const pushX = nx, pushY = ny + 1;
+
+        if (world.inBounds(pushX, pushY) && world.isEmpty(pushX, pushY)) {
+
+        world.swap(nx, ny, pushX, pushY);
+
+        world.markUpdated(pushX, pushY);
+
+        world.wakeArea(pushX, pushY);
+
+        }
+
+        }
+
+        }
+
+
+        // 超导热（无论是否超导态都有良好导热）
+
+        if (nid !== 0 && Math.random() < 0.25) {
+
+        const nt = world.getTemp(nx, ny);
+
+        if (Math.abs(temp - nt) > 2) {
+
+        const avg = (temp + nt) / 2;
+
+        world.setTemp(x, y, avg);
+
+        world.setTemp(nx, ny, avg);
+
+        }
+
+        }
+
       }
-    }
+
+      if (world.inBounds(x - 1, y)) {
+
+        const nx = x - 1, ny = y;
+
+        const nid = world.get(nx, ny);
+
+
+        if (isSuperconducting) {
+
+        // 超导电：增强电线
+
+        if (nid === 44) {
+
+        world.addTemp(nx, ny, 5);
+
+        world.wakeArea(nx, ny);
+
+        }
+
+
+        // 迈斯纳效应：排斥磁性材质
+
+        if (MAGNETIC.has(nid) && Math.random() < 0.15) {
+
+        // 将磁性材质推离
+
+        const pushX = nx + -1, pushY = ny;
+
+        if (world.inBounds(pushX, pushY) && world.isEmpty(pushX, pushY)) {
+
+        world.swap(nx, ny, pushX, pushY);
+
+        world.markUpdated(pushX, pushY);
+
+        world.wakeArea(pushX, pushY);
+
+        }
+
+        }
+
+        }
+
+
+        // 超导热（无论是否超导态都有良好导热）
+
+        if (nid !== 0 && Math.random() < 0.25) {
+
+        const nt = world.getTemp(nx, ny);
+
+        if (Math.abs(temp - nt) > 2) {
+
+        const avg = (temp + nt) / 2;
+
+        world.setTemp(x, y, avg);
+
+        world.setTemp(nx, ny, avg);
+
+        }
+
+        }
+
+      }
+
+      if (world.inBounds(x + 1, y)) {
+
+        const nx = x + 1, ny = y;
+
+        const nid = world.get(nx, ny);
+
+
+        if (isSuperconducting) {
+
+        // 超导电：增强电线
+
+        if (nid === 44) {
+
+        world.addTemp(nx, ny, 5);
+
+        world.wakeArea(nx, ny);
+
+        }
+
+
+        // 迈斯纳效应：排斥磁性材质
+
+        if (MAGNETIC.has(nid) && Math.random() < 0.15) {
+
+        // 将磁性材质推离
+
+        const pushX = nx + 1, pushY = ny;
+
+        if (world.inBounds(pushX, pushY) && world.isEmpty(pushX, pushY)) {
+
+        world.swap(nx, ny, pushX, pushY);
+
+        world.markUpdated(pushX, pushY);
+
+        world.wakeArea(pushX, pushY);
+
+        }
+
+        }
+
+        }
+
+
+        // 超导热（无论是否超导态都有良好导热）
+
+        if (nid !== 0 && Math.random() < 0.25) {
+
+        const nt = world.getTemp(nx, ny);
+
+        if (Math.abs(temp - nt) > 2) {
+
+        const avg = (temp + nt) / 2;
+
+        world.setTemp(x, y, avg);
+
+        world.setTemp(nx, ny, avg);
+
+        }
+
+        }
+
+      }
 
     // 超导态时持续唤醒
     if (isSuperconducting && Math.random() < 0.2) {

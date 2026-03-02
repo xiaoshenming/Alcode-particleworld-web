@@ -1,4 +1,4 @@
-import { DIRS4, DIRS_DIAG } from './types';
+import { DIRS_DIAG } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -54,26 +54,138 @@ export const Permafrost: MaterialDef = {
     }
 
     // 邻居交互
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
 
-      // 遇水使水结冰
-      if (nid === 2 && Math.random() < 0.04) {
+      if (world.inBounds(x, y - 1)) {
+
+        const nx = x, ny = y - 1;
+
+        const nid = world.get(nx, ny);
+
+
+        // 遇水使水结冰
+
+        if (nid === 2 && Math.random() < 0.04) {
+
         world.set(nx, ny, 14); // 冰
+
         world.markUpdated(nx, ny);
+
         world.wakeArea(nx, ny);
-        continue;
+
+        } else {
+
+        // 冷冻周围：降低邻居温度
+
+        const nTemp = world.getTemp(nx, ny);
+
+        if (nTemp > -10) {
+
+        world.addTemp(nx, ny, -0.5);
+
+        }
+
+        }
+
       }
 
-      // 冷冻周围：降低邻居温度
-      const nTemp = world.getTemp(nx, ny);
-      if (nTemp > -10) {
+      if (world.inBounds(x, y + 1)) {
+
+        const nx = x, ny = y + 1;
+
+        const nid = world.get(nx, ny);
+
+
+        // 遇水使水结冰
+
+        if (nid === 2 && Math.random() < 0.04) {
+
+        world.set(nx, ny, 14); // 冰
+
+        world.markUpdated(nx, ny);
+
+        world.wakeArea(nx, ny);
+
+        } else {
+
+        // 冷冻周围：降低邻居温度
+
+        const nTemp = world.getTemp(nx, ny);
+
+        if (nTemp > -10) {
+
         world.addTemp(nx, ny, -0.5);
+
+        }
+
+        }
+
       }
-    }
+
+      if (world.inBounds(x - 1, y)) {
+
+        const nx = x - 1, ny = y;
+
+        const nid = world.get(nx, ny);
+
+
+        // 遇水使水结冰
+
+        if (nid === 2 && Math.random() < 0.04) {
+
+        world.set(nx, ny, 14); // 冰
+
+        world.markUpdated(nx, ny);
+
+        world.wakeArea(nx, ny);
+
+        } else {
+
+        // 冷冻周围：降低邻居温度
+
+        const nTemp = world.getTemp(nx, ny);
+
+        if (nTemp > -10) {
+
+        world.addTemp(nx, ny, -0.5);
+
+        }
+
+        }
+
+      }
+
+      if (world.inBounds(x + 1, y)) {
+
+        const nx = x + 1, ny = y;
+
+        const nid = world.get(nx, ny);
+
+
+        // 遇水使水结冰
+
+        if (nid === 2 && Math.random() < 0.04) {
+
+        world.set(nx, ny, 14); // 冰
+
+        world.markUpdated(nx, ny);
+
+        world.wakeArea(nx, ny);
+
+        } else {
+
+        // 冷冻周围：降低邻居温度
+
+        const nTemp = world.getTemp(nx, ny);
+
+        if (nTemp > -10) {
+
+        world.addTemp(nx, ny, -0.5);
+
+        }
+
+        }
+
+      }
 
     // 对角线也有冷冻效果（弱）
     const diags = DIRS_DIAG;

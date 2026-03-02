@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -46,43 +45,235 @@ export const ElectrothermalMaterial: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
     let powered = false;
 
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
 
-      // 通电升温
-      if ((nid === 145 || nid === 16) && Math.random() < 0.5) {
+      if (world.inBounds(x, y - 1)) {
+
+        const nx = x, ny = y - 1;
+
+        const nid = world.get(nx, ny);
+
+
+        // 通电升温
+
+        if ((nid === 145 || nid === 16) && Math.random() < 0.5) {
+
         world.addTemp(x, y, 25);
+
         powered = true;
+
+        }
+
+
+        // 耐酸中等
+
+        if (nid === 9 && Math.random() < 0.008) {
+
+        world.set(x, y, 0);
+
+        world.set(nx, ny, 7);
+
+        world.wakeArea(x, y);
+
+        return;
+
+        }
+
       }
 
-      // 耐酸中等
-      if (nid === 9 && Math.random() < 0.008) {
+      if (world.inBounds(x, y + 1)) {
+
+        const nx = x, ny = y + 1;
+
+        const nid = world.get(nx, ny);
+
+
+        // 通电升温
+
+        if ((nid === 145 || nid === 16) && Math.random() < 0.5) {
+
+        world.addTemp(x, y, 25);
+
+        powered = true;
+
+        }
+
+
+        // 耐酸中等
+
+        if (nid === 9 && Math.random() < 0.008) {
+
         world.set(x, y, 0);
+
         world.set(nx, ny, 7);
+
         world.wakeArea(x, y);
+
         return;
+
+        }
+
       }
-    }
+
+      if (world.inBounds(x - 1, y)) {
+
+        const nx = x - 1, ny = y;
+
+        const nid = world.get(nx, ny);
+
+
+        // 通电升温
+
+        if ((nid === 145 || nid === 16) && Math.random() < 0.5) {
+
+        world.addTemp(x, y, 25);
+
+        powered = true;
+
+        }
+
+
+        // 耐酸中等
+
+        if (nid === 9 && Math.random() < 0.008) {
+
+        world.set(x, y, 0);
+
+        world.set(nx, ny, 7);
+
+        world.wakeArea(x, y);
+
+        return;
+
+        }
+
+      }
+
+      if (world.inBounds(x + 1, y)) {
+
+        const nx = x + 1, ny = y;
+
+        const nid = world.get(nx, ny);
+
+
+        // 通电升温
+
+        if ((nid === 145 || nid === 16) && Math.random() < 0.5) {
+
+        world.addTemp(x, y, 25);
+
+        powered = true;
+
+        }
+
+
+        // 耐酸中等
+
+        if (nid === 9 && Math.random() < 0.008) {
+
+        world.set(x, y, 0);
+
+        world.set(nx, ny, 7);
+
+        world.wakeArea(x, y);
+
+        return;
+
+        }
+
+      }
 
     // 通电时向周围传热
     if (powered || temp > 100) {
-      for (const [dx, dy] of dirs) {
-        const nx = x + dx, ny = y + dy;
-        if (!world.inBounds(nx, ny)) continue;
-        if (world.get(nx, ny) !== 0) {
+
+        if (world.inBounds(x, y - 1)) {
+
+          const nx = x, ny = y - 1;
+
+          if (world.get(nx, ny) !== 0) {
+
           const nt = world.getTemp(nx, ny);
+
           if (temp > nt + 5) {
-            const diff = (temp - nt) * 0.15;
-            world.addTemp(nx, ny, diff);
-            world.addTemp(x, y, -diff * 0.3);
+
+          const diff = (temp - nt) * 0.15;
+
+          world.addTemp(nx, ny, diff);
+
+          world.addTemp(x, y, -diff * 0.3);
+
           }
+
+          }
+
         }
-      }
+
+        if (world.inBounds(x, y + 1)) {
+
+          const nx = x, ny = y + 1;
+
+          if (world.get(nx, ny) !== 0) {
+
+          const nt = world.getTemp(nx, ny);
+
+          if (temp > nt + 5) {
+
+          const diff = (temp - nt) * 0.15;
+
+          world.addTemp(nx, ny, diff);
+
+          world.addTemp(x, y, -diff * 0.3);
+
+          }
+
+          }
+
+        }
+
+        if (world.inBounds(x - 1, y)) {
+
+          const nx = x - 1, ny = y;
+
+          if (world.get(nx, ny) !== 0) {
+
+          const nt = world.getTemp(nx, ny);
+
+          if (temp > nt + 5) {
+
+          const diff = (temp - nt) * 0.15;
+
+          world.addTemp(nx, ny, diff);
+
+          world.addTemp(x, y, -diff * 0.3);
+
+          }
+
+          }
+
+        }
+
+        if (world.inBounds(x + 1, y)) {
+
+          const nx = x + 1, ny = y;
+
+          if (world.get(nx, ny) !== 0) {
+
+          const nt = world.getTemp(nx, ny);
+
+          if (temp > nt + 5) {
+
+          const diff = (temp - nt) * 0.15;
+
+          world.addTemp(nx, ny, diff);
+
+          world.addTemp(x, y, -diff * 0.3);
+
+          }
+
+          }
+
+        }
     }
 
     // 未通电时缓慢冷却

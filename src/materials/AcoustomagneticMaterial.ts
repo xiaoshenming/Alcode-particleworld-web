@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -54,12 +53,38 @@ export const AcoustomagneticMaterial: MaterialDef = {
     // 金属材质 ID 集合（铁、铜等常见金属）
     // 检测周围是否有运动（活跃粒子）
     let activeNeighbors = 0;
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      if (world.get(nx, ny) !== 0) activeNeighbors++;
-    }
+
+      if (world.inBounds(x, y - 1)) {
+
+        const nx = x, ny = y - 1;
+
+        if (world.get(nx, ny) !== 0) activeNeighbors++;
+
+      }
+
+      if (world.inBounds(x, y + 1)) {
+
+        const nx = x, ny = y + 1;
+
+        if (world.get(nx, ny) !== 0) activeNeighbors++;
+
+      }
+
+      if (world.inBounds(x - 1, y)) {
+
+        const nx = x - 1, ny = y;
+
+        if (world.get(nx, ny) !== 0) activeNeighbors++;
+
+      }
+
+      if (world.inBounds(x + 1, y)) {
+
+        const nx = x + 1, ny = y;
+
+        if (world.get(nx, ny) !== 0) activeNeighbors++;
+
+      }
 
     // 有活跃邻居时产生磁力效果
     if (activeNeighbors >= 1) {
@@ -85,20 +110,106 @@ export const AcoustomagneticMaterial: MaterialDef = {
     }
 
     // 导热
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
 
-      if (nid !== 0 && Math.random() < 0.05) {
+      if (world.inBounds(x, y - 1)) {
+
+        const nx = x, ny = y - 1;
+
+        const nid = world.get(nx, ny);
+
+
+        if (nid !== 0 && Math.random() < 0.05) {
+
         const nt = world.getTemp(nx, ny);
+
         if (Math.abs(temp - nt) > 5) {
-          const diff = (nt - temp) * 0.06;
-          world.addTemp(x, y, diff);
-          world.addTemp(nx, ny, -diff);
+
+        const diff = (nt - temp) * 0.06;
+
+        world.addTemp(x, y, diff);
+
+        world.addTemp(nx, ny, -diff);
+
         }
+
+        }
+
       }
-    }
+
+      if (world.inBounds(x, y + 1)) {
+
+        const nx = x, ny = y + 1;
+
+        const nid = world.get(nx, ny);
+
+
+        if (nid !== 0 && Math.random() < 0.05) {
+
+        const nt = world.getTemp(nx, ny);
+
+        if (Math.abs(temp - nt) > 5) {
+
+        const diff = (nt - temp) * 0.06;
+
+        world.addTemp(x, y, diff);
+
+        world.addTemp(nx, ny, -diff);
+
+        }
+
+        }
+
+      }
+
+      if (world.inBounds(x - 1, y)) {
+
+        const nx = x - 1, ny = y;
+
+        const nid = world.get(nx, ny);
+
+
+        if (nid !== 0 && Math.random() < 0.05) {
+
+        const nt = world.getTemp(nx, ny);
+
+        if (Math.abs(temp - nt) > 5) {
+
+        const diff = (nt - temp) * 0.06;
+
+        world.addTemp(x, y, diff);
+
+        world.addTemp(nx, ny, -diff);
+
+        }
+
+        }
+
+      }
+
+      if (world.inBounds(x + 1, y)) {
+
+        const nx = x + 1, ny = y;
+
+        const nid = world.get(nx, ny);
+
+
+        if (nid !== 0 && Math.random() < 0.05) {
+
+        const nt = world.getTemp(nx, ny);
+
+        if (Math.abs(temp - nt) > 5) {
+
+        const diff = (nt - temp) * 0.06;
+
+        world.addTemp(x, y, diff);
+
+        world.addTemp(nx, ny, -diff);
+
+        }
+
+        }
+
+      }
   },
 };
 

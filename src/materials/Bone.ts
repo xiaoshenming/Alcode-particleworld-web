@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -52,31 +51,164 @@ export const Bone: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
     let waterCount = 0;
 
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
 
-      // 酸液腐蚀
-      if (nid === 9 && Math.random() < 0.04) {
+      if (world.inBounds(x, y - 1)) {
+
+        const nx = x, ny = y - 1;
+
+        const nid = world.get(nx, ny);
+
+
+        // 酸液腐蚀
+
+        if (nid === 9 && Math.random() < 0.04) {
+
         world.set(x, y, 0);
+
         world.wakeArea(x, y);
+
         return;
-      }
 
-      // 熔岩接触加热
-      if (nid === 11) {
+        }
+
+
+        // 熔岩接触加热
+
+        if (nid === 11) {
+
         world.addTemp(x, y, 10);
+
+        }
+
+
+        // 统计水源
+
+        if (nid === 2 || nid === 97) {
+
+        waterCount++;
+
+        }
+
       }
 
-      // 统计水源
-      if (nid === 2 || nid === 97) {
+      if (world.inBounds(x, y + 1)) {
+
+        const nx = x, ny = y + 1;
+
+        const nid = world.get(nx, ny);
+
+
+        // 酸液腐蚀
+
+        if (nid === 9 && Math.random() < 0.04) {
+
+        world.set(x, y, 0);
+
+        world.wakeArea(x, y);
+
+        return;
+
+        }
+
+
+        // 熔岩接触加热
+
+        if (nid === 11) {
+
+        world.addTemp(x, y, 10);
+
+        }
+
+
+        // 统计水源
+
+        if (nid === 2 || nid === 97) {
+
         waterCount++;
+
+        }
+
       }
-    }
+
+      if (world.inBounds(x - 1, y)) {
+
+        const nx = x - 1, ny = y;
+
+        const nid = world.get(nx, ny);
+
+
+        // 酸液腐蚀
+
+        if (nid === 9 && Math.random() < 0.04) {
+
+        world.set(x, y, 0);
+
+        world.wakeArea(x, y);
+
+        return;
+
+        }
+
+
+        // 熔岩接触加热
+
+        if (nid === 11) {
+
+        world.addTemp(x, y, 10);
+
+        }
+
+
+        // 统计水源
+
+        if (nid === 2 || nid === 97) {
+
+        waterCount++;
+
+        }
+
+      }
+
+      if (world.inBounds(x + 1, y)) {
+
+        const nx = x + 1, ny = y;
+
+        const nid = world.get(nx, ny);
+
+
+        // 酸液腐蚀
+
+        if (nid === 9 && Math.random() < 0.04) {
+
+        world.set(x, y, 0);
+
+        world.wakeArea(x, y);
+
+        return;
+
+        }
+
+
+        // 熔岩接触加热
+
+        if (nid === 11) {
+
+        world.addTemp(x, y, 10);
+
+        }
+
+
+        // 统计水源
+
+        if (nid === 2 || nid === 97) {
+
+        waterCount++;
+
+        }
+
+      }
 
     // 长时间浸泡在水中 → 石化（极低概率）
     if (waterCount >= 2 && Math.random() < 0.0005) {

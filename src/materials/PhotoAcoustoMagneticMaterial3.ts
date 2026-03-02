@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -25,19 +24,90 @@ export const PhotoAcoustoMagneticMaterial3: MaterialDef = {
     const temp = world.getTemp(x, y);
 
     // 酸液腐蚀
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
 
-      // 酸液(9)溶解
-      if (nid === 9 && Math.random() < 0.0005) {
+      if (world.inBounds(x, y - 1)) {
+
+        const nx = x, ny = y - 1;
+
+        const nid = world.get(nx, ny);
+
+
+        // 酸液(9)溶解
+
+        if (nid === 9 && Math.random() < 0.0005) {
+
         world.set(x, y, 0);
+
         world.wakeArea(x, y);
+
         return;
+
+        }
+
       }
-    }
+
+      if (world.inBounds(x, y + 1)) {
+
+        const nx = x, ny = y + 1;
+
+        const nid = world.get(nx, ny);
+
+
+        // 酸液(9)溶解
+
+        if (nid === 9 && Math.random() < 0.0005) {
+
+        world.set(x, y, 0);
+
+        world.wakeArea(x, y);
+
+        return;
+
+        }
+
+      }
+
+      if (world.inBounds(x - 1, y)) {
+
+        const nx = x - 1, ny = y;
+
+        const nid = world.get(nx, ny);
+
+
+        // 酸液(9)溶解
+
+        if (nid === 9 && Math.random() < 0.0005) {
+
+        world.set(x, y, 0);
+
+        world.wakeArea(x, y);
+
+        return;
+
+        }
+
+      }
+
+      if (world.inBounds(x + 1, y)) {
+
+        const nx = x + 1, ny = y;
+
+        const nid = world.get(nx, ny);
+
+
+        // 酸液(9)溶解
+
+        if (nid === 9 && Math.random() < 0.0005) {
+
+        world.set(x, y, 0);
+
+        world.wakeArea(x, y);
+
+        return;
+
+        }
+
+      }
 
     // 检测光照
     let hasLight = false;
@@ -103,19 +173,102 @@ export const PhotoAcoustoMagneticMaterial3: MaterialDef = {
     }
 
     // 热传导
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-      if (nid !== 0 && Math.random() < 0.06) {
+
+      if (world.inBounds(x, y - 1)) {
+
+        const nx = x, ny = y - 1;
+
+        const nid = world.get(nx, ny);
+
+        if (nid !== 0 && Math.random() < 0.06) {
+
         const nt = world.getTemp(nx, ny);
+
         if (Math.abs(temp - nt) > 5) {
-          const diff = (nt - temp) * 0.07;
-          world.addTemp(x, y, diff);
-          world.addTemp(nx, ny, -diff);
+
+        const diff = (nt - temp) * 0.07;
+
+        world.addTemp(x, y, diff);
+
+        world.addTemp(nx, ny, -diff);
+
         }
+
+        }
+
       }
-    }
+
+      if (world.inBounds(x, y + 1)) {
+
+        const nx = x, ny = y + 1;
+
+        const nid = world.get(nx, ny);
+
+        if (nid !== 0 && Math.random() < 0.06) {
+
+        const nt = world.getTemp(nx, ny);
+
+        if (Math.abs(temp - nt) > 5) {
+
+        const diff = (nt - temp) * 0.07;
+
+        world.addTemp(x, y, diff);
+
+        world.addTemp(nx, ny, -diff);
+
+        }
+
+        }
+
+      }
+
+      if (world.inBounds(x - 1, y)) {
+
+        const nx = x - 1, ny = y;
+
+        const nid = world.get(nx, ny);
+
+        if (nid !== 0 && Math.random() < 0.06) {
+
+        const nt = world.getTemp(nx, ny);
+
+        if (Math.abs(temp - nt) > 5) {
+
+        const diff = (nt - temp) * 0.07;
+
+        world.addTemp(x, y, diff);
+
+        world.addTemp(nx, ny, -diff);
+
+        }
+
+        }
+
+      }
+
+      if (world.inBounds(x + 1, y)) {
+
+        const nx = x + 1, ny = y;
+
+        const nid = world.get(nx, ny);
+
+        if (nid !== 0 && Math.random() < 0.06) {
+
+        const nt = world.getTemp(nx, ny);
+
+        if (Math.abs(temp - nt) > 5) {
+
+        const diff = (nt - temp) * 0.07;
+
+        world.addTemp(x, y, diff);
+
+        world.addTemp(nx, ny, -diff);
+
+        }
+
+        }
+
+      }
   },
 };
 

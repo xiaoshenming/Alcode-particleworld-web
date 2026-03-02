@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -61,29 +60,148 @@ export const DryIce: MaterialDef = {
     if (temp > 30) sublimateChance = 0.1;
 
     // 检查邻居
-    const dirs = DIRS4;
     let waterContact = false;
 
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
 
-      // 接触水剧烈升华
-      if (nid === 2 || nid === 24) {
+      if (world.inBounds(x, y - 1)) {
+
+        const nx = x, ny = y - 1;
+
+        const nid = world.get(nx, ny);
+
+
+        // 接触水剧烈升华
+
+        if (nid === 2 || nid === 24) {
+
         waterContact = true;
-      }
 
-      // 冷冻周围液体
-      if (nid in FREEZABLE && Math.random() < 0.05) {
+        }
+
+
+        // 冷冻周围液体
+
+        if (nid in FREEZABLE && Math.random() < 0.05) {
+
         world.set(nx, ny, FREEZABLE[nid]);
+
         world.markUpdated(nx, ny);
+
         world.wakeArea(nx, ny);
+
+        }
+
+
+        // 冷冻周围空气（降温）
+
+        world.addTemp(nx, ny, -5);
+
       }
 
-      // 冷冻周围空气（降温）
-      world.addTemp(nx, ny, -5);
-    }
+      if (world.inBounds(x, y + 1)) {
+
+        const nx = x, ny = y + 1;
+
+        const nid = world.get(nx, ny);
+
+
+        // 接触水剧烈升华
+
+        if (nid === 2 || nid === 24) {
+
+        waterContact = true;
+
+        }
+
+
+        // 冷冻周围液体
+
+        if (nid in FREEZABLE && Math.random() < 0.05) {
+
+        world.set(nx, ny, FREEZABLE[nid]);
+
+        world.markUpdated(nx, ny);
+
+        world.wakeArea(nx, ny);
+
+        }
+
+
+        // 冷冻周围空气（降温）
+
+        world.addTemp(nx, ny, -5);
+
+      }
+
+      if (world.inBounds(x - 1, y)) {
+
+        const nx = x - 1, ny = y;
+
+        const nid = world.get(nx, ny);
+
+
+        // 接触水剧烈升华
+
+        if (nid === 2 || nid === 24) {
+
+        waterContact = true;
+
+        }
+
+
+        // 冷冻周围液体
+
+        if (nid in FREEZABLE && Math.random() < 0.05) {
+
+        world.set(nx, ny, FREEZABLE[nid]);
+
+        world.markUpdated(nx, ny);
+
+        world.wakeArea(nx, ny);
+
+        }
+
+
+        // 冷冻周围空气（降温）
+
+        world.addTemp(nx, ny, -5);
+
+      }
+
+      if (world.inBounds(x + 1, y)) {
+
+        const nx = x + 1, ny = y;
+
+        const nid = world.get(nx, ny);
+
+
+        // 接触水剧烈升华
+
+        if (nid === 2 || nid === 24) {
+
+        waterContact = true;
+
+        }
+
+
+        // 冷冻周围液体
+
+        if (nid in FREEZABLE && Math.random() < 0.05) {
+
+        world.set(nx, ny, FREEZABLE[nid]);
+
+        world.markUpdated(nx, ny);
+
+        world.wakeArea(nx, ny);
+
+        }
+
+
+        // 冷冻周围空气（降温）
+
+        world.addTemp(nx, ny, -5);
+
+      }
 
     // 接触水时剧烈升华
     if (waterContact) {

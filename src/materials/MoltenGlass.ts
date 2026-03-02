@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -57,47 +56,38 @@ export const MoltenGlass: MaterialDef = {
       return;
     }
 
-    // 邻居交互
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 邻居交互（4方向显式展开，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
-
-      // 遇水急速冷却 + 产生蒸汽
-      if (nid === 2) {
-        world.addTemp(x, y, -200);
-        world.set(nx, ny, 8); // 蒸汽
-        world.wakeArea(nx, ny);
-        world.wakeArea(x, y);
-        continue;
-      }
-
-      // 熔化沙子为液态玻璃
-      if (nid === 1 && Math.random() < 0.03) {
-        world.set(nx, ny, 92); // 沙→液态玻璃
-        world.setTemp(nx, ny, 800);
-        world.markUpdated(nx, ny);
-        world.wakeArea(nx, ny);
-        continue;
-      }
-
-      // 点燃可燃物（木头、纤维、火药等）
-      if ((nid === 4 || nid === 91 || nid === 22 || nid === 5) && Math.random() < 0.15) {
-        world.set(nx, ny, 6); // 火
-        world.setTemp(nx, ny, 150);
-        world.markUpdated(nx, ny);
-        world.wakeArea(nx, ny);
-        continue;
-      }
-
-      // 传热给邻居
-      const nTemp = world.getTemp(nx, ny);
-      if (temp > nTemp) {
-        const transfer = (temp - nTemp) * 0.08;
-        world.addTemp(nx, ny, transfer);
-        world.addTemp(x, y, -transfer);
-      }
+      if (nid === 2) { world.addTemp(x, y, -200); world.set(nx, ny, 8); world.wakeArea(nx, ny); world.wakeArea(x, y); }
+      else if (nid === 1 && Math.random() < 0.03) { world.set(nx, ny, 92); world.setTemp(nx, ny, 800); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
+      else if ((nid === 4 || nid === 91 || nid === 22 || nid === 5) && Math.random() < 0.15) { world.set(nx, ny, 6); world.setTemp(nx, ny, 150); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
+      else { const nTemp = world.getTemp(nx, ny); if (temp > nTemp) { const transfer = (temp - nTemp) * 0.08; world.addTemp(nx, ny, transfer); world.addTemp(x, y, -transfer); } }
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+      if (nid === 2) { world.addTemp(x, y, -200); world.set(nx, ny, 8); world.wakeArea(nx, ny); world.wakeArea(x, y); }
+      else if (nid === 1 && Math.random() < 0.03) { world.set(nx, ny, 92); world.setTemp(nx, ny, 800); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
+      else if ((nid === 4 || nid === 91 || nid === 22 || nid === 5) && Math.random() < 0.15) { world.set(nx, ny, 6); world.setTemp(nx, ny, 150); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
+      else { const nTemp = world.getTemp(nx, ny); if (temp > nTemp) { const transfer = (temp - nTemp) * 0.08; world.addTemp(nx, ny, transfer); world.addTemp(x, y, -transfer); } }
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+      if (nid === 2) { world.addTemp(x, y, -200); world.set(nx, ny, 8); world.wakeArea(nx, ny); world.wakeArea(x, y); }
+      else if (nid === 1 && Math.random() < 0.03) { world.set(nx, ny, 92); world.setTemp(nx, ny, 800); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
+      else if ((nid === 4 || nid === 91 || nid === 22 || nid === 5) && Math.random() < 0.15) { world.set(nx, ny, 6); world.setTemp(nx, ny, 150); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
+      else { const nTemp = world.getTemp(nx, ny); if (temp > nTemp) { const transfer = (temp - nTemp) * 0.08; world.addTemp(nx, ny, transfer); world.addTemp(x, y, -transfer); } }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+      if (nid === 2) { world.addTemp(x, y, -200); world.set(nx, ny, 8); world.wakeArea(nx, ny); world.wakeArea(x, y); }
+      else if (nid === 1 && Math.random() < 0.03) { world.set(nx, ny, 92); world.setTemp(nx, ny, 800); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
+      else if ((nid === 4 || nid === 91 || nid === 22 || nid === 5) && Math.random() < 0.15) { world.set(nx, ny, 6); world.setTemp(nx, ny, 150); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
+      else { const nTemp = world.getTemp(nx, ny); if (temp > nTemp) { const transfer = (temp - nTemp) * 0.08; world.addTemp(nx, ny, transfer); world.addTemp(x, y, -transfer); } }
     }
 
     // 缓慢重力下落（高粘度）

@@ -1,4 +1,3 @@
-import { DIRS8 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -70,38 +69,215 @@ export const Plasma: MaterialDef = {
     world.setTemp(x, y, 300);
 
     // 向周围传热
-    const dirs = DIRS8;
 
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
 
-      // 加热邻居
-      world.addTemp(nx, ny, 15);
+      if (world.inBounds(x, y - 1)) {
 
-      // 点燃可燃物
-      if (IGNITABLE.has(nid) && Math.random() < 0.3) {
+        const nx = x, ny = y - 1;
+
+        const nid = world.get(nx, ny);
+
+
+        // 加热邻居
+
+        world.addTemp(nx, ny, 15);
+
+
+        // 点燃可燃物
+
+        if (IGNITABLE.has(nid) && Math.random() < 0.3) {
+
         world.set(nx, ny, 6); // 火
-        world.markUpdated(nx, ny);
-        continue;
-      }
 
-      // 融化材质
-      const meltTo = MELTABLE.get(nid);
-      if (meltTo !== undefined && Math.random() < 0.1) {
+        world.markUpdated(nx, ny);
+
+        } else {
+
+        // 融化材质
+
+        const meltTo = MELTABLE.get(nid);
+
+        if (meltTo !== undefined && Math.random() < 0.1) {
+
         world.set(nx, ny, meltTo);
+
         world.markUpdated(nx, ny);
-        continue;
+
+        } else {
+
+        // 接触水：产生蒸汽，加速消亡
+
+        if (WATER_LIKE.has(nid)) {
+
+        world.set(nx, ny, 8); // 蒸汽
+
+        world.markUpdated(nx, ny);
+
+        life -= 5; // 加速消亡
+
+        }
+
+        }
+
+        }
+
       }
 
-      // 接触水：产生蒸汽，加速消亡
-      if (WATER_LIKE.has(nid)) {
-        world.set(nx, ny, 8); // 蒸汽
+      if (world.inBounds(x, y + 1)) {
+
+        const nx = x, ny = y + 1;
+
+        const nid = world.get(nx, ny);
+
+
+        // 加热邻居
+
+        world.addTemp(nx, ny, 15);
+
+
+        // 点燃可燃物
+
+        if (IGNITABLE.has(nid) && Math.random() < 0.3) {
+
+        world.set(nx, ny, 6); // 火
+
         world.markUpdated(nx, ny);
+
+        } else {
+
+        // 融化材质
+
+        const meltTo = MELTABLE.get(nid);
+
+        if (meltTo !== undefined && Math.random() < 0.1) {
+
+        world.set(nx, ny, meltTo);
+
+        world.markUpdated(nx, ny);
+
+        } else {
+
+        // 接触水：产生蒸汽，加速消亡
+
+        if (WATER_LIKE.has(nid)) {
+
+        world.set(nx, ny, 8); // 蒸汽
+
+        world.markUpdated(nx, ny);
+
         life -= 5; // 加速消亡
+
+        }
+
+        }
+
+        }
+
       }
-    }
+
+      if (world.inBounds(x - 1, y)) {
+
+        const nx = x - 1, ny = y;
+
+        const nid = world.get(nx, ny);
+
+
+        // 加热邻居
+
+        world.addTemp(nx, ny, 15);
+
+
+        // 点燃可燃物
+
+        if (IGNITABLE.has(nid) && Math.random() < 0.3) {
+
+        world.set(nx, ny, 6); // 火
+
+        world.markUpdated(nx, ny);
+
+        } else {
+
+        // 融化材质
+
+        const meltTo = MELTABLE.get(nid);
+
+        if (meltTo !== undefined && Math.random() < 0.1) {
+
+        world.set(nx, ny, meltTo);
+
+        world.markUpdated(nx, ny);
+
+        } else {
+
+        // 接触水：产生蒸汽，加速消亡
+
+        if (WATER_LIKE.has(nid)) {
+
+        world.set(nx, ny, 8); // 蒸汽
+
+        world.markUpdated(nx, ny);
+
+        life -= 5; // 加速消亡
+
+        }
+
+        }
+
+        }
+
+      }
+
+      if (world.inBounds(x + 1, y)) {
+
+        const nx = x + 1, ny = y;
+
+        const nid = world.get(nx, ny);
+
+
+        // 加热邻居
+
+        world.addTemp(nx, ny, 15);
+
+
+        // 点燃可燃物
+
+        if (IGNITABLE.has(nid) && Math.random() < 0.3) {
+
+        world.set(nx, ny, 6); // 火
+
+        world.markUpdated(nx, ny);
+
+        } else {
+
+        // 融化材质
+
+        const meltTo = MELTABLE.get(nid);
+
+        if (meltTo !== undefined && Math.random() < 0.1) {
+
+        world.set(nx, ny, meltTo);
+
+        world.markUpdated(nx, ny);
+
+        } else {
+
+        // 接触水：产生蒸汽，加速消亡
+
+        if (WATER_LIKE.has(nid)) {
+
+        world.set(nx, ny, 8); // 蒸汽
+
+        world.markUpdated(nx, ny);
+
+        life -= 5; // 加速消亡
+
+        }
+
+        }
+
+        }
+
+      }
 
     // 寿命递减
     life--;

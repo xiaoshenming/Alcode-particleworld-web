@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -43,28 +42,158 @@ export const Mercury: MaterialDef = {
     }
 
     // 检查四邻交互
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
 
-      // 毒杀有机物
-      if (TOXIC_TO.has(nid) && Math.random() < 0.1) {
+      if (world.inBounds(x, y - 1)) {
+
+        const nx = x, ny = y - 1;
+
+        const nid = world.get(nx, ny);
+
+
+        // 毒杀有机物
+
+        if (TOXIC_TO.has(nid) && Math.random() < 0.1) {
+
         world.set(nx, ny, 0); // 消灭
+
         world.markUpdated(nx, ny);
+
+        }
+
+
+        // 导电：接触电线时在另一侧产生火花
+
+        if (nid === 44 && Math.random() < 0.05) {
+
+        // 在水银的另一侧释放火花
+
+        const ox = x, oy = y - -1;
+
+        if (world.inBounds(ox, oy) && world.isEmpty(ox, oy)) {
+
+        world.set(ox, oy, 28); // 火花
+
+        world.markUpdated(ox, oy);
+
+        }
+
+        }
+
       }
 
-      // 导电：接触电线时在另一侧产生火花
-      if (nid === 44 && Math.random() < 0.05) {
-        // 在水银的另一侧释放火花
-        const ox = x - dx, oy = y - dy;
-        if (world.inBounds(ox, oy) && world.isEmpty(ox, oy)) {
-          world.set(ox, oy, 28); // 火花
-          world.markUpdated(ox, oy);
+      if (world.inBounds(x, y + 1)) {
+
+        const nx = x, ny = y + 1;
+
+        const nid = world.get(nx, ny);
+
+
+        // 毒杀有机物
+
+        if (TOXIC_TO.has(nid) && Math.random() < 0.1) {
+
+        world.set(nx, ny, 0); // 消灭
+
+        world.markUpdated(nx, ny);
+
         }
+
+
+        // 导电：接触电线时在另一侧产生火花
+
+        if (nid === 44 && Math.random() < 0.05) {
+
+        // 在水银的另一侧释放火花
+
+        const ox = x, oy = y - 1;
+
+        if (world.inBounds(ox, oy) && world.isEmpty(ox, oy)) {
+
+        world.set(ox, oy, 28); // 火花
+
+        world.markUpdated(ox, oy);
+
+        }
+
+        }
+
       }
-    }
+
+      if (world.inBounds(x - 1, y)) {
+
+        const nx = x - 1, ny = y;
+
+        const nid = world.get(nx, ny);
+
+
+        // 毒杀有机物
+
+        if (TOXIC_TO.has(nid) && Math.random() < 0.1) {
+
+        world.set(nx, ny, 0); // 消灭
+
+        world.markUpdated(nx, ny);
+
+        }
+
+
+        // 导电：接触电线时在另一侧产生火花
+
+        if (nid === 44 && Math.random() < 0.05) {
+
+        // 在水银的另一侧释放火花
+
+        const ox = x - -1, oy = y;
+
+        if (world.inBounds(ox, oy) && world.isEmpty(ox, oy)) {
+
+        world.set(ox, oy, 28); // 火花
+
+        world.markUpdated(ox, oy);
+
+        }
+
+        }
+
+      }
+
+      if (world.inBounds(x + 1, y)) {
+
+        const nx = x + 1, ny = y;
+
+        const nid = world.get(nx, ny);
+
+
+        // 毒杀有机物
+
+        if (TOXIC_TO.has(nid) && Math.random() < 0.1) {
+
+        world.set(nx, ny, 0); // 消灭
+
+        world.markUpdated(nx, ny);
+
+        }
+
+
+        // 导电：接触电线时在另一侧产生火花
+
+        if (nid === 44 && Math.random() < 0.05) {
+
+        // 在水银的另一侧释放火花
+
+        const ox = x - 1, oy = y;
+
+        if (world.inBounds(ox, oy) && world.isEmpty(ox, oy)) {
+
+        world.set(ox, oy, 28); // 火花
+
+        world.markUpdated(ox, oy);
+
+        }
+
+        }
+
+      }
 
     if (y >= world.height - 1) return;
 

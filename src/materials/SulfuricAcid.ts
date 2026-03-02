@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -46,54 +45,41 @@ export const SulfuricAcid: MaterialDef = {
   },
   density: 3.0,
   update(x: number, y: number, world: WorldAPI) {
-    // 邻居交互
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
+    // 邻居交互（4方向显式展开，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1;
       const nid = world.get(nx, ny);
-
-      if (IMMUNE.has(nid)) continue;
-
-      // 遇水：剧烈放热反应
-      if (nid === 2 && Math.random() < 0.15) {
-        world.set(nx, ny, 8); // 蒸汽
-        world.addTemp(x, y, 50); // 大幅升温
-        world.addTemp(nx, ny, 30);
-        world.wakeArea(x, y);
-        world.wakeArea(nx, ny);
-        // 硫酸有概率被稀释消耗
-        if (Math.random() < 0.3) {
-          world.set(x, y, 0);
-          return;
-        }
-        continue;
+      if (!IMMUNE.has(nid)) {
+        if (nid === 2 && Math.random() < 0.15) { world.set(nx, ny, 8); world.addTemp(x, y, 50); world.addTemp(nx, ny, 30); world.wakeArea(x, y); world.wakeArea(nx, ny); if (Math.random() < 0.3) { world.set(x, y, 0); return; } }
+        else if (ORGANIC.has(nid) && Math.random() < 0.08) { world.set(nx, ny, 46); world.markUpdated(nx, ny); world.wakeArea(nx, ny); if (Math.random() < 0.4) { world.set(x, y, 7); world.wakeArea(x, y); return; } }
+        else if (CORRODIBLE.has(nid) && Math.random() < 0.06) { world.set(nx, ny, 0); world.wakeArea(nx, ny); if (Math.random() < 0.3) { world.set(x, y, 7); world.wakeArea(x, y); return; } }
       }
-
-      // 有机物碳化为木炭
-      if (ORGANIC.has(nid) && Math.random() < 0.08) {
-        world.set(nx, ny, 46); // 木炭
-        world.markUpdated(nx, ny);
-        world.wakeArea(nx, ny);
-        // 硫酸自身有概率消耗
-        if (Math.random() < 0.4) {
-          world.set(x, y, 7); // 烟
-          world.wakeArea(x, y);
-          return;
-        }
-        continue;
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1;
+      const nid = world.get(nx, ny);
+      if (!IMMUNE.has(nid)) {
+        if (nid === 2 && Math.random() < 0.15) { world.set(nx, ny, 8); world.addTemp(x, y, 50); world.addTemp(nx, ny, 30); world.wakeArea(x, y); world.wakeArea(nx, ny); if (Math.random() < 0.3) { world.set(x, y, 0); return; } }
+        else if (ORGANIC.has(nid) && Math.random() < 0.08) { world.set(nx, ny, 46); world.markUpdated(nx, ny); world.wakeArea(nx, ny); if (Math.random() < 0.4) { world.set(x, y, 7); world.wakeArea(x, y); return; } }
+        else if (CORRODIBLE.has(nid) && Math.random() < 0.06) { world.set(nx, ny, 0); world.wakeArea(nx, ny); if (Math.random() < 0.3) { world.set(x, y, 7); world.wakeArea(x, y); return; } }
       }
-
-      // 强腐蚀：溶解固体（比普通酸概率更高）
-      if (CORRODIBLE.has(nid) && Math.random() < 0.06) {
-        world.set(nx, ny, 0);
-        world.wakeArea(nx, ny);
-        if (Math.random() < 0.3) {
-          world.set(x, y, 7); // 烟（自身消耗）
-          world.wakeArea(x, y);
-          return;
-        }
-        continue;
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y;
+      const nid = world.get(nx, ny);
+      if (!IMMUNE.has(nid)) {
+        if (nid === 2 && Math.random() < 0.15) { world.set(nx, ny, 8); world.addTemp(x, y, 50); world.addTemp(nx, ny, 30); world.wakeArea(x, y); world.wakeArea(nx, ny); if (Math.random() < 0.3) { world.set(x, y, 0); return; } }
+        else if (ORGANIC.has(nid) && Math.random() < 0.08) { world.set(nx, ny, 46); world.markUpdated(nx, ny); world.wakeArea(nx, ny); if (Math.random() < 0.4) { world.set(x, y, 7); world.wakeArea(x, y); return; } }
+        else if (CORRODIBLE.has(nid) && Math.random() < 0.06) { world.set(nx, ny, 0); world.wakeArea(nx, ny); if (Math.random() < 0.3) { world.set(x, y, 7); world.wakeArea(x, y); return; } }
+      }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y;
+      const nid = world.get(nx, ny);
+      if (!IMMUNE.has(nid)) {
+        if (nid === 2 && Math.random() < 0.15) { world.set(nx, ny, 8); world.addTemp(x, y, 50); world.addTemp(nx, ny, 30); world.wakeArea(x, y); world.wakeArea(nx, ny); if (Math.random() < 0.3) { world.set(x, y, 0); return; } }
+        else if (ORGANIC.has(nid) && Math.random() < 0.08) { world.set(nx, ny, 46); world.markUpdated(nx, ny); world.wakeArea(nx, ny); if (Math.random() < 0.4) { world.set(x, y, 7); world.wakeArea(x, y); return; } }
+        else if (CORRODIBLE.has(nid) && Math.random() < 0.06) { world.set(nx, ny, 0); world.wakeArea(nx, ny); if (Math.random() < 0.3) { world.set(x, y, 7); world.wakeArea(x, y); return; } }
       }
     }
 

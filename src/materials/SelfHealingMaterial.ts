@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -49,43 +48,267 @@ export const SelfHealingMaterial: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
 
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
 
-      // 自修复：邻居是空气，且空隙另一侧也是自修复材料
-      if (nid === 0) {
-        const fx = nx + dx, fy = ny + dy;
+      if (world.inBounds(x, y - 1)) {
+
+        const nx = x, ny = y - 1;
+
+        const nid = world.get(nx, ny);
+
+
+        // 自修复：邻居是空气，且空隙另一侧也是自修复材料
+
+        if (nid === 0) {
+
+        const fx = nx, fy = ny + -1;
+
         if (world.inBounds(fx, fy) && world.get(fx, fy) === 295) {
-          if (Math.random() < 0.05) {
-            world.set(nx, ny, 295);
-            world.markUpdated(nx, ny);
-            world.wakeArea(nx, ny);
-          }
-        }
-      }
 
-      // 耐酸：普通酸概率0.01，酸被消耗变烟
-      if (nid === 9 && Math.random() < 0.01) {
-        world.set(nx, ny, 7); // 烟
+        if (Math.random() < 0.05) {
+
+        world.set(nx, ny, 295);
+
         world.markUpdated(nx, ny);
+
         world.wakeArea(nx, ny);
+
+        }
+
+        }
+
+        }
+
+
+        // 耐酸：普通酸概率0.01，酸被消耗变烟
+
+        if (nid === 9 && Math.random() < 0.01) {
+
+        world.set(nx, ny, 7); // 烟
+
+        world.markUpdated(nx, ny);
+
+        world.wakeArea(nx, ny);
+
         return;
+
+        }
+
+
+        // 中等导热
+
+        if (nid !== 0 && Math.random() < 0.06) {
+
+        const nt = world.getTemp(nx, ny);
+
+        if (Math.abs(temp - nt) > 5) {
+
+        const diff = (nt - temp) * 0.05;
+
+        world.addTemp(x, y, diff);
+
+        world.addTemp(nx, ny, -diff);
+
+        }
+
+        }
+
       }
 
-      // 中等导热
-      if (nid !== 0 && Math.random() < 0.06) {
-        const nt = world.getTemp(nx, ny);
-        if (Math.abs(temp - nt) > 5) {
-          const diff = (nt - temp) * 0.05;
-          world.addTemp(x, y, diff);
-          world.addTemp(nx, ny, -diff);
+      if (world.inBounds(x, y + 1)) {
+
+        const nx = x, ny = y + 1;
+
+        const nid = world.get(nx, ny);
+
+
+        // 自修复：邻居是空气，且空隙另一侧也是自修复材料
+
+        if (nid === 0) {
+
+        const fx = nx, fy = ny + 1;
+
+        if (world.inBounds(fx, fy) && world.get(fx, fy) === 295) {
+
+        if (Math.random() < 0.05) {
+
+        world.set(nx, ny, 295);
+
+        world.markUpdated(nx, ny);
+
+        world.wakeArea(nx, ny);
+
         }
+
+        }
+
+        }
+
+
+        // 耐酸：普通酸概率0.01，酸被消耗变烟
+
+        if (nid === 9 && Math.random() < 0.01) {
+
+        world.set(nx, ny, 7); // 烟
+
+        world.markUpdated(nx, ny);
+
+        world.wakeArea(nx, ny);
+
+        return;
+
+        }
+
+
+        // 中等导热
+
+        if (nid !== 0 && Math.random() < 0.06) {
+
+        const nt = world.getTemp(nx, ny);
+
+        if (Math.abs(temp - nt) > 5) {
+
+        const diff = (nt - temp) * 0.05;
+
+        world.addTemp(x, y, diff);
+
+        world.addTemp(nx, ny, -diff);
+
+        }
+
+        }
+
       }
-    }
+
+      if (world.inBounds(x - 1, y)) {
+
+        const nx = x - 1, ny = y;
+
+        const nid = world.get(nx, ny);
+
+
+        // 自修复：邻居是空气，且空隙另一侧也是自修复材料
+
+        if (nid === 0) {
+
+        const fx = nx + -1, fy = ny;
+
+        if (world.inBounds(fx, fy) && world.get(fx, fy) === 295) {
+
+        if (Math.random() < 0.05) {
+
+        world.set(nx, ny, 295);
+
+        world.markUpdated(nx, ny);
+
+        world.wakeArea(nx, ny);
+
+        }
+
+        }
+
+        }
+
+
+        // 耐酸：普通酸概率0.01，酸被消耗变烟
+
+        if (nid === 9 && Math.random() < 0.01) {
+
+        world.set(nx, ny, 7); // 烟
+
+        world.markUpdated(nx, ny);
+
+        world.wakeArea(nx, ny);
+
+        return;
+
+        }
+
+
+        // 中等导热
+
+        if (nid !== 0 && Math.random() < 0.06) {
+
+        const nt = world.getTemp(nx, ny);
+
+        if (Math.abs(temp - nt) > 5) {
+
+        const diff = (nt - temp) * 0.05;
+
+        world.addTemp(x, y, diff);
+
+        world.addTemp(nx, ny, -diff);
+
+        }
+
+        }
+
+      }
+
+      if (world.inBounds(x + 1, y)) {
+
+        const nx = x + 1, ny = y;
+
+        const nid = world.get(nx, ny);
+
+
+        // 自修复：邻居是空气，且空隙另一侧也是自修复材料
+
+        if (nid === 0) {
+
+        const fx = nx + 1, fy = ny;
+
+        if (world.inBounds(fx, fy) && world.get(fx, fy) === 295) {
+
+        if (Math.random() < 0.05) {
+
+        world.set(nx, ny, 295);
+
+        world.markUpdated(nx, ny);
+
+        world.wakeArea(nx, ny);
+
+        }
+
+        }
+
+        }
+
+
+        // 耐酸：普通酸概率0.01，酸被消耗变烟
+
+        if (nid === 9 && Math.random() < 0.01) {
+
+        world.set(nx, ny, 7); // 烟
+
+        world.markUpdated(nx, ny);
+
+        world.wakeArea(nx, ny);
+
+        return;
+
+        }
+
+
+        // 中等导热
+
+        if (nid !== 0 && Math.random() < 0.06) {
+
+        const nt = world.getTemp(nx, ny);
+
+        if (Math.abs(temp - nt) > 5) {
+
+        const diff = (nt - temp) * 0.05;
+
+        world.addTemp(x, y, diff);
+
+        world.addTemp(nx, ny, -diff);
+
+        }
+
+        }
+
+      }
   },
 };
 

@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -55,64 +54,398 @@ export const Thermoelectric: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
 
     // 计算最大温差
     let maxDiff = 0;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-      if (nid !== 0) {
+
+      if (world.inBounds(x, y - 1)) {
+
+        const nx = x, ny = y - 1;
+
+        const nid = world.get(nx, ny);
+
+        if (nid !== 0) {
+
         const nt = world.getTemp(nx, ny);
+
         const diff = Math.abs(temp - nt);
+
         if (diff > maxDiff) maxDiff = diff;
-      }
-    }
 
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-
-      // 温差发电：唤醒邻近电线
-      if (maxDiff > 50 && (nid === 44 || nid === 280 || nid === 285)) {
-        world.wakeArea(nx, ny);
-      }
-
-      // 大温差时产生微弱热量（电阻热）
-      if (maxDiff > 100 && nid !== 0 && Math.random() < 0.05) {
-        world.addTemp(nx, ny, 1);
-      }
-
-      // 酸腐蚀
-      if (nid === 9 && Math.random() < 0.02) {
-        world.set(x, y, 0);
-        world.set(nx, ny, 7);
-        world.markUpdated(nx, ny);
-        world.wakeArea(x, y);
-        return;
-      }
-
-      // 强酸
-      if ((nid === 173 || nid === 183) && Math.random() < 0.04) {
-        world.set(x, y, 0);
-        world.set(nx, ny, 7);
-        world.markUpdated(nx, ny);
-        world.wakeArea(x, y);
-        return;
-      }
-
-      // 导热（中等，热电材料需要传导热量）
-      if (nid !== 0 && Math.random() < 0.06) {
-        const nt = world.getTemp(nx, ny);
-        if (Math.abs(temp - nt) > 5) {
-          const diff = (nt - temp) * 0.05;
-          world.addTemp(x, y, diff);
-          world.addTemp(nx, ny, -diff);
         }
+
       }
-    }
+
+      if (world.inBounds(x, y + 1)) {
+
+        const nx = x, ny = y + 1;
+
+        const nid = world.get(nx, ny);
+
+        if (nid !== 0) {
+
+        const nt = world.getTemp(nx, ny);
+
+        const diff = Math.abs(temp - nt);
+
+        if (diff > maxDiff) maxDiff = diff;
+
+        }
+
+      }
+
+      if (world.inBounds(x - 1, y)) {
+
+        const nx = x - 1, ny = y;
+
+        const nid = world.get(nx, ny);
+
+        if (nid !== 0) {
+
+        const nt = world.getTemp(nx, ny);
+
+        const diff = Math.abs(temp - nt);
+
+        if (diff > maxDiff) maxDiff = diff;
+
+        }
+
+      }
+
+      if (world.inBounds(x + 1, y)) {
+
+        const nx = x + 1, ny = y;
+
+        const nid = world.get(nx, ny);
+
+        if (nid !== 0) {
+
+        const nt = world.getTemp(nx, ny);
+
+        const diff = Math.abs(temp - nt);
+
+        if (diff > maxDiff) maxDiff = diff;
+
+        }
+
+      }
+
+
+      if (world.inBounds(x, y - 1)) {
+
+        const nx = x, ny = y - 1;
+
+        const nid = world.get(nx, ny);
+
+
+        // 温差发电：唤醒邻近电线
+
+        if (maxDiff > 50 && (nid === 44 || nid === 280 || nid === 285)) {
+
+        world.wakeArea(nx, ny);
+
+        }
+
+
+        // 大温差时产生微弱热量（电阻热）
+
+        if (maxDiff > 100 && nid !== 0 && Math.random() < 0.05) {
+
+        world.addTemp(nx, ny, 1);
+
+        }
+
+
+        // 酸腐蚀
+
+        if (nid === 9 && Math.random() < 0.02) {
+
+        world.set(x, y, 0);
+
+        world.set(nx, ny, 7);
+
+        world.markUpdated(nx, ny);
+
+        world.wakeArea(x, y);
+
+        return;
+
+        }
+
+
+        // 强酸
+
+        if ((nid === 173 || nid === 183) && Math.random() < 0.04) {
+
+        world.set(x, y, 0);
+
+        world.set(nx, ny, 7);
+
+        world.markUpdated(nx, ny);
+
+        world.wakeArea(x, y);
+
+        return;
+
+        }
+
+
+        // 导热（中等，热电材料需要传导热量）
+
+        if (nid !== 0 && Math.random() < 0.06) {
+
+        const nt = world.getTemp(nx, ny);
+
+        if (Math.abs(temp - nt) > 5) {
+
+        const diff = (nt - temp) * 0.05;
+
+        world.addTemp(x, y, diff);
+
+        world.addTemp(nx, ny, -diff);
+
+        }
+
+        }
+
+      }
+
+      if (world.inBounds(x, y + 1)) {
+
+        const nx = x, ny = y + 1;
+
+        const nid = world.get(nx, ny);
+
+
+        // 温差发电：唤醒邻近电线
+
+        if (maxDiff > 50 && (nid === 44 || nid === 280 || nid === 285)) {
+
+        world.wakeArea(nx, ny);
+
+        }
+
+
+        // 大温差时产生微弱热量（电阻热）
+
+        if (maxDiff > 100 && nid !== 0 && Math.random() < 0.05) {
+
+        world.addTemp(nx, ny, 1);
+
+        }
+
+
+        // 酸腐蚀
+
+        if (nid === 9 && Math.random() < 0.02) {
+
+        world.set(x, y, 0);
+
+        world.set(nx, ny, 7);
+
+        world.markUpdated(nx, ny);
+
+        world.wakeArea(x, y);
+
+        return;
+
+        }
+
+
+        // 强酸
+
+        if ((nid === 173 || nid === 183) && Math.random() < 0.04) {
+
+        world.set(x, y, 0);
+
+        world.set(nx, ny, 7);
+
+        world.markUpdated(nx, ny);
+
+        world.wakeArea(x, y);
+
+        return;
+
+        }
+
+
+        // 导热（中等，热电材料需要传导热量）
+
+        if (nid !== 0 && Math.random() < 0.06) {
+
+        const nt = world.getTemp(nx, ny);
+
+        if (Math.abs(temp - nt) > 5) {
+
+        const diff = (nt - temp) * 0.05;
+
+        world.addTemp(x, y, diff);
+
+        world.addTemp(nx, ny, -diff);
+
+        }
+
+        }
+
+      }
+
+      if (world.inBounds(x - 1, y)) {
+
+        const nx = x - 1, ny = y;
+
+        const nid = world.get(nx, ny);
+
+
+        // 温差发电：唤醒邻近电线
+
+        if (maxDiff > 50 && (nid === 44 || nid === 280 || nid === 285)) {
+
+        world.wakeArea(nx, ny);
+
+        }
+
+
+        // 大温差时产生微弱热量（电阻热）
+
+        if (maxDiff > 100 && nid !== 0 && Math.random() < 0.05) {
+
+        world.addTemp(nx, ny, 1);
+
+        }
+
+
+        // 酸腐蚀
+
+        if (nid === 9 && Math.random() < 0.02) {
+
+        world.set(x, y, 0);
+
+        world.set(nx, ny, 7);
+
+        world.markUpdated(nx, ny);
+
+        world.wakeArea(x, y);
+
+        return;
+
+        }
+
+
+        // 强酸
+
+        if ((nid === 173 || nid === 183) && Math.random() < 0.04) {
+
+        world.set(x, y, 0);
+
+        world.set(nx, ny, 7);
+
+        world.markUpdated(nx, ny);
+
+        world.wakeArea(x, y);
+
+        return;
+
+        }
+
+
+        // 导热（中等，热电材料需要传导热量）
+
+        if (nid !== 0 && Math.random() < 0.06) {
+
+        const nt = world.getTemp(nx, ny);
+
+        if (Math.abs(temp - nt) > 5) {
+
+        const diff = (nt - temp) * 0.05;
+
+        world.addTemp(x, y, diff);
+
+        world.addTemp(nx, ny, -diff);
+
+        }
+
+        }
+
+      }
+
+      if (world.inBounds(x + 1, y)) {
+
+        const nx = x + 1, ny = y;
+
+        const nid = world.get(nx, ny);
+
+
+        // 温差发电：唤醒邻近电线
+
+        if (maxDiff > 50 && (nid === 44 || nid === 280 || nid === 285)) {
+
+        world.wakeArea(nx, ny);
+
+        }
+
+
+        // 大温差时产生微弱热量（电阻热）
+
+        if (maxDiff > 100 && nid !== 0 && Math.random() < 0.05) {
+
+        world.addTemp(nx, ny, 1);
+
+        }
+
+
+        // 酸腐蚀
+
+        if (nid === 9 && Math.random() < 0.02) {
+
+        world.set(x, y, 0);
+
+        world.set(nx, ny, 7);
+
+        world.markUpdated(nx, ny);
+
+        world.wakeArea(x, y);
+
+        return;
+
+        }
+
+
+        // 强酸
+
+        if ((nid === 173 || nid === 183) && Math.random() < 0.04) {
+
+        world.set(x, y, 0);
+
+        world.set(nx, ny, 7);
+
+        world.markUpdated(nx, ny);
+
+        world.wakeArea(x, y);
+
+        return;
+
+        }
+
+
+        // 导热（中等，热电材料需要传导热量）
+
+        if (nid !== 0 && Math.random() < 0.06) {
+
+        const nt = world.getTemp(nx, ny);
+
+        if (Math.abs(temp - nt) > 5) {
+
+        const diff = (nt - temp) * 0.05;
+
+        world.addTemp(x, y, diff);
+
+        world.addTemp(nx, ny, -diff);
+
+        }
+
+        }
+
+      }
   },
 };
 

@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -47,7 +46,6 @@ export const PhotoelectricMaterial: MaterialDef = {
     }
 
     let illuminated = false;
-    const dirs = DIRS4;
 
     // 检测是否被光照射
     if (!illuminated && world.inBounds(x, y - 1)) {
@@ -81,34 +79,168 @@ export const PhotoelectricMaterial: MaterialDef = {
 
     if (illuminated) {
       // 被光照时，激活邻近电线
-      for (const [dx, dy] of dirs) {
-        const nx = x + dx, ny = y + dy;
-        if (!world.inBounds(nx, ny)) continue;
-        if (world.get(nx, ny) === 44) {
+
+        if (world.inBounds(x, y - 1)) {
+
+          const nx = x, ny = y - 1;
+
+          if (world.get(nx, ny) === 44) {
+
           world.wakeArea(nx, ny);
+
           world.addTemp(nx, ny, 2);
+
+          }
+
         }
-      }
+
+        if (world.inBounds(x, y + 1)) {
+
+          const nx = x, ny = y + 1;
+
+          if (world.get(nx, ny) === 44) {
+
+          world.wakeArea(nx, ny);
+
+          world.addTemp(nx, ny, 2);
+
+          }
+
+        }
+
+        if (world.inBounds(x - 1, y)) {
+
+          const nx = x - 1, ny = y;
+
+          if (world.get(nx, ny) === 44) {
+
+          world.wakeArea(nx, ny);
+
+          world.addTemp(nx, ny, 2);
+
+          }
+
+        }
+
+        if (world.inBounds(x + 1, y)) {
+
+          const nx = x + 1, ny = y;
+
+          if (world.get(nx, ny) === 44) {
+
+          world.wakeArea(nx, ny);
+
+          world.addTemp(nx, ny, 2);
+
+          }
+
+        }
       // 自身微微发热
       world.addTemp(x, y, 0.5);
       world.wakeArea(x, y);
     }
 
     // 导热
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
 
-      if (nid !== 0 && Math.random() < 0.06) {
+      if (world.inBounds(x, y - 1)) {
+
+        const nx = x, ny = y - 1;
+
+        const nid = world.get(nx, ny);
+
+
+        if (nid !== 0 && Math.random() < 0.06) {
+
         const nt = world.getTemp(nx, ny);
+
         if (Math.abs(temp - nt) > 5) {
-          const diff = (nt - temp) * 0.08;
-          world.addTemp(x, y, diff);
-          world.addTemp(nx, ny, -diff);
+
+        const diff = (nt - temp) * 0.08;
+
+        world.addTemp(x, y, diff);
+
+        world.addTemp(nx, ny, -diff);
+
         }
+
+        }
+
       }
-    }
+
+      if (world.inBounds(x, y + 1)) {
+
+        const nx = x, ny = y + 1;
+
+        const nid = world.get(nx, ny);
+
+
+        if (nid !== 0 && Math.random() < 0.06) {
+
+        const nt = world.getTemp(nx, ny);
+
+        if (Math.abs(temp - nt) > 5) {
+
+        const diff = (nt - temp) * 0.08;
+
+        world.addTemp(x, y, diff);
+
+        world.addTemp(nx, ny, -diff);
+
+        }
+
+        }
+
+      }
+
+      if (world.inBounds(x - 1, y)) {
+
+        const nx = x - 1, ny = y;
+
+        const nid = world.get(nx, ny);
+
+
+        if (nid !== 0 && Math.random() < 0.06) {
+
+        const nt = world.getTemp(nx, ny);
+
+        if (Math.abs(temp - nt) > 5) {
+
+        const diff = (nt - temp) * 0.08;
+
+        world.addTemp(x, y, diff);
+
+        world.addTemp(nx, ny, -diff);
+
+        }
+
+        }
+
+      }
+
+      if (world.inBounds(x + 1, y)) {
+
+        const nx = x + 1, ny = y;
+
+        const nid = world.get(nx, ny);
+
+
+        if (nid !== 0 && Math.random() < 0.06) {
+
+        const nt = world.getTemp(nx, ny);
+
+        if (Math.abs(temp - nt) > 5) {
+
+        const diff = (nt - temp) * 0.08;
+
+        world.addTemp(x, y, diff);
+
+        world.addTemp(nx, ny, -diff);
+
+        }
+
+        }
+
+      }
   },
 };
 

@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -47,7 +46,6 @@ export const FulguriteSand: MaterialDef = {
     world.set(x, y, 170);
 
     // 检查邻居：导电
-    const dirs = DIRS4;
     let activated = false;
 
     if (!activated && world.inBounds(x, y - 1)) {
@@ -86,24 +84,134 @@ export const FulguriteSand: MaterialDef = {
     // 被激活时：向另一侧传导电弧
     if (activated) {
       world.addTemp(x, y, 30); // 导电升温
-      for (const [dx, dy] of dirs) {
-        const nx = x + dx, ny = y + dy;
-        if (!world.inBounds(nx, ny)) continue;
-        const nid = world.get(nx, ny);
 
-        // 在非电源的空位产生电弧
-        if (nid === 0 && Math.random() < 0.3) {
+        if (world.inBounds(x, y - 1)) {
+
+          const nx = x, ny = y - 1;
+
+          const nid = world.get(nx, ny);
+
+
+          // 在非电源的空位产生电弧
+
+          if (nid === 0 && Math.random() < 0.3) {
+
           world.set(nx, ny, 145); // 电弧
+
           world.markUpdated(nx, ny);
+
           world.wakeArea(nx, ny);
+
+          }
+
+
+          // 传导给相邻闪电沙（加温触发连锁）
+
+          if (nid === 170) {
+
+          world.addTemp(nx, ny, 20);
+
+          world.wakeArea(nx, ny);
+
+          }
+
         }
 
-        // 传导给相邻闪电沙（加温触发连锁）
-        if (nid === 170) {
-          world.addTemp(nx, ny, 20);
+        if (world.inBounds(x, y + 1)) {
+
+          const nx = x, ny = y + 1;
+
+          const nid = world.get(nx, ny);
+
+
+          // 在非电源的空位产生电弧
+
+          if (nid === 0 && Math.random() < 0.3) {
+
+          world.set(nx, ny, 145); // 电弧
+
+          world.markUpdated(nx, ny);
+
           world.wakeArea(nx, ny);
+
+          }
+
+
+          // 传导给相邻闪电沙（加温触发连锁）
+
+          if (nid === 170) {
+
+          world.addTemp(nx, ny, 20);
+
+          world.wakeArea(nx, ny);
+
+          }
+
         }
-      }
+
+        if (world.inBounds(x - 1, y)) {
+
+          const nx = x - 1, ny = y;
+
+          const nid = world.get(nx, ny);
+
+
+          // 在非电源的空位产生电弧
+
+          if (nid === 0 && Math.random() < 0.3) {
+
+          world.set(nx, ny, 145); // 电弧
+
+          world.markUpdated(nx, ny);
+
+          world.wakeArea(nx, ny);
+
+          }
+
+
+          // 传导给相邻闪电沙（加温触发连锁）
+
+          if (nid === 170) {
+
+          world.addTemp(nx, ny, 20);
+
+          world.wakeArea(nx, ny);
+
+          }
+
+        }
+
+        if (world.inBounds(x + 1, y)) {
+
+          const nx = x + 1, ny = y;
+
+          const nid = world.get(nx, ny);
+
+
+          // 在非电源的空位产生电弧
+
+          if (nid === 0 && Math.random() < 0.3) {
+
+          world.set(nx, ny, 145); // 电弧
+
+          world.markUpdated(nx, ny);
+
+          world.wakeArea(nx, ny);
+
+          }
+
+
+          // 传导给相邻闪电沙（加温触发连锁）
+
+          if (nid === 170) {
+
+          world.addTemp(nx, ny, 20);
+
+          world.wakeArea(nx, ny);
+
+          }
+
+        }
     }
   },
 };

@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -44,34 +43,188 @@ export const PhotoelasticMaterial: MaterialDef = {
     return (0xDD << 24) | (b << 16) | (g << 8) | r; // 半透明
   },
   update(x: number, y: number, world: WorldAPI) {
-    const dirs = DIRS4;
     let neighborCount = 0;
 
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
 
-      if (nid !== 0) neighborCount++;
+      if (world.inBounds(x, y - 1)) {
 
-      // 接触火燃烧变为烟
-      if (nid === 6 && Math.random() < 0.08) {
+        const nx = x, ny = y - 1;
+
+        const nid = world.get(nx, ny);
+
+
+        if (nid !== 0) neighborCount++;
+
+
+        // 接触火燃烧变为烟
+
+        if (nid === 6 && Math.random() < 0.08) {
+
         world.set(x, y, 7); // 烟
+
         world.wakeArea(x, y);
+
         return;
+
+        }
+
+
+        // 弹性：被挤压时和非固体邻居交换位置
+
+        if (nid !== 0 && nid !== 395 && Math.random() < 0.015) {
+
+        const nDensity = world.getDensity(nx, ny);
+
+        if (nDensity !== Infinity && nDensity > 0) {
+
+        world.swap(x, y, nx, ny);
+
+        world.markUpdated(nx, ny);
+
+        world.wakeArea(x, y);
+
+        return;
+
+        }
+
+        }
+
       }
 
-      // 弹性：被挤压时和非固体邻居交换位置
-      if (nid !== 0 && nid !== 395 && Math.random() < 0.015) {
-        const nDensity = world.getDensity(nx, ny);
-        if (nDensity !== Infinity && nDensity > 0) {
-          world.swap(x, y, nx, ny);
-          world.markUpdated(nx, ny);
-          world.wakeArea(x, y);
-          return;
+      if (world.inBounds(x, y + 1)) {
+
+        const nx = x, ny = y + 1;
+
+        const nid = world.get(nx, ny);
+
+
+        if (nid !== 0) neighborCount++;
+
+
+        // 接触火燃烧变为烟
+
+        if (nid === 6 && Math.random() < 0.08) {
+
+        world.set(x, y, 7); // 烟
+
+        world.wakeArea(x, y);
+
+        return;
+
         }
+
+
+        // 弹性：被挤压时和非固体邻居交换位置
+
+        if (nid !== 0 && nid !== 395 && Math.random() < 0.015) {
+
+        const nDensity = world.getDensity(nx, ny);
+
+        if (nDensity !== Infinity && nDensity > 0) {
+
+        world.swap(x, y, nx, ny);
+
+        world.markUpdated(nx, ny);
+
+        world.wakeArea(x, y);
+
+        return;
+
+        }
+
+        }
+
       }
-    }
+
+      if (world.inBounds(x - 1, y)) {
+
+        const nx = x - 1, ny = y;
+
+        const nid = world.get(nx, ny);
+
+
+        if (nid !== 0) neighborCount++;
+
+
+        // 接触火燃烧变为烟
+
+        if (nid === 6 && Math.random() < 0.08) {
+
+        world.set(x, y, 7); // 烟
+
+        world.wakeArea(x, y);
+
+        return;
+
+        }
+
+
+        // 弹性：被挤压时和非固体邻居交换位置
+
+        if (nid !== 0 && nid !== 395 && Math.random() < 0.015) {
+
+        const nDensity = world.getDensity(nx, ny);
+
+        if (nDensity !== Infinity && nDensity > 0) {
+
+        world.swap(x, y, nx, ny);
+
+        world.markUpdated(nx, ny);
+
+        world.wakeArea(x, y);
+
+        return;
+
+        }
+
+        }
+
+      }
+
+      if (world.inBounds(x + 1, y)) {
+
+        const nx = x + 1, ny = y;
+
+        const nid = world.get(nx, ny);
+
+
+        if (nid !== 0) neighborCount++;
+
+
+        // 接触火燃烧变为烟
+
+        if (nid === 6 && Math.random() < 0.08) {
+
+        world.set(x, y, 7); // 烟
+
+        world.wakeArea(x, y);
+
+        return;
+
+        }
+
+
+        // 弹性：被挤压时和非固体邻居交换位置
+
+        if (nid !== 0 && nid !== 395 && Math.random() < 0.015) {
+
+        const nDensity = world.getDensity(nx, ny);
+
+        if (nDensity !== Infinity && nDensity > 0) {
+
+        world.swap(x, y, nx, ny);
+
+        world.markUpdated(nx, ny);
+
+        world.wakeArea(x, y);
+
+        return;
+
+        }
+
+        }
+
+      }
 
     // 受压时刷新颜色（应力条纹效果）
     if (neighborCount >= 3 && Math.random() < 0.1) {

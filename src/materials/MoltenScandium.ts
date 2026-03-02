@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -38,31 +37,174 @@ export const MoltenScandium: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
 
-      if (nid === 2 && Math.random() < 0.6) {
+      if (world.inBounds(x, y - 1)) {
+
+        const nx = x, ny = y - 1;
+
+        const nid = world.get(nx, ny);
+
+
+        if (nid === 2 && Math.random() < 0.6) {
+
         world.set(nx, ny, 8);
+
         world.addTemp(x, y, -50);
-        world.wakeArea(nx, ny);
-        continue;
-      }
 
-      if ((nid === 4 || nid === 5) && Math.random() < 0.15) {
+        world.wakeArea(nx, ny);
+
+        } else {
+
+        if ((nid === 4 || nid === 5) && Math.random() < 0.15) {
+
         world.set(nx, ny, 6);
+
         world.wakeArea(nx, ny);
+
+        }
+
+
+        if (nid !== 0 && Math.random() < 0.1) {
+
+        const nt = world.getTemp(nx, ny);
+
+        const diff = (nt - temp) * 0.1;
+
+        world.addTemp(x, y, diff);
+
+        world.addTemp(nx, ny, -diff);
+
+        }
+
+        }
+
       }
 
-      if (nid !== 0 && Math.random() < 0.1) {
+      if (world.inBounds(x, y + 1)) {
+
+        const nx = x, ny = y + 1;
+
+        const nid = world.get(nx, ny);
+
+
+        if (nid === 2 && Math.random() < 0.6) {
+
+        world.set(nx, ny, 8);
+
+        world.addTemp(x, y, -50);
+
+        world.wakeArea(nx, ny);
+
+        } else {
+
+        if ((nid === 4 || nid === 5) && Math.random() < 0.15) {
+
+        world.set(nx, ny, 6);
+
+        world.wakeArea(nx, ny);
+
+        }
+
+
+        if (nid !== 0 && Math.random() < 0.1) {
+
         const nt = world.getTemp(nx, ny);
+
         const diff = (nt - temp) * 0.1;
+
         world.addTemp(x, y, diff);
+
         world.addTemp(nx, ny, -diff);
+
+        }
+
+        }
+
       }
-    }
+
+      if (world.inBounds(x - 1, y)) {
+
+        const nx = x - 1, ny = y;
+
+        const nid = world.get(nx, ny);
+
+
+        if (nid === 2 && Math.random() < 0.6) {
+
+        world.set(nx, ny, 8);
+
+        world.addTemp(x, y, -50);
+
+        world.wakeArea(nx, ny);
+
+        } else {
+
+        if ((nid === 4 || nid === 5) && Math.random() < 0.15) {
+
+        world.set(nx, ny, 6);
+
+        world.wakeArea(nx, ny);
+
+        }
+
+
+        if (nid !== 0 && Math.random() < 0.1) {
+
+        const nt = world.getTemp(nx, ny);
+
+        const diff = (nt - temp) * 0.1;
+
+        world.addTemp(x, y, diff);
+
+        world.addTemp(nx, ny, -diff);
+
+        }
+
+        }
+
+      }
+
+      if (world.inBounds(x + 1, y)) {
+
+        const nx = x + 1, ny = y;
+
+        const nid = world.get(nx, ny);
+
+
+        if (nid === 2 && Math.random() < 0.6) {
+
+        world.set(nx, ny, 8);
+
+        world.addTemp(x, y, -50);
+
+        world.wakeArea(nx, ny);
+
+        } else {
+
+        if ((nid === 4 || nid === 5) && Math.random() < 0.15) {
+
+        world.set(nx, ny, 6);
+
+        world.wakeArea(nx, ny);
+
+        }
+
+
+        if (nid !== 0 && Math.random() < 0.1) {
+
+        const nt = world.getTemp(nx, ny);
+
+        const diff = (nt - temp) * 0.1;
+
+        world.addTemp(x, y, diff);
+
+        world.addTemp(nx, ny, -diff);
+
+        }
+
+        }
+
+      }
 
     if (world.inBounds(x, y + 1)) {
       const below = world.get(x, y + 1);
