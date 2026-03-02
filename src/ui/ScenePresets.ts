@@ -405,6 +405,149 @@ function generateCity(world: World): void {
   world.setWind(0, 0);
 }
 
+/** 场景：地下洞穴 —— 石头天花板+水晶+地下湖+矿石 */
+function generateCave(world: World): void {
+  const W = world.width, H = world.height;
+  world.clear();
+
+  // 全部填充石头作为岩石基底
+  fillRect(world, 0, 0, W - 1, H - 1, 3);
+
+  // 挖出主洞穴空间（上方留10格岩石屋顶）
+  // 洞穴形状：宽大的中部 + 两侧收窄
+  const caveTop = 15, caveBot = H - 20;
+  for (let x = 0; x < W; x++) {
+    // 洞穴高度波动（正弦波）
+    const topOffset = Math.floor(5 * Math.sin(x * 0.06) + 3 * Math.sin(x * 0.13 + 0.5));
+    const botOffset = Math.floor(4 * Math.sin(x * 0.07 + 1) + 2 * Math.sin(x * 0.15));
+    fillRect(world, x, caveTop + topOffset, x, caveBot + botOffset, 0); // 空气
+  }
+
+  // 地下湖（底部左侧）
+  fillRect(world, 10, caveBot - 8, 70, caveBot - 1, 2);
+
+  // 熔岩池（底部右侧）
+  fillRect(world, 130, caveBot - 5, W - 10, caveBot - 1, 11);
+
+  // 钟乳石（天花板向下的尖刺）
+  for (let i = 0; i < 12; i++) {
+    const sx = 8 + Math.floor(i * (W - 16) / 11);
+    const sh = 3 + Math.floor(Math.random() * 8);
+    for (let dy = 0; dy < sh; dy++) {
+      const y = caveTop + dy;
+      if (world.inBounds(sx, y)) world.set(sx, y, 3);
+      if (sh - dy > 2) {
+        if (world.inBounds(sx - 1, y)) world.set(sx - 1, y, 3);
+        if (world.inBounds(sx + 1, y)) world.set(sx + 1, y, 3);
+      }
+    }
+  }
+
+  // 石笋（地面向上的尖刺）
+  for (let i = 0; i < 8; i++) {
+    const sx = 15 + Math.floor(Math.random() * (W - 30));
+    const sh = 4 + Math.floor(Math.random() * 7);
+    for (let dy = 0; dy < sh; dy++) {
+      const y = caveBot - dy;
+      if (world.inBounds(sx, y)) world.set(sx, y, 3);
+      if (sh - dy > 2) {
+        if (world.inBounds(sx - 1, y)) world.set(sx - 1, y, 3);
+        if (world.inBounds(sx + 1, y)) world.set(sx + 1, y, 3);
+      }
+    }
+  }
+
+  // 水晶柱（ID: 53=水晶）
+  for (let i = 0; i < 6; i++) {
+    const cx = 10 + Math.floor(Math.random() * (W - 20));
+    const ch = 5 + Math.floor(Math.random() * 10);
+    for (let dy = 0; dy < ch; dy++) {
+      const y = caveBot - dy;
+      if (world.inBounds(cx, y) && world.get(cx, y) === 0) {
+        world.set(cx, y, 53);
+      }
+    }
+  }
+
+  // 萤火虫（洞穴中漂浮的光点）
+  scatter(world, 20, caveTop + 5, W - 20, caveBot - 10, 52, 0.003);
+
+  // 散布矿石（沙金）
+  scatter(world, 0, caveTop, W - 1, caveBot, 103, 0.008);
+
+  // 气泡从水中冒出
+  scatter(world, 10, caveBot - 12, 70, caveBot - 9, 73, 0.02);
+
+  world.setWind(0, 0);
+}
+
+/** 场景：战场 —— 弹坑+火焰+金属碎片+烟雾+爆炸 */
+function generateBattlefield(world: World): void {
+  const W = world.width, H = world.height;
+  world.clear();
+
+  // 地面：泥土+石头混合
+  fillRect(world, 0, H - 15, W - 1, H - 1, 20);
+  scatter(world, 0, H - 17, W - 1, H - 15, 3, 0.4);
+
+  // 弹坑（挖去一些地面，形成凹陷）
+  const craters = [
+    { x: 25, r: 8 },
+    { x: 70, r: 6 },
+    { x: 110, r: 10 },
+    { x: 155, r: 7 },
+  ];
+  for (const c of craters) {
+    // 挖坑
+    for (let dy = 0; dy <= c.r; dy++) {
+      for (let dx = -c.r + dy; dx <= c.r - dy; dx++) {
+        const y = H - 15 - dy + c.r;
+        const x = c.x + dx;
+        if (world.inBounds(x, y)) world.set(x, y, 0);
+      }
+    }
+    // 坑内积水
+    fillRect(world, c.x - c.r + 2, H - 15 + 1, c.x + c.r - 2, H - 15 + 1, 2);
+    // 坑边散布泥土
+    scatter(world, c.x - c.r - 3, H - 20, c.x + c.r + 3, H - 16, 20, 0.4);
+  }
+
+  // 金属碎片（战场残骸）
+  scatter(world, 0, H - 20, W - 1, H - 15, 10, 0.05);
+
+  // 燃烧的木头/残骸
+  for (let i = 0; i < 5; i++) {
+    const bx = 10 + Math.floor(Math.random() * (W - 20));
+    const by = H - 18;
+    fillRect(world, bx, by, bx + 3, by + 2, 4); // 木头
+    if (world.inBounds(bx + 1, by - 1)) world.set(bx + 1, by - 1, 6); // 火
+  }
+
+  // 火焰和烟雾
+  scatter(world, 0, H - 25, W - 1, H - 18, 6, 0.015);
+  scatter(world, 0, 0, W - 1, H - 30, 7, 0.015);
+
+  // 火花四溅
+  scatter(world, 0, H - 30, W - 1, H - 20, 28, 0.01);
+
+  // 破损的铁丝网（电线）
+  for (let i = 0; i < 3; i++) {
+    const wx = 30 + i * 55;
+    for (let dx = 0; dx < 20; dx++) {
+      if (world.inBounds(wx + dx, H - 20)) {
+        if (Math.random() > 0.3) world.set(wx + dx, H - 20, 44); // 电线（有缺口）
+      }
+    }
+  }
+
+  // 天空中烟云弥漫
+  scatter(world, 0, 5, W - 1, 40, 7, 0.03);
+  scatter(world, 0, 10, W - 1, 50, 18, 0.005); // 毒气
+
+  // 风向右（爆炸气浪效果）
+  world.setWind(2, 0.4);
+}
+
 /** 所有预设场景 */
 export const SCENE_PRESETS: ScenePreset[] = [
   { name: '火山', icon: '🌋', description: '熔岩喷发的火山场景', generate: generateVolcano },
@@ -416,6 +559,8 @@ export const SCENE_PRESETS: ScenePreset[] = [
   { name: '实验室', icon: '🧪', description: '化学容器与反应实验', generate: generateLab },
   { name: '暴风雨', icon: '⛈️', description: '闪电+暴雨+萤火虫夜晚', generate: generateStorm },
   { name: '末日火山', icon: '🔥', description: '末日熔岩雨与火山喷发', generate: generateApocalypse },
+  { name: '地下洞穴', icon: '🦇', description: '水晶+地下湖+钟乳石+熔岩池', generate: generateCave },
+  { name: '战场', icon: '💥', description: '弹坑+火焰+金属碎片+毒气烟雾', generate: generateBattlefield },
 ];
 
 /**

@@ -55,15 +55,12 @@ export const Sand: MaterialDef = {
     }
 
     // 3. 沉积在水中：接触水时小概率变为泥（沙 + 水 = 泥）
+    // 使用展开的方向检查代替内联数组（避免每帧分配数组）
     if (Math.random() < 0.002) {
-      const neighbors = [[0, 1], [0, -1], [1, 0], [-1, 0]] as const;
-      for (const [dx, dy] of neighbors) {
-        const nx = x + dx, ny = y + dy;
-        if (world.inBounds(nx, ny) && world.get(nx, ny) === 2) {
-          world.set(x, y, 63); // 泥浆
-          return;
-        }
-      }
+      if (world.inBounds(x, y + 1) && world.get(x, y + 1) === 2) { world.set(x, y, 63); return; }
+      if (world.inBounds(x, y - 1) && world.get(x, y - 1) === 2) { world.set(x, y, 63); return; }
+      if (world.inBounds(x + 1, y) && world.get(x + 1, y) === 2) { world.set(x, y, 63); return; }
+      if (world.inBounds(x - 1, y) && world.get(x - 1, y) === 2) { world.set(x, y, 63); return; }
     }
   },
 };
