@@ -618,6 +618,64 @@ function generateHydrothermal(world: World): void {
   }
 }
 
+/** 场景：极光温泉 —— 极地温泉+冰雪+极光粒子 */
+function generateAuroraSpring(world: World): void {
+  const W = world.width, H = world.height;
+  world.clear();
+
+  // 雪地地基
+  fillRect(world, 0, H - 8, W - 1, H - 1, 3);    // 石头地层
+  fillRect(world, 0, H - 10, W - 1, H - 8, 15);   // 雪地表面
+
+  // 中央温泉池（石头边缘 + 热水）
+  const poolX1 = Math.floor(W * 0.3), poolX2 = Math.floor(W * 0.7);
+  const poolY1 = H - 18, poolY2 = H - 10;
+  fillRect(world, poolX1 - 2, poolY1 - 2, poolX2 + 2, poolY2, 3); // 石头池壁
+  fillRect(world, poolX1, poolY1, poolX2, poolY2 - 1, 2);           // 热水
+  // 设置温泉水温（45-60°）
+  for (let y = poolY1; y < poolY2; y++) {
+    for (let x = poolX1; x < poolX2; x++) {
+      if (world.inBounds(x, y)) world.setTemp(x, y, 45 + Math.random() * 15);
+    }
+  }
+
+  // 池边冰柱和积雪
+  scatter(world, 0, H - 14, poolX1 - 3, H - 10, 14, 0.3);    // 左侧冰
+  scatter(world, poolX2 + 3, H - 14, W - 1, H - 10, 14, 0.3); // 右侧冰
+  scatter(world, 0, H - 12, poolX1 - 3, H - 10, 15, 0.5);     // 左侧雪
+  scatter(world, poolX2 + 3, H - 12, W - 1, H - 10, 15, 0.5);  // 右侧雪
+
+  // 远处冰山（左右各一座）
+  for (let i = 0; i < 6; i++) {
+    const bx = 5 + i * 8;
+    const bh = 15 + Math.floor(Math.random() * 20);
+    fillRect(world, bx - 3, H - 10 - bh, bx + 3, H - 10, 14); // 冰山体
+    fillRect(world, bx - 2, H - 11 - bh, bx + 2, H - 11 - bh, 15); // 雪顶
+  }
+  for (let i = 0; i < 6; i++) {
+    const bx = W - 10 - i * 8;
+    const bh = 12 + Math.floor(Math.random() * 18);
+    fillRect(world, bx - 3, H - 10 - bh, bx + 3, H - 10, 14);
+    fillRect(world, bx - 2, H - 11 - bh, bx + 2, H - 11 - bh, 15);
+  }
+
+  // 温泉上方蒸汽（温差触发）
+  scatter(world, poolX1 + 2, poolY1 - 10, poolX2 - 2, poolY1 - 1, 8, 0.06);
+
+  // 空中飘雪（稀疏）
+  scatter(world, 0, 0, W - 1, H - 30, 15, 0.003);
+
+  // 极光粒子带（萤火虫+等离子体模拟绿色/紫色极光）
+  // 使用荧光液（ID:80）和等离子体（ID:55）分层模拟极光
+  scatter(world, 0, 10, W - 1, 25, 80, 0.015);   // 顶部荧光液（绿色极光）
+  scatter(world, 0, 20, W - 1, 35, 55, 0.008);   // 等离子体（紫色光带）
+  scatter(world, 0, 30, W - 1, 45, 80, 0.010);   // 第二道极光
+  scatter(world, 0, 5, W - 1, 15, 55, 0.005);    // 顶层等离子
+
+  // 萤火虫点缀（极地生物）
+  scatter(world, 5, H - 35, W - 5, H - 15, 52, 0.003);
+}
+
 /** 所有预设场景 */
 export const SCENE_PRESETS: ScenePreset[] = [
   { name: '火山', icon: '🌋', description: '熔岩喷发的火山场景', generate: generateVolcano },
@@ -632,6 +690,7 @@ export const SCENE_PRESETS: ScenePreset[] = [
   { name: '地下洞穴', icon: '🦇', description: '水晶+地下湖+钟乳石+熔岩池', generate: generateCave },
   { name: '战场', icon: '💥', description: '弹坑+火焰+金属碎片+毒气烟雾', generate: generateBattlefield },
   { name: '深海热泉', icon: '🌊', description: '海底热泉喷口+矿物结晶+发光深海生物', generate: generateHydrothermal },
+  { name: '极光温泉', icon: '🌌', description: '极地温泉+冰山+极光粒子带+飘雪', generate: generateAuroraSpring },
 ];
 
 /**

@@ -1592,6 +1592,8 @@ input.onPaintStart = () => {
 
 // 缩放/平移回调
 input.screenToGrid = (sx: number, sy: number) => renderer.screenToGrid(sx, sy);
+// InfoPanel 坐标转换（修复缩放/平移时坐标错误）
+infoPanel.screenToGrid = (sx: number, sy: number) => renderer.screenToGrid(sx, sy);
 
 input.onZoom = (delta: number, screenX: number, screenY: number) => {
   const oldZoom = renderer.viewZoom;

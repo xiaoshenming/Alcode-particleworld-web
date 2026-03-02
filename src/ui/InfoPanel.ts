@@ -4,6 +4,8 @@ import { getMaterial } from '../materials/registry';
 /**
  * 材质信息面板 —— 显示光标位置的材质详情
  * 固定在画布右下角，实时更新
+ * 修复：支持缩放/平移坐标（通过 screenToGrid 回调）
+ * 增强：温度颜色指示（蓝→绿→黄→红）
  */
 export class InfoPanel {
   private el: HTMLElement;
@@ -11,8 +13,10 @@ export class InfoPanel {
   private scale: number;
   private canvas: HTMLCanvasElement;
   private visible = false;
-  private cursorX = -1;
-  private cursorY = -1;
+  private screenX = -1;
+  private screenY = -1;
+  /** 外部注入坐标转换（支持缩放/平移） */
+  screenToGrid?: (sx: number, sy: number) => [number, number];
   // 缓存 DOM 元素避免每帧重建
   private nameEl: HTMLSpanElement;
   private detailEl: HTMLSpanElement;
@@ -49,8 +53,8 @@ export class InfoPanel {
   private bindEvents(): void {
     this.canvas.addEventListener('mousemove', (e) => {
       const rect = this.canvas.getBoundingClientRect();
-      this.cursorX = Math.floor((e.clientX - rect.left) / this.scale);
-      this.cursorY = Math.floor((e.clientY - rect.top) / this.scale);
+      this.screenX = e.clientX - rect.left;
+      this.screenY = e.clientY - rect.top;
       this.visible = true;
     });
 
@@ -60,11 +64,27 @@ export class InfoPanel {
     });
   }
 
+  /** 将屏幕坐标转为网格坐标（支持缩放平移） */
+  private toGrid(sx: number, sy: number): [number, number] {
+    if (this.screenToGrid) return this.screenToGrid(sx, sy);
+    return [Math.floor(sx / this.scale), Math.floor(sy / this.scale)];
+  }
+
+  /** 根据温度返回颜色字符串（蓝→青→绿→黄→红）和标签 */
+  private tempColor(temp: number): { color: string; label: string } {
+    if (temp < 0) return { color: '#4fc3f7', label: '冰冻' };
+    if (temp < 30) return { color: '#81d4fa', label: '冷' };
+    if (temp < 100) return { color: '#aed581', label: '常温' };
+    if (temp < 300) return { color: '#ffb74d', label: '热' };
+    if (temp < 800) return { color: '#ff7043', label: '高温' };
+    return { color: '#ef5350', label: '极高温' };
+  }
+
   /** 每帧调用，更新面板内容 */
   update(): void {
     if (!this.visible) return;
 
-    const { cursorX: x, cursorY: y } = this;
+    const [x, y] = this.toGrid(this.screenX, this.screenY);
     if (!this.world.inBounds(x, y)) {
       this.el.style.display = 'none';
       return;
@@ -82,10 +102,12 @@ export class InfoPanel {
     const densityStr = mat.density === Infinity ? '∞' : mat.density.toFixed(1);
     const age = this.world.getAge(x, y);
     const ageStr = cellId === 0 ? '' : ` · 年龄: ${age}`;
+    const { color: tempColor, label: tempLabel } = this.tempColor(temp);
 
     this.nameEl.textContent = mat.name;
     this.detailEl.textContent = `ID: ${mat.id} · 密度: ${densityStr}${ageStr}`;
-    this.tempEl.textContent = `温度: ${temp.toFixed(1)}° · 坐标: (${x}, ${y})`;
+    this.tempEl.textContent = `温度: ${temp.toFixed(1)}° [${tempLabel}] · (${x}, ${y})`;
+    this.tempEl.style.color = tempColor;
     this.descEl.textContent = mat.description || '';
     this.descEl.style.display = mat.description ? '' : 'none';
 
