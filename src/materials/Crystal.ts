@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -36,16 +35,70 @@ export const Crystal: MaterialDef = {
     }
 
     // 被雷电击碎
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-      if (nid === 16) { // 雷电
+
+      if (world.inBounds(x, y - 1)) {
+
+        const nx = x, ny = y - 1;
+
+        const nid = world.get(nx, ny);
+
+        if (nid === 16) { // 雷电
+
         world.set(x, y, 1); // 沙子
+
         return;
+
+        }
+
       }
-    }
+
+      if (world.inBounds(x, y + 1)) {
+
+        const nx = x, ny = y + 1;
+
+        const nid = world.get(nx, ny);
+
+        if (nid === 16) { // 雷电
+
+        world.set(x, y, 1); // 沙子
+
+        return;
+
+        }
+
+      }
+
+      if (world.inBounds(x - 1, y)) {
+
+        const nx = x - 1, ny = y;
+
+        const nid = world.get(nx, ny);
+
+        if (nid === 16) { // 雷电
+
+        world.set(x, y, 1); // 沙子
+
+        return;
+
+        }
+
+      }
+
+      if (world.inBounds(x + 1, y)) {
+
+        const nx = x + 1, ny = y;
+
+        const nid = world.get(nx, ny);
+
+        if (nid === 16) { // 雷电
+
+        world.set(x, y, 1); // 沙子
+
+        return;
+
+        }
+
+      }
 
     // 结晶生长：检查邻居是否有盐水/盐
     let hasSource = false;
@@ -81,17 +134,70 @@ export const Crystal: MaterialDef = {
     if (Math.random() > growChance) return;
 
     // 向空气方向生长（随机起始索引循环，避免每帧数组分配）
-    const start = Math.floor(Math.random() * dirs.length);
-    for (let i = 0; i < dirs.length; i++) {
-      const [dx, dy] = dirs[(start + i) % dirs.length];
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      if (world.isEmpty(nx, ny)) {
+
+      if (world.inBounds(x, y - 1)) {
+
+        const nx = x, ny = y - 1;
+
+        if (world.isEmpty(nx, ny)) {
+
         world.set(nx, ny, 53);
+
         world.markUpdated(nx, ny);
+
         return;
+
+        }
+
       }
-    }
+
+      if (world.inBounds(x, y + 1)) {
+
+        const nx = x, ny = y + 1;
+
+        if (world.isEmpty(nx, ny)) {
+
+        world.set(nx, ny, 53);
+
+        world.markUpdated(nx, ny);
+
+        return;
+
+        }
+
+      }
+
+      if (world.inBounds(x - 1, y)) {
+
+        const nx = x - 1, ny = y;
+
+        if (world.isEmpty(nx, ny)) {
+
+        world.set(nx, ny, 53);
+
+        world.markUpdated(nx, ny);
+
+        return;
+
+        }
+
+      }
+
+      if (world.inBounds(x + 1, y)) {
+
+        const nx = x + 1, ny = y;
+
+        if (world.isEmpty(nx, ny)) {
+
+        world.set(nx, ny, 53);
+
+        world.markUpdated(nx, ny);
+
+        return;
+
+        }
+
+      }
   },
 };
 

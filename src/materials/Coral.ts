@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -51,41 +50,196 @@ export const Coral: MaterialDef = {
       return;
     }
 
-    const dirs = DIRS4;
     let waterNeighbors = 0;
 
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
 
-      // 酸液腐蚀
-      if (nid === 9) {
+      if (world.inBounds(x, y - 1)) {
+
+        const nx = x, ny = y - 1;
+
+        const nid = world.get(nx, ny);
+
+
+        // 酸液腐蚀
+
+        if (nid === 9) {
+
         world.set(x, y, 0);
+
         world.set(nx, ny, 0); // 酸液也消耗
+
         return;
+
+        }
+
+
+        // 统计水邻居
+
+        if (nid === 2 || nid === 24) waterNeighbors++; // 水或盐水
+
       }
 
-      // 统计水邻居
-      if (nid === 2 || nid === 24) waterNeighbors++; // 水或盐水
-    }
+      if (world.inBounds(x, y + 1)) {
+
+        const nx = x, ny = y + 1;
+
+        const nid = world.get(nx, ny);
+
+
+        // 酸液腐蚀
+
+        if (nid === 9) {
+
+        world.set(x, y, 0);
+
+        world.set(nx, ny, 0); // 酸液也消耗
+
+        return;
+
+        }
+
+
+        // 统计水邻居
+
+        if (nid === 2 || nid === 24) waterNeighbors++; // 水或盐水
+
+      }
+
+      if (world.inBounds(x - 1, y)) {
+
+        const nx = x - 1, ny = y;
+
+        const nid = world.get(nx, ny);
+
+
+        // 酸液腐蚀
+
+        if (nid === 9) {
+
+        world.set(x, y, 0);
+
+        world.set(nx, ny, 0); // 酸液也消耗
+
+        return;
+
+        }
+
+
+        // 统计水邻居
+
+        if (nid === 2 || nid === 24) waterNeighbors++; // 水或盐水
+
+      }
+
+      if (world.inBounds(x + 1, y)) {
+
+        const nx = x + 1, ny = y;
+
+        const nid = world.get(nx, ny);
+
+
+        // 酸液腐蚀
+
+        if (nid === 9) {
+
+        world.set(x, y, 0);
+
+        world.set(nx, ny, 0); // 酸液也消耗
+
+        return;
+
+        }
+
+
+        // 统计水邻居
+
+        if (nid === 2 || nid === 24) waterNeighbors++; // 水或盐水
+
+      }
 
     // 只在水中生长
     if (waterNeighbors >= 2 && Math.random() < 0.003) {
       // 随机起始索引循环，避免每帧数组分配
-      const start = Math.floor(Math.random() * dirs.length);
-      for (let i = 0; i < dirs.length; i++) {
-        const [dx, dy] = dirs[(start + i) % dirs.length];
-        const nx = x + dx, ny = y + dy;
-        if (!world.inBounds(nx, ny)) continue;
-        const nid = world.get(nx, ny);
-        if (nid === 2 || nid === 24) {
+
+        if (world.inBounds(x, y - 1)) {
+
+          const nx = x, ny = y - 1;
+
+          const nid = world.get(nx, ny);
+
+          if (nid === 2 || nid === 24) {
+
           world.set(nx, ny, 64); // 新珊瑚
+
           world.markUpdated(nx, ny);
+
           world.wakeArea(nx, ny);
+
           return;
+
+          }
+
         }
-      }
+
+        if (world.inBounds(x, y + 1)) {
+
+          const nx = x, ny = y + 1;
+
+          const nid = world.get(nx, ny);
+
+          if (nid === 2 || nid === 24) {
+
+          world.set(nx, ny, 64); // 新珊瑚
+
+          world.markUpdated(nx, ny);
+
+          world.wakeArea(nx, ny);
+
+          return;
+
+          }
+
+        }
+
+        if (world.inBounds(x - 1, y)) {
+
+          const nx = x - 1, ny = y;
+
+          const nid = world.get(nx, ny);
+
+          if (nid === 2 || nid === 24) {
+
+          world.set(nx, ny, 64); // 新珊瑚
+
+          world.markUpdated(nx, ny);
+
+          world.wakeArea(nx, ny);
+
+          return;
+
+          }
+
+        }
+
+        if (world.inBounds(x + 1, y)) {
+
+          const nx = x + 1, ny = y;
+
+          const nid = world.get(nx, ny);
+
+          if (nid === 2 || nid === 24) {
+
+          world.set(nx, ny, 64); // 新珊瑚
+
+          world.markUpdated(nx, ny);
+
+          world.wakeArea(nx, ny);
+
+          return;
+
+          }
+
+        }
     }
 
     // 缓慢散热
