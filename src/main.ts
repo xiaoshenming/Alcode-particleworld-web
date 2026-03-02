@@ -1992,12 +1992,6 @@ document.addEventListener('keydown', (e) => {
     return;
   }
 
-  // . 键：暂停时单步执行一帧
-  if (e.code === 'Period' && paused) {
-    stepOnce = true;
-    return;
-  }
-
   // T 键切换温度可视化
   if (e.code === 'KeyT') {
     renderer.showTempOverlay = !renderer.showTempOverlay;
@@ -2153,6 +2147,11 @@ document.addEventListener('keydown', (e) => {
     return;
   }
   if (e.code === 'Period') {
+    // 暂停时 . 键 = 单步执行（优先于笔刷温度调节）
+    if (paused) {
+      stepOnce = true;
+      return;
+    }
     const current = input.getBrushTemp();
     input.setBrushTemp(current + 100);
     toolbar.refreshBrushTemp();
