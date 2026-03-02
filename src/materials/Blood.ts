@@ -10,6 +10,7 @@ import { registerMaterial } from './registry';
  * - 遇酸液被分解
  * - 接触植物/种子促进生长
  * - 病毒在血液中传播更快
+ * - 新增：接触熔岩迅速沸腾为烟（血液含水分，遇极高温气化）
  * - 视觉上呈深红色
  */
 
@@ -48,7 +49,7 @@ export const Blood: MaterialDef = {
       return;
     }
 
-    // 低温冻结
+    // ��温冻结
     if (temp < -5 && Math.random() < 0.03) {
       world.set(x, y, 14); // 冰
       world.wakeArea(x, y);
@@ -62,9 +63,16 @@ export const Blood: MaterialDef = {
       if (!world.inBounds(nx, ny)) continue;
       const nid = world.get(nx, ny);
 
-      // 遇火蒸发
+      // 遇火蒸发为烟
       if (nid === 6 && Math.random() < 0.15) {
         world.set(x, y, 7); // 烟
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 遇熔岩迅速气化为蒸汽（血液含水分，极高温下沸腾）
+      if (nid === 11 && Math.random() < 0.2) {
+        world.set(x, y, 8); // 蒸汽
         world.wakeArea(x, y);
         return;
       }

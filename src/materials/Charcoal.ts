@@ -1,7 +1,12 @@
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
-/** 木炭 —— 木头燃烧后的产物，粉末状，可再次点燃，燃烧更持久 */
+/** 点燃木炭的热源 */
+const CHARCOAL_IGNITORS = new Set([6, 11, 28]); // 火、熔岩、火花
+
+/** 木炭 —— 木头燃烧后的产物，粉末状，可再次点燃，燃烧更持久
+ * 新增：接触火/熔岩/火花时直接点燃（不依赖温度系统）
+ */
 export const Charcoal: MaterialDef = {
   id: 46,
   name: '木炭',
@@ -14,6 +19,28 @@ export const Charcoal: MaterialDef = {
     // 高温自燃（温度超过 150° 自动点燃）
     if (world.getTemp(x, y) > 150) {
       world.set(x, y, 6); // 火
+      return;
+    }
+
+    // 接触点火源（火/熔岩/火花）直接点燃
+    if (world.inBounds(x, y - 1) && CHARCOAL_IGNITORS.has(world.get(x, y - 1))) {
+      world.set(x, y, 6);
+      world.setTemp(x, y, 200);
+      return;
+    }
+    if (world.inBounds(x, y + 1) && CHARCOAL_IGNITORS.has(world.get(x, y + 1))) {
+      world.set(x, y, 6);
+      world.setTemp(x, y, 200);
+      return;
+    }
+    if (world.inBounds(x - 1, y) && CHARCOAL_IGNITORS.has(world.get(x - 1, y))) {
+      world.set(x, y, 6);
+      world.setTemp(x, y, 200);
+      return;
+    }
+    if (world.inBounds(x + 1, y) && CHARCOAL_IGNITORS.has(world.get(x + 1, y))) {
+      world.set(x, y, 6);
+      world.setTemp(x, y, 200);
       return;
     }
 

@@ -1,7 +1,12 @@
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
-/** 蜂蜜 —— 高粘度液体，流动缓慢，可粘住轻质粒子 */
+/** 点火源：火、熔岩、火花 */
+const HONEY_IGNITORS = new Set([6, 11, 28]);
+
+/** 蜂蜜 —— 高粘度液体，流动缓慢，可粘住轻质粒子
+ * 新增：接触火/熔岩/火花时直接焦化为烟（糖的燃烧反应）
+ */
 export const Honey: MaterialDef = {
   id: 45,
   name: '蜂蜜',
@@ -15,9 +20,31 @@ export const Honey: MaterialDef = {
   update(x: number, y: number, world: WorldAPI) {
     // 高温变稀（流动更快）
     const temp = world.getTemp(x, y);
-    // 超高温蒸发
+    // 超高温蒸发为烟
     if (temp > 200) {
       world.set(x, y, 7); // 烟
+      return;
+    }
+
+    // 接触火/熔岩/火���：蜂蜜糖分燃烧→焦烟
+    if (world.inBounds(x, y - 1) && HONEY_IGNITORS.has(world.get(x, y - 1))) {
+      world.set(x, y, 7); // 焦化为烟
+      world.setTemp(x, y, 100);
+      return;
+    }
+    if (world.inBounds(x, y + 1) && HONEY_IGNITORS.has(world.get(x, y + 1))) {
+      world.set(x, y, 7);
+      world.setTemp(x, y, 100);
+      return;
+    }
+    if (world.inBounds(x - 1, y) && HONEY_IGNITORS.has(world.get(x - 1, y))) {
+      world.set(x, y, 7);
+      world.setTemp(x, y, 100);
+      return;
+    }
+    if (world.inBounds(x + 1, y) && HONEY_IGNITORS.has(world.get(x + 1, y))) {
+      world.set(x, y, 7);
+      world.setTemp(x, y, 100);
       return;
     }
 
