@@ -676,6 +676,75 @@ function generateAuroraSpring(world: World): void {
   scatter(world, 5, H - 35, W - 5, H - 15, 52, 0.003);
 }
 
+/** 场景：沼泽 —— 泥沼+枯木+沼气+腐植质 */
+function generateSwamp(world: World): void {
+  const W = world.width, H = world.height;
+  world.clear();
+
+  // 泥土地基（深层石头+表层泥土）
+  fillRect(world, 0, H - 8, W - 1, H - 1, 3);    // 石头地层
+  fillRect(world, 0, H - 18, W - 1, H - 8, 20);  // 泥土层（ID:20）
+
+  // 沼泽水面（低洼积水，不规则水坑）
+  const swampY = H - 18;
+  for (let x = 0; x < W; x++) {
+    const depth = 3 + Math.floor(Math.sin(x * 0.15) * 2 + Math.random() * 3);
+    for (let y = swampY; y < swampY + depth; y++) {
+      if (world.inBounds(x, y)) {
+        world.set(x, y, 2);  // 水
+        world.setTemp(x, y, 18 + Math.random() * 5); // 微温（沼泽水偏暖）
+      }
+    }
+  }
+
+  // 泥浆区（沼泽边缘，沙+水混合态用泥浆ID:63）
+  scatter(world, 0, H - 20, Math.floor(W * 0.3), H - 15, 63, 0.4);  // 左侧泥浆
+  scatter(world, Math.floor(W * 0.7), H - 20, W - 1, H - 15, 63, 0.4); // 右侧泥浆
+
+  // 枯木（高度不一的竖条，用木头ID:4）
+  const treePositions = [15, 35, 55, 80, 105, 130, 155, 175];
+  for (const tx of treePositions) {
+    if (tx >= W) continue;
+    const treeH = 12 + Math.floor(Math.random() * 15);
+    const baseY = H - 18;
+    // 树干
+    for (let y = baseY - treeH; y < baseY; y++) {
+      if (world.inBounds(tx, y)) world.set(tx, y, 4);
+      if (world.inBounds(tx + 1, y) && Math.random() < 0.6) world.set(tx + 1, y, 4);
+    }
+    // 树根（入水部分）
+    for (let y = baseY; y < baseY + 3; y++) {
+      if (world.inBounds(tx - 1, y)) world.set(tx - 1, y, 4);
+      if (world.inBounds(tx + 2, y)) world.set(tx + 2, y, 4);
+    }
+    // 枯枝（横向稀疏）
+    const branchY = baseY - treeH + Math.floor(treeH * 0.4);
+    for (let dx = -4; dx <= 5; dx++) {
+      if (world.inBounds(tx + dx, branchY) && Math.random() < 0.5) {
+        world.set(tx + dx, branchY, 4);
+      }
+    }
+  }
+
+  // 苔藓覆盖（树干和地面零星分布，ID:49）
+  scatter(world, 0, H - 22, W - 1, H - 17, 49, 0.06);
+
+  // 腐植质（藤蔓，ID:57=藤蔓，覆盖树干）
+  scatter(world, 5, H - 30, W - 5, H - 18, 57, 0.03);
+
+  // 沼气泡（ID:95，从水底缓慢上升）
+  scatter(world, 0, swampY, W - 1, swampY + 5, 95, 0.02);
+
+  // 水草（ID:156，水中生长）
+  scatter(world, 0, swampY - 5, W - 1, swampY + 2, 156, 0.04);
+
+  // 萤火虫（沼泽夜景，ID:52）
+  scatter(world, 10, H - 40, W - 10, H - 20, 52, 0.004);
+
+  // 雾气/烟（水面上方低雾，ID:7=烟）
+  scatter(world, 0, swampY - 8, W - 1, swampY - 2, 7, 0.015);
+}
+
 /** 所有预设场景 */
 export const SCENE_PRESETS: ScenePreset[] = [
   { name: '火山', icon: '🌋', description: '熔岩喷发的火山场景', generate: generateVolcano },
@@ -691,6 +760,7 @@ export const SCENE_PRESETS: ScenePreset[] = [
   { name: '战场', icon: '💥', description: '弹坑+火焰+金属碎片+毒气烟雾', generate: generateBattlefield },
   { name: '深海热泉', icon: '🌊', description: '海底热泉喷口+矿物结晶+发光深海生物', generate: generateHydrothermal },
   { name: '极光温泉', icon: '🌌', description: '极地温泉+冰山+极光粒子带+飘雪', generate: generateAuroraSpring },
+  { name: '神秘沼泽', icon: '🌿', description: '泥沼+枯木藤蔓+沼气+萤火虫夜景', generate: generateSwamp },
 ];
 
 /**

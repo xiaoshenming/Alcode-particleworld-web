@@ -9,7 +9,7 @@ import { registerMaterial } from './registry';
  */
 
 /** 可燃材质 ID */
-const FLAMMABLE = new Set([4, 5, 13, 25, 26]); // 木头、油、植物、蜡、液蜡
+const FLAMMABLE = new Set([4, 5, 13, 25, 26, 46, 45, 87, 134]); // 木头、油、植物、蜡、液蜡、木炭、蜂蜜、血液、干草
 
 export const Lava: MaterialDef = {
   id: 11,

@@ -9,7 +9,7 @@ import { registerMaterial } from './registry';
  */
 
 /** 可燃材质 ID 集合 */
-const FLAMMABLE = new Set([4, 5, 13, 25, 26, 46, 49]); // 木头、油、植物、蜡、液蜡、木炭、苔藓
+const FLAMMABLE = new Set([4, 5, 13, 25, 26, 46, 49, 45, 87, 134]); // 木头、油、植物、蜡、液蜡、木炭、苔藓、蜂蜜、血液、干草
 
 export const Fire: MaterialDef = {
   id: 6,
@@ -70,42 +70,58 @@ export const Fire: MaterialDef = {
     // 点燃可燃物（不return）
     if (world.inBounds(x, y - 1) && FLAMMABLE.has(world.get(x, y - 1)) && Math.random() < 0.05) {
       const nid0 = world.get(x, y - 1);
-      if (nid0 === 4 && Math.random() < 0.4) { world.set(x, y - 1, 46); } else { world.set(x, y - 1, 6); }
+      if (nid0 === 4 && Math.random() < 0.4) { world.set(x, y - 1, 46); } // 木头→木炭
+      else if (nid0 === 45 || nid0 === 87 || nid0 === 134) { world.set(x, y - 1, 7); } // 蜂蜜/血液/干草→焦烟
+      else { world.set(x, y - 1, 6); }
       world.markUpdated(x, y - 1);
     }
     if (world.inBounds(x, y + 1) && FLAMMABLE.has(world.get(x, y + 1)) && Math.random() < 0.05) {
       const nid1 = world.get(x, y + 1);
-      if (nid1 === 4 && Math.random() < 0.4) { world.set(x, y + 1, 46); } else { world.set(x, y + 1, 6); }
+      if (nid1 === 4 && Math.random() < 0.4) { world.set(x, y + 1, 46); }
+      else if (nid1 === 45 || nid1 === 87 || nid1 === 134) { world.set(x, y + 1, 7); }
+      else { world.set(x, y + 1, 6); }
       world.markUpdated(x, y + 1);
     }
     if (world.inBounds(x - 1, y) && FLAMMABLE.has(world.get(x - 1, y)) && Math.random() < 0.05) {
       const nid2 = world.get(x - 1, y);
-      if (nid2 === 4 && Math.random() < 0.4) { world.set(x - 1, y, 46); } else { world.set(x - 1, y, 6); }
+      if (nid2 === 4 && Math.random() < 0.4) { world.set(x - 1, y, 46); }
+      else if (nid2 === 45 || nid2 === 87 || nid2 === 134) { world.set(x - 1, y, 7); }
+      else { world.set(x - 1, y, 6); }
       world.markUpdated(x - 1, y);
     }
     if (world.inBounds(x + 1, y) && FLAMMABLE.has(world.get(x + 1, y)) && Math.random() < 0.05) {
       const nid3 = world.get(x + 1, y);
-      if (nid3 === 4 && Math.random() < 0.4) { world.set(x + 1, y, 46); } else { world.set(x + 1, y, 6); }
+      if (nid3 === 4 && Math.random() < 0.4) { world.set(x + 1, y, 46); }
+      else if (nid3 === 45 || nid3 === 87 || nid3 === 134) { world.set(x + 1, y, 7); }
+      else { world.set(x + 1, y, 6); }
       world.markUpdated(x + 1, y);
     }
     if (world.inBounds(x - 1, y - 1) && FLAMMABLE.has(world.get(x - 1, y - 1)) && Math.random() < 0.05) {
       const nid4 = world.get(x - 1, y - 1);
-      if (nid4 === 4 && Math.random() < 0.4) { world.set(x - 1, y - 1, 46); } else { world.set(x - 1, y - 1, 6); }
+      if (nid4 === 4 && Math.random() < 0.4) { world.set(x - 1, y - 1, 46); }
+      else if (nid4 === 45 || nid4 === 87 || nid4 === 134) { world.set(x - 1, y - 1, 7); }
+      else { world.set(x - 1, y - 1, 6); }
       world.markUpdated(x - 1, y - 1);
     }
     if (world.inBounds(x + 1, y - 1) && FLAMMABLE.has(world.get(x + 1, y - 1)) && Math.random() < 0.05) {
       const nid5 = world.get(x + 1, y - 1);
-      if (nid5 === 4 && Math.random() < 0.4) { world.set(x + 1, y - 1, 46); } else { world.set(x + 1, y - 1, 6); }
+      if (nid5 === 4 && Math.random() < 0.4) { world.set(x + 1, y - 1, 46); }
+      else if (nid5 === 45 || nid5 === 87 || nid5 === 134) { world.set(x + 1, y - 1, 7); }
+      else { world.set(x + 1, y - 1, 6); }
       world.markUpdated(x + 1, y - 1);
     }
     if (world.inBounds(x - 1, y + 1) && FLAMMABLE.has(world.get(x - 1, y + 1)) && Math.random() < 0.05) {
       const nid6 = world.get(x - 1, y + 1);
-      if (nid6 === 4 && Math.random() < 0.4) { world.set(x - 1, y + 1, 46); } else { world.set(x - 1, y + 1, 6); }
+      if (nid6 === 4 && Math.random() < 0.4) { world.set(x - 1, y + 1, 46); }
+      else if (nid6 === 45 || nid6 === 87 || nid6 === 134) { world.set(x - 1, y + 1, 7); }
+      else { world.set(x - 1, y + 1, 6); }
       world.markUpdated(x - 1, y + 1);
     }
     if (world.inBounds(x + 1, y + 1) && FLAMMABLE.has(world.get(x + 1, y + 1)) && Math.random() < 0.05) {
       const nid7 = world.get(x + 1, y + 1);
-      if (nid7 === 4 && Math.random() < 0.4) { world.set(x + 1, y + 1, 46); } else { world.set(x + 1, y + 1, 6); }
+      if (nid7 === 4 && Math.random() < 0.4) { world.set(x + 1, y + 1, 46); }
+      else if (nid7 === 45 || nid7 === 87 || nid7 === 134) { world.set(x + 1, y + 1, 7); }
+      else { world.set(x + 1, y + 1, 6); }
       world.markUpdated(x + 1, y + 1);
     }
 
