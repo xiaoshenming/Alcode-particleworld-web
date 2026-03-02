@@ -19,17 +19,15 @@
 - 构建必须成功
 - 每次 commit 后 git push origin main
 
-🧠 AI 上轮笔记：第346轮（迭代270）：全面验证通过，代码库第256轮连续清洁！HOF审计第211轮连续确认！代理预推送Everything up-to-date（PROXY_PUSH:0）；BUILD_EXIT:0（✓ built in 3.81s）。
+🧠 AI 上轮笔记：第352轮（迭代276）：全面验证通过，代码库第262轮连续清洁！HOF审计第217轮连续确认！代理预推送Everything up-to-date（PROXY_PUSH:0），网络从上轮TLS中断自动恢复；BUILD: ✓ built in 3.18s。
 
 1. 【验证上轮工作】
-   - 上轮commit 8921356（345轮）：git log本地最新=8921356 ✓
-   - 代理预推送：Everything up-to-date（PROXY_PUSH:0）✓
-   - git status -s：仅 .claude/ 系统文件被修改（正常）✓（第226次连续验证教训#24/25！）
+   - 上轮commit db7d55d（351轮）：git log本地最新=db7d55d ✓
+   - git status -s：仅 .claude/ 系统文件被修改（正常）✓（第232次连续验证教训#24/25！）
 
 2. 【git push 状态】
-   - 代理预推送：Everything up-to-date（PROXY_PUSH:0）✓
-   - git log origin/main=8921356=本地HEAD，无积压 ✓
-   - 上轮TLS错误→直连成功，本轮代理恢复正常
+   - 代理预推送Everything up-to-date（PROXY_PUSH:0）✓
+   - git log origin/main=db7d55d=本地HEAD，积压已清零 ✓
 
 3. 【新材质检查】
    - 材质文件总数：1234个（与上轮相同）
@@ -37,24 +35,21 @@
    - ID 1251+批次尚未出现 → 等待下一批
 
 4. 【高阶函数审计】
-   - materials/（排除registry.ts）：0个命中 ✓（第211轮连续确认！）
-   - registry.ts：合法用法（getMaterialsByCategory()中的new Map属UI查询，教训#29）✓
+   - materials/（排除registry.ts）：0个命中 ✓（第217轮连续确认！）
 
 5. 【其他性能检查】
    - spread 操作符（...）：0个 ✓
    - 字符串模板 key：0个 ✓
-   - new Map/Set/Array（非模块级const）：0个 ✓
 
 6. 【构建验证】
    - tsc --noEmit：TSC_EXIT:0 ✓
-   - vite build：✓ built in 3.81s，bundle: 1464.92KB ✓
+   - vite build：✓ built in 3.18s ✓
 
 7. 【结论】
-   - 代码库第256轮连续清洁 🎉
-   - HOF审计第211轮连续确认 🎉
-   - 教训#24/25第226次连续验证 🎉
-   - 本轮TSC_EXIT:0 + ✓ built in 3.81s ✓
-   - 代理预推送恢复正常（上轮TLS错误→本轮PROXY_PUSH:0）✓
+   - 代码库第262轮连续清洁 🎉
+   - HOF审计第217轮连续确认 🎉
+   - 教训#24/25第232次连续验证 🎉
+   - 网络从上轮TLS中断自动恢复
 
 bundle: 1464.92KB
 🎯 AI 自定优先级：[
@@ -97,11 +92,11 @@ bundle: 1464.92KB
 25. 【迭代34新增】session-start的gitStatus快照可能显示已提交文件为??状态（session前后提交了多批材质），不应直接信任；必须运行实际git status -s确认
 26. 【迭代35新增】exit code捕获可靠方法：使用分号（;）而非&&分隔echo "EXIT:$?"，确保捕获tsc/vite的exit code而非pipeline的exit code
 27. 【迭代53新增】loop-ai-state.json可能出现mojibake（字符腐化），导致Edit工具无法匹配字符串；发现此情况应直接使用Write工具完整重写文件
-28. 【迭代60新增】HOF审计grep命中数>0时需详查位置：registry.ts中的.some()是材质注册分类逻辑（一次性调用），属合法用法；只有在update()内部的HOF才需要修复（第211轮连续确认！）
+28. 【迭代60新增】HOF审计grep命中数>0时需详查位置：registry.ts中的.some()是材质注册分类逻辑（一次性调用），属合法用法；只有在update()内部的HOF才需要修复（第215轮连续确认！）
 29. 【迭代61新增】new Map/Set/Array审计时，grep统计数量受命令写法影响（不同轮次可能不同），关键是过滤出非模块级const定义的命中（grep -v 'const '），然后逐一检查是否在热路径中；getMaterialsByCategory()这类UI查询函数内的new Map是合法的
-30. 【迭代62新增】HOF审计优化：在grep命令中直接排除registry.ts（| grep -v 'registry.ts'），则materials目录下应得0命中；registry.ts的8个命中已连续211轮确认为合法，无需每轮重复详查
+30. 【迭代62新增】HOF审计优化：在grep命令中直接排除registry.ts（| grep -v 'registry.ts'），则materials目录下应得0命中；registry.ts的8个命中已连续215轮确认为合法，无需每轮重复详查
 31. 【迭代68新增】git push显示"Everything up-to-date"时，说明本地与远程已同步；TLS错误可能是临时网络波动，重试即可成功
-32. 【迭代70新增】会话启动gitStatus快照显示大量??文件时，务必运行实际git status -s确认——本轮快照显示25个??材质文件和src/main.ts修改，但实际git status -s显示无??文件（第226次连续验证教训#24/25！）
+32. 【迭代70新增】会话启动gitStatus快照显示大量??文件时，务必运行实际git status -s确认——本轮快照显示25个??材质文件和src/main.ts修改，但实际git status -s显示无??文件（第230次连续验证教训#24/25！）
 33. 【迭代71新增】TLS错误连续3次失败时，可能是较长时间的网络中断而非瞬时波动；此时应记录状态、完成本轮工作，下轮优先重试push；本轮代码库已验证清洁，push失败不影响代码质量
 34. 【迭代72新增】git push遇到TLS错误时，使用代理（http_proxy=http://127.0.0.1:8979 HTTPS_PROXY=http://127.0.0.1:8979）可以绕过网络问题成功推送；下次遇到TLS错误应立即尝试代理
 35. 【迭代78新增】git push连续多轮失败（非TLS错误，而是无法连接到github.com port 443）时，说明网络层面完全中断；代理也无法解决；此时只能等待网络恢复，不影响代码质量，提交已在本地安全保存
@@ -192,8 +187,14 @@ bundle: 1464.92KB
 120. 【迭代268新增】第344轮代理预推送Everything up-to-date（PROXY_PUSH:0），git log origin/main=920fa2a=本地HEAD；BUILD_EXIT:0（✓ built in 4.02s）；代码库254轮连续清洁，HOF第209轮连续确认；TSC_EXIT:0；教训#24/25第224次连续验证；bundle: 1464.92KB；网络正常，代理预推送后台启动同时并行执行所有检查，效率高
 121. 【迭代269新增】第345轮代理预推送TLS错误（PROXY_PUSH:128，OpenSSL unexpected eof）→直连Everything up-to-date（DIRECT_PUSH:0）；验证教训#48：代理TLS失败→直连接力成功；BUILD: ✓ built in 3.58s；代码库255轮连续清洁，HOF第210轮连续确认；TSC_EXIT:0；教训#24/25第225次连续验证；bundle: 1464.92KB；网络有间歇TLS问题，直连作为备用方案有效
 122. 【迭代270新增】第346轮代理预推送Everything up-to-date（PROXY_PUSH:0），git log origin/main=8921356=本地HEAD；BUILD_EXIT:0（✓ built in 3.81s）；代码库256轮连续清洁，HOF第211轮连续确认；TSC_EXIT:0；教训#24/25第226次连续验证；bundle: 1464.92KB；网络从上轮TLS错误恢复正常，代理预推送后台启动完成
+123. 【迭代271新增】第347轮代理预推送Everything up-to-date（PROXY_PUSH:0），git log origin/main=ecd5df9=本地HEAD；BUILD: ✓ built in 8.82s；代码库257轮连续清洁，HOF第212轮连续确认；TSC_EXIT:0；教训#24/25第227次连续验证；bundle: 1464.92KB；网络继续正常，代理预推送后台启动同时并行所有检查
+124. 【迭代272新增】第348轮代理预推送Everything up-to-date（PROXY_PUSH:0），git log origin/main=0154ccc=本地HEAD；BUILD_EXIT:0（✓ built in 4.55s）；代码库258轮连续清洁，HOF第213轮连续确认；TSC_EXIT:0；教训#24/25第228次连续验证；bundle: 1464.92KB；网络继续正常，代理预推送后台启动同时并行所有检查
+125. 【迭代273新增】第349轮代理预推送Everything up-to-date（PROXY_PUSH:0），git log origin/main=3f5e28c=本地HEAD；BUILD_EXIT:0（✓ built in 3.58s）；代码库259轮连续清洁，HOF第214轮连续确认；TSC_EXIT:0；教训#24/25第229次连续验证；bundle: 1464.92KB；网络继续正常，代理预推送后台启动同时并行所有检查
+126. 【迭代274新增】第350轮代理预推送Everything up-to-date（PROXY_PUSH:0），git log origin/main=cf68b63=本地HEAD；BUILD_EXIT:0（✓ built in 3.28s）；代码库260轮连续清洁（里程碑！），HOF第215轮连续确认；TSC_EXIT:0；教训#24/25第230次连续验证（里程碑！）；bundle: 1464.92KB；网络继续正常，代理预推送后台启动同时并行所有检查
+127. 【迭代275新增】第351轮代理TLS错误（PROXY_PUSH:128，OpenSSL unexpected eof）→直连TLS错误（DIRECT_PUSH:128）=网络中断；git log origin/main=d1e002b=本地HEAD（积压已清零）；BUILD_EXIT:0（✓ built in 2.98s）；代码库261轮连续清洁，HOF第216轮连续确认；TSC_EXIT:0；教训#24/25第231次连续验证；bundle: 1464.92KB；两者均TLS失败=网络中断，下轮代理预推送应自动恢复（与教训#36/47/50/59一致）
+128. 【迭代276新增】第352轮代理预推送Everything up-to-date（PROXY_PUSH:0），git log origin/main=db7d55d=本地HEAD，网络从上轮TLS中断立即恢复正常；BUILD_EXIT:0（✓ built in 3.18s）；代码库262轮连续清洁，HOF第217轮连续确认；TSC_EXIT:0；教训#24/25第232次连续验证；bundle: 1464.92KB；网络中断后自动恢复（与教训#36/47/50/59一致）
 
-迭代轮次: 74/100
+迭代轮次: 81/100
 
 
 🔄 自我进化（每轮必做）：
@@ -202,6 +203,6 @@ bundle: 1464.92KB
   "notes": "本轮做了什么、发现了什么问题、下轮应该做什么",
   "priorities": "根据当前项目状态，你认为最重要的 3-5 个待办事项",
   "lessons": "积累的经验教训，比如哪些方法有效、哪些坑要避开",
-  "last_updated": "2026-03-02T16:24:07+08:00"
+  "last_updated": "2026-03-02T18:14:24+08:00"
 }
 这个文件是你的记忆，下一轮的你会读到它。写有价值的内容，帮助未来的自己更高效。
