@@ -13,11 +13,24 @@ interface BrushPreset {
   gradientBrush: boolean;
 }
 
+export interface SaveSlotMeta {
+  slot: number;
+  time: number;
+  particles: number;
+  thumb?: string;
+}
+
 export interface ToolbarCallbacks {
   onPause: () => void;
   onClear: () => void;
   onSave: () => void;
   onLoad: () => void;
+  /** 保存到指定槽位（0-2） */
+  onSaveSlot?: (slot: number) => void;
+  /** 从指定槽位载入 */
+  onLoadSlot?: (slot: number) => void;
+  /** 获取3个存档槽的元数据 */
+  getSaveSlotMeta?: () => Array<SaveSlotMeta | null>;
   onUndo: () => void;
   onRedo: () => void;
   onToggleTempOverlay: () => void;
@@ -121,8 +134,16 @@ export class Toolbar {
   private densityMapBtn!: HTMLButtonElement;
   private ageOverlayBtn!: HTMLButtonElement;
   private hotkeyBarEl!: HTMLElement;
-  /** 存档缩略图 */
+  /** 存档缩略图（旧单槽，保留兼容） */
   private saveThumbImg!: HTMLImageElement;
+  /** 3槽存档UI容器 */
+  private saveSlotEls: Array<{
+    el: HTMLElement;
+    thumbImg: HTMLImageElement;
+    timeEl: HTMLSpanElement;
+    saveBtn: HTMLButtonElement;
+    loadBtn: HTMLButtonElement;
+  }> = [];
   /** 材质选择回调（用于通知外部记录使用历史等） */
   onMaterialSelect?: (matId: number) => void;
   /** 粒子计数更新帧计数器（每10帧更新一次，避免每帧全量遍历） */
@@ -170,7 +191,7 @@ export class Toolbar {
     this.eraserBtn.classList.toggle('active', this.input.getMaterial() === 0);
   }
 
-  /** 刷新存档缩略图 */
+  /** 刷新存档缩略图（旧单槽，保留兼容） */
   refreshSaveThumbnail(): void {
     const thumb = localStorage.getItem('particleworld-save-thumb');
     if (thumb) {
@@ -181,10 +202,52 @@ export class Toolbar {
     }
   }
 
+  /** 刷新3个存档槽的显示 */
+  refreshSaveSlots(): void {
+    const metas = this.callbacks.getSaveSlotMeta?.() ?? [null, null, null];
+    for (let i = 0; i < 3; i++) {
+      const s = this.saveSlotEls[i];
+      if (!s) continue;
+      const meta = metas[i];
+      if (meta) {
+        s.loadBtn.disabled = false;
+        const d = new Date(meta.time);
+        s.timeEl.textContent = `${d.getMonth()+1}/${d.getDate()} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')} (${meta.particles}粒子)`;
+        if (meta.thumb) {
+          s.thumbImg.src = meta.thumb;
+          s.thumbImg.style.display = '';
+        } else {
+          s.thumbImg.style.display = 'none';
+        }
+      } else {
+        s.loadBtn.disabled = true;
+        s.timeEl.textContent = '（空）';
+        s.thumbImg.style.display = 'none';
+      }
+    }
+  }
+
   /** 聚焦搜索框 (Ctrl+F) */
   focusSearch(): void {
     this.searchInput.focus();
     this.searchInput.select();
+  }
+
+  /** 显示短暂提示Toast */
+  showToast(msg: string): void {
+    let toast = document.getElementById('pw-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'pw-toast';
+      toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.8);color:#fff;padding:6px 16px;border-radius:16px;font-size:13px;z-index:9999;pointer-events:none;transition:opacity 0.3s;';
+      document.body.appendChild(toast);
+    }
+    toast.textContent = msg;
+    toast.style.opacity = '1';
+    clearTimeout((toast as any)._timer);
+    (toast as any)._timer = setTimeout(() => {
+      if (toast) toast.style.opacity = '0';
+    }, 1500);
   }
 
   /** 刷新笔刷大小显示 */
@@ -1125,41 +1188,81 @@ export class Toolbar {
     btnRow.appendChild(clearBtn);
     controlPanel.appendChild(btnRow);
 
-    // 存档按钮行
-    const saveRow = document.createElement('div');
-    saveRow.className = 'control-row';
+    // 3槽存档区域
+    const saveSlotsLabel = document.createElement('div');
+    saveSlotsLabel.className = 'control-label';
+    saveSlotsLabel.textContent = '存档槽';
+    saveSlotsLabel.style.fontSize = '11px';
+    saveSlotsLabel.style.color = '#aaa';
+    saveSlotsLabel.style.marginBottom = '4px';
+    controlPanel.appendChild(saveSlotsLabel);
 
-    const saveBtn = document.createElement('button');
-    saveBtn.className = 'ctrl-btn';
-    saveBtn.textContent = '保存';
-    saveBtn.addEventListener('click', () => this.callbacks.onSave());
+    this.saveSlotEls = [];
+    for (let slot = 0; slot < 3; slot++) {
+      const slotEl = document.createElement('div');
+      slotEl.className = 'save-slot';
+      slotEl.style.cssText = 'display:flex;align-items:center;gap:4px;margin-bottom:4px;padding:4px;background:#222;border-radius:4px;border:1px solid #333;';
 
-    const loadBtn = document.createElement('button');
-    loadBtn.className = 'ctrl-btn';
-    loadBtn.textContent = '加载';
-    loadBtn.addEventListener('click', () => this.callbacks.onLoad());
+      // 缩略图
+      const thumbImg = document.createElement('img');
+      thumbImg.style.cssText = 'width:48px;height:36px;border-radius:3px;border:1px solid #444;image-rendering:pixelated;flex-shrink:0;';
+      thumbImg.alt = `槽${slot+1}`;
+      thumbImg.style.display = 'none';
 
-    saveRow.appendChild(saveBtn);
-    saveRow.appendChild(loadBtn);
-    controlPanel.appendChild(saveRow);
+      // 槽信息列
+      const infoCol = document.createElement('div');
+      infoCol.style.cssText = 'flex:1;min-width:0;';
+      const slotTitle = document.createElement('div');
+      slotTitle.textContent = `槽 ${slot + 1}`;
+      slotTitle.style.cssText = 'font-size:11px;font-weight:bold;color:#ddd;';
+      const timeEl = document.createElement('span');
+      timeEl.style.cssText = 'font-size:10px;color:#888;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+      timeEl.textContent = '（空）';
+      infoCol.appendChild(slotTitle);
+      infoCol.appendChild(timeEl);
 
-    // 存档缩略图预览
-    const thumbRow = document.createElement('div');
-    thumbRow.className = 'control-row';
-    thumbRow.style.justifyContent = 'center';
+      // 按钮列
+      const btnCol = document.createElement('div');
+      btnCol.style.cssText = 'display:flex;flex-direction:column;gap:2px;';
+      const saveBtn = document.createElement('button');
+      saveBtn.className = 'ctrl-btn';
+      saveBtn.textContent = '存';
+      saveBtn.title = `保存到槽${slot+1}`;
+      saveBtn.style.cssText = 'padding:2px 6px;font-size:10px;';
+      const loadBtn = document.createElement('button');
+      loadBtn.className = 'ctrl-btn';
+      loadBtn.textContent = '读';
+      loadBtn.title = `从槽${slot+1}载入`;
+      loadBtn.style.cssText = 'padding:2px 6px;font-size:10px;';
+      loadBtn.disabled = true;
+
+      const slotIndex = slot;
+      saveBtn.addEventListener('click', () => {
+        this.callbacks.onSaveSlot?.(slotIndex);
+        setTimeout(() => this.refreshSaveSlots(), 50);
+      });
+      loadBtn.addEventListener('click', () => {
+        this.callbacks.onLoadSlot?.(slotIndex);
+      });
+
+      btnCol.appendChild(saveBtn);
+      btnCol.appendChild(loadBtn);
+
+      slotEl.appendChild(thumbImg);
+      slotEl.appendChild(infoCol);
+      slotEl.appendChild(btnCol);
+      controlPanel.appendChild(slotEl);
+
+      this.saveSlotEls.push({ el: slotEl, thumbImg, timeEl, saveBtn, loadBtn });
+    }
+
+    // 兼容老的单槽存档（隐藏，但保留接口）
     this.saveThumbImg = document.createElement('img');
-    this.saveThumbImg.className = 'save-thumbnail';
-    this.saveThumbImg.alt = '存档预览';
     this.saveThumbImg.style.display = 'none';
-    this.saveThumbImg.style.width = '80px';
-    this.saveThumbImg.style.height = '60px';
-    this.saveThumbImg.style.borderRadius = '4px';
-    this.saveThumbImg.style.border = '1px solid #555';
-    this.saveThumbImg.style.imageRendering = 'pixelated';
-    thumbRow.appendChild(this.saveThumbImg);
-    controlPanel.appendChild(thumbRow);
-    // 初始加载缩略图
-    this.refreshSaveThumbnail();
+    document.body.appendChild(this.saveThumbImg);
+
+    // 初始刷新存档槽
+    this.refreshSaveSlots();
 
     // 导出/导入文件按钮行
     const fileRow = document.createElement('div');
@@ -1602,7 +1705,23 @@ export class Toolbar {
     this.container.appendChild(helpDiv);
     const keysDiv = document.createElement('div');
     keysDiv.className = 'control-row stats';
-    keysDiv.textContent = 'Space 暂停 · 1~0 材质 · [] 笔刷 · B 形状 · D 密度 · G 渐变 · N 混合 · V 反重力 · F 填充 · X 替换 · R 随机 · M 镜像 · I 选区 · W 天气 · S 统计 · -/= 速度';
+    keysDiv.style.lineHeight = '1.6';
+    keysDiv.style.fontSize = '10px';
+    const keyGroups = [
+      ['基础操作', 'Space 暂停/继续 · . 单步执行(暂停时) · -/= 速度(0.25x~4x) · [] 笔刷大小'],
+      ['绘制模式', 'B 笔刷形状 · F 填充 · X 替换 · R 随机 · M 镜像 · G 渐变 · N 混合 · I 选区'],
+      ['视图叠加', 'T 温度 · D 密度热力图 · A 年龄 · V 反重力 · W 天气 · H 百科'],
+      ['快捷选材', '1~0 选材质 · Q 轮盘菜单 · K 场景预设 · S 统计面板'],
+    ];
+    for (const [title, keys] of keyGroups) {
+      const titleEl = document.createElement('b');
+      titleEl.textContent = title;
+      keysDiv.appendChild(titleEl);
+      keysDiv.appendChild(document.createElement('br'));
+      const textEl = document.createTextNode(keys);
+      keysDiv.appendChild(textEl);
+      keysDiv.appendChild(document.createElement('br'));
+    }
     this.container.appendChild(keysDiv);
 
     // 监听滚轮笔刷变化同步滑块

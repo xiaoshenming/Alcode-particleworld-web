@@ -260,14 +260,162 @@ function generateLab(world: World): void {
   scatter(world, 0, 5, W - 1, 30, 28, 0.005);
 }
 
+/** 场景：暴风雨 —— 闪电+雨水+萤火虫 */
+function generateStorm(world: World): void {
+  const W = world.width, H = world.height;
+  world.clear();
+
+  // 地面：泥土+草地
+  fillRect(world, 0, H - 12, W - 1, H - 1, 20);
+  fillRect(world, 0, H - 14, W - 1, H - 13, 49); // 苔藓草地
+
+  // 水坑
+  fillRect(world, 60, H - 13, 100, H - 13, 2);
+  fillRect(world, 130, H - 13, 170, H - 13, 2);
+
+  // 树木（大量，暴风中的森林）
+  for (let i = 0; i < 10; i++) {
+    const tx = 8 + Math.floor(i * (W - 16) / 9);
+    const treeH = 18 + Math.floor(Math.random() * 12);
+    for (let dy = 0; dy < treeH; dy++) {
+      const y = H - 14 - dy;
+      if (world.inBounds(tx, y)) world.set(tx, y, 4);
+    }
+    const crownR = 4 + Math.floor(Math.random() * 3);
+    fillCircle(world, tx, H - 14 - treeH, crownR, 13);
+  }
+
+  // 闪电：从天空随机几道
+  for (let i = 0; i < 3; i++) {
+    const lx = 20 + Math.floor(Math.random() * (W - 40));
+    let ly = 5;
+    while (ly < H - 20) {
+      if (world.inBounds(lx, ly)) world.set(lx, ly, 16);
+      ly += 1 + Math.floor(Math.random() * 2);
+    }
+  }
+
+  // 大量雨水（从天空散布）
+  scatter(world, 0, 0, W - 1, H - 20, 2, 0.04);
+
+  // 萤火虫（雨夜发光）
+  scatter(world, 0, H - 30, W - 1, H - 15, 52, 0.008);
+
+  // 风：设置向右的轻风
+  world.setWind(1, 0.3);
+}
+
+/** 场景：末日火山 —— 火山+熔岩雨+烟雾 */
+function generateApocalypse(world: World): void {
+  const W = world.width, H = world.height;
+  world.clear();
+
+  // 岩石地面
+  fillRect(world, 0, H - 10, W - 1, H - 1, 3);
+  // 表面熔岩池
+  fillRect(world, 20, H - 11, 60, H - 11, 11);
+  fillRect(world, 130, H - 11, 170, H - 11, 11);
+
+  // 主火山
+  const baseL = 40, baseR = 160, topL = 82, topR = 118;
+  const baseY = H - 10, topY = H - 65;
+  for (let y = baseY; y >= topY; y--) {
+    const t = (baseY - y) / (baseY - topY);
+    const left = Math.round(baseL + (topL - baseL) * t);
+    const right = Math.round(baseR + (topR - baseR) * t);
+    fillRect(world, left, y, right, y, 3);
+  }
+  // 火山口
+  fillRect(world, 86, topY - 3, 114, topY, 11);
+  // 内部熔岩
+  fillRect(world, 90, topY, 110, baseY - 6, 11);
+
+  // 天空中散布大量熔岩弹（火山喷射）
+  scatter(world, topL - 10, 0, topR + 10, topY - 10, 11, 0.03);
+  scatter(world, 0, 10, W - 1, 30, 7, 0.15); // 浓烟笼罩
+
+  // 地面散布火花
+  scatter(world, 0, H - 15, W - 1, H - 12, 28, 0.03);
+  // 极高温
+  world.setWind(0, 0);
+}
+
+/** 场景：城市 —— 建筑物+水管+电线 */
+function generateCity(world: World): void {
+  const W = world.width, H = world.height;
+  world.clear();
+
+  // 地面：混凝土
+  fillRect(world, 0, H - 8, W - 1, H - 1, 36);
+  // 地下管道层：水
+  fillRect(world, 0, H - 4, W - 1, H - 4, 2);
+
+  // 建筑物（用金属+混凝土模拟）
+  const buildings = [
+    { x: 5, w: 20, h: 50 },
+    { x: 30, w: 15, h: 35 },
+    { x: 50, w: 25, h: 60 },
+    { x: 82, w: 20, h: 45 },
+    { x: 107, w: 30, h: 70 },
+    { x: 142, w: 22, h: 40 },
+    { x: 170, w: 18, h: 55 },
+  ];
+  for (const b of buildings) {
+    // 建筑主体：混凝土
+    fillRect(world, b.x, H - 8 - b.h, b.x + b.w, H - 8, 36);
+    // 建筑外墙：金属框架
+    fillRect(world, b.x, H - 8 - b.h, b.x + 1, H - 8, 10);
+    fillRect(world, b.x + b.w - 1, H - 8 - b.h, b.x + b.w, H - 8, 10);
+    fillRect(world, b.x, H - 8 - b.h, b.x + b.w, H - 8 - b.h + 1, 10);
+    // 楼层分隔线
+    for (let floor = 8; floor < b.h; floor += 8) {
+      fillRect(world, b.x + 1, H - 8 - floor, b.x + b.w - 1, H - 8 - floor, 10);
+    }
+    // 楼顶：玻璃
+    fillRect(world, b.x + 2, H - 8 - b.h - 1, b.x + b.w - 2, H - 8 - b.h - 1, 17);
+  }
+
+  // 烟囱（工厂烟雾）
+  for (let i = 0; i < 3; i++) {
+    const cx = 15 + Math.floor(i * (W / 3));
+    fillRect(world, cx, H - 70, cx + 2, H - 55, 10);
+    scatter(world, cx - 3, H - 80, cx + 5, H - 68, 7, 0.3);
+  }
+
+  // 电线杆（电线）
+  for (let i = 0; i < 5; i++) {
+    const wx = 20 + i * 35;
+    for (let dy = 0; dy < 15; dy++) {
+      if (world.inBounds(wx, H - 8 - dy)) world.set(wx, H - 8 - dy, 10);
+    }
+    // 横向电线
+    if (i < 4) {
+      for (let dx = 0; dx <= 35; dx++) {
+        if (world.inBounds(wx + dx, H - 22)) world.set(wx + dx, H - 22, 44);
+      }
+    }
+  }
+
+  // 道路（空气带，两侧有光源）
+  fillRect(world, 22, H - 8, 30, H - 8, 20);
+  fillRect(world, 45, H - 8, 50, H - 8, 20);
+
+  // 天空中散布微量尘埃
+  scatter(world, 0, 5, W - 1, H - 80, 7, 0.002);
+  world.setWind(0, 0);
+}
+
 /** 所有预设场景 */
 export const SCENE_PRESETS: ScenePreset[] = [
   { name: '火山', icon: '🌋', description: '熔岩喷发的火山场景', generate: generateVolcano },
   { name: '海洋', icon: '🌊', description: '深海珊瑚与水草', generate: generateOcean },
+  { name: '城市', icon: '🏙️', description: '混凝土建筑+电线+工业烟雾', generate: generateCity },
   { name: '森林', icon: '🌲', description: '茂密的森林与萤火虫', generate: generateForest },
   { name: '沙漠', icon: '🏜️', description: '起伏的沙丘与沙尘暴', generate: generateDesert },
   { name: '冰原', icon: '❄️', description: '冰山与飘雪的极地', generate: generateIcefield },
   { name: '实验室', icon: '🧪', description: '化学容器与反应实验', generate: generateLab },
+  { name: '暴风雨', icon: '⛈️', description: '闪电+暴雨+萤火虫夜晚', generate: generateStorm },
+  { name: '末日火山', icon: '🔥', description: '末日熔岩雨与火山喷发', generate: generateApocalypse },
 ];
 
 /**

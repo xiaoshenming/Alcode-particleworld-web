@@ -1485,6 +1485,8 @@ let trackTrail: Array<{x: number; y: number}> = [];
 const TRACK_MAX_TRAIL = 120;
 
 const SAVE_KEY = 'particleworld-save';
+/** 3个手动存档槽的键名前缀 */
+const MANUAL_SLOT_KEY = 'particleworld-slot';
 
 // 自动保存系统
 const AUTOSAVE_KEY = 'particleworld-autosave';
@@ -1534,6 +1536,43 @@ function getAutosaveSlots(): Array<{slot: number; time: number; particles: numbe
     } catch { slots.push(null); }
   }
   return slots;
+}
+
+/** 保存到手动存档槽（0-2） */
+function saveToSlot(slot: number): void {
+  const data = world.save();
+  localStorage.setItem(`${MANUAL_SLOT_KEY}-${slot}`, data);
+  // 生成缩略图
+  const thumbCanvas = document.createElement('canvas');
+  thumbCanvas.width = 64;
+  thumbCanvas.height = 48;
+  const ctx = thumbCanvas.getContext('2d')!;
+  ctx.drawImage(canvas, 0, 0, 64, 48);
+  const thumb = thumbCanvas.toDataURL('image/png', 0.6);
+  const meta = { slot, time: Date.now(), particles: world.getParticleCount(), thumb };
+  localStorage.setItem(`${MANUAL_SLOT_KEY}-meta-${slot}`, JSON.stringify(meta));
+}
+
+/** 从手动存档槽载入（0-2），返回是否成功 */
+function loadFromSlot(slot: number): boolean {
+  const data = localStorage.getItem(`${MANUAL_SLOT_KEY}-${slot}`);
+  if (!data) return false;
+  world.load(data);
+  clearAntStates();
+  clearAllPortals();
+  return true;
+}
+
+/** 获取3个手动存档槽元数据 */
+function getManualSlotMetas(): Array<{slot: number; time: number; particles: number; thumb?: string} | null> {
+  const result: Array<{slot: number; time: number; particles: number; thumb?: string} | null> = [];
+  for (let i = 0; i < 3; i++) {
+    try {
+      const raw = localStorage.getItem(`${MANUAL_SLOT_KEY}-meta-${i}`);
+      result.push(raw ? JSON.parse(raw) : null);
+    } catch { result.push(null); }
+  }
+  return result;
 }
 
 /** 从指定槽位恢复自动保存 */
@@ -1596,6 +1635,14 @@ const toolbar = new Toolbar(input, {
     const data = localStorage.getItem(SAVE_KEY);
     if (data) { world.load(data); clearAntStates(); clearAllPortals(); }
   },
+  onSaveSlot: (slot: number) => {
+    saveToSlot(slot);
+    toolbar.refreshSaveSlots();
+  },
+  onLoadSlot: (slot: number) => {
+    loadFromSlot(slot);
+  },
+  getSaveSlotMeta: () => getManualSlotMetas(),
   onUndo: () => {
     const snapshot = history.undo();
     if (snapshot) { world.restoreFromSnapshot(snapshot); clearAntStates(); clearAllPortals(); }
@@ -1833,6 +1880,26 @@ document.addEventListener('keydown', (e) => {
       radialMenu.recordUsage(matId);
       toolbar.refreshMaterialSelection();
     });
+    return;
+  }
+
+  // Ctrl+1/2/3 保存到存档槽，Ctrl+Shift+1/2/3 从存档槽读取
+  if ((e.ctrlKey || e.metaKey) && ['Digit1','Digit2','Digit3'].includes(e.code)) {
+    e.preventDefault();
+    const slot = parseInt(e.code.replace('Digit','')) - 1;
+    if (e.shiftKey) {
+      // 读取
+      const ok = loadFromSlot(slot);
+      if (ok) {
+        toolbar.refreshSaveSlots();
+        toolbar.showToast?.(`已从槽${slot+1}载入`);
+      }
+    } else {
+      // 保存
+      saveToSlot(slot);
+      toolbar.refreshSaveSlots();
+      toolbar.showToast?.(`已保存到槽${slot+1}`);
+    }
     return;
   }
 
