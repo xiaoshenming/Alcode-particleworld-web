@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -38,33 +37,49 @@ export const PhotoacousticMaterial: MaterialDef = {
     return (0xFF << 24) | (b << 16) | (g << 8) | r;
   },
   update(x: number, y: number, world: WorldAPI) {
-    const dirs = DIRS4;
-
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-
-      // 接触火燃烧变为烟
-      if (nid === 6 && Math.random() < 0.08) {
-        world.set(x, y, 7); // 烟
-        world.wakeArea(x, y);
-        return;
-      }
-
-      // 接触激光/火花时释放热脉冲（光声效应）
+    // 检查邻居（4方向显式展开，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1; const nid = world.get(nx, ny);
+      if (nid === 6 && Math.random() < 0.08) { world.set(x, y, 7); world.wakeArea(x, y); return; }
       if ((nid === 47 || nid === 28) && Math.random() < 0.1) {
-        // 向四周释放热量
-        for (const [hx, hy] of dirs) {
-          const tx = x + hx, ty = y + hy;
-          if (world.inBounds(tx, ty)) {
-            world.addTemp(tx, ty, 40);
-            world.wakeArea(tx, ty);
-          }
-        }
-        world.addTemp(x, y, 20);
-        world.wakeArea(x, y);
-        return;
+        if (world.inBounds(x, y - 1)) { world.addTemp(x, y - 1, 40); world.wakeArea(x, y - 1); }
+        if (world.inBounds(x, y + 1)) { world.addTemp(x, y + 1, 40); world.wakeArea(x, y + 1); }
+        if (world.inBounds(x - 1, y)) { world.addTemp(x - 1, y, 40); world.wakeArea(x - 1, y); }
+        if (world.inBounds(x + 1, y)) { world.addTemp(x + 1, y, 40); world.wakeArea(x + 1, y); }
+        world.addTemp(x, y, 20); world.wakeArea(x, y); return;
+      }
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1; const nid = world.get(nx, ny);
+      if (nid === 6 && Math.random() < 0.08) { world.set(x, y, 7); world.wakeArea(x, y); return; }
+      if ((nid === 47 || nid === 28) && Math.random() < 0.1) {
+        if (world.inBounds(x, y - 1)) { world.addTemp(x, y - 1, 40); world.wakeArea(x, y - 1); }
+        if (world.inBounds(x, y + 1)) { world.addTemp(x, y + 1, 40); world.wakeArea(x, y + 1); }
+        if (world.inBounds(x - 1, y)) { world.addTemp(x - 1, y, 40); world.wakeArea(x - 1, y); }
+        if (world.inBounds(x + 1, y)) { world.addTemp(x + 1, y, 40); world.wakeArea(x + 1, y); }
+        world.addTemp(x, y, 20); world.wakeArea(x, y); return;
+      }
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y; const nid = world.get(nx, ny);
+      if (nid === 6 && Math.random() < 0.08) { world.set(x, y, 7); world.wakeArea(x, y); return; }
+      if ((nid === 47 || nid === 28) && Math.random() < 0.1) {
+        if (world.inBounds(x, y - 1)) { world.addTemp(x, y - 1, 40); world.wakeArea(x, y - 1); }
+        if (world.inBounds(x, y + 1)) { world.addTemp(x, y + 1, 40); world.wakeArea(x, y + 1); }
+        if (world.inBounds(x - 1, y)) { world.addTemp(x - 1, y, 40); world.wakeArea(x - 1, y); }
+        if (world.inBounds(x + 1, y)) { world.addTemp(x + 1, y, 40); world.wakeArea(x + 1, y); }
+        world.addTemp(x, y, 20); world.wakeArea(x, y); return;
+      }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y; const nid = world.get(nx, ny);
+      if (nid === 6 && Math.random() < 0.08) { world.set(x, y, 7); world.wakeArea(x, y); return; }
+      if ((nid === 47 || nid === 28) && Math.random() < 0.1) {
+        if (world.inBounds(x, y - 1)) { world.addTemp(x, y - 1, 40); world.wakeArea(x, y - 1); }
+        if (world.inBounds(x, y + 1)) { world.addTemp(x, y + 1, 40); world.wakeArea(x, y + 1); }
+        if (world.inBounds(x - 1, y)) { world.addTemp(x - 1, y, 40); world.wakeArea(x - 1, y); }
+        if (world.inBounds(x + 1, y)) { world.addTemp(x + 1, y, 40); world.wakeArea(x + 1, y); }
+        world.addTemp(x, y, 20); world.wakeArea(x, y); return;
       }
     }
 

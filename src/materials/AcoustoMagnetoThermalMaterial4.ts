@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -24,49 +23,66 @@ export const AcoustoMagnetoThermalMaterial4: MaterialDef = {
   update(x: number, y: number, world: WorldAPI) {
     const temp = world.getTemp(x, y);
 
-    const dirs = DIRS4;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-
-      // 酸液溶解
-      if (nid === 9 && Math.random() < 0.0005) {
-        world.set(x, y, 0);
-        world.wakeArea(x, y);
-        return;
-      }
-
-      // 声波产生磁效应和热效应
+    // 检查邻居（4方向显式展开，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1; const nid = world.get(nx, ny);
+      if (nid === 9 && Math.random() < 0.0005) { world.set(x, y, 0); world.wakeArea(x, y); return; }
       if (nid !== 0 && Math.random() < 0.05) {
-        // 磁效应：生成火花在空位
         if (Math.random() < 0.03) {
-          for (const [sdx, sdy] of dirs) {
-            const sx = x + sdx, sy = y + sdy;
-            if (world.inBounds(sx, sy) && world.get(sx, sy) === 0) {
-              world.set(sx, sy, 28);
-              world.wakeArea(sx, sy);
-              break;
-            }
-          }
+          let sparked = false;
+          if (!sparked && world.inBounds(x, y - 1) && world.get(x, y - 1) === 0) { world.set(x, y - 1, 28); world.wakeArea(x, y - 1); sparked = true; }
+          if (!sparked && world.inBounds(x, y + 1) && world.get(x, y + 1) === 0) { world.set(x, y + 1, 28); world.wakeArea(x, y + 1); sparked = true; }
+          if (!sparked && world.inBounds(x - 1, y) && world.get(x - 1, y) === 0) { world.set(x - 1, y, 28); world.wakeArea(x - 1, y); sparked = true; }
+          if (!sparked && world.inBounds(x + 1, y) && world.get(x + 1, y) === 0) { world.set(x + 1, y, 28); world.wakeArea(x + 1, y); }
         }
-
-        // 热效应：轻微升温
-        if (Math.random() < 0.02) {
-          world.addTemp(x, y, 5);
-          world.wakeArea(x, y);
-        }
+        if (Math.random() < 0.02) { world.addTemp(x, y, 5); world.wakeArea(x, y); }
       }
-
-      // 热传导
-      if (nid !== 0 && Math.random() < 0.06) {
-        const nt = world.getTemp(nx, ny);
-        if (Math.abs(temp - nt) > 5) {
-          const diff = (nt - temp) * 0.07;
-          world.addTemp(x, y, diff);
-          world.addTemp(nx, ny, -diff);
+      if (nid !== 0 && Math.random() < 0.06) { const nt = world.getTemp(nx, ny); if (Math.abs(temp - nt) > 5) { const diff = (nt - temp) * 0.07; world.addTemp(x, y, diff); world.addTemp(nx, ny, -diff); } }
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1; const nid = world.get(nx, ny);
+      if (nid === 9 && Math.random() < 0.0005) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+      if (nid !== 0 && Math.random() < 0.05) {
+        if (Math.random() < 0.03) {
+          let sparked = false;
+          if (!sparked && world.inBounds(x, y - 1) && world.get(x, y - 1) === 0) { world.set(x, y - 1, 28); world.wakeArea(x, y - 1); sparked = true; }
+          if (!sparked && world.inBounds(x, y + 1) && world.get(x, y + 1) === 0) { world.set(x, y + 1, 28); world.wakeArea(x, y + 1); sparked = true; }
+          if (!sparked && world.inBounds(x - 1, y) && world.get(x - 1, y) === 0) { world.set(x - 1, y, 28); world.wakeArea(x - 1, y); sparked = true; }
+          if (!sparked && world.inBounds(x + 1, y) && world.get(x + 1, y) === 0) { world.set(x + 1, y, 28); world.wakeArea(x + 1, y); }
         }
+        if (Math.random() < 0.02) { world.addTemp(x, y, 5); world.wakeArea(x, y); }
       }
+      if (nid !== 0 && Math.random() < 0.06) { const nt = world.getTemp(nx, ny); if (Math.abs(temp - nt) > 5) { const diff = (nt - temp) * 0.07; world.addTemp(x, y, diff); world.addTemp(nx, ny, -diff); } }
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y; const nid = world.get(nx, ny);
+      if (nid === 9 && Math.random() < 0.0005) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+      if (nid !== 0 && Math.random() < 0.05) {
+        if (Math.random() < 0.03) {
+          let sparked = false;
+          if (!sparked && world.inBounds(x, y - 1) && world.get(x, y - 1) === 0) { world.set(x, y - 1, 28); world.wakeArea(x, y - 1); sparked = true; }
+          if (!sparked && world.inBounds(x, y + 1) && world.get(x, y + 1) === 0) { world.set(x, y + 1, 28); world.wakeArea(x, y + 1); sparked = true; }
+          if (!sparked && world.inBounds(x - 1, y) && world.get(x - 1, y) === 0) { world.set(x - 1, y, 28); world.wakeArea(x - 1, y); sparked = true; }
+          if (!sparked && world.inBounds(x + 1, y) && world.get(x + 1, y) === 0) { world.set(x + 1, y, 28); world.wakeArea(x + 1, y); }
+        }
+        if (Math.random() < 0.02) { world.addTemp(x, y, 5); world.wakeArea(x, y); }
+      }
+      if (nid !== 0 && Math.random() < 0.06) { const nt = world.getTemp(nx, ny); if (Math.abs(temp - nt) > 5) { const diff = (nt - temp) * 0.07; world.addTemp(x, y, diff); world.addTemp(nx, ny, -diff); } }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y; const nid = world.get(nx, ny);
+      if (nid === 9 && Math.random() < 0.0005) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+      if (nid !== 0 && Math.random() < 0.05) {
+        if (Math.random() < 0.03) {
+          let sparked = false;
+          if (!sparked && world.inBounds(x, y - 1) && world.get(x, y - 1) === 0) { world.set(x, y - 1, 28); world.wakeArea(x, y - 1); sparked = true; }
+          if (!sparked && world.inBounds(x, y + 1) && world.get(x, y + 1) === 0) { world.set(x, y + 1, 28); world.wakeArea(x, y + 1); sparked = true; }
+          if (!sparked && world.inBounds(x - 1, y) && world.get(x - 1, y) === 0) { world.set(x - 1, y, 28); world.wakeArea(x - 1, y); sparked = true; }
+          if (!sparked && world.inBounds(x + 1, y) && world.get(x + 1, y) === 0) { world.set(x + 1, y, 28); world.wakeArea(x + 1, y); }
+        }
+        if (Math.random() < 0.02) { world.addTemp(x, y, 5); world.wakeArea(x, y); }
+      }
+      if (nid !== 0 && Math.random() < 0.06) { const nt = world.getTemp(nx, ny); if (Math.abs(temp - nt) > 5) { const diff = (nt - temp) * 0.07; world.addTemp(x, y, diff); world.addTemp(nx, ny, -diff); } }
     }
   },
 };

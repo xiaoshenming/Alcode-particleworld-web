@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -65,64 +64,54 @@ export const Mushroom: MaterialDef = {
     // 低温休眠（不生长不释放孢子）
     if (temp < 0) return;
 
-    // 邻居交互
-    const dirs = DIRS4;
+    // 邻居交互（4方向显式展开，无HOF）
     let hasMoisture = false;
     let hasSubstrate = false;
-
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-
-      // 遇火燃烧
-      if (IGNITORS.has(nid)) {
-        world.set(x, y, 6); // 火
-        world.wakeArea(x, y);
-        return;
-      }
-
-      // 酸液腐蚀
-      if (nid === 9 && Math.random() < 0.1) {
-        world.set(x, y, 0);
-        world.wakeArea(x, y);
-        return;
-      }
-
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1; const nid = world.get(nx, ny);
+      if (IGNITORS.has(nid)) { world.set(x, y, 6); world.wakeArea(x, y); return; }
+      if (nid === 9 && Math.random() < 0.1) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+      if (MOISTURE.has(nid)) hasMoisture = true;
+      if (SUBSTRATE.has(nid)) hasSubstrate = true;
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1; const nid = world.get(nx, ny);
+      if (IGNITORS.has(nid)) { world.set(x, y, 6); world.wakeArea(x, y); return; }
+      if (nid === 9 && Math.random() < 0.1) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+      if (MOISTURE.has(nid)) hasMoisture = true;
+      if (SUBSTRATE.has(nid)) hasSubstrate = true;
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y; const nid = world.get(nx, ny);
+      if (IGNITORS.has(nid)) { world.set(x, y, 6); world.wakeArea(x, y); return; }
+      if (nid === 9 && Math.random() < 0.1) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+      if (MOISTURE.has(nid)) hasMoisture = true;
+      if (SUBSTRATE.has(nid)) hasSubstrate = true;
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y; const nid = world.get(nx, ny);
+      if (IGNITORS.has(nid)) { world.set(x, y, 6); world.wakeArea(x, y); return; }
+      if (nid === 9 && Math.random() < 0.1) { world.set(x, y, 0); world.wakeArea(x, y); return; }
       if (MOISTURE.has(nid)) hasMoisture = true;
       if (SUBSTRATE.has(nid)) hasSubstrate = true;
     }
 
-    // 潮湿环境中生长
+    // 潮湿环境中生长（transmuted布尔模拟随机起始找空格）
     if (hasMoisture && Math.random() < 0.008) {
-      const start = Math.floor(Math.random() * dirs.length);
-      for (let i = 0; i < dirs.length; i++) {
-        const [dx, dy] = dirs[(start + i) % dirs.length];
-        const nx = x + dx, ny = y + dy;
-        if (!world.inBounds(nx, ny)) continue;
-        if (world.isEmpty(nx, ny)) {
-          world.set(nx, ny, 100); // 新蘑菇
-          world.markUpdated(nx, ny);
-          world.wakeArea(nx, ny);
-          return;
-        }
-      }
+      let placed = false;
+      if (!placed && world.inBounds(x, y - 1) && world.isEmpty(x, y - 1)) { world.set(x, y - 1, 100); world.markUpdated(x, y - 1); world.wakeArea(x, y - 1); return; }
+      if (!placed && world.inBounds(x, y + 1) && world.isEmpty(x, y + 1)) { world.set(x, y + 1, 100); world.markUpdated(x, y + 1); world.wakeArea(x, y + 1); return; }
+      if (!placed && world.inBounds(x - 1, y) && world.isEmpty(x - 1, y)) { world.set(x - 1, y, 100); world.markUpdated(x - 1, y); world.wakeArea(x - 1, y); return; }
+      if (!placed && world.inBounds(x + 1, y) && world.isEmpty(x + 1, y)) { world.set(x + 1, y, 100); world.markUpdated(x + 1, y); world.wakeArea(x + 1, y); return; }
     }
 
-    // 在基质旁也能缓慢生长
+    // 在基质旁也能缓慢生长（transmuted布尔模拟随机起始找空格）
     if (hasSubstrate && Math.random() < 0.003) {
-      const start2 = Math.floor(Math.random() * dirs.length);
-      for (let i = 0; i < dirs.length; i++) {
-        const [dx, dy] = dirs[(start2 + i) % dirs.length];
-        const nx = x + dx, ny = y + dy;
-        if (!world.inBounds(nx, ny)) continue;
-        if (world.isEmpty(nx, ny)) {
-          world.set(nx, ny, 100);
-          world.markUpdated(nx, ny);
-          world.wakeArea(nx, ny);
-          return;
-        }
-      }
+      let placed2 = false;
+      if (!placed2 && world.inBounds(x, y - 1) && world.isEmpty(x, y - 1)) { world.set(x, y - 1, 100); world.markUpdated(x, y - 1); world.wakeArea(x, y - 1); return; }
+      if (!placed2 && world.inBounds(x, y + 1) && world.isEmpty(x, y + 1)) { world.set(x, y + 1, 100); world.markUpdated(x, y + 1); world.wakeArea(x, y + 1); return; }
+      if (!placed2 && world.inBounds(x - 1, y) && world.isEmpty(x - 1, y)) { world.set(x - 1, y, 100); world.markUpdated(x - 1, y); world.wakeArea(x - 1, y); return; }
+      if (!placed2 && world.inBounds(x + 1, y) && world.isEmpty(x + 1, y)) { world.set(x + 1, y, 100); world.markUpdated(x + 1, y); world.wakeArea(x + 1, y); return; }
     }
 
     // 成熟后释放孢子（向上方释放）

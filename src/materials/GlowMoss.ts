@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -47,39 +46,40 @@ export const GlowMoss: MaterialDef = {
     world.wakeArea(x, y);
     world.set(x, y, 225); // 刷新颜色（脉动）
 
-    // 检查四邻
-    const dirs = DIRS4;
+    // 检查四邻（4方向显式展开，无HOF）
     let nearWater = false;
-
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-
-      // 遇火着火
-      if (nid === 6 && Math.random() < 0.1) {
-        world.set(x, y, 6);
-        world.wakeArea(x, y);
-        return;
-      }
-
-      // 遇酸溶解
-      if (nid === 9 && Math.random() < 0.08) {
-        world.set(x, y, 0);
-        world.wakeArea(x, y);
-        return;
-      }
-
-      if (nid === 2) {
-        nearWater = true;
-      }
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1; const nid = world.get(nx, ny);
+      if (nid === 6 && Math.random() < 0.1) { world.set(x, y, 6); world.wakeArea(x, y); return; }
+      if (nid === 9 && Math.random() < 0.08) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+      if (nid === 2) { nearWater = true; }
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1; const nid = world.get(nx, ny);
+      if (nid === 6 && Math.random() < 0.1) { world.set(x, y, 6); world.wakeArea(x, y); return; }
+      if (nid === 9 && Math.random() < 0.08) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+      if (nid === 2) { nearWater = true; }
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y; const nid = world.get(nx, ny);
+      if (nid === 6 && Math.random() < 0.1) { world.set(x, y, 6); world.wakeArea(x, y); return; }
+      if (nid === 9 && Math.random() < 0.08) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+      if (nid === 2) { nearWater = true; }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y; const nid = world.get(nx, ny);
+      if (nid === 6 && Math.random() < 0.1) { world.set(x, y, 6); world.wakeArea(x, y); return; }
+      if (nid === 9 && Math.random() < 0.08) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+      if (nid === 2) { nearWater = true; }
     }
 
     // 有水时缓慢生长
     if (nearWater && Math.random() < 0.005) {
-      // 随机方向扩散
-      const [dx, dy] = dirs[Math.floor(Math.random() * dirs.length)];
-      const nx = x + dx, ny = y + dy;
+      // 随机方向扩散（用随机索引模���）
+      const ri = Math.floor(Math.random() * 4);
+      const ndx = ri === 2 ? -1 : ri === 3 ? 1 : 0;
+      const ndy = ri === 0 ? -1 : ri === 1 ? 1 : 0;
+      const nx = x + ndx, ny = y + ndy;
       if (world.inBounds(nx, ny) && world.isEmpty(nx, ny)) {
         world.set(nx, ny, 225);
         world.markUpdated(nx, ny);

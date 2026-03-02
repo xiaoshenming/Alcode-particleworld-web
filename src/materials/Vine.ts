@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -41,28 +40,34 @@ export const Vine: MaterialDef = {
     // 低温休眠，不生长
     if (temp < -5) return;
 
-    // 检查邻居
-    const dirs = DIRS4;
+    // 检查邻居（4方向显式展开，无HOF）
     let hasSupport = false;
     let hasWater = false;
-
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-
-      // 被酸液溶解
-      if (nid === 9) {
-        world.set(x, y, 0);
-        return;
-      }
-
-      // 被火点燃
-      if (nid === 6 && Math.random() < 0.15) {
-        world.set(x, y, 6);
-        return;
-      }
-
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1; const nid = world.get(nx, ny);
+      if (nid === 9) { world.set(x, y, 0); return; }
+      if (nid === 6 && Math.random() < 0.15) { world.set(x, y, 6); return; }
+      if (SOLID_SURFACE.has(nid) || nid === 57) hasSupport = true;
+      if (WATER_SOURCE.has(nid)) hasWater = true;
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1; const nid = world.get(nx, ny);
+      if (nid === 9) { world.set(x, y, 0); return; }
+      if (nid === 6 && Math.random() < 0.15) { world.set(x, y, 6); return; }
+      if (SOLID_SURFACE.has(nid) || nid === 57) hasSupport = true;
+      if (WATER_SOURCE.has(nid)) hasWater = true;
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y; const nid = world.get(nx, ny);
+      if (nid === 9) { world.set(x, y, 0); return; }
+      if (nid === 6 && Math.random() < 0.15) { world.set(x, y, 6); return; }
+      if (SOLID_SURFACE.has(nid) || nid === 57) hasSupport = true;
+      if (WATER_SOURCE.has(nid)) hasWater = true;
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y; const nid = world.get(nx, ny);
+      if (nid === 9) { world.set(x, y, 0); return; }
+      if (nid === 6 && Math.random() < 0.15) { world.set(x, y, 6); return; }
       if (SOLID_SURFACE.has(nid) || nid === 57) hasSupport = true;
       if (WATER_SOURCE.has(nid)) hasWater = true;
     }
@@ -91,17 +96,12 @@ export const Vine: MaterialDef = {
       if (!world.inBounds(nx, ny)) continue;
       if (!world.isEmpty(nx, ny)) continue;
 
-      // 新位置也需要有支撑面（邻近固体或藤蔓）
+      // 新位置也需要有支撑面（邻近固体或藤蔓）- transmuted布尔展开
       let newSupport = false;
-      for (const [ddx, ddy] of dirs) {
-        const nnx = nx + ddx, nny = ny + ddy;
-        if (!world.inBounds(nnx, nny)) continue;
-        const nnid = world.get(nnx, nny);
-        if (SOLID_SURFACE.has(nnid)) {
-          newSupport = true;
-          break;
-        }
-      }
+      if (!newSupport && world.inBounds(nx, ny - 1) && SOLID_SURFACE.has(world.get(nx, ny - 1))) newSupport = true;
+      if (!newSupport && world.inBounds(nx, ny + 1) && SOLID_SURFACE.has(world.get(nx, ny + 1))) newSupport = true;
+      if (!newSupport && world.inBounds(nx - 1, ny) && SOLID_SURFACE.has(world.get(nx - 1, ny))) newSupport = true;
+      if (!newSupport && world.inBounds(nx + 1, ny) && SOLID_SURFACE.has(world.get(nx + 1, ny))) newSupport = true;
 
       if (newSupport) {
         world.set(nx, ny, 57);

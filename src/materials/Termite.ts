@@ -1,4 +1,4 @@
-import { DIRS4, DIRS8 } from './types';
+import { DIRS8 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -51,21 +51,15 @@ export const Termite: MaterialDef = {
     }
 
     // 检查邻居
-    const dirs = DIRS4;
     const allDirs = DIRS8;
 
-    // 遇水淹死
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      if (world.get(nx, ny) === 2) {
-        world.set(x, y, 0);
-        world.wakeArea(x, y);
-        return;
-      }
-    }
+    // 遇水淹死（4方向显式展开，无HOF）
+    if (world.inBounds(x, y - 1) && world.get(x, y - 1) === 2) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+    if (world.inBounds(x, y + 1) && world.get(x, y + 1) === 2) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+    if (world.inBounds(x - 1, y) && world.get(x - 1, y) === 2) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+    if (world.inBounds(x + 1, y) && world.get(x + 1, y) === 2) { world.set(x, y, 0); world.wakeArea(x, y); return; }
 
-    // 寻找食物并啃食
+    // 寻找食物并啃食（DIRS8已展开）
     for (const [dx, dy] of allDirs) {
       const nx = x + dx, ny = y + dy;
       if (!world.inBounds(nx, ny)) continue;
@@ -77,18 +71,13 @@ export const Termite: MaterialDef = {
         world.markUpdated(nx, ny);
         world.wakeArea(nx, ny);
 
-        // 吃饱后繁殖（低概率）
+        // 吃饱后繁殖（低概率）- 找一个空位生成新白蚁（transmuted布尔）
         if (Math.random() < 0.08) {
-          // 找一个空位生成新白蚁
-          for (const [ddx, ddy] of dirs) {
-            const nnx = x + ddx, nny = y + ddy;
-            if (world.inBounds(nnx, nny) && world.isEmpty(nnx, nny)) {
-              world.set(nnx, nny, 81);
-              world.markUpdated(nnx, nny);
-              world.wakeArea(nnx, nny);
-              break;
-            }
-          }
+          let spawned = false;
+          if (!spawned && world.inBounds(x, y - 1) && world.isEmpty(x, y - 1)) { world.set(x, y - 1, 81); world.markUpdated(x, y - 1); world.wakeArea(x, y - 1); spawned = true; }
+          if (!spawned && world.inBounds(x, y + 1) && world.isEmpty(x, y + 1)) { world.set(x, y + 1, 81); world.markUpdated(x, y + 1); world.wakeArea(x, y + 1); spawned = true; }
+          if (!spawned && world.inBounds(x - 1, y) && world.isEmpty(x - 1, y)) { world.set(x - 1, y, 81); world.markUpdated(x - 1, y); world.wakeArea(x - 1, y); spawned = true; }
+          if (!spawned && world.inBounds(x + 1, y) && world.isEmpty(x + 1, y)) { world.set(x + 1, y, 81); world.markUpdated(x + 1, y); world.wakeArea(x + 1, y); spawned = true; }
         }
 
         // 移动到食物位置

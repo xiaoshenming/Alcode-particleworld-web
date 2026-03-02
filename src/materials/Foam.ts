@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -52,45 +51,40 @@ export const Foam: MaterialDef = {
       return;
     }
 
-    // 检查四邻
-    const dirs = DIRS4;
+    // 检查四邻（4方向显式展开，无HOF）
     let touchWater = false;
-
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-
-      // 接触酸液溶解
-      if (nid === 9) {
-        world.set(x, y, 0);
-        return;
-      }
-
-      // 接触火焰蒸发
-      if (nid === 6) {
-        world.set(x, y, 8); // 蒸汽
-        return;
-      }
-
-      if (WATER_LIKE.has(nid)) {
-        touchWater = true;
-      }
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1; const nid = world.get(nx, ny);
+      if (nid === 9) { world.set(x, y, 0); return; }
+      if (nid === 6) { world.set(x, y, 8); return; }
+      if (WATER_LIKE.has(nid)) { touchWater = true; }
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1; const nid = world.get(nx, ny);
+      if (nid === 9) { world.set(x, y, 0); return; }
+      if (nid === 6) { world.set(x, y, 8); return; }
+      if (WATER_LIKE.has(nid)) { touchWater = true; }
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y; const nid = world.get(nx, ny);
+      if (nid === 9) { world.set(x, y, 0); return; }
+      if (nid === 6) { world.set(x, y, 8); return; }
+      if (WATER_LIKE.has(nid)) { touchWater = true; }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y; const nid = world.get(nx, ny);
+      if (nid === 9) { world.set(x, y, 0); return; }
+      if (nid === 6) { world.set(x, y, 8); return; }
+      if (WATER_LIKE.has(nid)) { touchWater = true; }
     }
 
-    // 接触水时有小概率在空气邻居处生成新泡沫
+    // 接触水时有小概率在空气邻居处生成新泡沫（transmuted布尔模拟随机起始break）
     if (touchWater && Math.random() < 0.02) {
-      const start = Math.floor(Math.random() * dirs.length);
-      for (let i = 0; i < dirs.length; i++) {
-        const [dx, dy] = dirs[(start + i) % dirs.length];
-        const nx = x + dx, ny = y + dy;
-        if (!world.inBounds(nx, ny)) continue;
-        if (world.isEmpty(nx, ny)) {
-          world.set(nx, ny, 51);
-          world.markUpdated(nx, ny);
-          break;
-        }
-      }
+      let placed = false;
+      if (!placed && world.inBounds(x, y - 1) && world.isEmpty(x, y - 1)) { world.set(x, y - 1, 51); world.markUpdated(x, y - 1); placed = true; }
+      if (!placed && world.inBounds(x, y + 1) && world.isEmpty(x, y + 1)) { world.set(x, y + 1, 51); world.markUpdated(x, y + 1); placed = true; }
+      if (!placed && world.inBounds(x - 1, y) && world.isEmpty(x - 1, y)) { world.set(x - 1, y, 51); world.markUpdated(x - 1, y); placed = true; }
+      if (!placed && world.inBounds(x + 1, y) && world.isEmpty(x + 1, y)) { world.set(x + 1, y, 51); world.markUpdated(x + 1, y); placed = true; }
     }
 
     // 浮力：向上移动（swap 自动迁移 age）

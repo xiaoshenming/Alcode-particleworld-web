@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -40,50 +39,63 @@ export const ElectromagneticElastomer: MaterialDef = {
   },
   update(x: number, y: number, world: WorldAPI) {
     const temp = world.getTemp(x, y);
-    const dirs = DIRS4;
 
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-
-      // 接触火燃烧
-      if (nid === 6 && Math.random() < 0.06) {
-        world.set(x, y, 6);
-        world.wakeArea(x, y);
-        return;
-      }
-
-      // 接触电弧/电线时膨胀（向空位扩展自身）
+    // 检查邻居（4方向显式展开，无HOF）
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1; const nid = world.get(nx, ny);
+      if (nid === 6 && Math.random() < 0.06) { world.set(x, y, 6); world.wakeArea(x, y); return; }
       if ((nid === 145 || nid === 44) && Math.random() < 0.12) {
-        for (const [dx2, dy2] of dirs) {
-          const ex = x + dx2, ey = y + dy2;
-          if (world.inBounds(ex, ey) && world.isEmpty(ex, ey)) {
-            world.set(ex, ey, 420);
-            world.wakeArea(ex, ey);
-            break;
-          }
-        }
-        world.wakeArea(x, y);
-        return;
+        let spawned = false;
+        if (!spawned && world.inBounds(x, y - 1) && world.isEmpty(x, y - 1)) { world.set(x, y - 1, 420); world.wakeArea(x, y - 1); spawned = true; }
+        if (!spawned && world.inBounds(x, y + 1) && world.isEmpty(x, y + 1)) { world.set(x, y + 1, 420); world.wakeArea(x, y + 1); spawned = true; }
+        if (!spawned && world.inBounds(x - 1, y) && world.isEmpty(x - 1, y)) { world.set(x - 1, y, 420); world.wakeArea(x - 1, y); spawned = true; }
+        if (!spawned && world.inBounds(x + 1, y) && world.isEmpty(x + 1, y)) { world.set(x + 1, y, 420); world.wakeArea(x + 1, y); }
+        world.wakeArea(x, y); return;
       }
-
-      // 接触水缓慢溶胀（也是膨胀）
-      if (nid === 2 && Math.random() < 0.02) {
-        world.set(nx, ny, 420); // 水变成自身
-        world.wakeArea(nx, ny);
-        return;
+      if (nid === 2 && Math.random() < 0.02) { world.set(nx, ny, 420); world.wakeArea(nx, ny); return; }
+      if (nid !== 0 && Math.random() < 0.04) { const nt = world.getTemp(nx, ny); if (Math.abs(temp - nt) > 5) { const diff = (nt - temp) * 0.07; world.addTemp(x, y, diff); world.addTemp(nx, ny, -diff); } }
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1; const nid = world.get(nx, ny);
+      if (nid === 6 && Math.random() < 0.06) { world.set(x, y, 6); world.wakeArea(x, y); return; }
+      if ((nid === 145 || nid === 44) && Math.random() < 0.12) {
+        let spawned = false;
+        if (!spawned && world.inBounds(x, y - 1) && world.isEmpty(x, y - 1)) { world.set(x, y - 1, 420); world.wakeArea(x, y - 1); spawned = true; }
+        if (!spawned && world.inBounds(x, y + 1) && world.isEmpty(x, y + 1)) { world.set(x, y + 1, 420); world.wakeArea(x, y + 1); spawned = true; }
+        if (!spawned && world.inBounds(x - 1, y) && world.isEmpty(x - 1, y)) { world.set(x - 1, y, 420); world.wakeArea(x - 1, y); spawned = true; }
+        if (!spawned && world.inBounds(x + 1, y) && world.isEmpty(x + 1, y)) { world.set(x + 1, y, 420); world.wakeArea(x + 1, y); }
+        world.wakeArea(x, y); return;
       }
-
-      // 导热
-      if (nid !== 0 && Math.random() < 0.04) {
-        const nt = world.getTemp(nx, ny);
-        if (Math.abs(temp - nt) > 5) {
-          const diff = (nt - temp) * 0.07;
-          world.addTemp(x, y, diff);
-          world.addTemp(nx, ny, -diff);
-        }
+      if (nid === 2 && Math.random() < 0.02) { world.set(nx, ny, 420); world.wakeArea(nx, ny); return; }
+      if (nid !== 0 && Math.random() < 0.04) { const nt = world.getTemp(nx, ny); if (Math.abs(temp - nt) > 5) { const diff = (nt - temp) * 0.07; world.addTemp(x, y, diff); world.addTemp(nx, ny, -diff); } }
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y; const nid = world.get(nx, ny);
+      if (nid === 6 && Math.random() < 0.06) { world.set(x, y, 6); world.wakeArea(x, y); return; }
+      if ((nid === 145 || nid === 44) && Math.random() < 0.12) {
+        let spawned = false;
+        if (!spawned && world.inBounds(x, y - 1) && world.isEmpty(x, y - 1)) { world.set(x, y - 1, 420); world.wakeArea(x, y - 1); spawned = true; }
+        if (!spawned && world.inBounds(x, y + 1) && world.isEmpty(x, y + 1)) { world.set(x, y + 1, 420); world.wakeArea(x, y + 1); spawned = true; }
+        if (!spawned && world.inBounds(x - 1, y) && world.isEmpty(x - 1, y)) { world.set(x - 1, y, 420); world.wakeArea(x - 1, y); spawned = true; }
+        if (!spawned && world.inBounds(x + 1, y) && world.isEmpty(x + 1, y)) { world.set(x + 1, y, 420); world.wakeArea(x + 1, y); }
+        world.wakeArea(x, y); return;
       }
+      if (nid === 2 && Math.random() < 0.02) { world.set(nx, ny, 420); world.wakeArea(nx, ny); return; }
+      if (nid !== 0 && Math.random() < 0.04) { const nt = world.getTemp(nx, ny); if (Math.abs(temp - nt) > 5) { const diff = (nt - temp) * 0.07; world.addTemp(x, y, diff); world.addTemp(nx, ny, -diff); } }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y; const nid = world.get(nx, ny);
+      if (nid === 6 && Math.random() < 0.06) { world.set(x, y, 6); world.wakeArea(x, y); return; }
+      if ((nid === 145 || nid === 44) && Math.random() < 0.12) {
+        let spawned = false;
+        if (!spawned && world.inBounds(x, y - 1) && world.isEmpty(x, y - 1)) { world.set(x, y - 1, 420); world.wakeArea(x, y - 1); spawned = true; }
+        if (!spawned && world.inBounds(x, y + 1) && world.isEmpty(x, y + 1)) { world.set(x, y + 1, 420); world.wakeArea(x, y + 1); spawned = true; }
+        if (!spawned && world.inBounds(x - 1, y) && world.isEmpty(x - 1, y)) { world.set(x - 1, y, 420); world.wakeArea(x - 1, y); spawned = true; }
+        if (!spawned && world.inBounds(x + 1, y) && world.isEmpty(x + 1, y)) { world.set(x + 1, y, 420); world.wakeArea(x + 1, y); }
+        world.wakeArea(x, y); return;
+      }
+      if (nid === 2 && Math.random() < 0.02) { world.set(nx, ny, 420); world.wakeArea(nx, ny); return; }
+      if (nid !== 0 && Math.random() < 0.04) { const nt = world.getTemp(nx, ny); if (Math.abs(temp - nt) > 5) { const diff = (nt - temp) * 0.07; world.addTemp(x, y, diff); world.addTemp(nx, ny, -diff); } }
     }
 
     // 高温分解

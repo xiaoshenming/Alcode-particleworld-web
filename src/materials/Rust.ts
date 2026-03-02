@@ -1,4 +1,3 @@
-import { DIRS4 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -49,55 +48,44 @@ export const Rust: MaterialDef = {
       return;
     }
 
-    // 检查邻居：腐蚀扩散
-    const dirs = DIRS4;
+    // 检查邻居：腐蚀扩散（4方向显式展开，无HOF）
     let hasCatalyst = false;
-
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-
-      if (CATALYST.has(nid)) {
-        hasCatalyst = true;
-      }
-
-      // 酸液直接溶解铁锈
-      if (nid === 9 && Math.random() < 0.1) {
-        world.set(x, y, 0);
-        world.wakeArea(x, y);
-        return;
-      }
+    if (world.inBounds(x, y - 1)) {
+      const nx = x, ny = y - 1; const nid = world.get(nx, ny);
+      if (CATALYST.has(nid)) hasCatalyst = true;
+      if (nid === 9 && Math.random() < 0.1) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+    }
+    if (world.inBounds(x, y + 1)) {
+      const nx = x, ny = y + 1; const nid = world.get(nx, ny);
+      if (CATALYST.has(nid)) hasCatalyst = true;
+      if (nid === 9 && Math.random() < 0.1) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+    }
+    if (world.inBounds(x - 1, y)) {
+      const nx = x - 1, ny = y; const nid = world.get(nx, ny);
+      if (CATALYST.has(nid)) hasCatalyst = true;
+      if (nid === 9 && Math.random() < 0.1) { world.set(x, y, 0); world.wakeArea(x, y); return; }
+    }
+    if (world.inBounds(x + 1, y)) {
+      const nx = x + 1, ny = y; const nid = world.get(nx, ny);
+      if (CATALYST.has(nid)) hasCatalyst = true;
+      if (nid === 9 && Math.random() < 0.1) { world.set(x, y, 0); world.wakeArea(x, y); return; }
     }
 
-    // 有催化剂时腐蚀相邻金属
+    // 有催化剂时腐蚀相邻金属（4方向显式展开，无HOF）
     if (hasCatalyst) {
-      for (const [dx, dy] of dirs) {
-        const nx = x + dx, ny = y + dy;
-        if (!world.inBounds(nx, ny)) continue;
-        const nid = world.get(nx, ny);
-
-        // 腐蚀金属 → 铁锈
-        if (nid === 10 && Math.random() < 0.03) {
-          world.set(nx, ny, 72); // 变为铁锈
-          world.markUpdated(nx, ny);
-          world.wakeArea(nx, ny);
-        }
-      }
+      if (world.inBounds(x, y - 1) && world.get(x, y - 1) === 10 && Math.random() < 0.03) { world.set(x, y - 1, 72); world.markUpdated(x, y - 1); world.wakeArea(x, y - 1); }
+      if (world.inBounds(x, y + 1) && world.get(x, y + 1) === 10 && Math.random() < 0.03) { world.set(x, y + 1, 72); world.markUpdated(x, y + 1); world.wakeArea(x, y + 1); }
+      if (world.inBounds(x - 1, y) && world.get(x - 1, y) === 10 && Math.random() < 0.03) { world.set(x - 1, y, 72); world.markUpdated(x - 1, y); world.wakeArea(x - 1, y); }
+      if (world.inBounds(x + 1, y) && world.get(x + 1, y) === 10 && Math.random() < 0.03) { world.set(x + 1, y, 72); world.markUpdated(x + 1, y); world.wakeArea(x + 1, y); }
     }
 
-    // 无催化剂时也有极低概率腐蚀（空气中的水分）
+    // 无催化剂时也有极低概率腐蚀（空气中的水分）- transmuted布尔替代break
     if (!hasCatalyst && Math.random() < 0.003) {
-      for (const [dx, dy] of dirs) {
-        const nx = x + dx, ny = y + dy;
-        if (!world.inBounds(nx, ny)) continue;
-        if (world.get(nx, ny) === 10) {
-          world.set(nx, ny, 72);
-          world.markUpdated(nx, ny);
-          world.wakeArea(nx, ny);
-          break;
-        }
-      }
+      let found = false;
+      if (!found && world.inBounds(x, y - 1) && world.get(x, y - 1) === 10) { world.set(x, y - 1, 72); world.markUpdated(x, y - 1); world.wakeArea(x, y - 1); found = true; }
+      if (!found && world.inBounds(x, y + 1) && world.get(x, y + 1) === 10) { world.set(x, y + 1, 72); world.markUpdated(x, y + 1); world.wakeArea(x, y + 1); found = true; }
+      if (!found && world.inBounds(x - 1, y) && world.get(x - 1, y) === 10) { world.set(x - 1, y, 72); world.markUpdated(x - 1, y); world.wakeArea(x - 1, y); found = true; }
+      if (!found && world.inBounds(x + 1, y) && world.get(x + 1, y) === 10) { world.set(x + 1, y, 72); world.markUpdated(x + 1, y); world.wakeArea(x + 1, y); }
     }
 
     if (y >= world.height - 1) return;

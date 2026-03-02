@@ -1,4 +1,3 @@
-import { DIRS8 } from './types';
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
@@ -65,43 +64,54 @@ export const BallLightning: MaterialDef = {
     // 加热周围
     world.setTemp(x, y, 150);
 
-    const dirs = DIRS8;
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx, ny = y + dy;
-      if (!world.inBounds(nx, ny)) continue;
-      const nid = world.get(nx, ny);
-
-      // 接触导体释放电弧
-      if ((nid === 10 || nid === 85 || nid === 86 || nid === 44) && Math.random() < 0.1) {
-        // 在导体周围产生火花
-        for (const [dx2, dy2] of dirs) {
-          const sx = nx + dx2, sy = ny + dy2;
-          if (world.inBounds(sx, sy) && world.isEmpty(sx, sy) && Math.random() < 0.3) {
-            world.set(sx, sy, 28); // 火花
-            world.markUpdated(sx, sy);
-            world.wakeArea(sx, sy);
-          }
-        }
-        world.addTemp(nx, ny, 30);
-        life -= 10;
-      }
-
-      // 接触水/盐水 → 蒸汽 + 消失
-      if ((nid === 2 || nid === 24) && Math.random() < 0.3) {
-        world.set(nx, ny, 8); // 蒸汽
-        world.markUpdated(nx, ny);
-        world.set(x, y, 28); // 变火花
-        world.wakeArea(x, y);
-        world.wakeArea(nx, ny);
-        return;
-      }
-
-      // 点燃可燃物
-      if ((nid === 4 || nid === 5 || nid === 22) && Math.random() < 0.2) {
-        world.set(nx, ny, 6); // 火
-        world.markUpdated(nx, ny);
-        world.wakeArea(nx, ny);
-      }
+    // 检查8方向邻居（显式展开，无HOF）
+    // 上
+    if (world.inBounds(x, y - 1)) { const nx = x, ny = y - 1; const nid = world.get(nx, ny);
+      if ((nid === 10 || nid === 85 || nid === 86 || nid === 44) && Math.random() < 0.1) { if (world.inBounds(nx, ny - 1) && world.isEmpty(nx, ny - 1) && Math.random() < 0.3) { world.set(nx, ny - 1, 28); world.markUpdated(nx, ny - 1); world.wakeArea(nx, ny - 1); } if (world.inBounds(nx, ny + 1) && world.isEmpty(nx, ny + 1) && Math.random() < 0.3) { world.set(nx, ny + 1, 28); world.markUpdated(nx, ny + 1); world.wakeArea(nx, ny + 1); } if (world.inBounds(nx - 1, ny) && world.isEmpty(nx - 1, ny) && Math.random() < 0.3) { world.set(nx - 1, ny, 28); world.markUpdated(nx - 1, ny); world.wakeArea(nx - 1, ny); } if (world.inBounds(nx + 1, ny) && world.isEmpty(nx + 1, ny) && Math.random() < 0.3) { world.set(nx + 1, ny, 28); world.markUpdated(nx + 1, ny); world.wakeArea(nx + 1, ny); } world.addTemp(nx, ny, 30); life -= 10; }
+      if ((nid === 2 || nid === 24) && Math.random() < 0.3) { world.set(nx, ny, 8); world.markUpdated(nx, ny); world.set(x, y, 28); world.wakeArea(x, y); world.wakeArea(nx, ny); return; }
+      if ((nid === 4 || nid === 5 || nid === 22) && Math.random() < 0.2) { world.set(nx, ny, 6); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
+    }
+    // 下
+    if (world.inBounds(x, y + 1)) { const nx = x, ny = y + 1; const nid = world.get(nx, ny);
+      if ((nid === 10 || nid === 85 || nid === 86 || nid === 44) && Math.random() < 0.1) { if (world.inBounds(nx, ny - 1) && world.isEmpty(nx, ny - 1) && Math.random() < 0.3) { world.set(nx, ny - 1, 28); world.markUpdated(nx, ny - 1); world.wakeArea(nx, ny - 1); } if (world.inBounds(nx, ny + 1) && world.isEmpty(nx, ny + 1) && Math.random() < 0.3) { world.set(nx, ny + 1, 28); world.markUpdated(nx, ny + 1); world.wakeArea(nx, ny + 1); } if (world.inBounds(nx - 1, ny) && world.isEmpty(nx - 1, ny) && Math.random() < 0.3) { world.set(nx - 1, ny, 28); world.markUpdated(nx - 1, ny); world.wakeArea(nx - 1, ny); } if (world.inBounds(nx + 1, ny) && world.isEmpty(nx + 1, ny) && Math.random() < 0.3) { world.set(nx + 1, ny, 28); world.markUpdated(nx + 1, ny); world.wakeArea(nx + 1, ny); } world.addTemp(nx, ny, 30); life -= 10; }
+      if ((nid === 2 || nid === 24) && Math.random() < 0.3) { world.set(nx, ny, 8); world.markUpdated(nx, ny); world.set(x, y, 28); world.wakeArea(x, y); world.wakeArea(nx, ny); return; }
+      if ((nid === 4 || nid === 5 || nid === 22) && Math.random() < 0.2) { world.set(nx, ny, 6); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
+    }
+    // 左
+    if (world.inBounds(x - 1, y)) { const nx = x - 1, ny = y; const nid = world.get(nx, ny);
+      if ((nid === 10 || nid === 85 || nid === 86 || nid === 44) && Math.random() < 0.1) { if (world.inBounds(nx, ny - 1) && world.isEmpty(nx, ny - 1) && Math.random() < 0.3) { world.set(nx, ny - 1, 28); world.markUpdated(nx, ny - 1); world.wakeArea(nx, ny - 1); } if (world.inBounds(nx, ny + 1) && world.isEmpty(nx, ny + 1) && Math.random() < 0.3) { world.set(nx, ny + 1, 28); world.markUpdated(nx, ny + 1); world.wakeArea(nx, ny + 1); } if (world.inBounds(nx - 1, ny) && world.isEmpty(nx - 1, ny) && Math.random() < 0.3) { world.set(nx - 1, ny, 28); world.markUpdated(nx - 1, ny); world.wakeArea(nx - 1, ny); } if (world.inBounds(nx + 1, ny) && world.isEmpty(nx + 1, ny) && Math.random() < 0.3) { world.set(nx + 1, ny, 28); world.markUpdated(nx + 1, ny); world.wakeArea(nx + 1, ny); } world.addTemp(nx, ny, 30); life -= 10; }
+      if ((nid === 2 || nid === 24) && Math.random() < 0.3) { world.set(nx, ny, 8); world.markUpdated(nx, ny); world.set(x, y, 28); world.wakeArea(x, y); world.wakeArea(nx, ny); return; }
+      if ((nid === 4 || nid === 5 || nid === 22) && Math.random() < 0.2) { world.set(nx, ny, 6); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
+    }
+    // 右
+    if (world.inBounds(x + 1, y)) { const nx = x + 1, ny = y; const nid = world.get(nx, ny);
+      if ((nid === 10 || nid === 85 || nid === 86 || nid === 44) && Math.random() < 0.1) { if (world.inBounds(nx, ny - 1) && world.isEmpty(nx, ny - 1) && Math.random() < 0.3) { world.set(nx, ny - 1, 28); world.markUpdated(nx, ny - 1); world.wakeArea(nx, ny - 1); } if (world.inBounds(nx, ny + 1) && world.isEmpty(nx, ny + 1) && Math.random() < 0.3) { world.set(nx, ny + 1, 28); world.markUpdated(nx, ny + 1); world.wakeArea(nx, ny + 1); } if (world.inBounds(nx - 1, ny) && world.isEmpty(nx - 1, ny) && Math.random() < 0.3) { world.set(nx - 1, ny, 28); world.markUpdated(nx - 1, ny); world.wakeArea(nx - 1, ny); } if (world.inBounds(nx + 1, ny) && world.isEmpty(nx + 1, ny) && Math.random() < 0.3) { world.set(nx + 1, ny, 28); world.markUpdated(nx + 1, ny); world.wakeArea(nx + 1, ny); } world.addTemp(nx, ny, 30); life -= 10; }
+      if ((nid === 2 || nid === 24) && Math.random() < 0.3) { world.set(nx, ny, 8); world.markUpdated(nx, ny); world.set(x, y, 28); world.wakeArea(x, y); world.wakeArea(nx, ny); return; }
+      if ((nid === 4 || nid === 5 || nid === 22) && Math.random() < 0.2) { world.set(nx, ny, 6); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
+    }
+    // 左上
+    if (world.inBounds(x - 1, y - 1)) { const nx = x - 1, ny = y - 1; const nid = world.get(nx, ny);
+      if ((nid === 10 || nid === 85 || nid === 86 || nid === 44) && Math.random() < 0.1) { if (world.inBounds(nx, ny - 1) && world.isEmpty(nx, ny - 1) && Math.random() < 0.3) { world.set(nx, ny - 1, 28); world.markUpdated(nx, ny - 1); world.wakeArea(nx, ny - 1); } if (world.inBounds(nx - 1, ny) && world.isEmpty(nx - 1, ny) && Math.random() < 0.3) { world.set(nx - 1, ny, 28); world.markUpdated(nx - 1, ny); world.wakeArea(nx - 1, ny); } world.addTemp(nx, ny, 30); life -= 10; }
+      if ((nid === 2 || nid === 24) && Math.random() < 0.3) { world.set(nx, ny, 8); world.markUpdated(nx, ny); world.set(x, y, 28); world.wakeArea(x, y); world.wakeArea(nx, ny); return; }
+      if ((nid === 4 || nid === 5 || nid === 22) && Math.random() < 0.2) { world.set(nx, ny, 6); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
+    }
+    // 右上
+    if (world.inBounds(x + 1, y - 1)) { const nx = x + 1, ny = y - 1; const nid = world.get(nx, ny);
+      if ((nid === 10 || nid === 85 || nid === 86 || nid === 44) && Math.random() < 0.1) { if (world.inBounds(nx, ny - 1) && world.isEmpty(nx, ny - 1) && Math.random() < 0.3) { world.set(nx, ny - 1, 28); world.markUpdated(nx, ny - 1); world.wakeArea(nx, ny - 1); } if (world.inBounds(nx + 1, ny) && world.isEmpty(nx + 1, ny) && Math.random() < 0.3) { world.set(nx + 1, ny, 28); world.markUpdated(nx + 1, ny); world.wakeArea(nx + 1, ny); } world.addTemp(nx, ny, 30); life -= 10; }
+      if ((nid === 2 || nid === 24) && Math.random() < 0.3) { world.set(nx, ny, 8); world.markUpdated(nx, ny); world.set(x, y, 28); world.wakeArea(x, y); world.wakeArea(nx, ny); return; }
+      if ((nid === 4 || nid === 5 || nid === 22) && Math.random() < 0.2) { world.set(nx, ny, 6); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
+    }
+    // 左下
+    if (world.inBounds(x - 1, y + 1)) { const nx = x - 1, ny = y + 1; const nid = world.get(nx, ny);
+      if ((nid === 10 || nid === 85 || nid === 86 || nid === 44) && Math.random() < 0.1) { if (world.inBounds(nx, ny + 1) && world.isEmpty(nx, ny + 1) && Math.random() < 0.3) { world.set(nx, ny + 1, 28); world.markUpdated(nx, ny + 1); world.wakeArea(nx, ny + 1); } if (world.inBounds(nx - 1, ny) && world.isEmpty(nx - 1, ny) && Math.random() < 0.3) { world.set(nx - 1, ny, 28); world.markUpdated(nx - 1, ny); world.wakeArea(nx - 1, ny); } world.addTemp(nx, ny, 30); life -= 10; }
+      if ((nid === 2 || nid === 24) && Math.random() < 0.3) { world.set(nx, ny, 8); world.markUpdated(nx, ny); world.set(x, y, 28); world.wakeArea(x, y); world.wakeArea(nx, ny); return; }
+      if ((nid === 4 || nid === 5 || nid === 22) && Math.random() < 0.2) { world.set(nx, ny, 6); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
+    }
+    // 右下
+    if (world.inBounds(x + 1, y + 1)) { const nx = x + 1, ny = y + 1; const nid = world.get(nx, ny);
+      if ((nid === 10 || nid === 85 || nid === 86 || nid === 44) && Math.random() < 0.1) { if (world.inBounds(nx, ny + 1) && world.isEmpty(nx, ny + 1) && Math.random() < 0.3) { world.set(nx, ny + 1, 28); world.markUpdated(nx, ny + 1); world.wakeArea(nx, ny + 1); } if (world.inBounds(nx + 1, ny) && world.isEmpty(nx + 1, ny) && Math.random() < 0.3) { world.set(nx + 1, ny, 28); world.markUpdated(nx + 1, ny); world.wakeArea(nx + 1, ny); } world.addTemp(nx, ny, 30); life -= 10; }
+      if ((nid === 2 || nid === 24) && Math.random() < 0.3) { world.set(nx, ny, 8); world.markUpdated(nx, ny); world.set(x, y, 28); world.wakeArea(x, y); world.wakeArea(nx, ny); return; }
+      if ((nid === 4 || nid === 5 || nid === 22) && Math.random() < 0.2) { world.set(nx, ny, 6); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
     }
 
     // 漂浮移动：偏好向上，随机方向（swap 自动迁移 age）
