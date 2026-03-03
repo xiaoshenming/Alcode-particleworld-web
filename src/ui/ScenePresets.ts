@@ -5,6 +5,7 @@ interface ScenePreset {
   name: string;
   icon: string;
   description: string;
+  category: '自然' | '战场/科幻' | '地下/水下' | '极端';
   generate: (world: World) => void;
 }
 
@@ -1017,23 +1018,24 @@ function generateCrater(world: World): void {
 
 /** 所有预设场景 */
 export const SCENE_PRESETS: ScenePreset[] = [
-  { name: '火山', icon: '🌋', description: '熔岩喷发的火山场景', generate: generateVolcano },
-  { name: '海洋', icon: '🌊', description: '深海珊瑚与水草', generate: generateOcean },
-  { name: '城市', icon: '🏙️', description: '混凝土建筑+电线+工业烟雾', generate: generateCity },
-  { name: '森林', icon: '🌲', description: '茂密的森林与萤火虫', generate: generateForest },
-  { name: '沙漠', icon: '🏜️', description: '起伏的沙丘与沙尘暴', generate: generateDesert },
-  { name: '冰原', icon: '❄️', description: '冰山与飘雪的极地', generate: generateIcefield },
-  { name: '实验室', icon: '🧪', description: '化学容器与反应实验', generate: generateLab },
-  { name: '暴风雨', icon: '⛈️', description: '闪电+暴雨+萤火虫夜晚', generate: generateStorm },
-  { name: '末日火山', icon: '🔥', description: '末日熔岩雨与火山喷发', generate: generateApocalypse },
-  { name: '地下洞穴', icon: '🦇', description: '水晶+地下湖+钟乳石+熔岩池', generate: generateCave },
-  { name: '战场', icon: '💥', description: '弹坑+火焰+金属碎片+毒气烟雾', generate: generateBattlefield },
-  { name: '深海热泉', icon: '🌊', description: '海底热泉喷口+矿物结晶+发光深海生物', generate: generateHydrothermal },
-  { name: '极光温泉', icon: '🌌', description: '极地温泉+冰山+极光粒子带+飘雪', generate: generateAuroraSpring },
-  { name: '神秘沼泽', icon: '🌿', description: '泥沼+枯木藤蔓+沼气+萤火虫夜景', generate: generateSwamp },
-  { name: '山间瀑布', icon: '💧', description: '崖壁瀑布+水潭+水雾+苔藓藤蔓', generate: generateWaterfall },
-  { name: '沙漠绿洲', icon: '🌴', description: '大沙丘+绿洲水池+棕榈树+干草遗骸', generate: generateOasis },
-  { name: '太空陨石坑', icon: '☄️', description: '撞击坑+矿石水晶层+陨石残留+液氮极寒', generate: generateCrater },
+  { name: '火山', icon: '🌋', description: '熔岩喷发的火山场景', category: '自然', generate: generateVolcano },
+  { name: '海洋', icon: '🌊', description: '深海珊瑚与水草', category: '自然', generate: generateOcean },
+  { name: '森林', icon: '🌲', description: '茂密的森林与萤火虫', category: '自然', generate: generateForest },
+  { name: '沙漠', icon: '🏜️', description: '起伏的沙丘与沙尘暴', category: '自然', generate: generateDesert },
+  { name: '冰原', icon: '❄️', description: '冰山与飘雪的极地', category: '自然', generate: generateIcefield },
+  { name: '暴风雨', icon: '⛈️', description: '闪电+暴雨+萤火虫夜晚', category: '自然', generate: generateStorm },
+  { name: '神秘沼泽', icon: '🌿', description: '泥沼+枯木藤蔓+沼气+萤火虫夜景', category: '自然', generate: generateSwamp },
+  { name: '山间瀑布', icon: '💧', description: '崖壁瀑布+水潭+水雾+苔藓藤蔓', category: '自然', generate: generateWaterfall },
+  { name: '沙漠绿洲', icon: '🌴', description: '大沙丘+绿洲水池+棕榈树+干草遗骸', category: '自然', generate: generateOasis },
+  { name: '城市', icon: '🏙️', description: '混凝土建筑+电线+工业烟雾', category: '战场/科幻', generate: generateCity },
+  { name: '实验室', icon: '🧪', description: '化学容器与反应实验', category: '战场/科幻', generate: generateLab },
+  { name: '战场', icon: '💥', description: '弹坑+火焰+金属碎片+毒气烟雾', category: '战场/科幻', generate: generateBattlefield },
+  { name: '极光温泉', icon: '🌌', description: '极地温泉+冰山+极光粒子带+飘雪', category: '战场/科幻', generate: generateAuroraSpring },
+  { name: '太空陨石坑', icon: '☄️', description: '撞击坑+矿石水晶层+陨石残留+液氮极寒', category: '战场/科幻', generate: generateCrater },
+  { name: '地下洞穴', icon: '🦇', description: '水晶+地下湖+钟乳石+熔岩池', category: '地下/水下', generate: generateCave },
+  { name: '深海热泉', icon: '🌊', description: '海底热泉喷口+矿物结晶+发光深海生物', category: '地下/水下', generate: generateHydrothermal },
+  { name: '地下熔岩管', icon: '🔥', description: '蜿蜒熔岩管道+洞穴空腔+蒸汽喷口+矿脉', category: '地下/水下', generate: generateLavaTube },
+  { name: '末日火山', icon: '🌋', description: '末日熔岩雨与火山喷发', category: '极端', generate: generateApocalypse },
 ];
 
 /**
@@ -1062,39 +1064,59 @@ export class ScenePanel {
     title.className = 'scene-panel-title';
     panel.appendChild(title);
 
-    const grid = document.createElement('div');
-    grid.className = 'scene-grid';
+    // 按分类分组显示场景
+    const categories: Array<ScenePreset['category']> = ['自然', '地下/水下', '战场/科幻', '极端'];
+    const categoryIcons: Record<string, string> = {
+      '自然': '🌍',
+      '地下/水下': '⛏️',
+      '战场/科幻': '🚀',
+      '极端': '⚠️',
+    };
 
-    for (const preset of SCENE_PRESETS) {
-      const card = document.createElement('button');
-      card.className = 'scene-card';
-      card.setAttribute('aria-label', `加载${preset.name}场景`);
+    for (const cat of categories) {
+      const presets = SCENE_PRESETS.filter(p => p.category === cat);
+      if (presets.length === 0) continue;
 
-      const icon = document.createElement('span');
-      icon.className = 'scene-icon';
-      icon.textContent = preset.icon;
+      // 分类标题
+      const catHeader = document.createElement('div');
+      catHeader.className = 'scene-category-header';
+      catHeader.textContent = `${categoryIcons[cat]} ${cat}`;
+      panel.appendChild(catHeader);
 
-      const name = document.createElement('span');
-      name.className = 'scene-name';
-      name.textContent = preset.name;
+      const grid = document.createElement('div');
+      grid.className = 'scene-grid';
 
-      const desc = document.createElement('span');
-      desc.className = 'scene-desc';
-      desc.textContent = preset.description;
+      for (const preset of presets) {
+        const card = document.createElement('button');
+        card.className = 'scene-card';
+        card.setAttribute('aria-label', `加载${preset.name}场景`);
 
-      card.appendChild(icon);
-      card.appendChild(name);
-      card.appendChild(desc);
+        const icon = document.createElement('span');
+        icon.className = 'scene-icon';
+        icon.textContent = preset.icon;
 
-      card.addEventListener('click', () => {
-        this.onSelect(preset);
-        this.hide();
-      });
+        const name = document.createElement('span');
+        name.className = 'scene-name';
+        name.textContent = preset.name;
 
-      grid.appendChild(card);
+        const desc = document.createElement('span');
+        desc.className = 'scene-desc';
+        desc.textContent = preset.description;
+
+        card.appendChild(icon);
+        card.appendChild(name);
+        card.appendChild(desc);
+
+        card.addEventListener('click', () => {
+          this.onSelect(preset);
+          this.hide();
+        });
+
+        grid.appendChild(card);
+      }
+
+      panel.appendChild(grid);
     }
-
-    panel.appendChild(grid);
 
     // 关闭按钮
     const closeBtn = document.createElement('button');
@@ -1131,4 +1153,94 @@ export class ScenePanel {
   isVisible(): boolean {
     return this.visible;
   }
+}
+
+/** 地下熔岩管道场景 —— 第18个预设 */
+function generateLavaTube(world: World): void {
+  const W = world.width, H = world.height;
+  world.clear();
+
+  // 全域岩石地基
+  fillRect(world, 0, 0, W - 1, H - 1, 3);
+
+  // 雕刻蜿蜒熔岩管道（S形曲线，上下两段）
+  // 管道1：左→右，从1/4高度处水平延伸，向下弯曲
+  const pipeR = 5; // 管道半径
+  for (let px = 0; px < W; px++) {
+    // 正弦波形管道中心Y：在H*0.30到H*0.50之间蜿蜒
+    const centerY1 = Math.floor(H * 0.38 + Math.sin(px * 0.035) * H * 0.07);
+    for (let dy = -pipeR; dy <= pipeR; dy++) {
+      const py = centerY1 + dy;
+      if (world.inBounds(px, py)) world.set(px, py, 11); // 熔岩管道
+    }
+    // 管道2：另一条反向正弦波，在H*0.60到H*0.80之间
+    const centerY2 = Math.floor(H * 0.68 + Math.cos(px * 0.04 + 1.5) * H * 0.07);
+    for (let dy2 = -pipeR; dy2 <= pipeR; dy2++) {
+      const py2 = centerY2 + dy2;
+      if (world.inBounds(px, py2)) world.set(px, py2, 11); // 熔岩管道
+    }
+  }
+
+  // 管道两端开口：左右边界清除一段变为空气（使熔岩流动可见）
+  fillRect(world, 0, Math.floor(H * 0.28), 4, Math.floor(H * 0.50), 0);
+  fillRect(world, W - 5, Math.floor(H * 0.28), W - 1, Math.floor(H * 0.50), 0);
+  fillRect(world, 0, Math.floor(H * 0.58), 4, Math.floor(H * 0.80), 0);
+  fillRect(world, W - 5, Math.floor(H * 0.58), W - 1, Math.floor(H * 0.80), 0);
+
+  // 主洞穴空腔：中央大空洞（玩家活动空间）
+  const caveCX = Math.floor(W * 0.5);
+  const caveY1 = Math.floor(H * 0.15), caveY2 = Math.floor(H * 0.55);
+  const caveRX = Math.floor(W * 0.28);
+  for (let cy = caveY1; cy <= caveY2; cy++) {
+    // 宽度随高度变化：上窄下宽（倒梯形状）
+    const progress = (cy - caveY1) / (caveY2 - caveY1);
+    const halfW = Math.floor(caveRX * (0.4 + progress * 0.6));
+    for (let cx = caveCX - halfW; cx <= caveCX + halfW; cx++) {
+      if (world.inBounds(cx, cy)) world.set(cx, cy, 0); // 空气
+    }
+  }
+
+  // 钟乳石（上方石头延伸入洞穴）
+  for (let sx = caveCX - caveRX + 5; sx < caveCX + caveRX - 5; sx += 8 + Math.floor(Math.random() * 6)) {
+    const stLen = 3 + Math.floor(Math.random() * 7);
+    for (let sy = caveY1; sy <= caveY1 + stLen; sy++) {
+      if (world.inBounds(sx, sy) && world.get(sx, sy) === 0) world.set(sx, sy, 3);
+    }
+  }
+
+  // 洞底：熔岩池（小型积聚）
+  const lavaFloorY = Math.floor(H * 0.52);
+  fillRect(world, caveCX - Math.floor(caveRX * 0.5), lavaFloorY - 2,
+    caveCX + Math.floor(caveRX * 0.5), lavaFloorY, 11);
+  // 熔岩池周围设置高温
+  for (let ty = lavaFloorY - 5; ty <= lavaFloorY + 2; ty++) {
+    for (let tx = caveCX - Math.floor(caveRX * 0.6); tx <= caveCX + Math.floor(caveRX * 0.6); tx++) {
+      if (world.inBounds(tx, ty)) world.setTemp(tx, ty, 900);
+    }
+  }
+
+  // 矿物：水晶脉、金矿、钻石嵌入洞壁
+  scatter(world, caveCX - caveRX - 10, caveY1, caveCX - Math.floor(caveRX * 0.7), caveY2, 53, 0.12); // 水晶
+  scatter(world, caveCX + Math.floor(caveRX * 0.7), caveY1, caveCX + caveRX + 10, caveY2, 53, 0.12);
+  scatter(world, 0, Math.floor(H * 0.2), Math.floor(W * 0.3), Math.floor(H * 0.9), 31, 0.02);   // 金
+  scatter(world, 0, Math.floor(H * 0.5), W - 1, H - 1, 32, 0.008);  // 钻石（深处）
+
+  // 蒸汽喷口：洞底几个位置向上喷蒸汽（实际上就是暴露到洞底的熔岩产生蒸汽）
+  const ventPositions = [
+    caveCX - Math.floor(caveRX * 0.4),
+    caveCX,
+    caveCX + Math.floor(caveRX * 0.4),
+  ];
+  for (const vx of ventPositions) {
+    for (let vy = caveY2 - 4; vy <= caveY2; vy++) {
+      if (world.inBounds(vx, vy) && world.get(vx, vy) === 0) {
+        world.set(vx, vy, 8); // 蒸汽柱
+        world.setTemp(vx, vy, 300);
+      }
+    }
+  }
+
+  // 黑曜石管壁衬层（熔岩管壁边缘）
+  scatter(world, 0, Math.floor(H * 0.3), W - 1, Math.floor(H * 0.48), 60, 0.04);
+  scatter(world, 0, Math.floor(H * 0.6), W - 1, Math.floor(H * 0.78), 60, 0.04);
 }

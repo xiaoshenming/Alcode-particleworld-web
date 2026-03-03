@@ -749,7 +749,26 @@ input[type="range"] {
   border-radius: 12px;
   padding: 20px;
   min-width: 400px;
-  max-width: 500px;
+  max-width: 520px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.scene-category-header {
+  font-size: 12px;
+  font-weight: 700;
+  color: #aac;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 12px 0 8px;
+  padding: 4px 8px;
+  background: rgba(80, 80, 140, 0.25);
+  border-left: 3px solid #66f;
+  border-radius: 0 4px 4px 0;
+}
+
+.scene-category-header:first-of-type {
+  margin-top: 0;
 }
 
 .scene-panel-title {

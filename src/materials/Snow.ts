@@ -1,14 +1,17 @@
 import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
-/** 热源材质 ID */
-const HOT = new Set([6, 8, 11]); // 火、蒸汽、熔岩
+/** 高温热源（雪接触蒸发为蒸汽） */
+const VAPORIZE = new Set([11, 55]); // 熔岩、等离子体 → 蒸汽
+/** 普通热源（雪融化为水） */
+const MELT = new Set([6, 8]); // 火、蒸汽 → 水
 
 /**
  * 雪 —— 粉末类，受重力下落可堆积
- * - 遇火/熔岩/蒸汽 → 融化为水
+ * - 遇熔岩/等离子体 → 直接蒸发为蒸汽（高温剧烈反应）
+ * - 遇火/蒸汽 → 融化为水
  * - 相邻水有小概率冻结水为冰
- * 新增：雪落入水中会降低水温，同时自身也被融化（雪水效果）
+ * - 雪落入水中会降低水温，同时自身也被融化（雪水效果）
  */
 export const Snow: MaterialDef = {
   id: 15,
@@ -19,12 +22,16 @@ export const Snow: MaterialDef = {
   },
   density: 1.5, // 比水轻，比空气重
   update(x: number, y: number, world: WorldAPI) {
-    // 检查邻居：遇热融化（显式4方向，无HOF）
-    // 遇热源立即融化：立即return
-    if (world.inBounds(x, y - 1) && HOT.has(world.get(x, y - 1))) { world.set(x, y, 2); return; }
-    if (world.inBounds(x, y + 1) && HOT.has(world.get(x, y + 1))) { world.set(x, y, 2); return; }
-    if (world.inBounds(x - 1, y) && HOT.has(world.get(x - 1, y))) { world.set(x, y, 2); return; }
-    if (world.inBounds(x + 1, y) && HOT.has(world.get(x + 1, y))) { world.set(x, y, 2); return; }
+    // 检查邻居：遇高温直接蒸发为蒸汽（4方向显式展开，无HOF）
+    if (world.inBounds(x, y - 1) && VAPORIZE.has(world.get(x, y - 1))) { world.set(x, y, 8); world.wakeArea(x, y); return; }
+    if (world.inBounds(x, y + 1) && VAPORIZE.has(world.get(x, y + 1))) { world.set(x, y, 8); world.wakeArea(x, y); return; }
+    if (world.inBounds(x - 1, y) && VAPORIZE.has(world.get(x - 1, y))) { world.set(x, y, 8); world.wakeArea(x, y); return; }
+    if (world.inBounds(x + 1, y) && VAPORIZE.has(world.get(x + 1, y))) { world.set(x, y, 8); world.wakeArea(x, y); return; }
+    // 遇普通热源融化为水（4方向显式展开，无HOF）
+    if (world.inBounds(x, y - 1) && MELT.has(world.get(x, y - 1))) { world.set(x, y, 2); return; }
+    if (world.inBounds(x, y + 1) && MELT.has(world.get(x, y + 1))) { world.set(x, y, 2); return; }
+    if (world.inBounds(x - 1, y) && MELT.has(world.get(x - 1, y))) { world.set(x, y, 2); return; }
+    if (world.inBounds(x + 1, y) && MELT.has(world.get(x + 1, y))) { world.set(x, y, 2); return; }
     // 雪接触水：降低水温 + 冻结水（不return）
     if (world.inBounds(x, y - 1) && world.get(x, y - 1) === 2) {
       const waterTemp = world.getTemp(x, y - 1);

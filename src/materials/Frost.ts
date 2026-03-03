@@ -78,6 +78,7 @@ export const Frost: MaterialDef = {
     // 邻居交互（4方向显式展开，无HOF）
     if (world.inBounds(x, y - 1)) {
       const nx = x, ny = y - 1; const nid = world.get(nx, ny);
+      if (nid === 11 && Math.random() < 0.25) { world.set(nx, ny, 60); world.markUpdated(nx, ny); } // 霜急冷熔岩→黑曜石
       if (HOT_SOURCE.has(nid)) { world.set(x, y, 8); world.wakeArea(x, y); return; }
       if (nid === 2 && temp < 0 && Math.random() < 0.08) { world.set(nx, ny, 14); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
       if (nid === 0 && temp < -5 && Math.random() < 0.02) {
@@ -93,6 +94,7 @@ export const Frost: MaterialDef = {
     }
     if (world.inBounds(x, y + 1)) {
       const nx = x, ny = y + 1; const nid = world.get(nx, ny);
+      if (nid === 11 && Math.random() < 0.25) { world.set(nx, ny, 60); world.markUpdated(nx, ny); } // 霜急冷熔岩→黑曜石
       if (HOT_SOURCE.has(nid)) { world.set(x, y, 8); world.wakeArea(x, y); return; }
       if (nid === 2 && temp < 0 && Math.random() < 0.08) { world.set(nx, ny, 14); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
       if (nid === 0 && temp < -5 && Math.random() < 0.02) {
@@ -107,6 +109,7 @@ export const Frost: MaterialDef = {
     }
     if (world.inBounds(x - 1, y)) {
       const nx = x - 1, ny = y; const nid = world.get(nx, ny);
+      if (nid === 11 && Math.random() < 0.25) { world.set(nx, ny, 60); world.markUpdated(nx, ny); } // 霜急冷熔岩→黑曜石
       if (HOT_SOURCE.has(nid)) { world.set(x, y, 8); world.wakeArea(x, y); return; }
       if (nid === 2 && temp < 0 && Math.random() < 0.08) { world.set(nx, ny, 14); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
       if (nid === 0 && temp < -5 && Math.random() < 0.02) {
@@ -121,6 +124,7 @@ export const Frost: MaterialDef = {
     }
     if (world.inBounds(x + 1, y)) {
       const nx = x + 1, ny = y; const nid = world.get(nx, ny);
+      if (nid === 11 && Math.random() < 0.25) { world.set(nx, ny, 60); world.markUpdated(nx, ny); } // 霜急冷熔岩→黑曜石
       if (HOT_SOURCE.has(nid)) { world.set(x, y, 8); world.wakeArea(x, y); return; }
       if (nid === 2 && temp < 0 && Math.random() < 0.08) { world.set(nx, ny, 14); world.markUpdated(nx, ny); world.wakeArea(nx, ny); }
       if (nid === 0 && temp < -5 && Math.random() < 0.02) {
