@@ -6,6 +6,8 @@ const HONEY_IGNITORS = new Set([6, 11, 28]);
 
 /** 蜂蜜 —— 高粘度液体，流动缓慢，可粘住轻质粒子
  * 新增：接触火/熔岩/火花时直接焦化为烟（糖的燃烧反应）
+ * 新增：接触酸液(9)→分解（酸催化糖分水解→变为水，约2.5秒）
+ * 新增：接触水(2)→稀释（长时间浸泡后溶入水中，约17秒）
  */
 export const Honey: MaterialDef = {
   id: 45,
@@ -26,7 +28,7 @@ export const Honey: MaterialDef = {
       return;
     }
 
-    // 接触火/熔岩/火���：蜂蜜糖分燃烧→焦烟
+    // 接触火/熔岩/火花：蜂蜜糖分燃烧→焦烟
     if (world.inBounds(x, y - 1) && HONEY_IGNITORS.has(world.get(x, y - 1))) {
       world.set(x, y, 7); // 焦化为烟
       world.setTemp(x, y, 100);
@@ -46,6 +48,24 @@ export const Honey: MaterialDef = {
       world.set(x, y, 7);
       world.setTemp(x, y, 100);
       return;
+    }
+
+    // 接触酸液(9)：酸催化糖分水解→蜂蜜分解为水（约150帧≈2.5秒）
+    // 化学：C12H22O11 + H2SO4 → 6CO2 + 11H2O（糖在酸催化下分解）
+    if (Math.random() < 0.007) {
+      if (world.inBounds(x, y - 1) && world.get(x, y - 1) === 9) { world.set(x, y, 2); world.wakeArea(x, y); return; }
+      if (world.inBounds(x, y + 1) && world.get(x, y + 1) === 9) { world.set(x, y, 2); world.wakeArea(x, y); return; }
+      if (world.inBounds(x - 1, y) && world.get(x - 1, y) === 9) { world.set(x, y, 2); world.wakeArea(x, y); return; }
+      if (world.inBounds(x + 1, y) && world.get(x + 1, y) === 9) { world.set(x, y, 2); world.wakeArea(x, y); return; }
+    }
+
+    // 接触水(2)：水稀释蜂蜜→溶入水中（约1000帧≈17秒，需长时间浸泡）
+    // 物理：蜂蜜高度吸湿，水分子不断渗入稀释糖分直至完全溶解
+    if (Math.random() < 0.001) {
+      if (world.inBounds(x, y - 1) && world.get(x, y - 1) === 2) { world.set(x, y, 2); world.wakeArea(x, y); return; }
+      if (world.inBounds(x, y + 1) && world.get(x, y + 1) === 2) { world.set(x, y, 2); world.wakeArea(x, y); return; }
+      if (world.inBounds(x - 1, y) && world.get(x - 1, y) === 2) { world.set(x, y, 2); world.wakeArea(x, y); return; }
+      if (world.inBounds(x + 1, y) && world.get(x + 1, y) === 2) { world.set(x, y, 2); world.wakeArea(x, y); return; }
     }
 
     // 粘度：温度越低越粘，只有一定概率才移动

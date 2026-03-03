@@ -10,6 +10,7 @@ import { registerMaterial } from './registry';
  * - 接触植物/种子促进生长
  * - 病毒在血液中传播更快
  * - 新增：接触熔岩迅速沸腾为烟（血液含水分，遇极高温气化）
+ * - 新增：接触盐(23)/盐水(24)→凝固为石头（渗透压差导致细胞脱水凝固，盐水概率更高）
  * - 视觉上呈深红色
  */
 
@@ -82,6 +83,20 @@ export const Blood: MaterialDef = {
         return;
       }
 
+      // 盐(23)→渗透压差导致血细胞脱水凝固（约250帧≈4秒）
+      if (nid === 23 && Math.random() < 0.004) {
+        world.set(x, y, 3); // 凝固血块（石头）
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 盐水(24)→加速凝固（盐分+水分同时渗透，约125帧≈2秒）
+      if (nid === 24 && Math.random() < 0.008) {
+        world.set(x, y, 3);
+        world.wakeArea(x, y);
+        return;
+      }
+
       // 促进种子发芽
       if (nid === 12 && Math.random() < 0.05) {
         world.set(nx, ny, 13); // 植物
@@ -117,6 +132,20 @@ export const Blood: MaterialDef = {
       // 酸液分解
       if (nid === 9 && Math.random() < 0.06) {
         world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 盐(23)→渗透压差凝固
+      if (nid === 23 && Math.random() < 0.004) {
+        world.set(x, y, 3);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 盐水(24)→加速凝固
+      if (nid === 24 && Math.random() < 0.008) {
+        world.set(x, y, 3);
         world.wakeArea(x, y);
         return;
       }
@@ -160,6 +189,20 @@ export const Blood: MaterialDef = {
         return;
       }
 
+      // 盐(23)→渗透压差凝固
+      if (nid === 23 && Math.random() < 0.004) {
+        world.set(x, y, 3);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 盐水(24)→加速凝固
+      if (nid === 24 && Math.random() < 0.008) {
+        world.set(x, y, 3);
+        world.wakeArea(x, y);
+        return;
+      }
+
       // 促进种子发芽
       if (nid === 12 && Math.random() < 0.05) {
         world.set(nx, ny, 13); // 植物
@@ -195,6 +238,20 @@ export const Blood: MaterialDef = {
       // 酸液分解
       if (nid === 9 && Math.random() < 0.06) {
         world.set(x, y, 0);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 盐(23)→渗透压差凝固
+      if (nid === 23 && Math.random() < 0.004) {
+        world.set(x, y, 3);
+        world.wakeArea(x, y);
+        return;
+      }
+
+      // 盐水(24)→加速凝固
+      if (nid === 24 && Math.random() < 0.008) {
+        world.set(x, y, 3);
         world.wakeArea(x, y);
         return;
       }
