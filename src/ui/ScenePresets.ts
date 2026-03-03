@@ -745,6 +745,88 @@ function generateSwamp(world: World): void {
   scatter(world, 0, swampY - 8, W - 1, swampY - 2, 7, 0.015);
 }
 
+/** 场景：山间瀑布 */
+function generateWaterfall(world: World): void {
+  const W = world.width, H = world.height;
+  world.clear();
+
+  // 底部地面（石头）
+  fillRect(world, 0, H - 10, W - 1, H - 1, 3);
+
+  // 左侧崖壁（石头高台，从顶部到中间）
+  const cliffH = Math.floor(H * 0.55); // 崖顶Y坐标
+  fillRect(world, 0, 0, Math.floor(W * 0.28), H - 10, 3);
+
+  // 崖壁边缘修整（台阶感）
+  const cliffX = Math.floor(W * 0.28);
+  for (let y = 0; y <= cliffH; y++) {
+    if (world.inBounds(cliffX + 1, y)) world.set(cliffX + 1, y, 3);
+  }
+
+  // 右侧小崖壁（水流另一侧挡板，形成峡谷感）
+  fillRect(world, Math.floor(W * 0.72), 0, W - 1, Math.floor(H * 0.4), 3);
+  // 右侧下部斜坡（石头）
+  for (let y = Math.floor(H * 0.4); y < H - 10; y++) {
+    const startX = Math.floor(W * 0.72) + Math.floor((y - Math.floor(H * 0.4)) * 0.3);
+    if (startX < W) fillRect(world, startX, y, W - 1, y, 3);
+  }
+
+  // 水潭（底部中间区域）
+  const pondLeft = cliffX + 2;
+  const pondRight = Math.floor(W * 0.7);
+  const pondTop = H - 18;
+  fillRect(world, pondLeft, pondTop, pondRight, H - 11, 2);
+
+  // 瀑布水柱（从崖顶流下，垂直水帘）
+  const fallLeft = cliffX + 2;
+  const fallRight = cliffX + 8;
+  for (let y = cliffH; y < pondTop; y++) {
+    for (let x = fallLeft; x <= fallRight; x++) {
+      if (world.inBounds(x, y)) {
+        world.set(x, y, 2); // 水
+        world.setTemp(x, y, 16); // 清凉水温
+      }
+    }
+  }
+
+  // 崖顶水源（上方蓄水池）
+  fillRect(world, 2, cliffH - 12, cliffX + 1, cliffH - 1, 2);
+  // 水源温度
+  for (let y = cliffH - 12; y < cliffH; y++) {
+    for (let x = 2; x <= cliffX + 1; x++) {
+      if (world.inBounds(x, y)) world.setTemp(x, y, 15);
+    }
+  }
+
+  // 瀑布水雾（水柱两侧）
+  for (let y = cliffH + 5; y < pondTop + 5; y++) {
+    if (world.inBounds(fallLeft - 1, y) && Math.random() < 0.3) world.set(fallLeft - 1, y, 8); // 蒸汽
+    if (world.inBounds(fallRight + 1, y) && Math.random() < 0.3) world.set(fallRight + 1, y, 8);
+  }
+  // 水潭表面水雾
+  scatter(world, pondLeft, pondTop - 6, pondRight, pondTop - 1, 8, 0.08);
+
+  // 苔藓（崖壁潮湿处，ID:49）
+  scatter(world, 0, Math.floor(H * 0.3), cliffX - 1, H - 10, 49, 0.05);
+  scatter(world, pondRight + 1, pondTop, W - 2, H - 10, 49, 0.04);
+
+  // 植物（水潭周围，ID:13）
+  scatter(world, pondLeft, pondTop - 8, pondLeft + 5, pondTop - 1, 13, 0.2);
+  scatter(world, pondRight - 5, pondTop - 8, pondRight, pondTop - 1, 13, 0.2);
+
+  // 藤蔓（崖壁垂挂，ID:57）
+  scatter(world, cliffX - 3, cliffH, cliffX, H - 15, 57, 0.1);
+
+  // 水草（水潭中，ID:156）
+  scatter(world, pondLeft + 5, pondTop, pondRight - 5, H - 12, 156, 0.04);
+
+  // 水晶（崖壁岩石中，ID:53）
+  scatter(world, 2, Math.floor(H * 0.5), cliffX - 2, H - 11, 53, 0.015);
+
+  // 底部沙砾（水潭底部，ID:1=沙子）
+  scatter(world, pondLeft, H - 11, pondRight, H - 10, 1, 0.3);
+}
+
 /** 所有预设场景 */
 export const SCENE_PRESETS: ScenePreset[] = [
   { name: '火山', icon: '🌋', description: '熔岩喷发的火山场景', generate: generateVolcano },
@@ -761,6 +843,7 @@ export const SCENE_PRESETS: ScenePreset[] = [
   { name: '深海热泉', icon: '🌊', description: '海底热泉喷口+矿物结晶+发光深海生物', generate: generateHydrothermal },
   { name: '极光温泉', icon: '🌌', description: '极地温泉+冰山+极光粒子带+飘雪', generate: generateAuroraSpring },
   { name: '神秘沼泽', icon: '🌿', description: '泥沼+枯木藤蔓+沼气+萤火虫夜景', generate: generateSwamp },
+  { name: '山间瀑布', icon: '💧', description: '崖壁瀑布+水潭+水雾+苔藓藤蔓', generate: generateWaterfall },
 ];
 
 /**
