@@ -14,7 +14,7 @@ function canDisplace(x: number, y: number, myDensity: number, world: WorldAPI): 
 }
 
 /** 触发爆炸的材质 */
-const IGNITORS = new Set([6, 11, 16]); // 火、熔岩、雷电
+const IGNITORS = new Set([6, 11, 16, 28, 55]); // 火、熔岩、雷电、火花、等离子体
 
 /** 在指定位置产生爆炸 */
 function explode(cx: number, cy: number, radius: number, world: WorldAPI): void {

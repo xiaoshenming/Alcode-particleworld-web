@@ -9,6 +9,7 @@ import { registerMaterial } from './registry';
  * - 极高温（>200°）自燃
  * - 水无法穿透沥青层（密度高于水）
  * - 冷却后几乎不流动（模拟凝固）
+ * - 新增：接触酸液(9)→化学降解（沥青只消失，酸保留，产生烟/毒气）
  */
 
 /** 可点燃沥青的材质 */
@@ -72,14 +73,19 @@ export const Tar: MaterialDef = {
         return;
       }
 
-      // 酸液缓慢溶解
+      // 酸液化学降解（约20帧≈0.3秒）
+      // 化学：沥青+浓H2SO4→磺化沥青降解产物（CO2+SO3+H2O），酸保留
       if (nid === 9 && Math.random() < 0.05) {
-        world.set(x, y, 0);
-        world.set(nx, ny, 0);
+        world.set(x, y, 0); // 沥青降解消失（酸不消除，继续存在）
+        // 产生烟或毒气（SO3/CO2副产物）
+        if (world.inBounds(x, y + 1) && world.isEmpty(x, y + 1)) {
+          world.set(x, y + 1, Math.random() < 0.6 ? 7 : 18);
+          world.markUpdated(x, y + 1);
+        }
         world.wakeArea(x, y);
         return;
       }
-        }
+    }
     if (world.inBounds(x, y + 1)) {
       const nx = x, ny = y + 1;
       const nid = world.get(nx, ny);
@@ -96,14 +102,17 @@ export const Tar: MaterialDef = {
         return;
       }
 
-      // 酸液缓慢溶解
+      // 酸液化学降解
       if (nid === 9 && Math.random() < 0.05) {
         world.set(x, y, 0);
-        world.set(nx, ny, 0);
+        if (world.inBounds(x, y - 1) && world.isEmpty(x, y - 1)) {
+          world.set(x, y - 1, Math.random() < 0.6 ? 7 : 18);
+          world.markUpdated(x, y - 1);
+        }
         world.wakeArea(x, y);
         return;
       }
-        }
+    }
     if (world.inBounds(x - 1, y)) {
       const nx = x - 1, ny = y;
       const nid = world.get(nx, ny);
@@ -120,14 +129,17 @@ export const Tar: MaterialDef = {
         return;
       }
 
-      // 酸液缓慢溶解
+      // 酸液化学降解
       if (nid === 9 && Math.random() < 0.05) {
         world.set(x, y, 0);
-        world.set(nx, ny, 0);
+        if (world.inBounds(x, y - 1) && world.isEmpty(x, y - 1)) {
+          world.set(x, y - 1, Math.random() < 0.6 ? 7 : 18);
+          world.markUpdated(x, y - 1);
+        }
         world.wakeArea(x, y);
         return;
       }
-        }
+    }
     if (world.inBounds(x + 1, y)) {
       const nx = x + 1, ny = y;
       const nid = world.get(nx, ny);
@@ -144,14 +156,17 @@ export const Tar: MaterialDef = {
         return;
       }
 
-      // 酸液缓慢溶解
+      // 酸液化学降解
       if (nid === 9 && Math.random() < 0.05) {
         world.set(x, y, 0);
-        world.set(nx, ny, 0);
+        if (world.inBounds(x, y - 1) && world.isEmpty(x, y - 1)) {
+          world.set(x, y - 1, Math.random() < 0.6 ? 7 : 18);
+          world.markUpdated(x, y - 1);
+        }
         world.wakeArea(x, y);
         return;
       }
-        }
+    }
 
     // 粘度：温度越低越粘
     // 低温几乎不动，高温才流动
