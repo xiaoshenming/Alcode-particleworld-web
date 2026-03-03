@@ -1038,6 +1038,7 @@ export const SCENE_PRESETS: ScenePreset[] = [
   { name: '地下熔岩管', icon: '🔥', description: '蜿蜒熔岩管道+洞穴空腔+蒸汽喷口+矿脉', category: '地下/水下', generate: generateLavaTube },
   { name: '末日火山', icon: '🌋', description: '末日熔岩雨与火山喷发', category: '极端', generate: generateApocalypse },
   { name: '深海黑暗区', icon: '🦑', description: '深渊高压+发光生物+热液喷口+黑暗矿脉+超冷水', category: '极端', generate: generateDeepAbyss },
+  { name: '极端酸雨', icon: '☠️', description: '酸液从天而降+腐蚀地表+中和水池+防护材料', category: '极端', generate: generateAcidRain },
 ];
 
 /**
@@ -1422,5 +1423,73 @@ function generateDeepAbyss(world: World): void {
     fillRect(world, reef.x - 5, reef.y, reef.x + 5, reef.y + 6, 3);
     fillRect(world, reef.x - 3, reef.y - 2, reef.x + 3, reef.y, 60);
     scatter(world, reef.x - 5, reef.y, reef.x + 5, reef.y + 6, 53, 0.1);
+  }
+}
+
+function generateAcidRain(world: World): void {
+  const W = world.width, H = world.height;
+  world.clear();
+
+  // 地面基础：混凝土层（防腐蚀外层）+ 石灰层（中和层）+ 土层
+  fillRect(world, 0, H - 3, W - 1, H - 1, 36);  // 混凝土底层（抗酸）
+  fillRect(world, 0, H - 5, W - 1, H - 4, 124); // 石灰层（碱性，可中和酸）
+  fillRect(world, 0, H - 12, W - 1, H - 6, 20); // 土壤层
+
+  // 地面腐蚀区域：中央区域已被酸腐蚀的坑洼
+  for (let x = Math.floor(W * 0.25); x <= Math.floor(W * 0.75); x++) {
+    const depth = Math.floor(Math.sin((x / W) * Math.PI * 4) * 2 + Math.random() * 2);
+    for (let y = H - 12; y >= H - 12 - depth; y--) {
+      if (world.inBounds(x, y)) world.set(x, y, 0); // 已腐蚀的坑
+    }
+  }
+
+  // 左侧防护墙：玻璃+混凝土（展示防酸效果）
+  fillRect(world, 0, Math.floor(H * 0.3), 8, H - 13, 17);  // 玻璃防护
+  fillRect(world, 8, Math.floor(H * 0.3), 12, H - 13, 36); // 混凝土支撑
+
+  // 右侧防护墙：橡胶层（良好耐酸材质）
+  fillRect(world, W - 13, Math.floor(H * 0.3), W - 9, H - 13, 33); // 橡胶
+  fillRect(world, W - 9, Math.floor(H * 0.3), W - 1, H - 13, 36);  // 混凝土
+
+  // 中和水池：底部左侧（水+石灰→碱性液体，模拟中和）
+  fillRect(world, 15, H - 13, Math.floor(W * 0.35), H - 6, 2);    // 水池（普通水）
+  fillRect(world, 15, H - 6, Math.floor(W * 0.35), H - 6, 124);   // 石灰底
+  scatter(world, 16, H - 12, Math.floor(W * 0.34), H - 7, 178, 0.08); // 石灰水散布
+
+  // 酸液积聚区：中央低洼（已积聚的酸液池）
+  const acidLeft = Math.floor(W * 0.4);
+  const acidRight = Math.floor(W * 0.6);
+  fillRect(world, acidLeft, H - 11, acidRight, H - 6, 9); // 酸液池
+
+  // 酸雨注入器：顶部散布酸液源（模拟持续降酸）
+  const emitterCount = 8;
+  for (let i = 0; i < emitterCount; i++) {
+    const ex = Math.floor(W * 0.15 + (W * 0.7 / (emitterCount - 1)) * i);
+    // 顶部少量酸液（模拟初始酸雨）
+    for (let ay = 2; ay <= 6; ay++) {
+      if (Math.random() < 0.4 && world.inBounds(ex, ay)) {
+        world.set(ex, ay, 9);
+      }
+    }
+  }
+
+  // 酸雨云层：顶部酸性气体云（毒气+酸蒸气模拟酸雨云）
+  scatter(world, 0, 0, W - 1, 8, 18, 0.12);   // 毒气云（宽泛分布）
+  scatter(world, Math.floor(W * 0.1), 3, Math.floor(W * 0.9), 10, 9, 0.04); // 稀疏酸液滴
+
+  // 腐蚀痕迹：部分金属构件被酸腐蚀（展示效果）
+  fillRect(world, Math.floor(W * 0.5) - 3, H - 17, Math.floor(W * 0.5) + 3, H - 13, 10); // 金属支架
+  scatter(world, Math.floor(W * 0.5) - 3, H - 17, Math.floor(W * 0.5) + 3, H - 13, 72, 0.3); // 铁锈点（腐蚀迹）
+
+  // 边界防腐层：两侧添加石灰石保护（抵抗酸腐蚀）
+  fillRect(world, 0, H - 12, 2, H - 3, 195);   // 左石灰石边界
+  fillRect(world, W - 3, H - 12, W - 1, H - 3, 195); // 右石灰石边界
+
+  // 设置初始温度：酸雨环境微暖（化学反应产热）
+  for (let y = H - 15; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      const id = world.get(x, y);
+      if (id === 9) world.setTemp(x, y, 35); // 酸液微热
+    }
   }
 }

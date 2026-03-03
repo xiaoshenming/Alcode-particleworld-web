@@ -35,17 +35,30 @@ export const Lava: MaterialDef = {
     if (world.inBounds(x, y + 1) && world.get(x, y + 1) === 2) { world.set(x, y, 60); world.set(x, y + 1, 8); return; }
     if (world.inBounds(x - 1, y) && world.get(x - 1, y) === 2) { world.set(x, y, 60); world.set(x - 1, y, 8); return; }
     if (world.inBounds(x + 1, y) && world.get(x + 1, y) === 2) { world.set(x, y, 60); world.set(x + 1, y, 8); return; }
-    // 熔岩 + 冰/雪 → 岩浆岩 + 蒸汽（立即return）
-    if (world.inBounds(x, y - 1) && (world.get(x, y - 1) === 14 || world.get(x, y - 1) === 15) && Math.random() < 0.3) {
+    // 熔岩 + 冰 → 黑曜石 + 蒸汽（急冷产生黑曜石，物理正确）
+    // 熔岩 + 雪 → 岩浆岩 + 蒸汽（雪含水份，缓慢急冷产生岩浆岩）
+    if (world.inBounds(x, y - 1) && world.get(x, y - 1) === 14 && Math.random() < 0.3) {
+      world.set(x, y, 60); world.set(x, y - 1, 8); world.wakeArea(x, y); world.wakeArea(x, y - 1); return;
+    }
+    if (world.inBounds(x, y + 1) && world.get(x, y + 1) === 14 && Math.random() < 0.3) {
+      world.set(x, y, 60); world.set(x, y + 1, 8); world.wakeArea(x, y); world.wakeArea(x, y + 1); return;
+    }
+    if (world.inBounds(x - 1, y) && world.get(x - 1, y) === 14 && Math.random() < 0.3) {
+      world.set(x, y, 60); world.set(x - 1, y, 8); world.wakeArea(x, y); world.wakeArea(x - 1, y); return;
+    }
+    if (world.inBounds(x + 1, y) && world.get(x + 1, y) === 14 && Math.random() < 0.3) {
+      world.set(x, y, 60); world.set(x + 1, y, 8); world.wakeArea(x, y); world.wakeArea(x + 1, y); return;
+    }
+    if (world.inBounds(x, y - 1) && world.get(x, y - 1) === 15 && Math.random() < 0.3) {
       world.set(x, y, 77); world.set(x, y - 1, 8); world.wakeArea(x, y); world.wakeArea(x, y - 1); return;
     }
-    if (world.inBounds(x, y + 1) && (world.get(x, y + 1) === 14 || world.get(x, y + 1) === 15) && Math.random() < 0.3) {
+    if (world.inBounds(x, y + 1) && world.get(x, y + 1) === 15 && Math.random() < 0.3) {
       world.set(x, y, 77); world.set(x, y + 1, 8); world.wakeArea(x, y); world.wakeArea(x, y + 1); return;
     }
-    if (world.inBounds(x - 1, y) && (world.get(x - 1, y) === 14 || world.get(x - 1, y) === 15) && Math.random() < 0.3) {
+    if (world.inBounds(x - 1, y) && world.get(x - 1, y) === 15 && Math.random() < 0.3) {
       world.set(x, y, 77); world.set(x - 1, y, 8); world.wakeArea(x, y); world.wakeArea(x - 1, y); return;
     }
-    if (world.inBounds(x + 1, y) && (world.get(x + 1, y) === 14 || world.get(x + 1, y) === 15) && Math.random() < 0.3) {
+    if (world.inBounds(x + 1, y) && world.get(x + 1, y) === 15 && Math.random() < 0.3) {
       world.set(x, y, 77); world.set(x + 1, y, 8); world.wakeArea(x, y); world.wakeArea(x + 1, y); return;
     }
     // 点燃可燃物（不return）

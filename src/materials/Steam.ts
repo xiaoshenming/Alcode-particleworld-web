@@ -4,6 +4,7 @@ import { registerMaterial } from './registry';
 /**
  * 蒸汽 —— 气体，比烟更轻，向上快速飘散
  * 遇冷（生命耗尽）凝结为水
+ * 接触冰 → 凝结为水（蒸汽遇冷直接冷凝）
  * 使用 World 内置 age 系统替代 Map<string,number>
  */
 
@@ -27,6 +28,12 @@ export const Steam: MaterialDef = {
       }
       return;
     }
+
+    // 接触冰(14)→凝结为水（蒸汽遇冷立即冷凝，4方向显式展开）
+    if (world.inBounds(x, y - 1) && world.get(x, y - 1) === 14) { world.set(x, y, 2); return; }
+    if (world.inBounds(x, y + 1) && world.get(x, y + 1) === 14) { world.set(x, y, 2); return; }
+    if (world.inBounds(x - 1, y) && world.get(x - 1, y) === 14) { world.set(x, y, 2); return; }
+    if (world.inBounds(x + 1, y) && world.get(x + 1, y) === 14) { world.set(x, y, 2); return; }
 
     // 快速上升
     if (y > 0) {
