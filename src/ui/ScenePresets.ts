@@ -827,6 +827,111 @@ function generateWaterfall(world: World): void {
   scatter(world, pondLeft, H - 11, pondRight, H - 10, 1, 0.3);
 }
 
+/** 沙漠绿洲场景 —— 第16个预设
+ * - 两侧大沙丘（沙子+骨头+干草点缀）+ 中间绿洲水源
+ * - 绿洲水池（水+水草+植物）+ 仙人掌形态（种子+植物）
+ * - 底层岩石地基 + 沙尘漂移（干沙ID:146 + 沙尘暴ID:84小量）
+ * - 绿洲周边：棕榈型植物（高植物柱）+ 苔藓+水晶点缀
+ */
+function generateOasis(world: World): void {
+  const W = world.width, H = world.height;
+  world.clear();
+
+  // 底部岩石层（薄层，模拟沙漠基岩）
+  fillRect(world, 0, H - 6, W - 1, H - 1, 3);
+
+  // 左侧大沙丘（从左到中间，高度呈弧形）
+  const oasisLeft = Math.floor(W * 0.33);
+  const oasisRight = Math.floor(W * 0.67);
+  const oasisBottom = H - 7;
+  const oasisTop = Math.floor(H * 0.55);
+
+  for (let x = 0; x < oasisLeft; x++) {
+    // 沙丘高度：左侧低→中间高→绿洲处骤降
+    const ratio = x / oasisLeft;
+    const duneHeight = Math.floor(H * 0.35 + Math.sin(ratio * Math.PI) * H * 0.18);
+    const duneTop = H - 6 - duneHeight;
+    for (let y = duneTop; y < H - 6; y++) {
+      world.set(x, y, 1); // 沙子
+      world.setTemp(x, y, 45); // 炎热
+    }
+  }
+
+  // 右侧大沙丘
+  for (let x = oasisRight; x < W; x++) {
+    const ratio = (W - 1 - x) / (W - oasisRight);
+    const duneHeight = Math.floor(H * 0.35 + Math.sin(ratio * Math.PI) * H * 0.18);
+    const duneTop = H - 6 - duneHeight;
+    for (let y = duneTop; y < H - 6; y++) {
+      world.set(x, y, 1);
+      world.setTemp(x, y, 45);
+    }
+  }
+
+  // 绿洲中央水池（中下区域）
+  const poolLeft = oasisLeft + 4;
+  const poolRight = oasisRight - 4;
+  const poolTop = oasisBottom - 8;
+  fillRect(world, poolLeft, poolTop, poolRight, oasisBottom, 2); // 水
+  for (let y = poolTop; y <= oasisBottom; y++) {
+    for (let x = poolLeft; x <= poolRight; x++) {
+      world.setTemp(x, y, 22); // 清凉水温
+    }
+  }
+
+  // 绿洲水池底部沙砾
+  scatter(world, poolLeft, oasisBottom - 1, poolRight, oasisBottom, 1, 0.3);
+
+  // 水草（水池中，ID:156）
+  scatter(world, poolLeft + 2, poolTop + 2, poolRight - 2, oasisBottom - 2, 156, 0.05);
+
+  // 绿洲地面（湿润土壤，用泥土ID:20）
+  fillRect(world, oasisLeft, oasisBottom + 1, oasisRight, H - 7, 20);
+
+  // 棕榈树（绿洲两侧，高柱状植物ID:13）
+  // 左棕榈
+  const palm1X = oasisLeft + 8;
+  for (let y = oasisTop + 5; y < oasisBottom; y++) {
+    if (world.inBounds(palm1X, y)) world.set(palm1X, y, 13);
+  }
+  // 树冠（水平展开）
+  for (let dx = -4; dx <= 4; dx++) {
+    if (world.inBounds(palm1X + dx, oasisTop + 5)) world.set(palm1X + dx, oasisTop + 5, 13);
+    if (world.inBounds(palm1X + dx, oasisTop + 6)) world.set(palm1X + dx, oasisTop + 6, 13);
+  }
+  // 右棕榈
+  const palm2X = oasisRight - 8;
+  for (let y = oasisTop + 5; y < oasisBottom; y++) {
+    if (world.inBounds(palm2X, y)) world.set(palm2X, y, 13);
+  }
+  for (let dx = -4; dx <= 4; dx++) {
+    if (world.inBounds(palm2X + dx, oasisTop + 5)) world.set(palm2X + dx, oasisTop + 5, 13);
+    if (world.inBounds(palm2X + dx, oasisTop + 6)) world.set(palm2X + dx, oasisTop + 6, 13);
+  }
+
+  // 绿洲周围植物（矮灌木）
+  scatter(world, oasisLeft, poolTop - 5, poolLeft - 1, oasisBottom, 13, 0.12);
+  scatter(world, poolRight + 1, poolTop - 5, oasisRight, oasisBottom, 13, 0.12);
+
+  // 水池旁苔藓（湿润边缘，ID:49）
+  scatter(world, poolLeft - 3, poolTop - 3, poolLeft, oasisBottom + 2, 49, 0.2);
+  scatter(world, poolRight, poolTop - 3, poolRight + 3, oasisBottom + 2, 49, 0.2);
+
+  // 沙丘中点缀干草（ID:134）和骨头（ID:105）——沙漠遗骸感
+  scatter(world, 2, Math.floor(H * 0.6), oasisLeft - 2, H - 7, 134, 0.02);
+  scatter(world, oasisRight + 2, Math.floor(H * 0.6), W - 3, H - 7, 105, 0.01);
+
+  // 少量沙尘在空中（干沙ID:146漂浮，上层）
+  scatter(world, 0, Math.floor(H * 0.2), W - 1, Math.floor(H * 0.38), 146, 0.015);
+
+  // 绿洲中央水晶（清澈水底，ID:53）
+  scatter(world, poolLeft + 2, oasisBottom - 2, poolRight - 2, oasisBottom, 53, 0.02);
+
+  // 种子点缀（沙丘边缘，ID:12，会生长成植物）
+  scatter(world, oasisLeft + 1, poolTop - 4, oasisLeft + 4, oasisBottom - 1, 12, 0.05);
+  scatter(world, oasisRight - 4, poolTop - 4, oasisRight - 1, oasisBottom - 1, 12, 0.05);
+}
+
 /** 所有预设场景 */
 export const SCENE_PRESETS: ScenePreset[] = [
   { name: '火山', icon: '🌋', description: '熔岩喷发的火山场景', generate: generateVolcano },
@@ -844,6 +949,7 @@ export const SCENE_PRESETS: ScenePreset[] = [
   { name: '极光温泉', icon: '🌌', description: '极地温泉+冰山+极光粒子带+飘雪', generate: generateAuroraSpring },
   { name: '神秘沼泽', icon: '🌿', description: '泥沼+枯木藤蔓+沼气+萤火虫夜景', generate: generateSwamp },
   { name: '山间瀑布', icon: '💧', description: '崖壁瀑布+水潭+水雾+苔藓藤蔓', generate: generateWaterfall },
+  { name: '沙漠绿洲', icon: '🌴', description: '大沙丘+绿洲水池+棕榈树+干草遗骸', generate: generateOasis },
 ];
 
 /**

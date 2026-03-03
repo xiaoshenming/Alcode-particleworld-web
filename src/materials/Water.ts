@@ -2,7 +2,10 @@ import type { MaterialDef, WorldAPI } from './types';
 import { registerMaterial } from './registry';
 
 /** 水 —— 液体类，受重力影响，可水平流动
- * 新增：接触熔岩→蒸汽+黑曜石（与 Lava.ts 互补的双向反应）
+ * 化学反应：
+ * - 接触熔岩 → 蒸汽+黑曜石（与 Lava.ts 互补的双向反应）
+ * - 接触盐   → 溶解为盐水（与 Salt.ts 互补，水端处理）
+ * - 接触酸液 → 酸被稀释（以小概率将酸液变为普通水，模拟稀释）
  */
 export const Water: MaterialDef = {
   id: 2,
@@ -50,6 +53,39 @@ export const Water: MaterialDef = {
         world.set(x, y, 8);
         world.set(x + 1, y, 60);
         return;
+      }
+    }
+
+    // 接触盐：水溶解盐→盐水（水端处理，与 Salt.ts 互补双向反应）
+    // 水接触到盐时，把水自身变为盐水，盐被消耗
+    if (Math.random() < 0.06) {
+      if (world.inBounds(x, y - 1) && world.get(x, y - 1) === 23) {
+        world.set(x, y, 24); world.set(x, y - 1, 0); return; // 水变盐水，盐消失
+      }
+      if (world.inBounds(x, y + 1) && world.get(x, y + 1) === 23) {
+        world.set(x, y, 24); world.set(x, y + 1, 0); return;
+      }
+      if (world.inBounds(x - 1, y) && world.get(x - 1, y) === 23) {
+        world.set(x, y, 24); world.set(x - 1, y, 0); return;
+      }
+      if (world.inBounds(x + 1, y) && world.get(x + 1, y) === 23) {
+        world.set(x, y, 24); world.set(x + 1, y, 0); return;
+      }
+    }
+
+    // 接触酸液：酸被水稀释（以低概率将酸液变回普通水，模拟大量水稀释酸）
+    if (Math.random() < 0.008) {
+      if (world.inBounds(x, y - 1) && world.get(x, y - 1) === 9) {
+        world.set(x, y - 1, 2); return; // 酸变水（被稀释）
+      }
+      if (world.inBounds(x, y + 1) && world.get(x, y + 1) === 9) {
+        world.set(x, y + 1, 2); return;
+      }
+      if (world.inBounds(x - 1, y) && world.get(x - 1, y) === 9) {
+        world.set(x - 1, y, 2); return;
+      }
+      if (world.inBounds(x + 1, y) && world.get(x + 1, y) === 9) {
+        world.set(x + 1, y, 2); return;
       }
     }
 
