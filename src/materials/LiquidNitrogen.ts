@@ -22,6 +22,7 @@ const FREEZABLE: Record<number, number> = {
   5: 25,   // 油 → 蜡（凝固）
   67: 67,  // 沥青 → 沥青（已经很粘，不变但降温）
   26: 25,  // 液蜡 → 蜡
+  87: 14,  // 血液 → 冰（冷冻）
 };
 
 export const LiquidNitrogen: MaterialDef = {

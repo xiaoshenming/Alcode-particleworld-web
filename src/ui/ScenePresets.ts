@@ -932,6 +932,89 @@ function generateOasis(world: World): void {
   scatter(world, oasisRight - 4, poolTop - 4, oasisRight - 1, oasisBottom - 1, 12, 0.05);
 }
 
+/** 太空陨石坑场景 —— 第17个预设
+ * 陨石撞击坑地形：坑口岩石环 + 矿石/水晶层 + 超低温陨石残留 + 真空感
+ */
+function generateCrater(world: World): void {
+  const W = world.width, H = world.height;
+  world.clear();
+
+  // 底层：月球岩石地基（黑曜石，ID:60，模拟月岩）
+  fillRect(world, 0, H - 4, W - 1, H - 1, 60);
+
+  // 主地层：石头（ID:3）为主体
+  fillRect(world, 0, Math.floor(H * 0.65), W - 1, H - 5, 3);
+
+  // 矿物层：矿石/水晶夹层（中部地层）
+  scatter(world, 0, Math.floor(H * 0.7), W - 1, Math.floor(H * 0.85), 53, 0.07);   // 水晶
+  scatter(world, 0, Math.floor(H * 0.72), W - 1, Math.floor(H * 0.88), 66, 0.04);   // 硫磺矿
+  scatter(world, 0, Math.floor(H * 0.75), W - 1, Math.floor(H * 0.90), 31, 0.02);   // 金矿
+  scatter(world, 0, Math.floor(H * 0.78), W - 1, H - 5, 32, 0.015);                 // 钻石
+
+  // 陨石坑形状：中央椭圆坑
+  const craterCX = Math.floor(W / 2);
+  const craterCY = Math.floor(H * 0.65);
+  const craterRX = Math.floor(W * 0.22); // 水平半径
+  const craterRY = Math.floor(H * 0.18); // 垂直半径
+
+  // 挖空坑内部（置为空气）
+  for (let cy = craterCY - craterRY; cy <= craterCY + craterRY / 2; cy++) {
+    for (let cx = craterCX - craterRX; cx <= craterCX + craterRX; cx++) {
+      if (!world.inBounds(cx, cy)) continue;
+      const dx = (cx - craterCX) / craterRX;
+      const dy = (cy - craterCY) / craterRY;
+      if (dx * dx + dy * dy <= 1.0) {
+        world.set(cx, cy, 0); // 空气（真空感）
+      }
+    }
+  }
+
+  // 坑口岩石环（黑曜石隆起边缘）
+  const rimH = Math.floor(H * 0.08);
+  for (let cx = craterCX - craterRX - 4; cx <= craterCX + craterRX + 4; cx++) {
+    if (!world.inBounds(cx, craterCY - craterRY - rimH)) continue;
+    const dx = Math.abs(cx - craterCX) / (craterRX + 4);
+    const rimHeight = Math.floor(rimH * (1 - dx * dx * 0.5));
+    for (let ry2 = 0; ry2 < rimHeight; ry2++) {
+      const ry3 = craterCY - craterRY - ry2;
+      if (world.inBounds(cx, ry3)) {
+        world.set(cx, ry3, 60); // 黑曜石边缘隆起
+      }
+    }
+  }
+
+  // 坑底：陨石残留（陨石ID:58）+ 超低温（模拟太空极寒）
+  const craterFloor = craterCY + Math.floor(craterRY * 0.6);
+  scatter(world, craterCX - Math.floor(craterRX * 0.5), craterFloor - 3,
+    craterCX + Math.floor(craterRX * 0.5), craterFloor, 58, 0.25);
+  for (let cy2 = craterFloor - 4; cy2 <= craterFloor; cy2++) {
+    for (let cx2 = craterCX - Math.floor(craterRX * 0.6); cx2 <= craterCX + Math.floor(craterRX * 0.6); cx2++) {
+      if (world.inBounds(cx2, cy2)) world.setTemp(cx2, cy2, -120); // 极寒
+    }
+  }
+
+  // 坑底液氮（ID:68）积聚（陨石坑底部极寒液体）
+  fillRect(world, craterCX - Math.floor(craterRX * 0.35), craterFloor - 1,
+    craterCX + Math.floor(craterRX * 0.35), craterFloor, 68);
+
+  // 坑壁上散布水晶/矿石（撞击暴露地层）
+  for (let layer = 0; layer < 3; layer++) {
+    const layerY = craterCY - Math.floor(craterRY * 0.6) + layer * 6;
+    scatter(world, craterCX - craterRX + 1, layerY,
+      craterCX - Math.floor(craterRX * 0.6), layerY + 4, 53, 0.3);
+    scatter(world, craterCX + Math.floor(craterRX * 0.6), layerY,
+      craterCX + craterRX - 1, layerY + 4, 53, 0.3);
+  }
+
+  // 高空：极少量飘散陨石尘（干沙ID:146，模拟溅射物）
+  scatter(world, craterCX - craterRX * 2, 5, Math.min(W - 1, craterCX + craterRX * 2), 30, 146, 0.012);
+  scatter(world, craterCX - craterRX, 30, craterCX + craterRX, Math.floor(H * 0.45), 146, 0.008);
+
+  // 岩石侧翼中嵌入闪光矿（金属）
+  scatter(world, 0, Math.floor(H * 0.65), Math.floor(W * 0.25), H - 5, 10, 0.04);   // 金属
+  scatter(world, Math.floor(W * 0.75), Math.floor(H * 0.65), W - 1, H - 5, 10, 0.04);
+}
+
 /** 所有预设场景 */
 export const SCENE_PRESETS: ScenePreset[] = [
   { name: '火山', icon: '🌋', description: '熔岩喷发的火山场景', generate: generateVolcano },
@@ -950,6 +1033,7 @@ export const SCENE_PRESETS: ScenePreset[] = [
   { name: '神秘沼泽', icon: '🌿', description: '泥沼+枯木藤蔓+沼气+萤火虫夜景', generate: generateSwamp },
   { name: '山间瀑布', icon: '💧', description: '崖壁瀑布+水潭+水雾+苔藓藤蔓', generate: generateWaterfall },
   { name: '沙漠绿洲', icon: '🌴', description: '大沙丘+绿洲水池+棕榈树+干草遗骸', generate: generateOasis },
+  { name: '太空陨石坑', icon: '☄️', description: '撞击坑+矿石水晶层+陨石残留+液氮极寒', generate: generateCrater },
 ];
 
 /**
