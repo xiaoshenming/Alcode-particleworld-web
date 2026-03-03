@@ -44,6 +44,29 @@ export const Charcoal: MaterialDef = {
       return;
     }
 
+    // 接触酸液(9)：浓酸侵蚀木炭表面，缓慢溶解产生气泡（约167帧≈2.8秒）
+    // 化学：C + H2SO4(浓) → CO2↑ + SO2↑ + H2O（高温脱水氧化）
+    if (Math.random() < 0.006) {
+      if (world.inBounds(x, y - 1) && world.get(x, y - 1) === 9) {
+        world.set(x, y, 0); // 木炭溶解消失
+        // 产生烟（模拟CO2/SO2气泡）
+        if (world.inBounds(x, y + 1) && world.isEmpty(x, y + 1)) { world.set(x, y + 1, 7); world.markUpdated(x, y + 1); }
+        world.wakeArea(x, y); return;
+      }
+      if (world.inBounds(x, y + 1) && world.get(x, y + 1) === 9) {
+        world.set(x, y, 0);
+        world.wakeArea(x, y); return;
+      }
+      if (world.inBounds(x - 1, y) && world.get(x - 1, y) === 9) {
+        world.set(x, y, 0);
+        world.wakeArea(x, y); return;
+      }
+      if (world.inBounds(x + 1, y) && world.get(x + 1, y) === 9) {
+        world.set(x, y, 0);
+        world.wakeArea(x, y); return;
+      }
+    }
+
     if (y >= world.height - 1) return;
 
     // 粉末行为：下落

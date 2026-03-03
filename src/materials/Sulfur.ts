@@ -6,9 +6,9 @@ import { registerMaterial } from './registry';
  * - 粉末状固体，受重力下落（类似沙子）
  * - 可燃：遇火/熔岩/等离子体燃烧，产生毒气和火焰
  * - 燃烧时释放大量毒气（蓝紫色火焰效果通过产生火实现）
- * - 遇熔岩直接融化为液态（变为油的行为模拟液态硫）
  * - 低温稳定，高温（>100°）自燃
- * - 酸液可溶解
+ * - 酸液可溶解（15%概率/帧，较快）
+ * - 新增：接触水(2)→微弱放热+偶尔释放毒气（S+H2O→H2SO3，亚硫酸）
  */
 
 /** 可点燃硫磺的材质 */
@@ -63,7 +63,6 @@ export const Sulfur: MaterialDef = {
       // 遇火源燃烧
       if (IGNITER.has(nid) && Math.random() < 0.4) {
         world.set(x, y, 6); // 火
-        // 产生毒气
         if (y > 0 && world.isEmpty(x, y - 1)) {
           world.set(x, y - 1, 18); // 毒气
           world.markUpdated(x, y - 1);
@@ -78,6 +77,15 @@ export const Sulfur: MaterialDef = {
         world.set(nx, ny, 0); // 酸液也消耗
         world.wakeArea(x, y);
         return;
+      }
+
+      // 水接触：S + H2O → H2SO3（亚硫酸），微弱放热+偶尔释放毒气
+      if (nid === 2 && Math.random() < 0.001) {
+        if (world.inBounds(x, y - 1) && world.isEmpty(x, y - 1)) {
+          world.set(x, y - 1, 18); world.markUpdated(x, y - 1); // 微量SO2
+        }
+        world.addTemp(x, y, 5); // 微弱放热
+        world.wakeArea(x, y);
       }
         }
     if (world.inBounds(x, y + 1)) {
@@ -87,7 +95,6 @@ export const Sulfur: MaterialDef = {
       // 遇火源燃烧
       if (IGNITER.has(nid) && Math.random() < 0.4) {
         world.set(x, y, 6); // 火
-        // 产生毒气
         if (y > 0 && world.isEmpty(x, y - 1)) {
           world.set(x, y - 1, 18); // 毒气
           world.markUpdated(x, y - 1);
@@ -99,9 +106,18 @@ export const Sulfur: MaterialDef = {
       // 酸液溶解
       if (nid === 9 && Math.random() < 0.15) {
         world.set(x, y, 0);
-        world.set(nx, ny, 0); // 酸液也消耗
+        world.set(nx, ny, 0);
         world.wakeArea(x, y);
         return;
+      }
+
+      // 水接触：S + H2O → H2SO3，微弱放热
+      if (nid === 2 && Math.random() < 0.001) {
+        if (world.inBounds(x, y - 1) && world.isEmpty(x, y - 1)) {
+          world.set(x, y - 1, 18); world.markUpdated(x, y - 1);
+        }
+        world.addTemp(x, y, 5);
+        world.wakeArea(x, y);
       }
         }
     if (world.inBounds(x - 1, y)) {
@@ -111,7 +127,6 @@ export const Sulfur: MaterialDef = {
       // 遇火源燃烧
       if (IGNITER.has(nid) && Math.random() < 0.4) {
         world.set(x, y, 6); // 火
-        // 产生毒气
         if (y > 0 && world.isEmpty(x, y - 1)) {
           world.set(x, y - 1, 18); // 毒气
           world.markUpdated(x, y - 1);
@@ -123,9 +138,18 @@ export const Sulfur: MaterialDef = {
       // 酸液溶解
       if (nid === 9 && Math.random() < 0.15) {
         world.set(x, y, 0);
-        world.set(nx, ny, 0); // 酸液也消耗
+        world.set(nx, ny, 0);
         world.wakeArea(x, y);
         return;
+      }
+
+      // 水接触：S + H2O → H2SO3，微弱放热
+      if (nid === 2 && Math.random() < 0.001) {
+        if (world.inBounds(x, y - 1) && world.isEmpty(x, y - 1)) {
+          world.set(x, y - 1, 18); world.markUpdated(x, y - 1);
+        }
+        world.addTemp(x, y, 5);
+        world.wakeArea(x, y);
       }
         }
     if (world.inBounds(x + 1, y)) {
@@ -135,7 +159,6 @@ export const Sulfur: MaterialDef = {
       // 遇火源燃烧
       if (IGNITER.has(nid) && Math.random() < 0.4) {
         world.set(x, y, 6); // 火
-        // 产生毒气
         if (y > 0 && world.isEmpty(x, y - 1)) {
           world.set(x, y - 1, 18); // 毒气
           world.markUpdated(x, y - 1);
@@ -147,9 +170,18 @@ export const Sulfur: MaterialDef = {
       // 酸液溶解
       if (nid === 9 && Math.random() < 0.15) {
         world.set(x, y, 0);
-        world.set(nx, ny, 0); // 酸液也消耗
+        world.set(nx, ny, 0);
         world.wakeArea(x, y);
         return;
+      }
+
+      // 水接触：S + H2O → H2SO3，微弱放热
+      if (nid === 2 && Math.random() < 0.001) {
+        if (world.inBounds(x, y - 1) && world.isEmpty(x, y - 1)) {
+          world.set(x, y - 1, 18); world.markUpdated(x, y - 1);
+        }
+        world.addTemp(x, y, 5);
+        world.wakeArea(x, y);
       }
         }
 
