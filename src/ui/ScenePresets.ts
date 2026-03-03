@@ -1196,6 +1196,209 @@ function generateTornadoDisaster(world: World): void {
   fillRect(world, W - 40, H - 20, W - 35, H - 13, 4); // 树干横倒
   scatter(world, W - 45, H - 22, W - 30, H - 19, 13, 0.4); // 树叶散落
 }
+
+/** 樱花林 —— 春日樱花盛开的浪漫场景 */
+function generateCherryBlossom(world: World): void {
+  const W = world.width, H = world.height;
+  world.clear();
+
+  // 草地底层
+  fillRect(world, 0, H - 15, W, H, 20); // 泥土
+  scatter(world, 0, H - 16, W, H - 15, 13, 0.6); // 草地
+
+  // 樱花树（3棵，不同高度）
+  const trees = [
+    { x: 40, trunkH: 35, crownR: 18 },
+    { x: 100, trunkH: 40, crownR: 20 },
+    { x: 160, trunkH: 32, crownR: 16 }
+  ];
+
+  for (const tree of trees) {
+    // 树干
+    fillRect(world, tree.x - 2, H - 15 - tree.trunkH, tree.x + 2, H - 15, 4);
+
+    // 树冠（粉色花瓣 = 蜡25，模拟樱花）
+    const cy = H - 15 - tree.trunkH;
+    for (let dx = -tree.crownR; dx <= tree.crownR; dx++) {
+      for (let dy = -tree.crownR; dy <= tree.crownR; dy++) {
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < tree.crownR && Math.random() < 0.7) {
+          const px = tree.x + dx;
+          const py = cy + dy;
+          if (world.inBounds(px, py)) {
+            world.set(px, py, 25); // 蜡（粉色）
+          }
+        }
+      }
+    }
+
+    // 树叶点缀（绿色）
+    scatter(world, tree.x - tree.crownR, cy - tree.crownR, tree.x + tree.crownR, cy + tree.crownR, 13, 0.15);
+  }
+
+  // 飘落的花瓣（空中散布）
+  for (let i = 0; i < 80; i++) {
+    const x = Math.floor(Math.random() * W);
+    const y = Math.floor(Math.random() * (H - 20));
+    world.set(x, y, 25); // 蜡（花瓣）
+  }
+
+  // 小溪（蜿蜒水流）
+  const streamY = H - 25;
+  for (let x = 0; x < W; x++) {
+    const offset = Math.floor(Math.sin(x * 0.1) * 3);
+    for (let dy = 0; dy < 4; dy++) {
+      const sy = streamY + offset + dy;
+      if (world.inBounds(x, sy)) {
+        world.set(x, sy, 2); // 水
+      }
+    }
+  }
+
+  // 萤火虫点缀
+  scatter(world, 0, 20, W, H - 20, 52, 0.02);
+}
+
+/** 火山熔岩湖 —— 地狱般的熔岩湖泊 */
+function generateLavaLake(world: World): void {
+  const W = world.width, H = world.height;
+  world.clear();
+
+  // 全局高温环境
+  for (let x = 0; x < W; x++) {
+    for (let y = 0; y < H; y++) {
+      world.setTemp(x, y, 150);
+    }
+  }
+
+  // 岩石边缘（环形）
+  for (let x = 0; x < W; x++) {
+    for (let y = 0; y < H; y++) {
+      const dx = x - W / 2;
+      const dy = y - H / 2;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      // 外圈岩石
+      if (dist > 60 && dist < 75) {
+        world.set(x, y, 3); // 石头
+      }
+
+      // 黑曜石内圈
+      if (dist > 50 && dist <= 60 && Math.random() < 0.7) {
+        world.set(x, y, 60); // 黑曜石
+      }
+    }
+  }
+
+  // 中心熔岩湖
+  fillCircle(world, W / 2, H / 2, 50, 11); // 熔岩
+
+  // 熔岩湖表面浮渣（岩浆岩）
+  scatter(world, W / 2 - 45, H / 2 - 45, W / 2 + 45, H / 2 + 45, 77, 0.15);
+
+  // 蒸汽喷口（4个）
+  const vents = [
+    { x: W / 2 - 30, y: H / 2 - 30 },
+    { x: W / 2 + 30, y: H / 2 - 30 },
+    { x: W / 2 - 30, y: H / 2 + 30 },
+    { x: W / 2 + 30, y: H / 2 + 30 }
+  ];
+
+  for (const vent of vents) {
+    // 喷口基座（黑曜石）
+    fillCircle(world, vent.x, vent.y, 5, 60);
+    // 蒸汽柱
+    for (let dy = -20; dy < 0; dy++) {
+      if (Math.random() < 0.6) {
+        world.set(vent.x + Math.floor(Math.random() * 3) - 1, vent.y + dy, 8);
+      }
+    }
+  }
+
+  // 火焰点缀
+  scatter(world, W / 2 - 50, H / 2 - 50, W / 2 + 50, H / 2 + 50, 6, 0.05);
+
+  // 等离子体高温区（湖心）
+  scatter(world, W / 2 - 20, H / 2 - 20, W / 2 + 20, H / 2 + 20, 55, 0.03);
+}
+
+/** 水晶洞穴 —— 巨型水晶簇的地下奇观 */
+function generateCrystalCave(world: World): void {
+  const W = world.width, H = world.height;
+  world.clear();
+
+  // 岩石底层
+  fillRect(world, 0, 0, W, H, 3);
+
+  // 挖出洞穴空间（椭圆形）
+  for (let x = 0; x < W; x++) {
+    for (let y = 0; y < H; y++) {
+      const dx = (x - W / 2) / (W * 0.4);
+      const dy = (y - H / 2) / (H * 0.35);
+      if (dx * dx + dy * dy < 1) {
+        world.set(x, y, 0); // 空气
+      }
+    }
+  }
+
+  // 巨型水晶簇（5组）
+  const crystals = [
+    { x: 30, y: H - 30, h: 40, w: 15 },
+    { x: 80, y: H - 25, h: 35, w: 12 },
+    { x: 130, y: H - 35, h: 50, w: 18 },
+    { x: 170, y: H - 28, h: 38, w: 14 },
+    { x: 50, y: 20, h: 30, w: 10 } // 顶部倒挂
+  ];
+
+  for (const crystal of crystals) {
+    // 水晶主体（53=水晶）
+    for (let dy = 0; dy < crystal.h; dy++) {
+      const width = Math.floor(crystal.w * (1 - dy / crystal.h * 0.7));
+      for (let dx = -width; dx <= width; dx++) {
+        const px = crystal.x + dx;
+        const py = crystal.y - dy;
+        if (world.inBounds(px, py) && Math.random() < 0.8) {
+          world.set(px, py, 53); // 水晶
+        }
+      }
+    }
+
+    // 发光核心（荧石69）
+    for (let dy = 0; dy < crystal.h / 2; dy++) {
+      const px = crystal.x + Math.floor(Math.random() * 3) - 1;
+      const py = crystal.y - dy;
+      if (world.inBounds(px, py) && Math.random() < 0.3) {
+        world.set(px, py, 69); // 荧石
+      }
+    }
+  }
+
+  // 地下湖（底部）
+  fillRect(world, 20, H - 15, W - 20, H - 5, 2); // 水
+
+  // 发光生物点缀
+  scatter(world, 0, 0, W, H, 52, 0.02); // 萤火虫
+  scatter(world, 0, 0, W, H, 140, 0.015); // 荧光藻
+
+  // 钟乳石（顶部）
+  for (let i = 0; i < 15; i++) {
+    const x = 20 + Math.floor(Math.random() * (W - 40));
+    const len = 8 + Math.floor(Math.random() * 12);
+    for (let dy = 0; dy < len; dy++) {
+      world.set(x, dy, 3); // 石头
+    }
+  }
+
+  // 石笋（底部）
+  for (let i = 0; i < 12; i++) {
+    const x = 20 + Math.floor(Math.random() * (W - 40));
+    const len = 6 + Math.floor(Math.random() * 10);
+    for (let dy = 0; dy < len; dy++) {
+      world.set(x, H - 16 - dy, 3); // 石头
+    }
+  }
+}
+
 /** 所有预设场景 */
 export const SCENE_PRESETS: ScenePreset[] = [
   { name: '火山', icon: '🌋', description: '熔岩喷发的火山场景', category: '自然', generate: generateVolcano },
@@ -1208,6 +1411,7 @@ export const SCENE_PRESETS: ScenePreset[] = [
   { name: '山间瀑布', icon: '💧', description: '崖壁瀑布+水潭+水雾+苔藓藤蔓', category: '自然', generate: generateWaterfall },
   { name: '沙漠绿洲', icon: '🌴', description: '大沙丘+绿洲水池+棕榈树+干草遗骸', category: '自然', generate: generateOasis },
   { name: '极地冰盖', icon: '🧊', description: '大型冰川+冰川湖+极光+霜雪覆盖+液氮极寒', category: '自然', generate: generatePolarIcecap },
+  { name: '樱花林', icon: '🌸', description: '春日樱花盛开+小溪流水+飘落花瓣+萤火虫', category: '自然', generate: generateCherryBlossom },
   { name: '城市', icon: '🏙️', description: '混凝土建筑+电线+工业烟雾', category: '战场/科幻', generate: generateCity },
   { name: '实验室', icon: '🧪', description: '化学容器与反应实验', category: '战场/科幻', generate: generateLab },
   { name: '战场', icon: '💥', description: '弹坑+火焰+金属碎片+毒气烟雾', category: '战场/科幻', generate: generateBattlefield },
@@ -1220,11 +1424,13 @@ export const SCENE_PRESETS: ScenePreset[] = [
   { name: '地下熔岩管', icon: '🔥', description: '蜿蜒熔岩管道+洞穴空腔+蒸汽喷口+矿脉', category: '地下/水下', generate: generateLavaTube },
   { name: '沉船残骸', icon: '⚓', description: '铁锈覆盖的沉船+珊瑚礁+热带鱼+海底宝藏', category: '地下/水下', generate: generateShipwreck },
   { name: '蚁穴生态', icon: '🐜', description: '地下蚁穴+洞室网络+蚂蚁群落+食物储备+根系', category: '地下/水下', generate: generateAntNest },
+  { name: '水晶洞穴', icon: '💎', description: '巨型水晶簇+发光核心+地下湖+钟乳石+荧光生物', category: '地下/水下', generate: generateCrystalCave },
   { name: '末日火山', icon: '🌋', description: '末日熔岩雨与火山喷发', category: '极端', generate: generateApocalypse },
   { name: '深海黑暗区', icon: '🦑', description: '深渊高压+发光生物+热液喷口+黑暗矿脉+超冷水', category: '极端', generate: generateDeepAbyss },
   { name: '极端酸雨', icon: '☠️', description: '酸液从天而降+腐蚀地表+中和水池+防护材料', category: '极端', generate: generateAcidRain },
   { name: '冰河时代', icon: '🏔️', description: '千米冰盖+冰川流动+冻土层+猛犸象脚印+极光', category: '极端', generate: generateIceAge },
   { name: '龙卷风灾害', icon: '🌪️', description: '多重龙卷风+建筑残骸+暴雨闪电+飞扬碎片', category: '极端', generate: generateTornadoDisaster },
+  { name: '火山熔岩湖', icon: '🔥', description: '地狱熔岩湖+黑曜石环+蒸汽喷口+等离子体高温区', category: '极端', generate: generateLavaLake },
 ];
 
 /**
