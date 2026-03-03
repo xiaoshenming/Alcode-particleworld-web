@@ -1037,6 +1037,7 @@ export const SCENE_PRESETS: ScenePreset[] = [
   { name: '地下洞穴', icon: '🦇', description: '水晶+地下湖+钟乳石+熔岩池', category: '地下/水下', generate: generateCave },
   { name: '深海热泉', icon: '🌊', description: '海底热泉喷口+矿物结晶+发光深海生物', category: '地下/水下', generate: generateHydrothermal },
   { name: '地下熔岩管', icon: '🔥', description: '蜿蜒熔岩管道+洞穴空腔+蒸汽喷口+矿脉', category: '地下/水下', generate: generateLavaTube },
+  { name: '沉船残骸', icon: '⚓', description: '铁锈覆盖的沉船+珊瑚礁+热带鱼+海底宝藏', category: '地下/水下', generate: generateShipwreck },
   { name: '末日火山', icon: '🌋', description: '末日熔岩雨与火山喷发', category: '极端', generate: generateApocalypse },
   { name: '深海黑暗区', icon: '🦑', description: '深渊高压+发光生物+热液喷口+黑暗矿脉+超冷水', category: '极端', generate: generateDeepAbyss },
   { name: '极端酸雨', icon: '☠️', description: '酸液从天而降+腐蚀地表+中和水池+防护材料', category: '极端', generate: generateAcidRain },
@@ -1678,6 +1679,124 @@ function generateIceAge(world: World): void {
       if (world.get(x, y) !== 0) {
         world.setTemp(x, y, -80);
       }
+    }
+  }
+}
+
+/** 场景：沉船残骸 —— 铁锈覆盖的沉船骸骨+珊瑚礁+海底沙地+气泡+盐水 */
+function generateShipwreck(world: World): void {
+  const W = world.width, H = world.height;
+  world.clear();
+
+  // 海底沙地（底部3层）
+  fillRect(world, 0, H - 3, W - 1, H - 1, 1); // 沙子
+  // 海底泥浆点缀
+  scatter(world, 0, H - 4, W - 1, H - 4, 63, 0.3); // 泥浆
+
+  // 海水填充（下2/3区域）
+  const waterTop = Math.floor(H * 0.3);
+  for (let y = waterTop; y < H - 3; y++) {
+    for (let x = 0; x < W; x++) {
+      if (world.inBounds(x, y)) world.set(x, y, 2); // 水
+    }
+  }
+
+  // 盐水：底部分层（盐水比淡水重，沉到下部）
+  for (let y = H - 18; y < H - 3; y++) {
+    for (let x = 0; x < W; x++) {
+      if (world.get(x, y) === 2 && Math.random() < 0.6) world.set(x, y, 24); // 盐水
+    }
+  }
+
+  // 沉船骸骨：倾斜的金属船体（铁锈覆盖）
+  const shipCX = Math.floor(W * 0.5);
+  const shipY = H - 25;
+
+  // 船底龙骨（金属，大部分已锈蚀）
+  for (let x = shipCX - 40; x <= shipCX + 40; x++) {
+    const y = shipY + Math.floor(Math.sin((x - shipCX) * 0.03) * 3);
+    if (world.inBounds(x, y)) {
+      world.set(x, y, Math.random() < 0.7 ? 72 : 10); // 70%铁锈 30%金属
+    }
+    if (world.inBounds(x, y + 1)) world.set(x, y + 1, 72); // 龙骨厚度
+  }
+
+  // 左舷：倾斜船壁
+  for (let dy = 0; dy < 14; dy++) {
+    const x = shipCX - 38 + Math.floor(dy * 0.8);
+    const y = shipY - dy;
+    if (world.inBounds(x, y)) world.set(x, y, Math.random() < 0.6 ? 72 : 10);
+    if (world.inBounds(x + 1, y)) world.set(x + 1, y, 72);
+  }
+
+  // 右舷：倾斜船壁（比左舷矮，模拟倾覆）
+  for (let dy = 0; dy < 8; dy++) {
+    const x = shipCX + 38 - Math.floor(dy * 0.5);
+    const y = shipY - dy;
+    if (world.inBounds(x, y)) world.set(x, y, Math.random() < 0.6 ? 72 : 10);
+    if (world.inBounds(x - 1, y)) world.set(x - 1, y, 72);
+  }
+
+  // 桅杆（倒下的金属柱）
+  for (let i = 0; i < 30; i++) {
+    const mx = shipCX - 15 + i;
+    const my = shipY - 3 - Math.floor(i * 0.3);
+    if (world.inBounds(mx, my)) world.set(mx, my, Math.random() < 0.5 ? 72 : 10);
+  }
+
+  // 船舱内部（黑曜石模拟炭化木材，石头模拟压舱石）
+  fillRect(world, shipCX - 25, shipY - 3, shipCX - 5, shipY - 1, 60); // 黑曜石（炭化木）
+  fillRect(world, shipCX + 5, shipY - 3, shipCX + 20, shipY - 1, 3);  // 石头（压舱石）
+
+  // 珊瑚礁（左侧区域）
+  const coralColors = [64, 53, 49]; // 珊瑚、水晶、苔藓
+  for (let i = 0; i < 6; i++) {
+    const cx = 15 + i * 18;
+    const cy = H - 10 - Math.floor(Math.random() * 8);
+    const r = 3 + Math.floor(Math.random() * 4);
+    fillCircle(world, cx, cy, r, coralColors[i % 3]);
+    // 珊瑚茎
+    for (let dy = 0; dy < r + 2; dy++) {
+      if (world.inBounds(cx, cy + dy)) world.set(cx, cy + dy, 64);
+    }
+  }
+
+  // 右侧珊瑚礁
+  for (let i = 0; i < 5; i++) {
+    const cx = W - 20 - i * 20;
+    const cy = H - 8 - Math.floor(Math.random() * 6);
+    const r = 2 + Math.floor(Math.random() * 3);
+    fillCircle(world, cx, cy, r, coralColors[(i + 1) % 3]);
+    for (let dy = 0; dy < r + 2; dy++) {
+      if (world.inBounds(cx, cy + dy)) world.set(cx, cy + dy, 64);
+    }
+  }
+
+  // 海底宝箱（金属箱+金粒）
+  const chestX = shipCX + 25, chestY = H - 7;
+  fillRect(world, chestX, chestY - 3, chestX + 6, chestY - 1, 10); // 金属箱
+  world.set(chestX + 3, chestY - 4, 31); // 金（宝藏）
+  scatter(world, chestX + 1, chestY - 4, chestX + 5, chestY - 4, 31, 0.5); // 散落金粒
+
+  // 气泡从沙地渗出
+  scatter(world, 10, H - 10, W - 10, H - 6, 73, 0.04); // 泡泡
+
+  // 水草（发光水下植物）
+  for (let i = 0; i < 8; i++) {
+    const wx = 5 + i * 20 + Math.floor(Math.random() * 10);
+    for (let dy = 0; dy < 5 + Math.floor(Math.random() * 4); dy++) {
+      if (world.inBounds(wx, H - 4 - dy)) world.set(wx, H - 4 - dy, 156); // 水草
+    }
+  }
+
+  // 荧光藻（发光）散布在珊瑚礁区域
+  scatter(world, 0, H - 20, Math.floor(W * 0.3), H - 5, 140, 0.03);
+  scatter(world, Math.floor(W * 0.7), H - 20, W - 1, H - 5, 140, 0.03);
+
+  // 设置水下低温（海底约4°C）
+  for (let y = waterTop; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      world.setTemp(x, y, 4);
     }
   }
 }

@@ -6,6 +6,7 @@ import { registerMaterial } from './registry';
  * - 蒸发时析出盐粒（高温 → 蒸汽 + 盐）
  * - 低温结冰（比纯水更难结冰）
  * - 流动行为类似水
+ * - 接触金属 → 铁锈（比淡水腐蚀性强2.5x，电解质加速氧化：Fe + NaCl(aq) + O₂ → Fe₂O₃）
  */
 export const Saltwater: MaterialDef = {
   id: 24,
@@ -39,6 +40,15 @@ export const Saltwater: MaterialDef = {
     if (temp < -20) {
       world.set(x, y, 14); // 冰
       return;
+    }
+
+    // 接触金属：盐水腐蚀（比淡水快2.5x，电解质加速氧化：Fe + NaCl(aq) + O₂ → Fe₂O₃）
+    // 概率0.002/帧，约500帧≈8秒，符合盐水中铁更快生锈的现实
+    if (Math.random() < 0.002) {
+      if (world.inBounds(x, y - 1) && world.get(x, y - 1) === 10) { world.set(x, y - 1, 72); world.markUpdated(x, y - 1); world.wakeArea(x, y - 1); return; }
+      if (world.inBounds(x, y + 1) && world.get(x, y + 1) === 10) { world.set(x, y + 1, 72); world.markUpdated(x, y + 1); world.wakeArea(x, y + 1); return; }
+      if (world.inBounds(x - 1, y) && world.get(x - 1, y) === 10) { world.set(x - 1, y, 72); world.markUpdated(x - 1, y); world.wakeArea(x - 1, y); return; }
+      if (world.inBounds(x + 1, y) && world.get(x + 1, y) === 10) { world.set(x + 1, y, 72); world.markUpdated(x + 1, y); world.wakeArea(x + 1, y); return; }
     }
 
     if (y >= world.height - 1) return;

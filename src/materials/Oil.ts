@@ -3,6 +3,7 @@ import { registerMaterial } from './registry';
 
 /** 油 —— 液体，密度比水低（浮在水面），可燃
  * 新增：高温自燃（接触火/熔岩/高温时自燃，产生浓烟）
+ * 新增：接触铁锈 → 极低概率防锈还原（油脂覆盖金属表面隔绝水分，模拟机油防腐）
  */
 
 /** 点火源材质 ID */
@@ -47,6 +48,15 @@ export const Oil: MaterialDef = {
       world.set(x, y, 6);
       world.setTemp(x, y, 200);
       return;
+    }
+
+    // 接触铁锈(72)：油脂覆盖防腐（极低概率将铁锈还原为金属，模拟机油隔绝水分防锈）
+    // 概率0.0003/帧，约3333帧≈55秒，缓慢防腐，需要长时间浸泡才有效
+    if (Math.random() < 0.0003) {
+      if (world.inBounds(x, y - 1) && world.get(x, y - 1) === 72) { world.set(x, y - 1, 10); world.markUpdated(x, y - 1); world.wakeArea(x, y - 1); return; }
+      if (world.inBounds(x, y + 1) && world.get(x, y + 1) === 72) { world.set(x, y + 1, 10); world.markUpdated(x, y + 1); world.wakeArea(x, y + 1); return; }
+      if (world.inBounds(x - 1, y) && world.get(x - 1, y) === 72) { world.set(x - 1, y, 10); world.markUpdated(x - 1, y); world.wakeArea(x - 1, y); return; }
+      if (world.inBounds(x + 1, y) && world.get(x + 1, y) === 72) { world.set(x + 1, y, 10); world.markUpdated(x + 1, y); world.wakeArea(x + 1, y); return; }
     }
 
     if (y >= world.height - 1) return;
