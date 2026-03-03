@@ -28,21 +28,25 @@ export const Salt: MaterialDef = {
       const nid = world.get(x, y - 1);
       if (nid === 2 && Math.random() < 0.08) { world.set(x, y - 1, 24); world.set(x, y, 0); return; }
       if (nid === 11 && Math.random() < 0.2) { world.set(x, y, 83); world.setTemp(x, y, 350); world.wakeArea(x, y); return; }
+      if ((nid === 6 || nid === 8) && Math.random() < 0.15) { world.addTemp(x, y, 20); } // 火/蒸汽加热盐
     }
     if (world.inBounds(x, y + 1)) {
       const nid = world.get(x, y + 1);
       if (nid === 2 && Math.random() < 0.08) { world.set(x, y + 1, 24); world.set(x, y, 0); return; }
       if (nid === 11 && Math.random() < 0.2) { world.set(x, y, 83); world.setTemp(x, y, 350); world.wakeArea(x, y); return; }
+      if ((nid === 6 || nid === 8) && Math.random() < 0.15) { world.addTemp(x, y, 20); } // 火/蒸汽加热盐
     }
     if (world.inBounds(x - 1, y)) {
       const nid = world.get(x - 1, y);
       if (nid === 2 && Math.random() < 0.08) { world.set(x - 1, y, 24); world.set(x, y, 0); return; }
       if (nid === 11 && Math.random() < 0.2) { world.set(x, y, 83); world.setTemp(x, y, 350); world.wakeArea(x, y); return; }
+      if ((nid === 6 || nid === 8) && Math.random() < 0.15) { world.addTemp(x, y, 20); } // 火/蒸汽加热盐
     }
     if (world.inBounds(x + 1, y)) {
       const nid = world.get(x + 1, y);
       if (nid === 2 && Math.random() < 0.08) { world.set(x + 1, y, 24); world.set(x, y, 0); return; }
       if (nid === 11 && Math.random() < 0.2) { world.set(x, y, 83); world.setTemp(x, y, 350); world.wakeArea(x, y); return; }
+      if ((nid === 6 || nid === 8) && Math.random() < 0.15) { world.addTemp(x, y, 20); } // 火/蒸汽加热盐
     }
 
     // 高温融化为熔盐

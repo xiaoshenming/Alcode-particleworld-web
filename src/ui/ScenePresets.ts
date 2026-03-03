@@ -1027,6 +1027,7 @@ export const SCENE_PRESETS: ScenePreset[] = [
   { name: '神秘沼泽', icon: '🌿', description: '泥沼+枯木藤蔓+沼气+萤火虫夜景', category: '自然', generate: generateSwamp },
   { name: '山间瀑布', icon: '💧', description: '崖壁瀑布+水潭+水雾+苔藓藤蔓', category: '自然', generate: generateWaterfall },
   { name: '沙漠绿洲', icon: '🌴', description: '大沙丘+绿洲水池+棕榈树+干草遗骸', category: '自然', generate: generateOasis },
+  { name: '极地冰盖', icon: '🧊', description: '大型冰川+冰川湖+极光+霜雪覆盖+液氮极寒', category: '自然', generate: generatePolarIcecap },
   { name: '城市', icon: '🏙️', description: '混凝土建筑+电线+工业烟雾', category: '战场/科幻', generate: generateCity },
   { name: '实验室', icon: '🧪', description: '化学容器与反应实验', category: '战场/科幻', generate: generateLab },
   { name: '战场', icon: '💥', description: '弹坑+火焰+金属碎片+毒气烟雾', category: '战场/科幻', generate: generateBattlefield },
@@ -1243,4 +1244,98 @@ function generateLavaTube(world: World): void {
   // 黑曜石管壁衬层（熔岩管壁边缘）
   scatter(world, 0, Math.floor(H * 0.3), W - 1, Math.floor(H * 0.48), 60, 0.04);
   scatter(world, 0, Math.floor(H * 0.6), W - 1, Math.floor(H * 0.78), 60, 0.04);
+}
+
+/** 极地冰盖场景 —— 第19个预设 */
+function generatePolarIcecap(world: World): void {
+  const W = world.width, H = world.height;
+  world.clear();
+
+  // 整体设置极寒温度（-50°C）
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      world.setTemp(x, y, -50);
+    }
+  }
+
+  // 地基：厚重冰层（下半部分）
+  const iceBaseY = Math.floor(H * 0.65);
+  fillRect(world, 0, iceBaseY, W - 1, H - 1, 14); // 冰
+
+  // 冰层之下埋藏永冻土
+  fillRect(world, 0, Math.floor(H * 0.78), W - 1, H - 1, 190); // 永冻土
+
+  // 主冰川：中央巨型冰山（不规则山体轮廓）
+  const glacierCX = Math.floor(W * 0.5);
+  const glacierPeak = Math.floor(H * 0.2); // 峰顶Y
+  for (let gx = glacierCX - 55; gx <= glacierCX + 55; gx++) {
+    // 余弦形状的冰川高度
+    const dx = gx - glacierCX;
+    const t = Math.abs(dx) / 55;
+    const peakH = glacierPeak + Math.floor(t * t * H * 0.35); // 抛物线
+    // 叠加随机噪声使边缘不规则
+    const noiseH = peakH + Math.floor(Math.sin(gx * 0.3) * 3 + Math.cos(gx * 0.7) * 2);
+    if (world.inBounds(gx, noiseH)) {
+      fillRect(world, gx, noiseH, gx, iceBaseY - 1, 14); // 冰柱
+    }
+  }
+
+  // 左侧小冰川
+  const leftPeak = Math.floor(H * 0.38);
+  for (let gx = 5; gx <= 50; gx++) {
+    const dx = gx - 27;
+    const t = Math.abs(dx) / 22;
+    const peakH = leftPeak + Math.floor(t * t * H * 0.2);
+    const noiseH = peakH + Math.floor(Math.sin(gx * 0.5) * 2);
+    if (world.inBounds(gx, noiseH)) {
+      fillRect(world, gx, noiseH, gx, iceBaseY - 1, 14);
+    }
+  }
+
+  // 右侧小冰川
+  const rightPeak = Math.floor(H * 0.40);
+  for (let gx = W - 50; gx <= W - 5; gx++) {
+    const dx = gx - (W - 27);
+    const t = Math.abs(dx) / 22;
+    const peakH = rightPeak + Math.floor(t * t * H * 0.2);
+    const noiseH = peakH + Math.floor(Math.cos(gx * 0.5) * 2);
+    if (world.inBounds(gx, noiseH)) {
+      fillRect(world, gx, noiseH, gx, iceBaseY - 1, 14);
+    }
+  }
+
+  // 冰川湖（两侧低洼处积水，已被极寒冻住一半）
+  // 左侧冰川湖
+  fillRect(world, 55, iceBaseY - 5, 110, iceBaseY - 1, 2);  // 水
+  fillRect(world, 55, iceBaseY - 5, 110, iceBaseY - 4, 14); // 表层结冰
+  // 右侧冰川湖
+  fillRect(world, W - 110, iceBaseY - 5, W - 55, iceBaseY - 1, 2);
+  fillRect(world, W - 110, iceBaseY - 5, W - 55, iceBaseY - 4, 14);
+
+  // 冰面上的霜覆盖（冰川表面散布霜）
+  scatter(world, 0, Math.floor(H * 0.2), W - 1, iceBaseY - 1, 75, 0.06); // 霜
+
+  // 雪层（地面和冰川顶部）
+  scatter(world, 0, Math.floor(H * 0.18), W - 1, Math.floor(H * 0.5), 15, 0.04); // 雪
+
+  // 空中飘雪
+  scatter(world, 0, 0, W - 1, Math.floor(H * 0.2), 15, 0.025);
+
+  // 极光（顶部空间的等离子体光带，彩色效果用等离子体粒子模拟）
+  // 三条高空极光带（稀疏等离子体）
+  scatter(world, 0, 2, W - 1, 5, 55, 0.04);   // 极光带1
+  scatter(world, 0, 8, W - 1, 11, 55, 0.03);  // 极光带2
+  scatter(world, 0, 15, W - 1, 18, 55, 0.02); // 极光带3
+
+  // 液氮点（极冷区域，接触其他材质急速冷冻）
+  fillRect(world, glacierCX - 8, Math.floor(H * 0.58), glacierCX + 8, Math.floor(H * 0.62), 68); // 液氮池
+
+  // 设置冰川区域超低温（确保维持冻结状态）
+  for (let y = 0; y < iceBaseY; y++) {
+    for (let x = 0; x < W; x++) {
+      if (world.inBounds(x, y) && world.get(x, y) === 14) {
+        world.setTemp(x, y, -30);
+      }
+    }
+  }
 }
