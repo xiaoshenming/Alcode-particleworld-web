@@ -1037,6 +1037,7 @@ export const SCENE_PRESETS: ScenePreset[] = [
   { name: '深海热泉', icon: '🌊', description: '海底热泉喷口+矿物结晶+发光深海生物', category: '地下/水下', generate: generateHydrothermal },
   { name: '地下熔岩管', icon: '🔥', description: '蜿蜒熔岩管道+洞穴空腔+蒸汽喷口+矿脉', category: '地下/水下', generate: generateLavaTube },
   { name: '末日火山', icon: '🌋', description: '末日熔岩雨与火山喷发', category: '极端', generate: generateApocalypse },
+  { name: '深海黑暗区', icon: '🦑', description: '深渊高压+发光生物+热液喷口+黑暗矿脉+超冷水', category: '极端', generate: generateDeepAbyss },
 ];
 
 /**
@@ -1337,5 +1338,89 @@ function generatePolarIcecap(world: World): void {
         world.setTemp(x, y, -30);
       }
     }
+  }
+}
+
+/**
+ * 深海黑暗区场景 —— 极端分类
+ * - 整体超高压、超低温（深海5000m以下）
+ * - 底部：热液喷口（熔岩+蒸汽柱）
+ * - 中层：荧光生物（荧光藻+水母稀疏散布）
+ * - 主体：深蓝色水体
+ * - 侧壁：黑暗矿脉（石头+黑曜石+水晶点缀）
+ * - 地基：岩盐+永冻土（高压固结）
+ */
+function generateDeepAbyss(world: World): void {
+  const W = world.width, H = world.height;
+  world.clear();
+
+  // 整体设置深海低温（深海约-5°模拟超冷高压）
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      world.setTemp(x, y, -5);
+    }
+  }
+
+  // 底层地基：岩盐+永冻土
+  fillRect(world, 0, H - 8, W - 1, H - 1, 112);  // 岩盐底层
+  fillRect(world, 0, H - 4, W - 1, H - 1, 190);  // 永冻土深层
+
+  // 侧壁峭壁（左右不规则石壁）
+  for (let y = 0; y < H - 8; y++) {
+    const wallWL = 18 + Math.floor(Math.sin(y * 0.15) * 5 + Math.cos(y * 0.3) * 3);
+    fillRect(world, 0, y, wallWL, y, 3);
+    const wallWR = 18 + Math.floor(Math.cos(y * 0.18) * 5 + Math.sin(y * 0.25) * 3);
+    fillRect(world, W - 1 - wallWR, y, W - 1, y, 3);
+  }
+
+  // 侧壁矿脉：黑曜石纹路+水晶点
+  scatter(world, 0, 0, 28, H - 10, 60, 0.08);
+  scatter(world, W - 29, 0, W - 1, H - 10, 60, 0.08);
+  scatter(world, 2, 10, 20, H - 15, 53, 0.03);
+  scatter(world, W - 21, 10, W - 3, H - 15, 53, 0.03);
+
+  // 主体深水（中央水体）
+  const waterLeft = 22;
+  const waterRight = W - 23;
+  fillRect(world, waterLeft, 0, waterRight, H - 10, 2);     // 普通水
+  fillRect(world, waterLeft, 0, waterRight, Math.floor(H * 0.3), 97); // 上层蒸馏水
+
+  // 底部��液喷口（3个）
+  const ventX = [Math.floor(W * 0.28), Math.floor(W * 0.5), Math.floor(W * 0.72)];
+  for (const vx of ventX) {
+    if (vx < waterLeft || vx > waterRight) continue;
+    fillRect(world, vx - 4, H - 14, vx + 4, H - 9, 60);  // 黑曜石喷口基座
+    fillRect(world, vx - 2, H - 16, vx + 2, H - 13, 11); // 熔岩核心
+    world.setTemp(vx, H - 15, 800);
+    // 蒸汽羽流向上延伸
+    for (let vy = H - 17; vy >= Math.floor(H * 0.45); vy -= 3) {
+      const sp = Math.floor((H - 17 - vy) * 0.08);
+      scatter(world, vx - sp - 1, vy, vx + sp + 1, vy + 2, 8, 0.35);
+    }
+    // 热液区域温度
+    for (let dy = -3; dy <= 3; dy++) {
+      for (let dx = -3; dx <= 3; dx++) {
+        const ty = H - 12 + dy, tx = vx + dx;
+        if (world.inBounds(tx, ty)) world.setTemp(tx, ty, 400 - Math.abs(dx) * 50 - Math.abs(dy) * 50);
+      }
+    }
+  }
+
+  // 发光生物散布（荧光藻+水母+发光苔藓）
+  scatter(world, waterLeft, Math.floor(H * 0.2), waterRight, Math.floor(H * 0.6), 140, 0.012); // 荧光藻
+  scatter(world, waterLeft, Math.floor(H * 0.1), waterRight, Math.floor(H * 0.5), 205, 0.008); // 荧光水母
+  scatter(world, 18, Math.floor(H * 0.15), 28, H - 15, 225, 0.06);      // 左壁发光苔藓
+  scatter(world, W - 29, Math.floor(H * 0.15), W - 19, H - 15, 225, 0.06); // 右壁发光苔藓
+
+  // 中层礁石（黑暗岩礁+水晶点缀）
+  const reefs = [
+    { x: Math.floor(W * 0.32), y: Math.floor(H * 0.55) },
+    { x: Math.floor(W * 0.65), y: Math.floor(H * 0.62) },
+    { x: Math.floor(W * 0.45), y: Math.floor(H * 0.72) },
+  ];
+  for (const reef of reefs) {
+    fillRect(world, reef.x - 5, reef.y, reef.x + 5, reef.y + 6, 3);
+    fillRect(world, reef.x - 3, reef.y - 2, reef.x + 3, reef.y, 60);
+    scatter(world, reef.x - 5, reef.y, reef.x + 5, reef.y + 6, 53, 0.1);
   }
 }

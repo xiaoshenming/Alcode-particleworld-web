@@ -31,6 +31,12 @@ export const Water: MaterialDef = {
       return;
     }
 
+    // 接触等离子体(55)：直接蒸发为蒸汽（剧烈高温接触反应，双向链补全）
+    if (world.inBounds(x, y - 1) && world.get(x, y - 1) === 55) { world.set(x, y, 8); world.wakeArea(x, y); return; }
+    if (world.inBounds(x, y + 1) && world.get(x, y + 1) === 55) { world.set(x, y, 8); world.wakeArea(x, y); return; }
+    if (world.inBounds(x - 1, y) && world.get(x - 1, y) === 55) { world.set(x, y, 8); world.wakeArea(x, y); return; }
+    if (world.inBounds(x + 1, y) && world.get(x + 1, y) === 55) { world.set(x, y, 8); world.wakeArea(x, y); return; }
+
     // 接触熔岩：水被蒸发，熔岩急冷变黑曜石（水端的互动，与 Lava.ts 的双向反应）
     // 检查四邻方向，若有熔岩则以小概率触发
     if (Math.random() < 0.15) {
