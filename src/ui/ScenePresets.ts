@@ -1040,6 +1040,7 @@ export const SCENE_PRESETS: ScenePreset[] = [
   { name: '末日火山', icon: '🌋', description: '末日熔岩雨与火山喷发', category: '极端', generate: generateApocalypse },
   { name: '深海黑暗区', icon: '🦑', description: '深渊高压+发光生物+热液喷口+黑暗矿脉+超冷水', category: '极端', generate: generateDeepAbyss },
   { name: '极端酸雨', icon: '☠️', description: '酸液从天而降+腐蚀地表+中和水池+防护材料', category: '极端', generate: generateAcidRain },
+  { name: '冰河时代', icon: '🏔️', description: '千米冰盖+冰川流动+冻土层+猛犸象脚印+极光', category: '极端', generate: generateIceAge },
 ];
 
 /**
@@ -1559,6 +1560,124 @@ function generateIndustrialFurnace(world: World): void {
       else if (id === 169) world.setTemp(x, y, 600); // 液态铁高热
       else if (id === 83) world.setTemp(x, y, 400); // 熔盐热
       else if (id === 113) world.setTemp(x, y, 500); // 液态金属热
+    }
+  }
+}
+
+/** 冰河时代场景 —— 极端分类第4个
+ * 设计：
+ * - 全局极寒温度(-80°)
+ * - 多层冰盖：顶部极厚冰川层（冰+永冻土+雪）
+ * - 冰川流：正弦噪声塑造不规则冰川前缘
+ * - 冻土层：永冻土(190)底基+岩石
+ * - 极地湖泊：冰封湖（冰层下液氮/冰水）
+ * - 极光带：等离子体(55)极光模拟（稀疏，高空）
+ * - 雪暴：雪粒散布（上层）
+ */
+function generateIceAge(world: World): void {
+  const W = world.width, H = world.height;
+  world.clear();
+
+  // 全局极寒初始化
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      world.setTemp(x, y, -80);
+    }
+  }
+
+  // 永冻土基底（最底部3层）
+  fillRect(world, 0, H - 3, W - 1, H - 1, 190);
+  // 岩石层（冻土上方）
+  fillRect(world, 0, H - 7, W - 1, H - 4, 3);
+
+  // 冰川主体：不规则厚冰盖（上半部）
+  // 用正弦函数+随机偏移塑造冰川前缘
+  for (let x = 0; x < W; x++) {
+    // 冰川底部高度：正弦波形塑造不规则前缘
+    const iceBase = Math.floor(H * 0.45
+      + Math.sin(x * 0.08) * H * 0.07
+      + Math.sin(x * 0.03 + 1.5) * H * 0.05
+      + Math.cos(x * 0.05 + 0.8) * H * 0.03);
+
+    // 从顶部向下填充冰层
+    for (let y = 0; y < iceBase; y++) {
+      if (y < Math.floor(H * 0.1)) {
+        // 最顶层：雪（蓬松）
+        if (Math.random() < 0.85) world.set(x, y, 15);
+      } else if (y < Math.floor(H * 0.18)) {
+        // 上层：雪+霜
+        const r = Math.random();
+        if (r < 0.6) world.set(x, y, 15);
+        else if (r < 0.85) world.set(x, y, 75); // 霜
+        else world.set(x, y, 14); // 冰
+      } else {
+        // 主冰川体：致密冰
+        world.set(x, y, 14);
+      }
+    }
+  }
+
+  // 冰川裂缝：垂直裂隙（少量）
+  for (let crack = 0; crack < 4; crack++) {
+    const cx = Math.floor(W * 0.15 + Math.random() * W * 0.7);
+    const crackDepth = Math.floor(H * 0.05 + Math.random() * H * 0.1);
+    for (let y = Math.floor(H * 0.1); y < Math.floor(H * 0.1) + crackDepth; y++) {
+      if (world.get(cx, y) === 14) {
+        world.set(cx, y, 0); // 裂缝（空气）
+        if (Math.random() < 0.3 && world.inBounds(cx - 1, y)) world.set(cx - 1, y, 0);
+      }
+    }
+  }
+
+  // 冰封湖泊（冰川底部几个积水洼）
+  for (let lake = 0; lake < 2; lake++) {
+    const lakeX = Math.floor(W * 0.2 + lake * W * 0.45);
+    const lakeW = Math.floor(W * 0.1 + Math.random() * W * 0.08);
+    // 底部液氮湖（超冷液体）
+    const lakeTop = H - 9;
+    fillRect(world, lakeX, lakeTop, lakeX + lakeW, H - 8, 68); // 液氮
+    // 湖面结冰
+    fillRect(world, lakeX - 1, lakeTop - 2, lakeX + lakeW + 1, lakeTop - 1, 14);
+  }
+
+  // 极地山丘（冰覆盖的岩石山）
+  for (let hill = 0; hill < 3; hill++) {
+    const hx = Math.floor(W * 0.15 + hill * W * 0.3);
+    const hh = Math.floor(H * 0.08 + Math.random() * H * 0.06); // 山高
+    const hw = Math.floor(W * 0.06 + Math.random() * W * 0.04); // 山宽
+    const hBase = H - 7; // 山底
+    for (let dy = 0; dy < hh; dy++) {
+      const width = Math.floor(hw * (1 - dy / hh));
+      for (let dx = -width; dx <= width; dx++) {
+        const px = hx + dx, py = hBase - dy;
+        if (world.inBounds(px, py)) {
+          if (dy < 2) world.set(px, py, 3); // 底部岩石
+          else world.set(px, py, 14); // 冰覆盖
+        }
+      }
+    }
+    // 山顶积雪
+    for (let dx = -1; dx <= 1; dx++) {
+      const px = hx + dx, py = hBase - hh;
+      if (world.inBounds(px, py)) world.set(px, py, 15);
+    }
+  }
+
+  // 极光带：等离子体(55)高空稀疏散布（模拟极光）
+  // 两条极光带，水平分布
+  scatter(world, 0, 2, W - 1, 6, 55, 0.025);
+  scatter(world, Math.floor(W * 0.2), 8, Math.floor(W * 0.8), 12, 55, 0.015);
+
+  // 上层雪暴（飘落雪粒）
+  scatter(world, 0, 0, W - 1, 20, 15, 0.04);
+  scatter(world, 0, 20, W - 1, 35, 15, 0.02);
+
+  // 设置所有粒子为极寒（确保物理反应正确触发）
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      if (world.get(x, y) !== 0) {
+        world.setTemp(x, y, -80);
+      }
     }
   }
 }

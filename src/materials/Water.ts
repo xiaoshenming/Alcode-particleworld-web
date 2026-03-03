@@ -6,6 +6,7 @@ import { registerMaterial } from './registry';
  * - 接触熔岩 → 蒸汽+黑曜石（与 Lava.ts 互补的双向反应）
  * - 接触盐   → 溶解为盐水（与 Salt.ts 互补，水端处理）
  * - 接触酸液 → 酸被稀释（以小概率将酸液变为普通水，模拟稀释）
+ * - 接触金属 → 极低概率使金属生锈(72)（长期浸泡腐蚀：Fe + H₂O + O₂ → Fe₂O₃）
  */
 export const Water: MaterialDef = {
   id: 2,
@@ -93,6 +94,15 @@ export const Water: MaterialDef = {
       if (world.inBounds(x + 1, y) && world.get(x + 1, y) === 9) {
         world.set(x + 1, y, 2); return;
       }
+    }
+
+    // 接触金属：长期浸泡腐蚀（极低概率，模拟 Fe + H₂O + O₂ → Fe₂O₃/铁锈）
+    // 概率0.0008/帧，约1250帧后一定生锈（~20秒），符合现实中水中铁生锈需要时间的物理
+    if (Math.random() < 0.0008) {
+      if (world.inBounds(x, y - 1) && world.get(x, y - 1) === 10) { world.set(x, y - 1, 72); world.markUpdated(x, y - 1); world.wakeArea(x, y - 1); return; }
+      if (world.inBounds(x, y + 1) && world.get(x, y + 1) === 10) { world.set(x, y + 1, 72); world.markUpdated(x, y + 1); world.wakeArea(x, y + 1); return; }
+      if (world.inBounds(x - 1, y) && world.get(x - 1, y) === 10) { world.set(x - 1, y, 72); world.markUpdated(x - 1, y); world.wakeArea(x - 1, y); return; }
+      if (world.inBounds(x + 1, y) && world.get(x + 1, y) === 10) { world.set(x + 1, y, 72); world.markUpdated(x + 1, y); world.wakeArea(x + 1, y); return; }
     }
 
     if (y >= world.height - 1) return;
