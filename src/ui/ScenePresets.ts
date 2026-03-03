@@ -1033,6 +1033,7 @@ export const SCENE_PRESETS: ScenePreset[] = [
   { name: '战场', icon: '💥', description: '弹坑+火焰+金属碎片+毒气烟雾', category: '战场/科幻', generate: generateBattlefield },
   { name: '极光温泉', icon: '🌌', description: '极地温泉+冰山+极光粒子带+飘雪', category: '战场/科幻', generate: generateAuroraSpring },
   { name: '太空陨石坑', icon: '☄️', description: '撞击坑+矿石水晶层+陨石残留+液氮极寒', category: '战场/科幻', generate: generateCrater },
+  { name: '工业熔炉', icon: '🏭', description: '高炉冶炼+液态金属+铸造台+熔盐+工业烟尘', category: '战场/科幻', generate: generateIndustrialFurnace },
   { name: '地下洞穴', icon: '🦇', description: '水晶+地下湖+钟乳石+熔岩池', category: '地下/水下', generate: generateCave },
   { name: '深海热泉', icon: '🌊', description: '海底热泉喷口+矿物结晶+发光深海生物', category: '地下/水下', generate: generateHydrothermal },
   { name: '地下熔岩管', icon: '🔥', description: '蜿蜒熔岩管道+洞穴空腔+蒸汽喷口+矿脉', category: '地下/水下', generate: generateLavaTube },
@@ -1490,6 +1491,74 @@ function generateAcidRain(world: World): void {
     for (let x = 0; x < W; x++) {
       const id = world.get(x, y);
       if (id === 9) world.setTemp(x, y, 35); // 酸液微热
+    }
+  }
+}
+
+function generateIndustrialFurnace(world: World): void {
+  const W = world.width, H = world.height;
+  world.clear();
+
+  // 工厂地基：混凝土厚底板
+  fillRect(world, 0, H - 4, W - 1, H - 1, 36);
+  // 耐火砖侧壁（用陶瓷模拟）
+  fillRect(world, 0, Math.floor(H * 0.1), 6, H - 5, 90);
+  fillRect(world, W - 7, Math.floor(H * 0.1), W - 1, H - 5, 90);
+
+  // 中央高炉炉膛：左1/3
+  const furnaceLeft = 10;
+  const furnaceRight = Math.floor(W * 0.38);
+  const furnaceTop = Math.floor(H * 0.25);
+  const furnaceBot = H - 5;
+  // 炉壁（石头+陶瓷）
+  fillRect(world, furnaceLeft, furnaceTop, furnaceLeft + 4, furnaceBot, 3);
+  fillRect(world, furnaceRight - 4, furnaceTop, furnaceRight, furnaceBot, 3);
+  fillRect(world, furnaceLeft, furnaceTop, furnaceRight, furnaceTop + 3, 90);
+  // 炉膛内部：底层熔岩（热源）
+  fillRect(world, furnaceLeft + 5, furnaceBot - 8, furnaceRight - 5, furnaceBot - 1, 11);
+  // 熔岩上方液态铁（高温冶炼产物）
+  fillRect(world, furnaceLeft + 5, Math.floor(H * 0.55), furnaceRight - 5, furnaceBot - 9, 169);
+  // 炉顶烟雾出口
+  scatter(world, furnaceLeft + 5, furnaceTop + 3, furnaceRight - 5, furnaceTop + 12, 7, 0.3);
+  scatter(world, furnaceLeft + 5, furnaceTop + 3, furnaceRight - 5, furnaceTop + 8, 84, 0.05); // 沙尘暴模拟工业烟尘
+
+  // 铸造区域：中央
+  const castLeft = Math.floor(W * 0.42);
+  const castRight = Math.floor(W * 0.58);
+  // 铸造台（金属支架）
+  fillRect(world, castLeft, H - 12, castRight, H - 5, 10);
+  // 铸造台上的液态金属
+  fillRect(world, castLeft + 3, H - 18, castRight - 3, H - 13, 113);
+  // 铸造台旁的铁锈氧化区
+  scatter(world, castLeft, H - 12, castRight, H - 5, 72, 0.08);
+
+  // 熔盐储罐：右侧
+  const tankLeft = Math.floor(W * 0.65);
+  const tankRight = Math.floor(W * 0.85);
+  const tankTop = Math.floor(H * 0.45);
+  // 储罐壁（金属）
+  fillRect(world, tankLeft, tankTop, tankLeft + 3, H - 5, 10);
+  fillRect(world, tankRight - 3, tankTop, tankRight, H - 5, 10);
+  fillRect(world, tankLeft, tankTop, tankRight, tankTop + 3, 10);
+  // 储罐内熔盐（高温工业液体）
+  fillRect(world, tankLeft + 4, tankTop + 4, tankRight - 4, H - 6, 83);
+
+  // 工业管道（连接炉膛与储罐）
+  fillRect(world, furnaceRight, Math.floor(H * 0.6), tankLeft, Math.floor(H * 0.6) + 3, 10);
+  fillRect(world, furnaceRight, Math.floor(H * 0.6) + 4, tankLeft, Math.floor(H * 0.6) + 6, 169); // 管道内液态铁
+
+  // 顶部烟雾排放（工业烟囱效果）
+  scatter(world, 0, 0, W - 1, 8, 7, 0.08);
+  scatter(world, 0, 0, W - 1, 5, 84, 0.03);
+
+  // 设置初始高温（高炉区域极热，铸造区热）
+  for (let y = Math.floor(H * 0.2); y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      const id = world.get(x, y);
+      if (id === 11) world.setTemp(x, y, 800); // 熔岩极热
+      else if (id === 169) world.setTemp(x, y, 600); // 液态铁高热
+      else if (id === 83) world.setTemp(x, y, 400); // 熔盐热
+      else if (id === 113) world.setTemp(x, y, 500); // 液态金属热
     }
   }
 }
