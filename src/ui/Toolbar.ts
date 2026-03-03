@@ -1733,7 +1733,7 @@ export class Toolbar {
       ['基础操作', 'Space 暂停/继续 · . 单步执行(暂停时) · -/= 速度(0.25x~4x) · [] 笔刷大小'],
       ['绘制模式', 'B 笔刷形状 · F 填充 · X 替换 · R 随机 · M 镜像 · G 渐变 · N 混合 · I 选区'],
       ['视图叠加', 'T 温度 · D 密度热力图 · A 年龄 · V 反重力 · W 天气 · H 百科'],
-      ['快捷选材', '1~0 选材质 · Q 轮盘菜单 · K 场景预设 · S 统计面板'],
+      ['快捷选材', '1~0 选材质 · Q 轮盘菜单 · K 场景预设 · Alt+1~9 快速加载场景 · S 统计面板'],
     ];
     for (const [title, keys] of keyGroups) {
       const titleEl = document.createElement('b');

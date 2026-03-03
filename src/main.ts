@@ -1421,7 +1421,7 @@ import { History } from './core/History';
 import { FpsGraph } from './ui/FpsGraph';
 import { StatsPanel } from './ui/StatsPanel';
 import { Encyclopedia } from './ui/Encyclopedia';
-import { ScenePanel } from './ui/ScenePresets';
+import { ScenePanel, SCENE_PRESETS } from './ui/ScenePresets';
 import { SelectionTool } from './ui/SelectionTool';
 import { RadialMenu } from './ui/RadialMenu';
 
@@ -2149,6 +2149,21 @@ document.addEventListener('keydown', (e) => {
   if (e.code === 'KeyK') {
     scenePanel.toggle();
     return;
+  }
+
+  // Alt+数字键 快速加载场景（1-9对应前9个场景）
+  if (e.altKey && !e.ctrlKey && !e.shiftKey && !e.metaKey) {
+    const digitMatch = e.code.match(/^Digit([1-9])$/);
+    if (digitMatch) {
+      e.preventDefault();
+      const sceneIndex = parseInt(digitMatch[1]) - 1;
+      const preset = SCENE_PRESETS[sceneIndex];
+      if (preset) {
+        preset.generate(world);
+        toolbar.showToast?.(`已加载场景: ${preset.name}`);
+      }
+      return;
+    }
   }
 
   // M 键切换镜像绘制模式
