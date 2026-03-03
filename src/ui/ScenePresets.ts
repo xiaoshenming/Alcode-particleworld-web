@@ -1016,6 +1016,186 @@ function generateCrater(world: World): void {
   scatter(world, Math.floor(W * 0.75), Math.floor(H * 0.65), W - 1, H - 5, 10, 0.04);
 }
 
+/** 场景：核反应堆 */
+function generateNuclearReactor(world: World): void {
+  const W = world.width, H = world.height;
+  world.clear();
+
+  // 混凝土防护层底座
+  fillRect(world, 0, H - 20, W - 1, H - 1, 36);
+  
+  // 反应堆核心（中央）
+  const coreX = Math.floor(W / 2), coreY = H - 50;
+  fillCircle(world, coreX, coreY, 8, 11); // 熔岩核心
+  fillCircle(world, coreX, coreY, 12, 55); // 等离子体外层
+  
+  // 冷却水池（两侧）
+  fillRect(world, 20, H - 45, 60, H - 21, 2); // 左侧水池
+  fillRect(world, W - 60, H - 45, W - 20, H - 21, 2); // 右侧水池
+  
+  // 蒸汽管道
+  for (let x = 30; x < 50; x += 3) {
+    fillRect(world, x, H - 60, x + 1, H - 46, 10); // 金属管
+  }
+  for (let x = W - 50; x < W - 30; x += 3) {
+    fillRect(world, x, H - 60, x + 1, H - 46, 10);
+  }
+  
+  // 控制棒（铅）
+  fillRect(world, coreX - 15, H - 70, coreX - 13, coreY - 13, 226);
+  fillRect(world, coreX + 13, H - 70, coreX + 15, coreY - 13, 226);
+  
+  // 辐射警告区（毒气）
+  scatter(world, coreX - 25, coreY - 20, coreX + 25, coreY + 20, 18, 0.05);
+  
+  // 混凝土防护墙
+  fillRect(world, coreX - 30, H - 70, coreX - 28, H - 21, 36);
+  fillRect(world, coreX + 28, H - 70, coreX + 30, H - 21, 36);
+  
+  // 电线网络
+  for (let y = H - 65; y < H - 25; y += 8) {
+    fillRect(world, 10, y, 15, y, 44);
+    fillRect(world, W - 15, y, W - 10, y, 44);
+  }
+  
+  // 高温预设
+  for (let dy = -12; dy <= 12; dy++) {
+    for (let dx = -12; dx <= 12; dx++) {
+      if (dx * dx + dy * dy <= 144) {
+        world.setTemp(coreX + dx, coreY + dy, 800);
+      }
+    }
+  }
+}
+
+/** 场景：蚁穴生态 */
+function generateAntNest(world: World): void {
+  const W = world.width, H = world.height;
+  world.clear();
+
+  // 地表土壤层
+  fillRect(world, 0, H - 80, W - 1, H - 1, 20);
+  
+  // 蚁穴入口（中央）
+  const entranceX = Math.floor(W / 2);
+  fillCircle(world, entranceX, H - 78, 4, 0);
+  
+  // 主通道（垂直）
+  fillRect(world, entranceX - 2, H - 75, entranceX + 2, H - 30, 0);
+  
+  // 分支洞室（左侧3个）
+  fillCircle(world, entranceX - 25, H - 65, 8, 0); // 育儿室
+  fillRect(world, entranceX - 17, H - 65, entranceX - 3, H - 63, 0); // 连接通道
+  fillCircle(world, entranceX - 30, H - 50, 6, 0); // 食物储藏室
+  fillRect(world, entranceX - 24, H - 50, entranceX - 3, H - 48, 0);
+  fillCircle(world, entranceX - 20, H - 35, 7, 0); // 蚁后室
+  fillRect(world, entranceX - 13, H - 35, entranceX - 3, H - 33, 0);
+  
+  // 分支洞室（右侧3个）
+  fillCircle(world, entranceX + 25, H - 65, 8, 0);
+  fillRect(world, entranceX + 3, H - 65, entranceX + 17, H - 63, 0);
+  fillCircle(world, entranceX + 30, H - 50, 6, 0);
+  fillRect(world, entranceX + 3, H - 50, entranceX + 24, H - 48, 0);
+  fillCircle(world, entranceX + 20, H - 35, 7, 0);
+  fillRect(world, entranceX + 3, H - 35, entranceX + 13, H - 33, 0);
+  
+  // 蚂蚁（40只）
+  for (let i = 0; i < 40; i++) {
+    const x = entranceX - 35 + Math.floor(Math.random() * 70);
+    const y = H - 70 + Math.floor(Math.random() * 40);
+    if (world.get(x, y) === 0) world.set(x, y, 40);
+  }
+  
+  // 食物储备（种子+蜂蜜）
+  scatter(world, entranceX - 35, H - 55, entranceX - 25, H - 45, 12, 0.4);
+  scatter(world, entranceX - 35, H - 55, entranceX - 25, H - 45, 45, 0.3);
+  
+  // 地下水脉
+  fillRect(world, 0, H - 15, W - 1, H - 10, 2);
+  
+  // 根系（植物根）
+  for (let i = 0; i < 8; i++) {
+    const rootX = 10 + i * 20;
+    let rootY = H - 80;
+    for (let j = 0; j < 15; j++) {
+      world.set(rootX + Math.floor(Math.random() * 3) - 1, rootY, 13);
+      rootY--;
+      if (Math.random() < 0.3) break;
+    }
+  }
+  
+  // 地表植被
+  scatter(world, 0, H - 85, W - 1, H - 81, 13, 0.15);
+}
+
+/** 场景：龙卷风灾害 */
+function generateTornadoDisaster(world: World): void {
+  const W = world.width, H = world.height;
+  world.clear();
+
+  // 地面（泥土+碎石）
+  fillRect(world, 0, H - 12, W - 1, H - 1, 20);
+  scatter(world, 0, H - 12, W - 1, H - 1, 3, 0.2);
+  
+  // 被摧毁的建筑残骸（左侧）
+  fillRect(world, 15, H - 25, 35, H - 13, 36); // 混凝土墙
+  fillRect(world, 20, H - 30, 30, H - 26, 4); // 木梁
+  scatter(world, 15, H - 30, 35, H - 13, 10, 0.15); // 金属碎片
+  
+  // 倾斜的电线杆
+  for (let i = 0; i < 3; i++) {
+    const poleX = 50 + i * 30;
+    for (let dy = 0; dy < 20; dy++) {
+      world.set(poleX + Math.floor(dy * 0.3), H - 13 - dy, 4);
+    }
+    fillRect(world, poleX - 5, H - 33, poleX + 5, H - 32, 44); // 电线
+  }
+  
+  // 龙卷风（3个，从左到右）
+  for (let i = 0; i < 3; i++) {
+    const tornadoX = 40 + i * 50;
+    const tornadoY = H - 60;
+    for (let r = 0; r < 8; r++) {
+      const radius = 3 + r * 2;
+      for (let angle = 0; angle < 360; angle += 30) {
+        const rad = angle * Math.PI / 180;
+        const x = tornadoX + Math.floor(Math.cos(rad) * radius);
+        const y = tornadoY + r * 5;
+        if (world.inBounds(x, y)) world.set(x, y, 50);
+      }
+    }
+  }
+  
+  // 飞扬的碎片（沙尘+木头+金属）
+  scatter(world, 0, H - 80, W - 1, H - 40, 1, 0.08); // 沙子
+  scatter(world, 0, H - 80, W - 1, H - 40, 4, 0.03); // 木头
+  scatter(world, 0, H - 80, W - 1, H - 40, 10, 0.02); // 金属
+  
+  // 暴雨云层
+  fillRect(world, 0, 0, W - 1, 25, 76); // 云
+  scatter(world, 0, 0, W - 1, 25, 7, 0.15); // 烟雾
+  
+  // 暴雨（水滴从云层落下）
+  for (let i = 0; i < 30; i++) {
+    const x = Math.floor(Math.random() * W);
+    const y = 20 + Math.floor(Math.random() * 15);
+    world.set(x, y, 2);
+  }
+  
+  // 闪电（2道）
+  const lightning1X = 60;
+  for (let y = 5; y < 40; y++) {
+    world.set(lightning1X + Math.floor(Math.random() * 3) - 1, y, 16);
+  }
+  const lightning2X = 140;
+  for (let y = 8; y < 45; y++) {
+    world.set(lightning2X + Math.floor(Math.random() * 3) - 1, y, 16);
+  }
+  
+  // 被连根拔起的树（右侧）
+  fillRect(world, W - 40, H - 20, W - 35, H - 13, 4); // 树干横倒
+  scatter(world, W - 45, H - 22, W - 30, H - 19, 13, 0.4); // 树叶散落
+}
 /** 所有预设场景 */
 export const SCENE_PRESETS: ScenePreset[] = [
   { name: '火山', icon: '🌋', description: '熔岩喷发的火山场景', category: '自然', generate: generateVolcano },
@@ -1034,14 +1214,17 @@ export const SCENE_PRESETS: ScenePreset[] = [
   { name: '极光温泉', icon: '🌌', description: '极地温泉+冰山+极光粒子带+飘雪', category: '战场/科幻', generate: generateAuroraSpring },
   { name: '太空陨石坑', icon: '☄️', description: '撞击坑+矿石水晶层+陨石残留+液氮极寒', category: '战场/科幻', generate: generateCrater },
   { name: '工业熔炉', icon: '🏭', description: '高炉冶炼+液态金属+铸造台+熔盐+工业烟尘', category: '战场/科幻', generate: generateIndustrialFurnace },
+  { name: '核反应堆', icon: '⚛️', description: '反应堆核心+冷却水池+控制棒+辐射区+电力系统', category: '战场/科幻', generate: generateNuclearReactor },
   { name: '地下洞穴', icon: '🦇', description: '水晶+地下湖+钟乳石+熔岩池', category: '地下/水下', generate: generateCave },
   { name: '深海热泉', icon: '🌊', description: '海底热泉喷口+矿物结晶+发光深海生物', category: '地下/水下', generate: generateHydrothermal },
   { name: '地下熔岩管', icon: '🔥', description: '蜿蜒熔岩管道+洞穴空腔+蒸汽喷口+矿脉', category: '地下/水下', generate: generateLavaTube },
   { name: '沉船残骸', icon: '⚓', description: '铁锈覆盖的沉船+珊瑚礁+热带鱼+海底宝藏', category: '地下/水下', generate: generateShipwreck },
+  { name: '蚁穴生态', icon: '🐜', description: '地下蚁穴+洞室网络+蚂蚁群落+食物储备+根系', category: '地下/水下', generate: generateAntNest },
   { name: '末日火山', icon: '🌋', description: '末日熔岩雨与火山喷发', category: '极端', generate: generateApocalypse },
   { name: '深海黑暗区', icon: '🦑', description: '深渊高压+发光生物+热液喷口+黑暗矿脉+超冷水', category: '极端', generate: generateDeepAbyss },
   { name: '极端酸雨', icon: '☠️', description: '酸液从天而降+腐蚀地表+中和水池+防护材料', category: '极端', generate: generateAcidRain },
   { name: '冰河时代', icon: '🏔️', description: '千米冰盖+冰川流动+冻土层+猛犸象脚印+极光', category: '极端', generate: generateIceAge },
+  { name: '龙卷风灾害', icon: '🌪️', description: '多重龙卷风+建筑残骸+暴雨闪电+飞扬碎片', category: '极端', generate: generateTornadoDisaster },
 ];
 
 /**
